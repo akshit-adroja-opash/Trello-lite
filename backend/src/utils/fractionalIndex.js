@@ -1,39 +1,43 @@
-/**
- * Simple fractional indexing implementation for ordering items.
- * This allows inserting items between two existing items without re-ordering everyone.
- */
+const MIN_CHAR = 33;   // '!'
+const MAX_CHAR = 126;  // '~'
+const MID_CHAR = Math.floor((MIN_CHAR + MAX_CHAR) / 2); // 79 = 'O'
 
-export const generateInitialIndex = () => {
-    return 'h'; // Middle of 'a' to 'z'
-};
+const isEmpty = (v) => v === null || v === undefined || v === '';
 
 export const generateIndexBetween = (prev, next) => {
-    if (!prev && !next) return generateInitialIndex();
-    if (!prev) {
-        // Before the first item
-        const firstChar = next.charCodeAt(0);
-        return String.fromCharCode(Math.floor(firstChar / 2));
+    const p = isEmpty(prev) ? null : prev;
+    const n = isEmpty(next) ? null : next;
+
+    if (!p && !n) return String.fromCharCode(MID_CHAR);
+
+    if (!p) {
+        const firstCode = n.charCodeAt(0);
+        if (firstCode > MIN_CHAR + 1) {
+            return String.fromCharCode(Math.floor((MIN_CHAR + firstCode) / 2));
+        }
+        return String.fromCharCode(MIN_CHAR) + generateIndexBetween(null, n.length > 1 ? n.slice(1) : null);
     }
-    if (!next) {
-        // After the last item
-        const lastChar = prev.charCodeAt(0);
-        return String.fromCharCode(Math.min(122, lastChar + 10)); // 'z' is 122
+
+    if (!n) {
+        const lastCode = p.charCodeAt(0);
+        if (lastCode < MAX_CHAR - 1) {
+            return String.fromCharCode(Math.floor((lastCode + MAX_CHAR) / 2));
+        }
+        return String.fromCharCode(MAX_CHAR) + generateIndexBetween(p.length > 1 ? p.slice(1) : null, null);
     }
 
     // Between two items
     let result = '';
     let i = 0;
-    while (true) {
-        const p = prev.charCodeAt(i) || 32; // space is 32
-        const n = next.charCodeAt(i) || 126; // ~ is 126
-
-        if (n - p > 1) {
-            result += String.fromCharCode(Math.floor((p + n) / 2));
-            break;
-        } else {
-            result += String.fromCharCode(p);
-            i++;
+    while (i <= 20) {
+        const pc = i < p.length ? p.charCodeAt(i) : MIN_CHAR;
+        const nc = i < n.length ? n.charCodeAt(i) : MAX_CHAR;
+        if (nc - pc > 1) {
+            result += String.fromCharCode(Math.floor((pc + nc) / 2));
+            return result;
         }
+        result += String.fromCharCode(pc);
+        i++;
     }
-    return result;
+    return result + String.fromCharCode(MID_CHAR);
 };

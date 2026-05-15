@@ -1,0 +1,270 @@
+/* ─── Design Tokens ─────────────────────────────────────────────────────── */
+:root {
+  /* Brand */
+  --primary:          #4F46E5;
+  --primary-dark:     #3730A3;
+  --primary-light:    #818CF8;
+  --primary-bg:       #EEF2FF;
+
+  /* Neutrals */
+  --bg:               #F8FAFC;
+  --surface:          #FFFFFF;
+  --surface-raised:   #F1F5F9;
+  --surface-overlay:  #E2E8F0;
+  --border:           #E2E8F0;
+  --border-focus:     #4F46E5;
+
+  /* Text */
+  --text-primary:     #0F172A;
+  --text-secondary:   #475569;
+  --text-muted:       #94A3B8;
+  --text-on-primary:  #FFFFFF;
+
+  /* Semantic */
+  --success:          #10B981;
+  --warning:          #F59E0B;
+  --error:            #EF4444;
+  --error-bg:         #FEF2F2;
+
+  /* Shadows */
+  --shadow-sm:  0 1px 3px rgba(15,23,42,0.08), 0 1px 2px rgba(15,23,42,0.04);
+  --shadow-md:  0 4px 12px rgba(15,23,42,0.10), 0 2px 4px rgba(15,23,42,0.06);
+  --shadow-lg:  0 20px 40px rgba(15,23,42,0.12), 0 8px 16px rgba(15,23,42,0.06);
+
+  /* Typography */
+  --font: 'Inter', system-ui, sans-serif;
+
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Reset ─────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font);
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1, h2, h3, h4, h5, h6 { margin: 0; font-weight: 600; color: var(--text-primary); }
+p { margin: 0; }
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+input, textarea, select, button {
+  font-family: var(--font);
+  font-size: 14px;
+}
+
+/* ─── Auth Pages ─────────────────────────────────────────────────────────── */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  background: linear-gradient(135deg, #EEF2FF 0%, #F8FAFC 50%, #F0FDF4 100%);
+}
+
+.auth-card {
+  width: min(460px, 100%);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: var(--shadow-lg);
+}
+
+.auth-card__header {
+  margin-bottom: 28px;
+}
+
+.auth-card__subtitle {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--primary);
+}
+
+.auth-card__title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--text-primary);
+}
+
+.auth-form {
+  display: grid;
+  gap: 16px;
+}
+
+.auth-label {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.auth-label input {
+  width: 100%;
+  height: 48px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 0 16px;
+  font-size: 15px;
+  color: var(--text-primary);
+  background: var(--surface-raised);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  display: block;
+  margin: 0;
+}
+
+.auth-label input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.12);
+}
+
+.auth-label input::placeholder { color: var(--text-muted); }
+
+.auth-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.auth-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.auth-checkbox input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary);
+  margin: 0;
+  display: inline;
+}
+
+.auth-link {
+  font-size: 13px;
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.auth-link:hover { text-decoration: underline; }
+
+.auth-button {
+  width: 100%;
+  height: 48px;
+  border: none;
+  border-radius: 12px;
+  background: var(--primary);
+  color: var(--text-on-primary);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+  display: block;
+  margin: 4px 0 0;
+}
+
+.auth-button:hover:not(:disabled) {
+  background: var(--primary-dark);
+  box-shadow: 0 8px 24px rgba(79,70,229,0.25);
+  transform: translateY(-1px);
+}
+
+.auth-button:active:not(:disabled) { transform: translateY(0); }
+
+.auth-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  margin: 20px 0 16px;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.auth-socials { display: grid; gap: 10px; margin-bottom: 20px; }
+
+.auth-social {
+  width: 100%;
+  height: 44px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  display: block;
+  margin: 0;
+}
+
+.auth-social:hover { border-color: var(--primary-light); box-shadow: var(--shadow-sm); }
+
+.auth-social--github {
+  background: #0F172A;
+  color: #FFFFFF;
+  border-color: #0F172A;
+}
+
+.auth-social--github:hover { background: #1E293B; border-color: #1E293B; }
+
+.auth-footer {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.auth-footer a { color: var(--primary); font-weight: 500; }
+
+/* ─── Kanban legacy classes (used by old CSS selectors) ─────────────────── */
+.column-list  { display: flex; gap: 16px; overflow-x: auto; padding: 16px; }
+.column-item  { min-width: 272px; background: var(--surface-raised); padding: 12px; border-radius: 12px; }
+.card-item    { background: var(--surface); padding: 12px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; box-shadow: var(--shadow-sm); }
+.modal-overlay{ position: fixed; inset: 0; background: rgba(15,23,42,0.5); display: flex; justify-content: center; align-items: center; z-index: 50; }
+.modal-content{ width: min(520px,100%); background: var(--surface); padding: 24px; border-radius: 16px; box-shadow: var(--shadow-lg); }
+.avatar       { width: 36px; height: 36px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; }

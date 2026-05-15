@@ -1,45 +1,21 @@
 import mongoose from 'mongoose';
 
+const checklistItemSchema = new mongoose.Schema({
+    text: { type: String, required: true },
+    done: { type: Boolean, default: false }
+}, { _id: true });
+
 const cardSchema = new mongoose.Schema({
-    title: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    description: {
-        type: String,
-        trim: true
-    },
-    column: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Column',
-        required: true
-    },
-    board: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Board',
-        required: true
-    },
-    order: {
-        type: String, // Fractional index
-        required: true
-    },
-    assignees: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-    }],
-    labels: [{
-        name: String,
-        color: String
-    }],
-    dueDate: {
-        type: Date
-    },
-    attachments: [{
-        name: String,
-        url: String,
-        fileType: String
-    }]
+    title: { type: String, required: true, trim: true },
+    description: { type: String, trim: true },
+    column: { type: mongoose.Schema.Types.ObjectId, ref: 'Column', required: true },
+    board: { type: mongoose.Schema.Types.ObjectId, ref: 'Board', required: true },
+    order: { type: String, required: true },
+    assignees: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    labels: [{ name: String, color: String }],
+    dueDate: { type: Date },
+    checklist: [checklistItemSchema],
+    version: { type: Number, default: 0 }
 }, { timestamps: true });
 
 const Card = mongoose.model('Card', cardSchema);

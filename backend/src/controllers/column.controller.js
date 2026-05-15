@@ -1,17 +1,19 @@
 import Column from '../models/Column.js';
+import { ApiError } from '../utils/apiError.js';
+import { generateIndexBetween } from '../utils/fractionalIndex.js';
 
 export const createColumn = async (req, res, next) => {
     try {
-        const { name, boardId, order } = req.body;
-        const column = await Column.create({
-            name,
-            board: boardId,
-            order
-        });
+        const { name, boardId } = req.body;
+        if (!name || !boardId) return next(new ApiError(400, 'name and boardId are required'));
+        // Find the last column by ascending order, take the last one
+        const columns = await Column.find({ board: boardId }).sort('order');
+        const last = columns[columns.length - 1];
+        const order = generateIndexBetween(last?.order ?? null, null);
+        if (!order) return next(new ApiError(500, 'Failed to generate order'));
+        const column = await Column.create({ name, board: boardId, order });
         res.status(201).json({ status: 'success', data: { column } });
-    } catch (error) {
-        next(error);
-    }
+    } catch (error) { next(error); }
 };
 
 export const getColumns = async (req, res, next) => {
@@ -19,66 +21,38 @@ export const getColumns = async (req, res, next) => {
         const { boardId } = req.params;
         const columns = await Column.find({ board: boardId }).sort('order');
         res.status(200).json({ status: 'success', data: { columns } });
-    } catch (error) {
-        next(error);
-    }
+    } catch (error) { next(error); }
 };
 
 export const updateColumn = async (req, res, next) => {
     try {
         const { columnId } = req.params;
         const { name, order } = req.body;
-
         const column = await Column.findById(columnId);
-        if (!column) {
-            return res.status(404).json({ status: 'fail', message: 'Column not found' });
-        }
-
-        column.name = name || column.name;
-        column.order = order !== undefined ? order : column.order;
-
+        if (!column) return next(new ApiError(404, 'Column not found'));
+        if (name) column.name = name;
+        if (order !== undefined) column.order = order;
         await column.save();
-
         res.status(200).json({ status: 'success', data: { column } });
-    } catch (error) {
-        next(error);
-    }
+    } catch (error) { next(error); }
 };
 
 export const deleteColumn = async (req, res, next) => {
     try {
         const { columnId } = req.params;
-
-        const column = await Column.findById(columnId);
-        if (!column) {
-            return res.status(404).json({ status: 'fail', message: 'Column not found' });
-        }
-
-        await column.remove();
-
-        res.status(204).json({ status: 'success', data: null });
-    } catch (error) {
-        next(error);
-    }
+        const column = await Column.findByIdAndDelete(columnId);
+        if (!column) return next(new ApiError(404, 'Column not found'));
+        res.status(200).json({ status: 'success', message: 'Column deleted' });
+    } catch (error) { next(error); }
 };
 
-export const reorderColumns = async (req, res, next) => {
+// Accepts { columnId, prevOrder, nextOrder } — updates a single column's fractional order
+export const reorderColumn = async (req, res, next) => {
     try {
-        const { boardId } = req.params;
-        const { columnOrder } = req.body; // Array of column IDs in new order
-
-        const columns = await Column.find({ board: boardId });
-        const columnIds = columns.map(c => c._id.toString());
-        if (!columnOrder.every(id => columnIds.includes(id))) {
-            return res.status(400).json({ status: 'fail', message: 'Invalid column IDs' });
-        }
-
-        for (let i = 0; i < columnOrder.length; i++) {
-            await Column.findByIdAndUpdate(columnOrder[i], { order: i });
-        }
-
-        res.status(200).json({ status: 'success', data: null });
-    } catch (error) {
-        next(error);
-    }
-};              
+        const { columnId, prevOrder, nextOrder } = req.body;
+        const newOrder = generateIndexBetween(prevOrder || null, nextOrder || null);
+        const column = await Column.findByIdAndUpdate(columnId, { order: newOrder }, { new: true });
+        if (!column) return next(new ApiError(404, 'Column not found'));
+        res.status(200).json({ status: 'success', data: { column } });
+    } catch (error) { next(error); }
+};

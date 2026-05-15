@@ -3,13 +3,19 @@ import { onConnection } from '../sockets/index.socket.js';
 
 let io;
 
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
 export const initSocket = (server) => {
     io = new Server(server, {
         cors: {
-            origin: process.env.CORS_ORIGIN,
+            origin: allowedOrigins,
             methods: ['GET', 'POST'],
-            credentials: true
-        }
+            credentials: true,
+        },
+        allowEIO3: true,
     });
 
     io.on('connection', (socket) => {

@@ -54,3 +54,17 @@ export const getMe = async (req, res, next) => {
     next(error);
   }
 };
+
+export const logout = async (req, res, next) => {
+  try {
+    // Clear the cookie on the server side
+    res.clearCookie('token');
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Logged out successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+};

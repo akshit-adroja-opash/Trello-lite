@@ -1,186 +1,114 @@
 import Board from '../models/Board.js';
-
+import Workspace from '../models/Workspace.js';
+import { ApiError } from '../utils/apiError.js';
 
 export const createBoard = async (req, res, next) => {
     try {
         const { name, workspaceId, background } = req.body;
 
+        const workspace = await Workspace.findById(workspaceId);
+        if (!workspace) return next(new ApiError(404, 'Workspace not found'));
+        const isMember = workspace.members.some(m => m.user.toString() === req.user._id.toString());
+        if (!isMember) return next(new ApiError(403, 'Not a workspace member'));
+
         const board = await Board.create({
-            name,
-            workspace: workspaceId,
-            owner: req.user._id,
-            background
+            name, workspace: workspaceId, owner: req.user._id, background,
+            members: [{ user: req.user._id, role: 'Owner' }]
         });
-
-        res.status(201).json({
-            status: 'success',
-            data: { board }
-        });
-    } catch (error) {
-        next(error);
-    }
+        res.status(201).json({ status: 'success', data: { board } });
+    } catch (error) { next(error); }
 };
-
 
 export const getBoards = async (req, res, next) => {
     try {
         const { workspaceId } = req.params;
-
-        const boards = await Board.find({
-            workspace: workspaceId
-        });
-
-        res.status(200).json({
-            status: 'success',
-            data: { boards }
-        });
-    } catch (error) {
-        next(error);
-    }
+        const boards = await Board.find({ workspace: workspaceId });
+        res.status(200).json({ status: 'success', data: { boards } });
+    } catch (error) { next(error); }
 };
-
 
 export const getSingleBoard = async (req, res, next) => {
     try {
         const { boardId } = req.params;
-
         const board = await Board.findById(boardId)
-            .populate('workspace')
-            .populate('owner', 'name email');
-
-        if (!board) {
-            return res.status(404).json({
-                status: 'fail',
-                message: 'Board not found'
-            });
-        }
-
-        res.status(200).json({
-            status: 'success',
-            data: { board }
-        });
-    } catch (error) {
-        next(error);
-    }
+            .populate('workspace', 'name')
+            .populate('owner', 'username email avatar')
+            .populate('members.user', 'username email avatar');
+        if (!board) return next(new ApiError(404, 'Board not found'));
+        res.status(200).json({ status: 'success', data: { board } });
+    } catch (error) { next(error); }
 };
 
 export const updateBoard = async (req, res, next) => {
     try {
         const { boardId } = req.params;
         const { name, background } = req.body;
-
         const board = await Board.findById(boardId);
-
-        if (!board) {
-            return res.status(404).json({
-                status: 'fail',
-                message: 'Board not found'
-            });
-        }
-
+        if (!board) return next(new ApiError(404, 'Board not found'));
+        if (board.owner.toString() !== req.user._id.toString())
+            return next(new ApiError(403, 'Only the owner can update this board'));
         if (name) board.name = name;
         if (background) board.background = background;
-
         await board.save();
-
-        res.status(200).json({
-            status: 'success',
-            data: { board }
-        });
-    } catch (error) {
-        next(error);
-    }
+        res.status(200).json({ status: 'success', data: { board } });
+    } catch (error) { next(error); }
 };
-
 
 export const deleteBoard = async (req, res, next) => {
     try {
         const { boardId } = req.params;
-
         const board = await Board.findById(boardId);
-
-        if (!board) {
-            return res.status(404).json({
-                status: 'fail',
-                message: 'Board not found'
-            });
-        }
-
+        if (!board) return next(new ApiError(404, 'Board not found'));
+        if (board.owner.toString() !== req.user._id.toString())
+            return next(new ApiError(403, 'Only the owner can delete this board'));
         await board.deleteOne();
-
-        res.status(200).json({
-            status: 'success',
-            message: 'Board deleted successfully'
-        });
-    } catch (error) {
-        next(error);
-    }
+        res.status(200).json({ status: 'success', message: 'Board deleted' });
+    } catch (error) { next(error); }
 };
-
 
 export const getBoardMembers = async (req, res, next) => {
     try {
         const { boardId } = req.params;
-
-        const board = await Board.findById(boardId)
-            .populate('members.user', 'name email');
-
-        if (!board) {
-            return res.status(404).json({
-                status: 'fail',
-                message: 'Board not found'
-            });
-        }
-
-        res.status(200).json({
-            status: 'success',
-            data: {
-                members: board.members
-            }
-        });
-    } catch (error) {
-        next(error);
-    }
+        const board = await Board.findById(boardId).populate('members.user', 'username email avatar');
+        if (!board) return next(new ApiError(404, 'Board not found'));
+        res.status(200).json({ status: 'success', data: { members: board.members } });
+    } catch (error) { next(error); }
 };
 
+export const addBoardMember = async (req, res, next) => {
+    try {
+        const { boardId } = req.params;
+        const { email, role = 'Editor' } = req.body;
+        const board = await Board.findById(boardId);
+        if (!board) return next(new ApiError(404, 'Board not found'));
+        if (board.owner.toString() !== req.user._id.toString())
+            return next(new ApiError(403, 'Only the owner can add members'));
+
+        const { default: User } = await import('../models/User.js');
+        const invitee = await User.findOne({ email });
+        if (!invitee) return next(new ApiError(404, 'User not found'));
+
+        const already = board.members.some(m => m.user.toString() === invitee._id.toString());
+        if (already) return next(new ApiError(400, 'Already a member'));
+
+        board.members.push({ user: invitee._id, role });
+        await board.save();
+        res.status(200).json({ status: 'success', data: { board } });
+    } catch (error) { next(error); }
+};
 
 export const updateBoardMemberRole = async (req, res, next) => {
     try {
         const { boardId, memberId } = req.params;
         const { role } = req.body;
-
         const board = await Board.findById(boardId);
-
-        if (!board) {
-            return res.status(404).json({
-                status: 'fail',
-                message: 'Board not found'
-            });
-        }
-
-        const member = board.members.find(
-            (m) => m.user.toString() === memberId
-        );
-
-        if (!member) {
-            return res.status(404).json({
-                status: 'fail',
-                message: 'Member not found'
-            });
-        }
-
+        if (!board) return next(new ApiError(404, 'Board not found'));
+        if (board.owner.toString() !== req.user._id.toString())
+            return next(new ApiError(403, 'Only the owner can change roles'));
+        const member = board.members.find(m => m.user.toString() === memberId);
+        if (!member) return next(new ApiError(404, 'Member not found'));
         member.role = role;
-
         await board.save();
-
-        res.status(200).json({
-            status: 'success',
-            message: 'Member role updated successfully',
-            data: {
-                member
-            }
-        });
-    } catch (error) {
-        next(error);
-    }
+        res.status(200).json({ status: 'success', data: { member } });
+    } catch (error) { next(error); }
 };
