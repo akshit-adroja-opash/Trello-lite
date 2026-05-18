@@ -6,16 +6,27 @@ import { createWorkspace, getWorkspaces, inviteMember } from '../api/workspace.a
 import { createBoard, getBoardsByWorkspace } from '../api/board.api';
 import Avatar from '../UI/Avatar';
 
-const BOARD_COLORS = ['#4F46E5','#0EA5E9','#10B981','#F59E0B','#EF4444','#8B5CF6','#EC4899','#14B8A6'];
+const BOARD_COLORS = [
+  'linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)', // Indigo
+  'linear-gradient(135deg, #0EA5E9 0%, #38BDF8 100%)', // Sky Blue
+  'linear-gradient(135deg, #10B981 0%, #34D399 100%)', // Emerald
+  'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)', // Amber
+  'linear-gradient(135deg, #EF4444 0%, #F87171 100%)', // Red
+  'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)', // Violet
+  'linear-gradient(135deg, #EC4899 0%, #F472B6 100%)', // Pink
+  'linear-gradient(135deg, #14B8A6 0%, #2DD4BF 100%)'  // Teal
+];
 
 const Modal = ({ title, onClose, children }) => (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-on-surface/40 px-4" onClick={onClose}>
-    <div className="bg-surface rounded-2xl shadow-lg border border-outline-variant w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
-      <div className="flex items-center justify-between mb-5">
-        <h2 className="font-semibold text-on-surface">{title}</h2>
-        <button onClick={onClose} className="text-on-surface-variant hover:text-on-surface text-lg leading-none">✕</button>
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm px-4 transition-all" onClick={onClose}>
+    <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 w-full max-w-md overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+        <h2 className="text-lg font-bold text-slate-800">{title}</h2>
+        <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 1l12 12M13 1L1 13"/></svg>
+        </button>
       </div>
-      {children}
+      <div className="p-6">{children}</div>
     </div>
   </div>
 );
@@ -67,8 +78,8 @@ const DashboardPage = () => {
       setWorkspaces(p => [ws, ...p]);
       setBoardsByWorkspace(p => ({ ...p, [ws._id]: [] }));
       setWsName(''); setWsDesc(''); setShowCreateWs(false);
-      toast.success('Workspace created');
-    } catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
+      toast.success('Workspace created successfully');
+    } catch (err) { toast.error(err.response?.data?.message || 'Failed to create workspace'); }
   };
 
   const handleCreateBoard = async () => {
@@ -78,8 +89,8 @@ const DashboardPage = () => {
       const board = res.data?.board;
       setBoardsByWorkspace(p => ({ ...p, [showCreateBoard]: [...(p[showCreateBoard] || []), board] }));
       setBoardName(''); setBoardColor(BOARD_COLORS[0]); setShowCreateBoard(null);
-      toast.success('Board created');
-    } catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
+      toast.success('Board created successfully');
+    } catch (err) { toast.error(err.response?.data?.message || 'Failed to create board'); }
   };
 
   const handleInvite = async () => {
@@ -87,170 +98,212 @@ const DashboardPage = () => {
     try {
       await inviteMember(showInvite, { email: inviteEmail.trim() });
       setInviteEmail(''); setShowInvite(null);
-      toast.success('Member invited');
-    } catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
+      toast.success('Invitation sent');
+    } catch (err) { toast.error(err.response?.data?.message || 'Failed to send invite'); }
   };
 
   const handleLogout = async () => { await logout(); navigate('/login'); };
 
   if (loading) return (
-    <div className="flex items-center justify-center h-screen bg-background">
-      <div className="w-10 h-10 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+    <div className="flex items-center justify-center h-screen bg-slate-50">
+      <div className="relative flex items-center justify-center">
+        <div className="w-12 h-12 rounded-full border-4 border-indigo-100 animate-pulse absolute" />
+        <div className="w-12 h-12 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin" />
+      </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* ── Top Nav ── */}
-      <header className="h-14 bg-surface border-b border-outline-variant sticky top-0 z-40 flex items-center justify-between px-6 shadow-sm">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+    <div className="min-h-screen bg-slate-50/50 text-slate-600 antialiased font-sans">
+      {/* ── Top Navigation Bar ── */}
+      <header className="h-16 bg-white border-b border-slate-200/80 sticky top-0 z-40 flex items-center justify-between px-6 sm:px-8 shadow-sm backdrop-blur-md bg-white/90">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-md shadow-indigo-200">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
               <rect x="3" y="3" width="7" height="18" rx="2" fill="white"/>
               <rect x="14" y="3" width="7" height="11" rx="2" fill="white" opacity="0.7"/>
             </svg>
           </div>
-          <span className="font-bold text-on-surface">Trello-lite</span>
+          <span className="font-bold text-slate-900 text-lg tracking-tight">Trello<span className="text-indigo-600 font-medium">lite</span></span>
         </div>
-        <div className="flex items-center gap-3">
-          <Avatar name={user?.username || '?'} size={32} />
-          <span className="text-sm text-on-surface-variant hidden sm:block">{user?.username}</span>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2.5 bg-slate-50 pl-2 pr-3 py-1.5 rounded-full border border-slate-100">
+            <Avatar name={user?.username || '?'} size={28} className="shadow-inner" />
+            <span className="text-sm font-medium text-slate-700 hidden sm:block">{user?.username}</span>
+          </div>
           <button onClick={handleLogout}
-            className="text-sm text-on-surface-variant hover:text-on-surface border border-outline-variant rounded-lg px-3 py-1.5 hover:bg-surface-raised transition">
+            className="text-sm font-medium text-slate-500 hover:text-red-600 bg-white hover:bg-red-50 border border-slate-200 hover:border-red-100 rounded-xl px-4 py-2 transition-all duration-200 shadow-sm">
             Logout
           </button>
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
-        {/* ── Page header ── */}
-        <div className="flex items-center justify-between mb-8">
+      <main className="max-w-6xl mx-auto px-6 sm:px-8 py-10">
+        {/* ── Section Header ── */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10 border-b border-slate-100 pb-6">
           <div>
-            <h1 className="text-2xl font-bold text-on-surface">My Workspaces</h1>
-            <p className="text-sm text-on-surface-variant mt-0.5">Manage your boards and teams</p>
+            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">My Workspaces</h1>
+            <p className="text-slate-500 mt-1">Collaborate, manage workflows, and track pipeline metrics</p>
           </div>
           <button onClick={() => setShowCreateWs(true)}
-            className="bg-primary hover:bg-primary-dark text-on-primary text-sm font-semibold px-4 py-2 rounded-xl transition hover:shadow-lg">
-            + New Workspace
+            className="self-start sm:self-auto bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all duration-200 shadow-sm shadow-indigo-100 hover:shadow-md hover:shadow-indigo-200 hover:-translate-y-0.5 flex items-center gap-2">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+            Create Workspace
           </button>
         </div>
 
+        {/* Empty State Card */}
         {workspaces.length === 0 && (
-          <div className="text-center py-20 bg-surface rounded-2xl border border-outline-variant">
-            <div className="w-14 h-14 rounded-2xl bg-primary-bg flex items-center justify-center mx-auto mb-4">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                <rect x="3" y="3" width="7" height="18" rx="2" fill="#4F46E5"/>
-                <rect x="14" y="3" width="7" height="11" rx="2" fill="#818CF8"/>
+          <div className="text-center py-20 bg-white rounded-2xl border border-slate-150 shadow-sm max-w-xl mx-auto mt-8 p-8">
+            <div className="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center mx-auto mb-5 text-indigo-600 shadow-inner">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="3" width="7" height="18" rx="2" />
+                <rect x="14" y="3" width="7" height="11" rx="2" />
               </svg>
             </div>
-            <p className="font-semibold text-on-surface mb-1">No workspaces yet</p>
-            <p className="text-sm text-on-surface-variant">Create a workspace to get started</p>
+            <h3 className="text-lg font-bold text-slate-800 mb-1">No workspaces found</h3>
+            <p className="text-slate-500 text-sm max-w-xs mx-auto mb-6">Get started by building a fresh workspace hub to separate your operational workflows.</p>
+            <button onClick={() => setShowCreateWs(true)} className="inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition-all shadow-sm">
+              Create your first Workspace
+            </button>
           </div>
         )}
 
+        {/* Workspace Display Blocks */}
         {workspaces.map(ws => (
-          <div key={ws._id} className="mb-10">
-            {/* Workspace header */}
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-primary-bg flex items-center justify-center font-bold text-primary text-sm">
+          <div key={ws._id} className="mb-12 bg-white rounded-2xl border border-slate-200/70 p-6 shadow-sm transition-all hover:shadow-md">
+            {/* Inner Workspace Control Panel Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-150">
+              <div className="flex items-center gap-3.5">
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-50 to-slate-50 border border-indigo-100 flex items-center justify-center font-bold text-indigo-600 text-base shadow-sm">
                   {ws.name.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <h2 className="font-semibold text-on-surface leading-tight">{ws.name}</h2>
-                  <p className="text-xs text-on-surface-variant">{ws.members?.length || 0} members</p>
+                  <h2 className="font-bold text-slate-800 text-lg leading-tight">{ws.name}</h2>
+                  {ws.description && <p className="text-slate-400 text-xs mt-0.5 line-clamp-1">{ws.description}</p>}
+                  <div className="inline-flex items-center gap-1.5 mt-1 text-xs text-slate-400 bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">
+                    <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19.5l-7.5-7.5M19.5 12l-7.5-7.5" /></svg>
+                    <span>{ws.members?.length || 1} members</span>
+                  </div>
                 </div>
               </div>
-              <div className="flex gap-2">
+              <div className="flex items-center gap-2 self-end sm:self-auto">
                 <button onClick={() => setShowInvite(ws._id)}
-                  className="text-xs font-medium border border-outline-variant text-on-surface-variant hover:text-on-surface hover:bg-surface-raised px-3 py-1.5 rounded-lg transition">
-                  Invite
+                  className="text-xs font-semibold border border-slate-200 text-slate-600 hover:text-slate-800 hover:bg-slate-50 px-3.5 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5">
+                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 019 21c-2.307 0-4.484-.633-6.351-1.766z"/></svg>
+                  Invite Members
                 </button>
                 <button onClick={() => setShowCreateBoard(ws._id)}
-                  className="text-xs font-semibold bg-primary hover:bg-primary-dark text-on-primary px-3 py-1.5 rounded-lg transition">
-                  + Board
+                  className="text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1">
+                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                  Add Board
                 </button>
               </div>
             </div>
 
-            {/* Boards grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            {/* Boards Grid Container Layout */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
               {(boardsByWorkspace[ws._id] || []).map(board => (
                 <Link key={board._id} to={`/board/${board._id}`}
-                  className="h-24 rounded-xl flex items-end p-3 shadow-sm hover:shadow transition-all hover:-translate-y-0.5 group"
-                  style={{ background: board.background || '#4F46E5' }}>
-                  <span className="text-white font-semibold text-sm drop-shadow-sm group-hover:underline">{board.name}</span>
+                  className="h-28 rounded-xl flex items-end p-4 relative overflow-hidden shadow-sm hover:shadow-md transition-all hover:-translate-y-1 group"
+                  style={{ background: board.background || 'linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)' }}>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+                  <span className="text-white font-bold text-sm tracking-wide z-10 drop-shadow-sm group-hover:underline decoration-white/60 underline-offset-4">{board.name}</span>
                 </Link>
               ))}
               <button onClick={() => setShowCreateBoard(ws._id)}
-                className="h-24 rounded-xl border-2 border-dashed border-outline-variant flex flex-col items-center justify-center text-on-surface-variant hover:border-primary hover:text-primary hover:bg-primary-bg transition-all gap-1">
-                <span className="text-2xl leading-none">+</span>
-                <span className="text-xs font-medium">New board</span>
+                className="h-28 rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 hover:border-indigo-500 hover:text-indigo-600 hover:bg-indigo-50/30 transition-all duration-200 gap-1.5 group">
+                <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100 group-hover:bg-indigo-50 group-hover:border-indigo-100 transition-colors">
+                  <span className="text-xl font-medium leading-none text-slate-500 group-hover:text-indigo-600">+</span>
+                </div>
+                <span className="text-xs font-bold tracking-wide">Create New Board</span>
               </button>
             </div>
           </div>
         ))}
       </main>
 
-      {/* ── Create Workspace Modal ── */}
+      {/* ── Add Workspace Modal Configs ── */}
       {showCreateWs && (
-        <Modal title="New Workspace" onClose={() => setShowCreateWs(false)}>
-          <div className="space-y-3">
-            <input value={wsName} onChange={e => setWsName(e.target.value)}
-              placeholder="Workspace name" autoFocus
-              className="w-full h-11 px-3 rounded-xl border border-outline-variant bg-surface-raised text-on-surface text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" />
-            <input value={wsDesc} onChange={e => setWsDesc(e.target.value)}
-              placeholder="Description (optional)"
-              className="w-full h-11 px-3 rounded-xl border border-outline-variant bg-surface-raised text-on-surface text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" />
-            <div className="flex gap-2 pt-1">
-              <button onClick={handleCreateWorkspace}
-                className="flex-1 h-10 bg-primary hover:bg-primary-dark text-on-primary text-sm font-semibold rounded-xl transition">Create</button>
+        <Modal title="Create Workspace" onClose={() => setShowCreateWs(false)}>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Workspace Name</label>
+              <input value={wsName} onChange={e => setWsName(e.target.value)}
+                placeholder="e.g. Engineering, Marketing Automation" autoFocus
+                className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Description <span className="text-slate-300 lowercase font-normal">(optional)</span></label>
+              <input value={wsDesc} onChange={e => setWsDesc(e.target.value)}
+                placeholder="Briefly summarize operations inside this hub..."
+                className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all" />
+            </div>
+            <div className="flex gap-3 pt-2">
+              <button onClick={handleCreateWorkspace} disabled={!wsName.trim()}
+                className="flex-1 h-11 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl shadow-sm transition-all">Create Hub</button>
               <button onClick={() => setShowCreateWs(false)}
-                className="flex-1 h-10 border border-outline-variant text-on-surface-variant text-sm rounded-xl hover:bg-surface-raised transition">Cancel</button>
+                className="flex-1 h-11 border border-slate-200 text-slate-600 text-sm font-semibold rounded-xl hover:bg-slate-50 transition-all">Cancel</button>
             </div>
           </div>
         </Modal>
       )}
 
-      {/* ── Create Board Modal ── */}
+      {/* ── Create Board Modal Configs ── */}
       {showCreateBoard && (
-        <Modal title="New Board" onClose={() => setShowCreateBoard(null)}>
-          <div className="space-y-3">
-            <div className="h-16 rounded-xl flex items-end p-3 transition-all" style={{ background: boardColor }}>
-              <span className="text-white font-semibold text-sm drop-shadow">{boardName || 'Board name'}</span>
+        <Modal title="Create Board" onClose={() => setShowCreateBoard(null)}>
+          <div className="space-y-4">
+            <div className="h-20 rounded-xl flex items-end p-4 relative overflow-hidden transition-all shadow-inner" style={{ background: boardColor }}>
+              <div className="absolute inset-0 bg-black/20" />
+              <span className="text-white font-bold text-sm tracking-wide z-10 drop-shadow">{boardName.trim() || 'Untitled Board Theme'}</span>
             </div>
-            <input value={boardName} onChange={e => setBoardName(e.target.value)}
-              placeholder="Board name" autoFocus
-              className="w-full h-11 px-3 rounded-xl border border-outline-variant bg-surface-raised text-on-surface text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" />
-            <div className="flex gap-2 flex-wrap">
-              {BOARD_COLORS.map(c => (
-                <button key={c} onClick={() => setBoardColor(c)}
-                  className={`w-7 h-7 rounded-lg border-2 transition-transform ${boardColor === c ? 'border-on-surface scale-110' : 'border-transparent hover:scale-105'}`}
-                  style={{ background: c }} />
-              ))}
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Board Name</label>
+              <input value={boardName} onChange={e => setBoardName(e.target.value)}
+                placeholder="e.g. Q3 Sprint Backlog" autoFocus
+                className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all" />
             </div>
-            <div className="flex gap-2 pt-1">
-              <button onClick={handleCreateBoard}
-                className="flex-1 h-10 bg-primary hover:bg-primary-dark text-on-primary text-sm font-semibold rounded-xl transition">Create</button>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Select Visual Wallpaper Theme</label>
+              <div className="grid grid-cols-4 gap-2.5">
+                {BOARD_COLORS.map(c => (
+                  <button key={c} onClick={() => setBoardColor(c)}
+                    className={`h-9 rounded-xl border-2 transition-all relative ${boardColor === c ? 'border-indigo-600 scale-105 shadow-md shadow-indigo-100' : 'border-transparent hover:scale-102'}`}
+                    style={{ background: c }}>
+                    {boardColor === c && (
+                      <span className="absolute inset-0 flex items-center justify-center text-white drop-shadow-sm">
+                        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="flex gap-3 pt-2">
+              <button onClick={handleCreateBoard} disabled={!boardName.trim()}
+                className="flex-1 h-11 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl shadow-sm transition-all">Launch Board</button>
               <button onClick={() => setShowCreateBoard(null)}
-                className="flex-1 h-10 border border-outline-variant text-on-surface-variant text-sm rounded-xl hover:bg-surface-raised transition">Cancel</button>
+                className="flex-1 h-11 border border-slate-200 text-slate-600 text-sm font-semibold rounded-xl hover:bg-slate-50 transition-all">Cancel</button>
             </div>
           </div>
         </Modal>
       )}
 
-      {/* ── Invite Modal ── */}
+      {/* ── Invite Members Modal Configs ── */}
       {showInvite && (
-        <Modal title="Invite Member" onClose={() => setShowInvite(null)}>
-          <div className="space-y-3">
-            <input value={inviteEmail} onChange={e => setInviteEmail(e.target.value)}
-              type="email" placeholder="colleague@company.com" autoFocus
-              className="w-full h-11 px-3 rounded-xl border border-outline-variant bg-surface-raised text-on-surface text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" />
-            <div className="flex gap-2 pt-1">
-              <button onClick={handleInvite}
-                className="flex-1 h-10 bg-primary hover:bg-primary-dark text-on-primary text-sm font-semibold rounded-xl transition">Send invite</button>
+        <Modal title="Invite Member to Workspace" onClose={() => setShowInvite(null)}>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Email Address</label>
+              <input value={inviteEmail} onChange={e => setInviteEmail(e.target.value)}
+                type="email" placeholder="colleague@company.com" autoFocus
+                className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all" />
+            </div>
+            <div className="flex gap-3 pt-2">
+              <button onClick={handleInvite} disabled={!inviteEmail.trim()}
+                className="flex-1 h-11 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl shadow-sm transition-all">Send Invitation</button>
               <button onClick={() => setShowInvite(null)}
-                className="flex-1 h-10 border border-outline-variant text-on-surface-variant text-sm rounded-xl hover:bg-surface-raised transition">Cancel</button>
+                className="flex-1 h-11 border border-slate-200 text-slate-600 text-sm font-semibold rounded-xl hover:bg-slate-50 transition-all">Cancel</button>
             </div>
           </div>
         </Modal>

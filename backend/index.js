@@ -9,10 +9,8 @@ dotenv.config();
 const PORT = process.env.PORT || 5000;
 const server = http.createServer(app);
 
-// Initialize Socket.IO
 initSocket(server);
 
-// Connect to Database and start server
 connectDB()
     .then(() => {
         server.listen(PORT, () => {

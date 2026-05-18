@@ -4,8 +4,7 @@ import { ApiError } from '../utils/apiError.js';
 
 export const requireBoardRole = (...allowedRoles) => async (req, res, next) => {
     try {
-        // Resolve boardId from params, body, or via the card being operated on
-        let boardId = req.params.boardId || req.body.boardId;
+        let boardId = req.params?.boardId || req.body?.boardId;
 
         if (!boardId && req.params.cardId) {
             const card = await Card.findById(req.params.cardId).select('board');

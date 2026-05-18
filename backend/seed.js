@@ -12,20 +12,17 @@ dotenv.config();
 const seed = async () => {
     await connectDB();
 
-    // Clear existing data
     await Promise.all([
         User.deleteMany({}), Workspace.deleteMany({}),
         Board.deleteMany({}), Column.deleteMany({}), Card.deleteMany({})
     ]);
 
-    // Users
     const [alice, bob, carol] = await User.create([
         { username: 'alice', email: 'alice@demo.com', password: 'password123' },
         { username: 'bob',   email: 'bob@demo.com',   password: 'password123' },
         { username: 'carol', email: 'carol@demo.com', password: 'password123' },
     ]);
 
-    // Workspace
     const workspace = await Workspace.create({
         name: 'Acme Corp',
         description: 'Demo workspace',
@@ -37,7 +34,6 @@ const seed = async () => {
         ]
     });
 
-    // Board
     const board = await Board.create({
         name: 'Product Roadmap',
         workspace: workspace._id,

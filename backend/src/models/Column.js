@@ -12,7 +12,7 @@ const columnSchema = new mongoose.Schema({
         required: true
     },
     order: {
-        type: String, // Fractional index
+        type: String,
         required: true
     }
 }, { timestamps: true });

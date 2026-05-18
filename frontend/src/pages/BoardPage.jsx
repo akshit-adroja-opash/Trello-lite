@@ -163,93 +163,93 @@ const BoardPage = () => {
     const allLabels = [...new Set(Object.values(cards).flat().flatMap(c => c.labels?.map(l => l.name) || []))];
 
     if (loading) return (
-        <div className="flex flex-col gap-4 items-center justify-center h-screen bg-slate-950">
-            <div className="relative w-12 h-12">
-                <div className="absolute inset-0 rounded-full border-4 border-indigo-500/20" />
-                <div className="absolute inset-0 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin" />
+        <div className="flex flex-col gap-4 items-center justify-center h-screen bg-slate-50">
+            <div className="relative w-12 h-12 flex items-center justify-center">
+                <div className="absolute w-12 h-12 rounded-full border-4 border-indigo-100 animate-pulse" />
+                <div className="absolute w-12 h-12 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin" />
             </div>
-            <p className="text-sm font-medium text-slate-400 tracking-wide animate-pulse">Loading workspace...</p>
+            <p className="text-sm font-semibold text-slate-500 tracking-wide animate-pulse">Assembling board space...</p>
         </div>
     );
 
     return (
-        <div className="flex flex-col h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 selection:bg-indigo-500/30">
-            {/* ── Top Suite Header ── */}
-            <header className="shrink-0 h-16 flex items-center justify-between px-6 gap-4 bg-slate-900/40 backdrop-blur-md border-b border-slate-800/60 z-10">
+        <div className="flex flex-col h-screen overflow-hidden bg-slate-50/50 text-slate-600 antialiased font-sans selection:bg-indigo-500/10">
+            {/* ── Top Workspace Control Header ── */}
+            <header className="shrink-0 h-16 bg-white border-b border-slate-200/80 sticky top-0 z-40 flex items-center justify-between px-6 sm:px-8 shadow-sm backdrop-blur-md bg-white/90 gap-4">
                 
-                {/* Left Controls */}
-                <div className="flex items-center gap-4 min-w-0">
+                {/* Left controls navigation section */}
+                <div className="flex items-center gap-3.5 min-w-0">
                     <Link to="/dashboard"
-                        className="flex items-center gap-2 text-slate-400 hover:text-white text-sm font-medium transition-all group shrink-0 bg-slate-800/40 hover:bg-slate-800/80 border border-slate-700/30 px-3 py-1.5 rounded-lg">
+                        className="flex items-center gap-2 text-slate-500 hover:text-slate-800 text-sm font-semibold transition-all group shrink-0 bg-white hover:bg-slate-50 border border-slate-200 px-3.5 py-2 rounded-xl shadow-sm">
                         <svg className="w-4 h-4 transform group-hover:-translate-x-0.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                             <path d="M19 12H5M12 5l-7 7 7 7"/>
                         </svg>
                         <span className="hidden sm:inline">Dashboard</span>
                     </Link>
-                    <span className="text-slate-700 hidden sm:inline text-xl font-light">/</span>
+                    <span className="text-slate-300 hidden sm:inline text-lg font-light">/</span>
                     <div className="flex items-center gap-2.5 min-w-0">
-                        <h1 className="font-semibold text-slate-100 text-base md:text-lg tracking-tight truncate">{board?.name}</h1>
+                        <h1 className="font-extrabold text-slate-900 text-base md:text-lg tracking-tight truncate">{board?.name}</h1>
                         {!connected && (
-                            <span className="shrink-0 flex items-center gap-1.5 text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-0.5 rounded-md font-medium animate-pulse">
-                                <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                                Reconnecting
+                            <span className="shrink-0 flex items-center gap-1.5 text-xs bg-amber-50 text-amber-600 border border-amber-200 px-2.5 py-1 rounded-lg font-bold animate-pulse">
+                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                                Syncing Loss...
                             </span>
                         )}
                     </div>
                 </div>
 
-                {/* Center — Search & Contextual Filtration */}
+                {/* Center search configuration elements */}
                 <div className="flex items-center gap-2 flex-1 max-w-md">
                     <div className="relative flex-1 group">
-                        <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-indigo-400 transition-colors w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                             <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
                         </svg>
                         <input ref={searchRef} value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-                            placeholder="Filter cards... (/)"
-                            className="w-full h-9 pl-9 pr-3 rounded-lg bg-slate-950/50 border border-slate-800 text-slate-200 placeholder-slate-500 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all" />
+                            placeholder="Filter board cards... (/)"
+                            className="w-full h-10 pl-10 pr-3.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all" />
                     </div>
                     {allLabels.length > 0 && (
                         <div className="relative">
                             <select value={filterLabel} onChange={e => setFilterLabel(e.target.value)}
-                                className="h-9 px-3 pr-8 rounded-lg bg-slate-950/50 border border-slate-800 text-slate-300 text-sm appearance-none focus:outline-none focus:ring-1 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all cursor-pointer">
+                                className="h-10 pl-3.5 pr-9 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 text-sm font-semibold appearance-none focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all cursor-pointer">
                                 <option value="">All labels</option>
                                 {allLabels.map(l => <option key={l} value={l}>{l}</option>)}
                             </select>
-                            <svg className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                            <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                             </svg>
                         </div>
                     )}
                 </div>
 
-                {/* Right — Telemetry & Active Statuses */}
-                <div className="flex items-center gap-4 shrink-0">
-                    <div className="flex items-center gap-1.5 bg-slate-950/40 border border-slate-800/60 p-1 rounded-lg">
-                        <div className="flex -space-x-1 hover:-space-x-0.5 transition-all px-1">
+                {/* Right actions and profile presence rings */}
+                <div className="flex items-center gap-3.5 shrink-0">
+                    <div className="flex items-center gap-2 bg-slate-100 border border-slate-200/60 p-1.5 rounded-xl">
+                        <div className="flex -space-x-1.5 hover:-space-x-0.5 transition-all pl-0.5">
                             {presence.map(u => (
-                                <div key={u.userId} className="ring-2 ring-slate-900 rounded-full transition-transform hover:scale-105 hover:z-20">
+                                <div key={u.userId} className="ring-2 ring-white rounded-full shadow-sm transition-transform hover:scale-108 hover:z-20">
                                     <Avatar name={u.username} avatar={u.avatar} size={26} />
                                 </div>
                             ))}
                         </div>
                         {presence.length > 0 && (
-                            <span className="text-[11px] font-medium text-slate-400 pr-1.5 hidden md:inline">
-                                {presence.length} active
+                            <span className="text-xs font-bold text-slate-500 pr-2 pl-1 hidden md:inline">
+                                {presence.length} viewing
                             </span>
                         )}
                     </div>
                     
                     <button onClick={() => setShowShortcuts(true)}
-                        className="w-8 h-8 rounded-lg bg-slate-800/40 hover:bg-slate-800/80 border border-slate-700/40 text-slate-400 hover:text-slate-200 text-xs font-semibold transition-all flex items-center justify-center shadow-sm"
+                        className="w-10 h-10 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-500 hover:text-slate-800 text-sm font-bold transition-all flex items-center justify-center shadow-sm hover:shadow"
                         title="Keyboard shortcuts (?)">
                         ?
                     </button>
                 </div>
             </header>
 
-            {/* ── Drag & Drop Dynamic Workspace ── */}
+            {/* ── Main Canvas Area Grid Container ── */}
             <main className="flex-1 overflow-x-auto overflow-y-hidden custom-scrollbar">
-                <div className="h-full px-6 py-5 min-w-max">
+                <div className="h-full px-8 py-6 min-w-max">
                     <DndContext sensors={sensors} collisionDetection={closestCorners}
                         onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
                         
@@ -260,9 +260,10 @@ const BoardPage = () => {
                             boardId={boardId} socket={socket}
                         />
 
+                        {/* Enhanced Float Dynamics for Drag Overlays */}
                         <DragOverlay dropAnimation={{ duration: 200, easing: 'cubic-bezier(0.18, 0.89, 0.32, 1.28)' }}>
                             {activeCard && (
-                                <div className="transform rotate-2 scale-[1.02] shadow-2xl shadow-indigo-950/50 opacity-90 backdrop-blur-sm pointer-events-none">
+                                <div className="transform rotate-[2.5deg] scale-[1.03] shadow-2xl shadow-slate-900/15 opacity-95 pointer-events-none rounded-xl border border-slate-200/60 bg-white">
                                     <CardItem card={activeCard} isDragging />
                                 </div>
                             )}
@@ -276,4 +277,4 @@ const BoardPage = () => {
     );
 };
 
-export default BoardPage;   
+export default BoardPage;

@@ -1,22 +1,27 @@
+/* ─── Interactive Counter ───────────────────────────────────────────────── */
 .counter {
   font-size: 16px;
   padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
+  border-radius: 6px;
+  color: var(--primary);
+  background: var(--primary-bg);
   border: 2px solid transparent;
-  transition: border-color 0.3s;
+  transition: border-color 0.2s, box-shadow 0.2s;
   margin-bottom: 24px;
+  font-weight: 600;
+  cursor: pointer;
 
   &:hover {
-    border-color: var(--accent-border);
+    border-color: var(--primary-light);
   }
+  
   &:focus-visible {
-    outline: 2px solid var(--accent);
+    outline: 2px solid var(--primary);
     outline-offset: 2px;
   }
 }
 
+/* ─── 3D Orthographic Hero Illustration ─────────────────────────────────── */
 .hero {
   position: relative;
 
@@ -42,8 +47,7 @@
     z-index: 1;
     top: 34px;
     height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
+    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg) scale(1.4);
   }
 
   .vite {
@@ -51,11 +55,11 @@
     top: 107px;
     height: 26px;
     width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
+    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg) scale(0.8);
   }
 }
 
+/* ─── Core Layout Blocks ────────────────────────────────────────────────── */
 #center {
   display: flex;
   flex-direction: column;
@@ -74,10 +78,12 @@
   display: flex;
   border-top: 1px solid var(--border);
   text-align: left;
+  background: var(--surface);
 
   & > div {
     flex: 1 1 0;
     padding: 32px;
+    
     @media (max-width: 1024px) {
       padding: 24px 20px;
     }
@@ -87,6 +93,7 @@
     margin-bottom: 16px;
     width: 22px;
     height: 22px;
+    color: var(--text-secondary);
   }
 
   @media (max-width: 1024px) {
@@ -104,6 +111,7 @@
   }
 }
 
+/* ─── Step Navigation Lists & Badges ────────────────────────────────────── */
 #next-steps ul {
   list-style: none;
   padding: 0;
@@ -116,20 +124,25 @@
   }
 
   a {
-    color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
     display: flex;
-    padding: 6px 12px;
+    padding: 6px 14px;
     align-items: center;
     gap: 8px;
     text-decoration: none;
-    transition: box-shadow 0.3s;
+    transition: box-shadow 0.2s, border-color 0.2s, background-color 0.2s;
 
     &:hover {
-      box-shadow: var(--shadow);
+      background: var(--surface);
+      border-color: var(--primary-light);
+      box-shadow: var(--shadow-sm);
     }
+    
     .button-icon {
       height: 18px;
       width: 18px;
@@ -153,9 +166,11 @@
   }
 }
 
+/* ─── Layout Spacers & Alignments ────────────────────────────────────────── */
 #spacer {
   height: 88px;
   border-top: 1px solid var(--border);
+  
   @media (max-width: 1024px) {
     height: 48px;
   }
@@ -177,6 +192,7 @@
     left: 0;
     border-left-color: var(--border);
   }
+  
   &::after {
     right: 0;
     border-right-color: var(--border);

@@ -4,7 +4,6 @@ import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import { errorMiddleware } from "./src/middleware/error.middleware.js";
 
-// Import Routes
 import authRoutes from "./src/routes/auth.routes.js";
 import workspaceRoutes from "./src/routes/workspace.routes.js";
 import boardRoutes from "./src/routes/board.routes.js";
@@ -13,8 +12,6 @@ import cardRoutes from "./src/routes/card.routes.js";
 
 const app = express();
 
-// Global Middleware
-// Allow configurable CORS origins (comma-separated) with a sensible default for dev
 const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173").split(",");
 app.use(
   cors({
@@ -27,19 +24,16 @@ app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(cookieParser());
 app.use(morgan("dev"));
 
-// API Routes
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/workspaces", workspaceRoutes);
 app.use("/api/v1/boards", boardRoutes);
 app.use("/api/v1/columns", columnRoutes);
 app.use("/api/v1/cards", cardRoutes);
 
-// Health Check
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok" });
 });
 
-// Global Error Handler
 app.use(errorMiddleware);
 
 export default app;

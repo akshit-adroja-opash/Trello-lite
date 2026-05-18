@@ -1,30 +1,30 @@
 /* ─── Design Tokens ─────────────────────────────────────────────────────── */
 :root {
   /* Brand */
-  --primary:          #4F46E5;
-  --primary-dark:     #3730A3;
-  --primary-light:    #818CF8;
-  --primary-bg:       #EEF2FF;
+  --primary:           #4F46E5;
+  --primary-dark:      #3730A3;
+  --primary-light:     #818CF8;
+  --primary-bg:        #EEF2FF;
 
   /* Neutrals */
-  --bg:               #F8FAFC;
-  --surface:          #FFFFFF;
-  --surface-raised:   #F1F5F9;
-  --surface-overlay:  #E2E8F0;
-  --border:           #E2E8F0;
-  --border-focus:     #4F46E5;
+  --bg:                #F8FAFC;
+  --surface:           #FFFFFF;
+  --surface-raised:    #F1F5F9;
+  --surface-overlay:   #E2E8F0;
+  --border:            #E2E8F0;
+  --border-focus:      #4F46E5;
 
   /* Text */
-  --text-primary:     #0F172A;
-  --text-secondary:   #475569;
-  --text-muted:       #94A3B8;
-  --text-on-primary:  #FFFFFF;
+  --text-primary:      #0F172A;
+  --text-secondary:    #475569;
+  --text-muted:        #94A3B8;
+  --text-on-primary:   #FFFFFF;
 
   /* Semantic */
-  --success:          #10B981;
-  --warning:          #F59E0B;
-  --error:            #EF4444;
-  --error-bg:         #FEF2F2;
+  --success:           #10B981;
+  --warning:           #F59E0B;
+  --error:             #EF4444;
+  --error-bg:          #FEF2F2;
 
   /* Shadows */
   --shadow-sm:  0 1px 3px rgba(15,23,42,0.08), 0 1px 2px rgba(15,23,42,0.04);
@@ -261,10 +261,153 @@ input, textarea, select, button {
 
 .auth-footer a { color: var(--primary); font-weight: 500; }
 
-/* ─── Kanban legacy classes (used by old CSS selectors) ─────────────────── */
-.column-list  { display: flex; gap: 16px; overflow-x: auto; padding: 16px; }
-.column-item  { min-width: 272px; background: var(--surface-raised); padding: 12px; border-radius: 12px; }
-.card-item    { background: var(--surface); padding: 12px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; box-shadow: var(--shadow-sm); }
-.modal-overlay{ position: fixed; inset: 0; background: rgba(15,23,42,0.5); display: flex; justify-content: center; align-items: center; z-index: 50; }
-.modal-content{ width: min(520px,100%); background: var(--surface); padding: 24px; border-radius: 16px; box-shadow: var(--shadow-lg); }
-.avatar       { width: 36px; height: 36px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; }
+/* ─── Kanban Workspace System ───────────────────────────────────────────── */
+.column-list {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 24px;
+  align-items: flex-start;
+  flex: 1;
+  scrollbar-width: thin;
+  scrollbar-color: var(--text-muted) transparent;
+}
+
+.column-list::-webkit-scrollbar { height: 8px; }
+.column-list::-webkit-scrollbar-track { background: transparent; }
+.column-list::-webkit-scrollbar-thumb { background: var(--surface-overlay); border-radius: 20px; }
+.column-list::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+.column-item {
+  width: 320px;
+  min-width: 320px;
+  max-height: calc(100vh - 120px);
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.column-item:focus-within {
+  border-color: var(--primary-light);
+  box-shadow: var(--shadow-md);
+}
+
+.column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.column-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.card-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1;
+  padding: 2px;
+  margin: 0 -4px;
+  padding: 0 4px;
+  scrollbar-width: thin;
+}
+
+.card-container::-webkit-scrollbar { width: 6px; }
+.card-container::-webkit-scrollbar-track { background: transparent; }
+.card-container::-webkit-scrollbar-thumb { background: var(--surface-overlay); border-radius: 10px; }
+
+/* ─── Kanban Cards ──────────────────────────────────────────────────────── */
+.card-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 16px;
+  border-radius: 12px;
+  cursor: grab;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.card-item:hover {
+  border-color: var(--primary-light);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.card-item:active { cursor: grabbing; transform: translateY(0); }
+
+/* Drag and Drop State Variants */
+.card-item.is-dragging {
+  opacity: 0.4;
+  border: 2px dashed var(--primary-light);
+  box-shadow: none;
+  background: var(--primary-bg);
+}
+
+/* ─── Interactive Overlays & Modals ─────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.3);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  padding: 20px;
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-content {
+  width: min(540px, 100%);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 32px;
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  animation: scaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Universal Shared Avatar Base */
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--primary-bg);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  border: 2px solid var(--surface);
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+  user-select: none;
+}
+
+/* ─── Animation Mechanics ────────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.96) translateY(4px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
