@@ -16,7 +16,7 @@ const activitySchema = new mongoose.Schema({
         ref: 'Card'
     },
     action: {
-        type: String, // e.g., 'created', 'moved', 'commented', 'archived'
+        type: String,
         required: true
     },
     details: {

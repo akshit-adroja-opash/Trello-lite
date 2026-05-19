@@ -7,8 +7,8 @@ import CardItem from '../Card/CardItem';
 import { deleteColumn, updateColumn } from '../../api/column.api';
 import useBoardStore from '../../store/boardStore';
 
-const CARD_HEIGHT = 88; // Adjusted precisely to account for margin/padding of refactored cards
-const VIRTUALIZE_THRESHOLD = 8; // Virtualizing at 2 breaks natural layouts; 8+ optimizes heavy boards
+const CARD_HEIGHT = 88; 
+const VIRTUALIZE_THRESHOLD = 8; 
 
 const ColumnItem = ({ column, cards, searchQuery, filterLabel, onAddCard, boardId, socket }) => {
     const [addingCard, setAddingCard] = useState(false);
@@ -68,7 +68,6 @@ const ColumnItem = ({ column, cards, searchQuery, filterLabel, onAddCard, boardI
         <div ref={setNodeRef} style={style}
             className={`shrink-0 w-72 flex flex-col bg-slate-100/80 border border-slate-200/60 rounded-2xl max-h-[calc(100vh-6.5rem)] transition-shadow duration-200 ${isDragging ? 'shadow-none' : 'shadow-sm'}`}>
 
-            {/* Column Draggable Header Control Element */}
             <div className="flex items-center justify-between pl-4 pr-2.5 pt-3.5 pb-2.5 cursor-grab active:cursor-grabbing select-none group/header"
                 {...attributes} {...listeners}>
                 {editingName ? (
@@ -97,7 +96,6 @@ const ColumnItem = ({ column, cards, searchQuery, filterLabel, onAddCard, boardI
                 </button>
             </div>
 
-            {/* Scrollable/Virtual Card Body Canvas */}
             <div className={`flex-1 px-3 custom-scrollbar min-h-[20px] ${useVirtualize ? 'overflow-hidden' : 'overflow-y-auto pb-1'}`}>
                 <SortableContext items={filteredCards.map(c => c._id)} strategy={verticalListSortingStrategy}>
                     {useVirtualize ? (
@@ -131,7 +129,6 @@ const ColumnItem = ({ column, cards, searchQuery, filterLabel, onAddCard, boardI
                 </SortableContext>
             </div>
 
-            {/* Dynamic Card Addition Execution Component */}
             <div className="p-2 pt-1.5 shrink-0 border-t border-slate-200/20">
                 {addingCard ? (
                     <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm animate-in fade-in zoom-in-95 duration-150">

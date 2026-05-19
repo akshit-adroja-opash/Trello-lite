@@ -132,7 +132,6 @@ const DashboardPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-50/50 text-slate-600 antialiased font-sans">
-      {/* ── Top Navigation Bar ── */}
       <header className="h-16 bg-white border-b border-slate-200/80 sticky top-0 z-40 flex items-center justify-between px-6 sm:px-8 shadow-sm backdrop-blur-md bg-white/90">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-md shadow-indigo-200">
@@ -156,7 +155,6 @@ const DashboardPage = () => {
       </header>
 
       <main className="max-w-6xl mx-auto px-6 sm:px-8 py-10">
-        {/* ── Section Header ── */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10 border-b border-slate-100 pb-6">
           <div>
             <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">My Workspaces</h1>
@@ -169,7 +167,6 @@ const DashboardPage = () => {
           </button>
         </div>
 
-        {/* Empty State Card */}
         {workspaces.length === 0 && (
           <div className="text-center py-20 bg-white rounded-2xl border border-slate-150 shadow-sm max-w-xl mx-auto mt-8 p-8">
             <div className="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center mx-auto mb-5 text-indigo-600 shadow-inner">
@@ -186,10 +183,8 @@ const DashboardPage = () => {
           </div>
         )}
 
-        {/* Workspace Display Blocks */}
         {workspaces.map(ws => (
           <div key={ws._id} className="mb-12 bg-white rounded-2xl border border-slate-200/70 p-6 shadow-sm transition-all hover:shadow-md">
-            {/* Inner Workspace Control Panel Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-150">
               <div className="flex items-center gap-3.5">
                 <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-50 to-slate-50 border border-indigo-100 flex items-center justify-center font-bold text-indigo-600 text-base shadow-sm">
@@ -226,7 +221,6 @@ const DashboardPage = () => {
               </div>
             </div>
 
-            {/* Workspace Members Display */}
             {ws.members && ws.members.length > 0 && (
               <div className="mb-6 flex flex-wrap items-center gap-2">
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide mr-2">Members:</span>
@@ -242,7 +236,6 @@ const DashboardPage = () => {
               </div>
             )}
 
-            {/* Boards Grid Container Layout */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
               {(boardsByWorkspace[ws._id] || []).map(board => (
                 <Link key={board._id} to={`/board/${board._id}`}
@@ -264,7 +257,6 @@ const DashboardPage = () => {
         ))}
       </main>
 
-      {/* ── Add Workspace Modal Configs ── */}
       {showCreateWs && (
         <Modal title="Create Workspace" onClose={() => setShowCreateWs(false)}>
           <div className="space-y-4">
@@ -290,7 +282,6 @@ const DashboardPage = () => {
         </Modal>
       )}
 
-      {/* ── Create Board Modal Configs ── */}
       {showCreateBoard && (
         <Modal title="Create Board" onClose={() => setShowCreateBoard(null)}>
           <div className="space-y-4">
@@ -330,7 +321,6 @@ const DashboardPage = () => {
         </Modal>
       )}
 
-      {/* ── Invite Members Modal Configs ── */}
       {showInvite && (
         <Modal title="Invite Member to Workspace" onClose={() => setShowInvite(null)}>
           <div className="space-y-4">

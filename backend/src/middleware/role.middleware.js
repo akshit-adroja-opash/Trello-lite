@@ -17,7 +17,6 @@ export const requireBoardRole = (...allowedRoles) => async (req, res, next) => {
         const board = await Board.findById(boardId);
         if (!board) return next(new ApiError(404, 'Board not found'));
 
-        // Owner always has full access
         if (board.owner.toString() === req.user._id.toString()) {
             req.board = board;
             req.boardRole = 'Owner';
@@ -27,7 +26,6 @@ export const requireBoardRole = (...allowedRoles) => async (req, res, next) => {
         let member = board.members.find(m => m.user.toString() === req.user._id.toString());
 
         if (!member) {
-            // Check if user is a workspace member and inherit role
             const workspace = await Workspace.findById(board.workspace);
             if (workspace) {
                 const wsMember = workspace.members.find(m => m.user.toString() === req.user._id.toString());

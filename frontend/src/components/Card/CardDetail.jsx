@@ -86,7 +86,6 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
             <div className="bg-white text-slate-800 rounded-2xl shadow-xl border border-slate-200 w-full max-w-3xl transform scale-100 transition-all duration-200 overflow-hidden"
                 onClick={e => e.stopPropagation()}>
                 
-                {/* Header Section */}
                 <div className="flex items-center gap-4 p-6 border-b border-slate-100 bg-slate-50/50">
                     <div className="w-5 h-5 shrink-0 text-indigo-600">
                         <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -103,12 +102,9 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                         className="text-slate-400 hover:text-rose-600 w-8 h-8 flex items-center justify-center rounded-xl hover:bg-rose-50 transition-all duration-150 text-base">✕</button>
                 </div>
 
-                {/* Core Layout Columns */}
                 <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {/* Left Side: Content Controls */}
                     <div className="md:col-span-2 space-y-8">
                         
-                        {/* Labels Control */}
                         <div className="bg-slate-50/60 p-5 rounded-xl border border-slate-100">
                             <SectionTitle icon={
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M7 7h.01M6 20l6.5-6.5A2.5 2.5 0 0016 10c0-1.38-.62-2.5-1.5-2.5S12 8.62 12 10a2.5 2.5 0 00.5 1.5L6 18H4v-2z"/></svg>
@@ -143,7 +139,6 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                             </div>
                         </div>
 
-                        {/* Description Editor / Previewer */}
                         <div>
                             <div className="flex items-center justify-between mb-3">
                                 <SectionTitle icon={
@@ -165,7 +160,6 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                             )}
                         </div>
 
-                        {/* Checklist Control */}
                         <div>
                             <div className="flex items-center justify-between mb-3">
                                 <SectionTitle icon={
@@ -207,7 +201,6 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                             </div>
                         </div>
 
-                        {/* Activities Logger Panel */}
                         {activities.length > 0 && (
                             <div className="pt-5 border-t border-slate-100">
                                 <SectionTitle icon={
@@ -231,7 +224,6 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                         )}
                     </div>
 
-                    {/* Right Side: Meta Sidebar Control Deck */}
                     <div className="space-y-6 bg-slate-50/60 p-5 rounded-xl border border-slate-100 h-fit">
                         <div>
                             <SectionTitle icon={
@@ -265,7 +257,6 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                             </div>
                         )}
 
-                        {/* Actions Control Deck */}
                         <div className="space-y-2 pt-5 border-t border-slate-100">
                             <button onClick={handleSave} disabled={saving}
                                 className="w-full h-10 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-xl shadow-md transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2">

@@ -1,6 +1,6 @@
-const MIN_CHAR = 33;   // '!'
-const MAX_CHAR = 126;  // '~'
-const MID_CHAR = Math.floor((MIN_CHAR + MAX_CHAR) / 2); // 79 = 'O'
+const MIN_CHAR = 33;   
+const MAX_CHAR = 126;  
+const MID_CHAR = Math.floor((MIN_CHAR + MAX_CHAR) / 2); 
 
 const isEmpty = (v) => v === null || v === undefined || v === '';
 
@@ -26,7 +26,6 @@ export const generateIndexBetween = (prev, next) => {
         return String.fromCharCode(MAX_CHAR) + generateIndexBetween(p.length > 1 ? p.slice(1) : null, null);
     }
 
-    // Between two items
     let result = '';
     let i = 0;
     while (i <= 20) {

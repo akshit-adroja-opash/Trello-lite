@@ -46,7 +46,6 @@ export const deleteColumn = async (req, res, next) => {
     } catch (error) { next(error); }
 };
 
-// Accepts { columnId, prevOrder, nextOrder } — updates a single column's fractional order
 export const reorderColumn = async (req, res, next) => {
     try {
         const { columnId, prevOrder, nextOrder } = req.body;

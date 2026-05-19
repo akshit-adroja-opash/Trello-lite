@@ -18,7 +18,6 @@ const CardItem = ({ card, columnId, isDragging: externalDragging }) => {
         width: '100%',
     };
 
-    // Card Date & Checklist Logic Metrics
     const isOverdue = card.dueDate && new Date(card.dueDate) < new Date();
     const isDueSoon = card.dueDate && !isOverdue && (new Date(card.dueDate) - new Date()) < 86400000 * 2;
     const doneItems  = card.checklist?.filter(i => i.done).length || 0;
@@ -35,7 +34,6 @@ const CardItem = ({ card, columnId, isDragging: externalDragging }) => {
                 {...listeners}
                 className="group/card relative outline-none"
             >
-                {/* Main Card Container Structure */}
                 <div
                     onClick={() => setOpen(true)}
                     className="w-full bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200 cursor-grab active:cursor-grabbing p-3.5 select-none overflow-hidden"
@@ -43,7 +41,6 @@ const CardItem = ({ card, columnId, isDragging: externalDragging }) => {
                         borderTop: firstColor ? `3.5px solid ${firstColor}` : undefined
                     }}
                 >
-                    {/* Rendered Label Badges */}
                     {card.labels?.length > 0 && (
                         <div className="flex flex-wrap gap-1 mb-2.5">
                             {card.labels.map((l, i) => (
@@ -62,12 +59,10 @@ const CardItem = ({ card, columnId, isDragging: externalDragging }) => {
                         </div>
                     )}
 
-                    {/* Task Content Title */}
                     <h4 className="text-sm font-semibold text-slate-800 leading-snug group-hover/card:text-indigo-600 transition-colors duration-150">
                         {card.title || "Untitled Task"}
                     </h4>
 
-                    {/* Checkbox Sub-task Linear Progress Indicator */}
                     {totalItems > 0 && (
                         <div className="mt-3 mb-1">
                             <div className="flex justify-between items-center text-[11px] font-bold mb-1">
@@ -92,11 +87,9 @@ const CardItem = ({ card, columnId, isDragging: externalDragging }) => {
                         </div>
                     )}
 
-                    {/* Footer Meta Row Items */}
                     <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2 text-slate-400">
                         <div className="flex items-center gap-2 flex-wrap">
                             
-                            {/* Alert Context Due Dates Indicators */}
                             {card.dueDate && (
                                 <div 
                                     className={`flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-md border transition-colors ${
@@ -117,7 +110,6 @@ const CardItem = ({ card, columnId, isDragging: externalDragging }) => {
                                 </div>
                             )}
 
-                            {/* Raw Description Body Notes Icon Present Indicator */}
                             {card.description && (
                                 <div className="text-slate-400/80" title="This card has a description.">
                                     <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
@@ -127,7 +119,6 @@ const CardItem = ({ card, columnId, isDragging: externalDragging }) => {
                             )}
                         </div>
 
-                        {/* Overlapping Team Assignee Avatar List Grid */}
                         {card.assignees?.length > 0 && (
                             <div className="flex -space-x-1.5 overflow-hidden">
                                 {card.assignees.slice(0, 3).map((a, idx) => (
@@ -154,7 +145,6 @@ const CardItem = ({ card, columnId, isDragging: externalDragging }) => {
                 </div>
             </div>
 
-            {/* Modal Detail Display Panel Target Anchor */}
             {open && <CardDetail card={card} columnId={columnId} onClose={() => setOpen(false)} />}
         </>
     );

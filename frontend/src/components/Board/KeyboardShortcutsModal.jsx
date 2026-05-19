@@ -8,7 +8,6 @@ const shortcuts = [
 const KeyboardShortcutsModal = ({ onClose }) => (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm px-4 transition-all" onClick={onClose}>
         <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 p-6 w-full max-w-sm overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
-            {/* Header Area */}
             <div className="flex items-center justify-between mb-5 pb-3 border-b border-slate-100">
                 <div className="flex items-center gap-2">
                     <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" className="text-indigo-600">
@@ -24,7 +23,6 @@ const KeyboardShortcutsModal = ({ onClose }) => (
                 </button>
             </div>
             
-            {/* Shortcuts Content Loop */}
             <div className="space-y-3.5">
                 {shortcuts.map(s => (
                     <div key={s.key} className="flex items-center justify-between gap-4 bg-slate-50/50 p-2 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors">

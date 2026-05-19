@@ -1,4 +1,3 @@
-// boardId -> Map<socketId, { userId, username, avatar }>
 const boardPresence = new Map();
 
 export const registerBoardHandlers = (io, socket) => {
@@ -24,19 +23,16 @@ export const registerBoardHandlers = (io, socket) => {
         });
     });
 
-    // card:move — broadcast to others; server already persisted via REST
     socket.on('card:move', (payload) => {
         const { boardId, cardId, fromColumnId, toColumnId, newOrder, version } = payload;
         socket.to(boardId).emit('card:moved', { cardId, fromColumnId, toColumnId, newOrder, version });
     });
 
-    // card:update — broadcast field changes
     socket.on('card:update', (payload) => {
         const { boardId, card } = payload;
         socket.to(boardId).emit('card:updated', { card });
     });
 
-    // column:create / column:update / column:delete
     socket.on('column:create', (payload) => {
         socket.to(payload.boardId).emit('column:created', payload);
     });
@@ -47,7 +43,6 @@ export const registerBoardHandlers = (io, socket) => {
         socket.to(payload.boardId).emit('column:deleted', payload);
     });
 
-    // card:create / card:delete
     socket.on('card:create', (payload) => {
         socket.to(payload.boardId).emit('card:created', payload);
     });

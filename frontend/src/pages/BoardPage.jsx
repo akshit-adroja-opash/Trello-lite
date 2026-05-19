@@ -174,10 +174,8 @@ const BoardPage = () => {
 
     return (
         <div className="flex flex-col h-screen overflow-hidden bg-slate-50/50 text-slate-600 antialiased font-sans selection:bg-indigo-500/10">
-            {/* ── Top Workspace Control Header ── */}
             <header className="shrink-0 h-16 bg-white border-b border-slate-200/80 sticky top-0 z-40 flex items-center justify-between px-6 sm:px-8 shadow-sm backdrop-blur-md bg-white/90 gap-4">
                 
-                {/* Left controls navigation section */}
                 <div className="flex items-center gap-3.5 min-w-0">
                     <Link to="/dashboard"
                         className="flex items-center gap-2 text-slate-500 hover:text-slate-800 text-sm font-semibold transition-all group shrink-0 bg-white hover:bg-slate-50 border border-slate-200 px-3.5 py-2 rounded-xl shadow-sm">
@@ -198,7 +196,6 @@ const BoardPage = () => {
                     </div>
                 </div>
 
-                {/* Center search configuration elements */}
                 <div className="flex items-center gap-2 flex-1 max-w-md">
                     <div className="relative flex-1 group">
                         <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -222,7 +219,6 @@ const BoardPage = () => {
                     )}
                 </div>
 
-                {/* Right actions and profile presence rings */}
                 <div className="flex items-center gap-3.5 shrink-0">
                     <div className="flex items-center gap-2 bg-slate-100 border border-slate-200/60 p-1.5 rounded-xl">
                         <div className="flex -space-x-1.5 hover:-space-x-0.5 transition-all pl-0.5">
@@ -247,7 +243,6 @@ const BoardPage = () => {
                 </div>
             </header>
 
-            {/* ── Main Canvas Area Grid Container ── */}
             <main className="flex-1 overflow-x-auto overflow-y-hidden custom-scrollbar">
                 <div className="h-full px-8 py-6 min-w-max">
                     <DndContext sensors={sensors} collisionDetection={closestCorners}
@@ -260,7 +255,6 @@ const BoardPage = () => {
                             boardId={boardId} socket={socket}
                         />
 
-                        {/* Enhanced Float Dynamics for Drag Overlays */}
                         <DragOverlay dropAnimation={{ duration: 200, easing: 'cubic-bezier(0.18, 0.89, 0.32, 1.28)' }}>
                             {activeCard && (
                                 <div className="transform rotate-[2.5deg] scale-[1.03] shadow-2xl shadow-slate-900/15 opacity-95 pointer-events-none rounded-xl border border-slate-200/60 bg-white">

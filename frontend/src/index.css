@@ -1,12 +1,10 @@
-/* ─── Design Tokens ─────────────────────────────────────────────────────── */
 :root {
-  /* Brand */
+  
   --primary:           #4F46E5;
   --primary-dark:      #3730A3;
   --primary-light:     #818CF8;
   --primary-bg:        #EEF2FF;
 
-  /* Neutrals */
   --bg:                #F8FAFC;
   --surface:           #FFFFFF;
   --surface-raised:    #F1F5F9;
@@ -14,24 +12,20 @@
   --border:            #E2E8F0;
   --border-focus:      #4F46E5;
 
-  /* Text */
   --text-primary:      #0F172A;
   --text-secondary:    #475569;
   --text-muted:        #94A3B8;
   --text-on-primary:   #FFFFFF;
 
-  /* Semantic */
   --success:           #10B981;
   --warning:           #F59E0B;
   --error:             #EF4444;
   --error-bg:          #FEF2F2;
 
-  /* Shadows */
   --shadow-sm:  0 1px 3px rgba(15,23,42,0.08), 0 1px 2px rgba(15,23,42,0.04);
   --shadow-md:  0 4px 12px rgba(15,23,42,0.10), 0 2px 4px rgba(15,23,42,0.06);
   --shadow-lg:  0 20px 40px rgba(15,23,42,0.12), 0 8px 16px rgba(15,23,42,0.06);
 
-  /* Typography */
   --font: 'Inter', system-ui, sans-serif;
 
   font-family: var(--font);
@@ -43,7 +37,6 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ─── Reset ─────────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; }
 
 body {
@@ -70,7 +63,6 @@ input, textarea, select, button {
   font-size: 14px;
 }
 
-/* ─── Auth Pages ─────────────────────────────────────────────────────────── */
 .auth-page {
   min-height: 100vh;
   display: flex;
@@ -261,7 +253,6 @@ input, textarea, select, button {
 
 .auth-footer a { color: var(--primary); font-weight: 500; }
 
-/* ─── Kanban Workspace System ───────────────────────────────────────────── */
 .column-list {
   display: flex;
   gap: 20px;
@@ -328,7 +319,6 @@ input, textarea, select, button {
 .card-container::-webkit-scrollbar-track { background: transparent; }
 .card-container::-webkit-scrollbar-thumb { background: var(--surface-overlay); border-radius: 10px; }
 
-/* ─── Kanban Cards ──────────────────────────────────────────────────────── */
 .card-item {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -350,7 +340,6 @@ input, textarea, select, button {
 
 .card-item:active { cursor: grabbing; transform: translateY(0); }
 
-/* Drag and Drop State Variants */
 .card-item.is-dragging {
   opacity: 0.4;
   border: 2px dashed var(--primary-light);
@@ -358,7 +347,6 @@ input, textarea, select, button {
   background: var(--primary-bg);
 }
 
-/* ─── Interactive Overlays & Modals ─────────────────────────────────────── */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -383,7 +371,6 @@ input, textarea, select, button {
   animation: scaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Universal Shared Avatar Base */
 .avatar {
   width: 36px;
   height: 36px;
@@ -401,7 +388,6 @@ input, textarea, select, button {
   user-select: none;
 }
 
-/* ─── Animation Mechanics ────────────────────────────────────────────────── */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }

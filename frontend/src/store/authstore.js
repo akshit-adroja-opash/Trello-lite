@@ -61,7 +61,6 @@ const useAuthStore = create((set) => ({
     try {
       await logoutUser();
     } catch (err) {
-      // Continue with local logout even if backend call fails.
     }
 
     localStorage.removeItem("token");

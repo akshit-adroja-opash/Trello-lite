@@ -27,12 +27,10 @@ const RegisterPage = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-slate-50/50 relative overflow-hidden antialiased font-sans">
-      {/* Decorative background grid element to match dashboard design language */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-40 pointer-events-none" />
 
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-200/80 p-8 sm:p-10 relative z-10 transition-all">
         
-        {/* Logo and Brand Title Header */}
         <div className="flex items-center gap-2.5 mb-8">
           <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-md shadow-indigo-200">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -43,13 +41,11 @@ const RegisterPage = () => {
           <span className="font-extrabold text-lg text-slate-900 tracking-tight">Trello-lite</span>
         </div>
 
-        {/* Form Main Context Headers */}
         <div className="mb-8">
           <p className="text-[11px] font-bold uppercase tracking-widest text-indigo-600 mb-1">Get started</p>
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Create your account</h1>
         </div>
 
-        {/* Input Interface Elements */}
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-1.5">Username</label>
@@ -87,7 +83,6 @@ const RegisterPage = () => {
             />
           </div>
 
-          {/* Interactive Submission Element */}
           <button
             type="submit"
             disabled={loading}
@@ -107,7 +102,6 @@ const RegisterPage = () => {
           </button>
         </form>
 
-        {/* Redirect Options Footer */}
         <p className="text-center text-sm text-slate-500 font-medium mt-6">
           Already have an account?{' '}
           <Link to="/login" className="font-bold text-indigo-600 hover:text-indigo-700 transition-colors">Sign in</Link>
