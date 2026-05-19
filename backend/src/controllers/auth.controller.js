@@ -57,7 +57,6 @@ export const getMe = async (req, res, next) => {
 
 export const logout = async (req, res, next) => {
   try {
-    // Clear the cookie on the server side
     res.clearCookie('token');
 
     res.status(200).json({
