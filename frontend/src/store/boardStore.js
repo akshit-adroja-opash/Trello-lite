@@ -3,8 +3,8 @@ import { create } from 'zustand';
 const useBoardStore = create((set, get) => ({
     board: null,
     columns: [],
-    cards: {},        // columnId -> Card[]
-    presence: [],     // [{ userId, username, avatar }]
+    cards: {},      
+    presence: [],    
 
     setBoard: (board) => set({ board }),
     setColumns: (columns) => set({ columns }),

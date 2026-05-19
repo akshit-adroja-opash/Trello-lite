@@ -1,5 +1,6 @@
 import Board from '../models/Board.js';
 import Card from '../models/Card.js';
+import Workspace from '../models/Workspace.js';
 import { ApiError } from '../utils/apiError.js';
 
 export const requireBoardRole = (...allowedRoles) => async (req, res, next) => {
@@ -23,8 +24,24 @@ export const requireBoardRole = (...allowedRoles) => async (req, res, next) => {
             return next();
         }
 
-        const member = board.members.find(m => m.user.toString() === req.user._id.toString());
-        if (!member) return next(new ApiError(403, 'Not a board member'));
+        let member = board.members.find(m => m.user.toString() === req.user._id.toString());
+
+        if (!member) {
+            // Check if user is a workspace member and inherit role
+            const workspace = await Workspace.findById(board.workspace);
+            if (workspace) {
+                const wsMember = workspace.members.find(m => m.user.toString() === req.user._id.toString());
+                if (wsMember) {
+                    let inheritedRole = 'Viewer';
+                    if (wsMember.role === 'admin' || wsMember.role === 'editor') {
+                        inheritedRole = 'Editor';
+                    }
+                    member = { role: inheritedRole };
+                }
+            }
+        }
+
+        if (!member) return next(new ApiError(403, 'Not a board or workspace member'));
 
         if (!allowedRoles.includes(member.role)) {
             return next(new ApiError(403, `Requires role: ${allowedRoles.join(' or ')}`));

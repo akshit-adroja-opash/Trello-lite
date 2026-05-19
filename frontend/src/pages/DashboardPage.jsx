@@ -7,14 +7,14 @@ import { createBoard, getBoardsByWorkspace } from '../api/board.api';
 import Avatar from '../UI/Avatar';
 
 const BOARD_COLORS = [
-  'linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)', // Indigo
-  'linear-gradient(135deg, #0EA5E9 0%, #38BDF8 100%)', // Sky Blue
-  'linear-gradient(135deg, #10B981 0%, #34D399 100%)', // Emerald
-  'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)', // Amber
-  'linear-gradient(135deg, #EF4444 0%, #F87171 100%)', // Red
-  'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)', // Violet
-  'linear-gradient(135deg, #EC4899 0%, #F472B6 100%)', // Pink
-  'linear-gradient(135deg, #14B8A6 0%, #2DD4BF 100%)'  // Teal
+  'linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)', 
+  'linear-gradient(135deg, #0EA5E9 0%, #38BDF8 100%)', 
+  'linear-gradient(135deg, #10B981 0%, #34D399 100%)', 
+  'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)', 
+  'linear-gradient(135deg, #EF4444 0%, #F87171 100%)', 
+  'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)', 
+  'linear-gradient(135deg, #EC4899 0%, #F472B6 100%)',
+  'linear-gradient(135deg, #14B8A6 0%, #2DD4BF 100%)'
 ];
 
 const Modal = ({ title, onClose, children }) => (
@@ -23,7 +23,7 @@ const Modal = ({ title, onClose, children }) => (
       <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
         <h2 className="text-lg font-bold text-slate-800">{title}</h2>
         <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 1l12 12M13 1L1 13"/></svg>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 1l12 12M13 1L1 13" /></svg>
         </button>
       </div>
       <div className="p-6">{children}</div>
@@ -137,8 +137,8 @@ const DashboardPage = () => {
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-md shadow-indigo-200">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <rect x="3" y="3" width="7" height="18" rx="2" fill="white"/>
-              <rect x="14" y="3" width="7" height="11" rx="2" fill="white" opacity="0.7"/>
+              <rect x="3" y="3" width="7" height="18" rx="2" fill="white" />
+              <rect x="14" y="3" width="7" height="11" rx="2" fill="white" opacity="0.7" />
             </svg>
           </div>
           <span className="font-bold text-slate-900 text-lg tracking-tight">Trello<span className="text-indigo-600 font-medium">lite</span></span>
@@ -164,7 +164,7 @@ const DashboardPage = () => {
           </div>
           <button onClick={() => setShowCreateWs(true)}
             className="self-start sm:self-auto bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all duration-200 shadow-sm shadow-indigo-100 hover:shadow-md hover:shadow-indigo-200 hover:-translate-y-0.5 flex items-center gap-2">
-            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
             Create Workspace
           </button>
         </div>
@@ -207,12 +207,12 @@ const DashboardPage = () => {
               <div className="flex items-center gap-2 self-end sm:self-auto">
                 <button onClick={() => setShowInvite(ws._id)}
                   className="text-xs font-semibold border border-slate-200 text-slate-600 hover:text-slate-800 hover:bg-slate-50 px-3.5 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5">
-                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 019 21c-2.307 0-4.484-.633-6.351-1.766z"/></svg>
+                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 019 21c-2.307 0-4.484-.633-6.351-1.766z" /></svg>
                   Invite Members
                 </button>
                 <button onClick={() => setShowCreateBoard(ws._id)}
                   className="text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1">
-                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
                   Add Board
                 </button>
                 <button onClick={() => handleDeleteWorkspace(ws._id)}
@@ -225,6 +225,22 @@ const DashboardPage = () => {
                 </button>
               </div>
             </div>
+
+            {/* Workspace Members Display */}
+            {ws.members && ws.members.length > 0 && (
+              <div className="mb-6 flex flex-wrap items-center gap-2">
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide mr-2">Members:</span>
+                {ws.members.map(member => (
+                  <div key={member._id} className="inline-flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-full px-2.5 py-1" title={member.user?.username || member.user?.email}>
+                    <Avatar name={member.user?.username || member.user?.email || '?'} size={20} />
+                    <span className="text-xs font-medium text-slate-700">{member.user?.email}</span>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase ml-1 px-1.5 py-0.5 bg-slate-200/50 rounded-md">
+                      {member.role}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Boards Grid Container Layout */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
@@ -328,8 +344,8 @@ const DashboardPage = () => {
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Role</label>
               <select value={inviteRole} onChange={e => setInviteRole(e.target.value)}
                 className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm font-medium focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all cursor-pointer">
-                <option value="viewer">Viewer (Can view boards)</option>
-                <option value="editor">Editor (Can modify boards)</option>
+                <option value="viewer">Viewer </option>
+                <option value="editor">Editor</option>
               </select>
             </div>
             <div className="flex gap-3 pt-2">
