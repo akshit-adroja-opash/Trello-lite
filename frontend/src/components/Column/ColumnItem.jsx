@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useSortable, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { FixedSizeList as List } from 'react-window';
+import { List } from 'react-window';
 import { CSS } from '@dnd-kit/utilities';
 import toast from 'react-hot-toast';
 import CardItem from '../Card/CardItem';
