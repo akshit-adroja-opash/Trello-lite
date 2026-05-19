@@ -25,7 +25,7 @@ export const getWorkspaces = async (req, res, next) => {
 export const inviteMember = async (req, res, next) => {
     try {
         const { workspaceId } = req.params;
-        const { email, role = 'member' } = req.body;
+        const { email, role = 'viewer' } = req.body;
 
         const workspace = await Workspace.findById(workspaceId);
         if (!workspace) return next(new ApiError(404, 'Workspace not found'));

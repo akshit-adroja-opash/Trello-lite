@@ -22,8 +22,8 @@ const workspaceSchema = new mongoose.Schema({
         },
         role: {
             type: String,
-            enum: ['admin', 'member'],
-            default: 'member'
+            enum: ['admin', 'editor', 'viewer', 'member'],
+            default: 'viewer'
         }
     }]
 }, { timestamps: true });

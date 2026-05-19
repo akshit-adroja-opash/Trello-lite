@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import useAuthStore from '../store/authstore';
-import { createWorkspace, getWorkspaces, inviteMember } from '../api/workspace.api';
+import { createWorkspace, deleteWorkspace, getWorkspaces, inviteMember } from '../api/workspace.api';
 import { createBoard, getBoardsByWorkspace } from '../api/board.api';
 import Avatar from '../UI/Avatar';
 
@@ -46,6 +46,7 @@ const DashboardPage = () => {
 
   const [showInvite, setShowInvite] = useState(null);
   const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteRole, setInviteRole] = useState('viewer');
 
   const user = useAuthStore(s => s.user);
   const logout = useAuthStore(s => s.logout);
@@ -96,10 +97,26 @@ const DashboardPage = () => {
   const handleInvite = async () => {
     if (!inviteEmail.trim()) return;
     try {
-      await inviteMember(showInvite, { email: inviteEmail.trim() });
-      setInviteEmail(''); setShowInvite(null);
+      await inviteMember(showInvite, { email: inviteEmail.trim(), role: inviteRole });
+      setInviteEmail(''); setInviteRole('viewer'); setShowInvite(null);
       toast.success('Invitation sent');
     } catch (err) { toast.error(err.response?.data?.message || 'Failed to send invite'); }
+  };
+
+  const handleDeleteWorkspace = async (workspaceId) => {
+    if (!confirm('Are you sure you want to delete this workspace? This action cannot be undone.')) return;
+    try {
+      await deleteWorkspace(workspaceId);
+      setWorkspaces(p => p.filter(ws => ws._id !== workspaceId));
+      setBoardsByWorkspace(p => {
+        const next = { ...p };
+        delete next[workspaceId];
+        return next;
+      });
+      toast.success('Workspace deleted successfully');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to delete workspace');
+    }
   };
 
   const handleLogout = async () => { await logout(); navigate('/login'); };
@@ -197,6 +214,14 @@ const DashboardPage = () => {
                   className="text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1">
                   <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                   Add Board
+                </button>
+                <button onClick={() => handleDeleteWorkspace(ws._id)}
+                  className="text-xs font-semibold border border-slate-200 text-slate-600 hover:text-red-600 hover:bg-red-50 hover:border-red-100 px-3.5 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5"
+                  title="Delete Workspace">
+                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.34 9m-4.78 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-1.8c0-.621-.504-1.125-1.125-1.125h-2.25c-.621 0-1.125.504-1.125 1.125v1.8m6.75 0a48.108 48.108 0 00-3.478-.397m-12 .562a48.11 48.11 0 013.478-.397" />
+                  </svg>
+                  <span>Delete</span>
                 </button>
               </div>
             </div>
@@ -298,6 +323,14 @@ const DashboardPage = () => {
               <input value={inviteEmail} onChange={e => setInviteEmail(e.target.value)}
                 type="email" placeholder="colleague@company.com" autoFocus
                 className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Role</label>
+              <select value={inviteRole} onChange={e => setInviteRole(e.target.value)}
+                className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm font-medium focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all cursor-pointer">
+                <option value="viewer">Viewer (Can view boards)</option>
+                <option value="editor">Editor (Can modify boards)</option>
+              </select>
             </div>
             <div className="flex gap-3 pt-2">
               <button onClick={handleInvite} disabled={!inviteEmail.trim()}
