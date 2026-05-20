@@ -4,14 +4,14 @@ import { ApiError } from "../utils/apiError.js";
 
 export const register = async (req, res, next) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, role = "developer" } = req.body;
 
     const existingUser = await User.findOne({ $or: [{ username }, { email }] });
     if (existingUser) {
       throw new ApiError(400, "User already exists");
     }
 
-    const user = await User.create({ username, email, password });
+    const user = await User.create({ username, email, password, role });
     const token = generateToken(user._id);
 
     res.status(201).json({
@@ -25,11 +25,15 @@ export const register = async (req, res, next) => {
 
 export const login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
     const user = await User.findOne({ email });
 
     if (!user || !(await user.isPasswordCorrect(password))) {
       throw new ApiError(401, "Invalid credentials");
+    }
+
+    if (role && (user.role || "developer") !== role) {
+      throw new ApiError(401, "Invalid role selected for this account");
     }
 
     const token = generateToken(user._id);

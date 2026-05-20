@@ -9,13 +9,14 @@ const RegisterPage = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('developer');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await register({ username, email, password });
+      await register({ username, email, password, role });
       toast.success('Account created!');
       navigate('/dashboard');
     } catch (err) {
@@ -81,6 +82,20 @@ const RegisterPage = () => {
               required
               className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-1.5">Role</label>
+            <select
+              value={role}
+              onChange={e => setRole(e.target.value)}
+              required
+              className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm font-medium focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all"
+            >
+              <option value="admin">Admin</option>
+              <option value="project_manager">Project Manager</option>
+              <option value="developer">Developer</option>
+            </select>
           </div>
 
           <button
