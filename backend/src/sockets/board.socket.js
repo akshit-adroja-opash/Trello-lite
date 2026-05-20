@@ -2,16 +2,29 @@ const boardPresence = new Map();
 
 export const registerBoardHandlers = (io, socket) => {
 
-    socket.on('board:join', ({ boardId, user }) => {
+    socket.on('board:join', (payload) => {
+        const boardId = typeof payload === 'object' ? payload.boardId : payload;
+        const user = typeof payload === 'object' ? payload.user : null;
+
+        if (!boardId) return;
+
         socket.join(boardId);
         socket.data.boardId = boardId;
         socket.data.user = user;
 
-        if (!boardPresence.has(boardId)) boardPresence.set(boardId, new Map());
-        boardPresence.get(boardId).set(socket.id, user);
+        console.log(`Socket ${socket.id} joined board ${boardId}`);
 
-        io.to(boardId).emit('board:presence', {
-            users: Array.from(boardPresence.get(boardId).values())
+        if (user) {
+            if (!boardPresence.has(boardId)) boardPresence.set(boardId, new Map());
+            boardPresence.get(boardId).set(socket.id, user);
+
+            io.to(boardId).emit('board:presence', {
+                users: Array.from(boardPresence.get(boardId).values())
+            });
+        }
+
+        socket.to(boardId).emit('user:joined', {
+            socketId: socket.id,
         });
     });
 
@@ -50,8 +63,26 @@ export const registerBoardHandlers = (io, socket) => {
         socket.to(payload.boardId).emit('card:deleted', payload);
     });
 
+    socket.on('card:typing', ({ boardId, cardId, user }) => {
+        socket.to(boardId).emit('card:user-typing', {
+            cardId,
+            user,
+        });
+    });
+
+    socket.on('card:stop-typing', ({ boardId, cardId }) => {
+        socket.to(boardId).emit('card:user-stop-typing', {
+            cardId,
+        });
+    });
+
+    socket.on('cursor:move', (data) => {
+        if (!data?.boardId) return;
+        socket.to(data.boardId).emit('cursor:update', data);
+    });
+
     socket.on('disconnect', () => {
-        const { boardId, user } = socket.data;
+        const { boardId } = socket.data;
         if (boardId && boardPresence.has(boardId)) {
             boardPresence.get(boardId).delete(socket.id);
             io.to(boardId).emit('board:presence', {

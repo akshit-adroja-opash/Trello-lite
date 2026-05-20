@@ -9,6 +9,7 @@ import workspaceRoutes from "./src/routes/workspace.routes.js";
 import boardRoutes from "./src/routes/board.routes.js";
 import columnRoutes from "./src/routes/column.routes.js";
 import cardRoutes from "./src/routes/card.routes.js";
+import activityRoutes from "./src/routes/activity.routes.js";
 
 const app = express();
 
@@ -29,7 +30,7 @@ app.use("/api/v1/workspaces", workspaceRoutes);
 app.use("/api/v1/boards", boardRoutes);
 app.use("/api/v1/columns", columnRoutes);
 app.use("/api/v1/cards", cardRoutes);
-
+app.use("/api/v1/activities", activityRoutes);
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok" });
 });

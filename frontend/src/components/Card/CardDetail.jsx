@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import ReactMarkdown from 'react-markdown';
 import { updateCard, deleteCard, getCardActivities } from '../../api/card.api';
 import useBoardStore from '../../store/boardStore';
 import useSocketStore from '../../store/socketStore';
+import useAuthStore from '../../store/authstore';
 import Avatar from '../../UI/Avatar';
 
 const LABEL_COLORS = ['#4F46E5', '#0EA5E9', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6'];
@@ -30,16 +31,74 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
     );
     const [activities, setActivities] = useState([]);
     const [saving, setSaving] = useState(false);
+    const [typingUser, setTypingUser] = useState(null);
+    const typingTimerRef = useRef(null);
 
     const { updateCard: storeUpdate, removeCard, board } = useBoardStore();
     const socket = useSocketStore(s => s.socket);
     const boardId = useBoardStore(s => s.board?._id);
+    const currentUser = useAuthStore(s => s.user);
 
     const boardMembers = board?.members || [];
 
     useEffect(() => {
         getCardActivities(card._id).then(res => setActivities(res.data?.activities || [])).catch(() => {});
     }, [card._id]);
+
+    useEffect(() => {
+        if (!socket) return;
+
+        const handleUserTyping = ({ cardId, user }) => {
+            if (cardId === card._id) setTypingUser(user);
+        };
+        const handleUserStopTyping = ({ cardId }) => {
+            if (cardId === card._id) setTypingUser(null);
+        };
+
+        socket.on('card:user-typing', handleUserTyping);
+        socket.on('card:user-stop-typing', handleUserStopTyping);
+
+        return () => {
+            socket.off('card:user-typing', handleUserTyping);
+            socket.off('card:user-stop-typing', handleUserStopTyping);
+        };
+    }, [socket, card._id]);
+
+    const emitStopTyping = useCallback(() => {
+        if (!socket || !boardId) return;
+        socket.emit('card:stop-typing', {
+            boardId,
+            cardId: card._id,
+        });
+    }, [socket, boardId, card._id]);
+
+    const emitTyping = useCallback(() => {
+        if (!socket || !boardId || !currentUser) return;
+
+        socket.emit('card:typing', {
+            boardId,
+            cardId: card._id,
+            user: currentUser.username,
+        });
+
+        clearTimeout(typingTimerRef.current);
+        typingTimerRef.current = setTimeout(emitStopTyping, 1000);
+    }, [socket, boardId, card._id, currentUser, emitStopTyping]);
+
+    useEffect(() => () => {
+        clearTimeout(typingTimerRef.current);
+        emitStopTyping();
+    }, [emitStopTyping]);
+
+    const handleTitleChange = (e) => {
+        setTitle(e.target.value);
+        emitTyping();
+    };
+
+    const handleDescriptionChange = (e) => {
+        setDescription(e.target.value);
+        emitTyping();
+    };
 
     const handleSave = async () => {
         setSaving(true);
@@ -52,6 +111,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
             setCard(updated);
             storeUpdate(updated);
             socket?.emit('card:update', { boardId, card: updated });
+            emitStopTyping();
             toast.success('Card details saved');
         } catch (err) {
             if (err.response?.status === 409) toast.error('Conflict: Modified by another user');
@@ -94,10 +154,15 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                     </div>
                     <input 
                         value={title} 
-                        onChange={e => setTitle(e.target.value)}
+                        onChange={handleTitleChange}
                         className="flex-1 text-xl font-bold text-slate-800 bg-transparent border-b border-transparent focus:border-indigo-500 focus:outline-none transition-all px-1 py-0.5 rounded-sm" 
                         placeholder="Untitled Task"
                     />
+                    {typingUser && (
+                        <p className="text-sm text-green-500 font-semibold whitespace-nowrap">
+                            {typingUser} is typing...
+                        </p>
+                    )}
                     <button onClick={onClose}
                         className="text-slate-400 hover:text-rose-600 w-8 h-8 flex items-center justify-center rounded-xl hover:bg-rose-50 transition-all duration-150 text-base">✕</button>
                 </div>
@@ -154,7 +219,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                     <ReactMarkdown>{description || '*No description provided yet.*'}</ReactMarkdown>
                                 </div>
                             ) : (
-                                <textarea rows={5} value={description} onChange={e => setDescription(e.target.value)}
+                                <textarea rows={5} value={description} onChange={handleDescriptionChange}
                                     placeholder="Add structural Markdown updates (headers, tables, links)..."
                                     className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 resize-none transition-all duration-150" />
                             )}

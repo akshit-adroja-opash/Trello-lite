@@ -40,7 +40,6 @@ export const updateCard = async (req, res, next) => {
         const card = await Card.findById(cardId);
         if (!card) return next(new ApiError(404, 'Card not found'));
 
-        // Conflict detection: reject stale edits
         if (version !== undefined && card.version !== version) {
             return next(new ApiError(409, 'Conflict: card was modified by another user'));
         }
@@ -76,7 +75,7 @@ export const moveCard = async (req, res, next) => {
             return next(new ApiError(409, 'Conflict: card was modified by another user'));
         }
 
-        const fromColumn = card.column;
+        const fromColumn = card.column.toString();
         card.column = targetColumnId;
         card.order = targetOrder;
         card.version = (card.version || 0) + 1;

@@ -21,6 +21,10 @@ const activitySchema = new mongoose.Schema({
     },
     details: {
         type: String
+    },
+    target: {
+        type: String,
+        required: true ,
     }
 }, { timestamps: true });
 

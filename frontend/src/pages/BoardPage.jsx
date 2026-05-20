@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors, closestCorners } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
+import debounce from 'lodash/debounce';
 
 import useBoardStore from '../store/boardStore';
 import useSocketStore from '../store/socketStore';
@@ -16,6 +17,7 @@ import { generateIndexBetween } from '../utils/fractionalIndex';
 import ColumnList from '../components/Column/ColumnList';
 import CardItem from '../components/Card/CardItem';
 import Avatar from '../UI/Avatar';
+import ActivitySidebar from '../components/Board/ActivitySidebar';
 import KeyboardShortcutsModal from '../components/Board/KeyboardShortcutsModal';
 
 const BoardPage = () => {
@@ -23,10 +25,11 @@ const BoardPage = () => {
     const user = useAuthStore(s => s.user);
     const socket = useSocketStore(s => s.socket);
     const connected = useSocketStore(s => s.connected);
+    
 
     const { board, columns, cards, presence, setBoard, setColumns, setCardsForColumn,
         addColumn, updateColumn, removeColumn, addCard, updateCard: storeUpdateCard,
-        moveCardOptimistic, removeCard, setPresence } = useBoardStore();
+        moveCardOptimistic, removeCard, setPresence, undo, redo} = useBoardStore();
 
     const [loading, setLoading] = useState(true);
     const [activeCard, setActiveCard] = useState(null);
@@ -34,28 +37,127 @@ const BoardPage = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [filterLabel, setFilterLabel] = useState('');
     const [showShortcuts, setShowShortcuts] = useState(false);
+    const [cursors, setCursors] = useState([]);
     const searchRef = useRef(null);
+    const emitCursorRef = useRef(null);
+
 
     const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
-    useEffect(() => {
-        const load = async () => {
-            setLoading(true);
-            try {
-                const boardRes = await getSingleBoard(boardId);
-                setBoard(boardRes.data?.board || boardRes.board);
-                const colRes = await getColumnsByBoard(boardId);
-                const cols = colRes.data?.columns || [];
-                setColumns(cols);
-                await Promise.all(cols.map(async col => {
-                    const cardRes = await getCardsByColumn(col._id);
-                    setCardsForColumn(col._id, cardRes.data?.cards || []);
-                }));
-            } catch { toast.error('Failed to load board'); }
-            finally { setLoading(false); }
-        };
-        load();
-    }, [boardId]);
+   useEffect(() => {
+
+    const load = async () => {
+
+        setLoading(true);
+
+        try {
+
+            const boardRes =
+                await getSingleBoard(boardId);
+
+            setBoard(
+                boardRes.data?.board ||
+                boardRes.board
+            );
+
+            const colRes =
+                await getColumnsByBoard(boardId);
+
+            const cols =
+                colRes.data?.columns || [];
+
+            setColumns(cols);
+
+            await Promise.all(
+                cols.map(async (col) => {
+
+                    const cardRes =
+                        await getCardsByColumn(
+                            col._id
+                        );
+
+                    setCardsForColumn(
+                        col._id,
+                        cardRes.data?.cards || []
+                    );
+                })
+            );
+
+        } catch {
+
+            toast.error("Failed to load board");
+
+        } finally {
+
+            setLoading(false);
+        }
+    };
+
+    load();
+
+}, [boardId]);
+
+useEffect(() => {
+
+    const handleKeyDown = (e) => {
+
+        /*
+          =========================
+          UNDO
+          CTRL + Z
+          =========================
+        */
+
+        if (
+            (e.ctrlKey || e.metaKey) &&
+            !e.shiftKey &&
+            e.key.toLowerCase() === "z"
+        ) {
+
+            e.preventDefault();
+
+            undo();
+
+            toast.success("Undo successful");
+        }
+
+        /*
+          =========================
+          REDO
+          CTRL + SHIFT + Z
+          =========================
+        */
+
+        if (
+            (e.ctrlKey || e.metaKey) &&
+            e.shiftKey &&
+            e.key.toLowerCase() === "z"
+        ) {
+
+            e.preventDefault();
+
+            redo();
+
+            toast.success("Redo successful");
+        }
+    };
+
+    window.addEventListener(
+        "keydown",
+        handleKeyDown
+    );
+
+    return () => {
+
+        window.removeEventListener(
+            "keydown",
+            handleKeyDown
+        );
+    };
+
+}, [undo, redo]);
+
+
 
     useEffect(() => {
         if (!socket || !user) return;
@@ -68,10 +170,41 @@ const BoardPage = () => {
         socket.on('column:created', ({ column }) => addColumn(column));
         socket.on('column:updated', ({ column }) => updateColumn(column));
         socket.on('column:deleted', ({ columnId }) => removeColumn(columnId));
+        socket.on('cursor:update', (data) => {
+            setCursors(prev => {
+                const filtered = prev.filter(cursor => cursor.userId !== data.userId);
+                return [...filtered, data];
+            });
+        });
+        
         return () => {
             socket.emit('board:leave', { boardId });
-            ['board:presence','card:moved','card:created','card:updated','card:deleted','column:created','column:updated','column:deleted']
+            ['board:presence','card:moved','card:created','card:updated','card:deleted','column:created','column:updated','column:deleted','cursor:update']
                 .forEach(e => socket.off(e));
+            setCursors([]);
+        };
+    }, [socket, user, boardId]);
+
+    useEffect(() => {
+        if (!socket || !user) {
+            emitCursorRef.current?.cancel?.();
+            emitCursorRef.current = null;
+            return;
+        }
+
+        emitCursorRef.current?.cancel?.();
+        emitCursorRef.current = debounce((x, y) => {
+            socket.emit('cursor:move', {
+                boardId,
+                userId: user._id,
+                user: user.username,
+                x,
+                y,
+            });
+        }, 40);
+
+        return () => {
+            emitCursorRef.current?.cancel?.();
         };
     }, [socket, user, boardId]);
 
@@ -160,6 +293,10 @@ const BoardPage = () => {
         } catch { toast.error('Failed to create card'); }
     };
 
+    const handleMouseMove = useCallback((e) => {
+        emitCursorRef.current?.(e.clientX, e.clientY);
+    }, []);
+
     const allLabels = [...new Set(Object.values(cards).flat().flatMap(c => c.labels?.map(l => l.name) || []))];
 
     if (loading) return (
@@ -173,7 +310,23 @@ const BoardPage = () => {
     );
 
     return (
-        <div className="flex flex-col h-screen overflow-hidden bg-slate-50/50 text-slate-600 antialiased font-sans selection:bg-indigo-500/10">
+        <div
+            className="flex flex-col h-screen overflow-hidden bg-slate-50/50 text-slate-600 antialiased font-sans selection:bg-indigo-500/10"
+            onMouseMove={handleMouseMove}
+        >
+            {cursors.map(cursor => (
+                <div
+                    key={cursor.userId}
+                    className="fixed z-50 pointer-events-none"
+                    style={{ left: cursor.x, top: cursor.y }}
+                >
+                    <div className="bg-blue-500 text-white px-2 py-1 rounded text-xs font-semibold shadow-sm">
+                        {cursor.user}
+                    </div>
+                    <div className="w-3 h-3 bg-blue-500 rounded-full shadow-sm" />
+                </div>
+            ))}
+
             <header className="shrink-0 h-16 bg-white border-b border-slate-200/80 sticky top-0 z-40 flex items-center justify-between px-6 sm:px-8 shadow-sm backdrop-blur-md bg-white/90 gap-4">
                 
                 <div className="flex items-center gap-3.5 min-w-0">
@@ -243,27 +396,31 @@ const BoardPage = () => {
                 </div>
             </header>
 
-            <main className="flex-1 overflow-x-auto overflow-y-hidden custom-scrollbar">
-                <div className="h-full px-8 py-6 min-w-max">
-                    <DndContext sensors={sensors} collisionDetection={closestCorners}
-                        onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-                        
-                        <ColumnList
-                            columns={columns} cards={cards}
-                            searchQuery={searchQuery} filterLabel={filterLabel}
-                            onAddCard={handleAddCard} onAddColumn={handleAddColumn}
-                            boardId={boardId} socket={socket}
-                        />
+            <main className="flex-1 flex overflow-hidden">
+                <div className="flex-1 overflow-x-auto overflow-y-hidden custom-scrollbar">
+                    <div className="h-full px-8 py-6 min-w-max">
+                        <DndContext sensors={sensors} collisionDetection={closestCorners}
+                            onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+                            
+                            <ColumnList
+                                columns={columns} cards={cards}
+                                searchQuery={searchQuery} filterLabel={filterLabel}
+                                onAddCard={handleAddCard} onAddColumn={handleAddColumn}
+                                boardId={boardId} socket={socket}
+                            />
 
-                        <DragOverlay dropAnimation={{ duration: 200, easing: 'cubic-bezier(0.18, 0.89, 0.32, 1.28)' }}>
-                            {activeCard && (
-                                <div className="transform rotate-[2.5deg] scale-[1.03] shadow-2xl shadow-slate-900/15 opacity-95 pointer-events-none rounded-xl border border-slate-200/60 bg-white">
-                                    <CardItem card={activeCard} isDragging />
-                                </div>
-                            )}
-                        </DragOverlay>
-                    </DndContext>
+                            <DragOverlay dropAnimation={{ duration: 200, easing: 'cubic-bezier(0.18, 0.89, 0.32, 1.28)' }}>
+                                {activeCard && (
+                                    <div className="transform rotate-[2.5deg] scale-[1.03] shadow-2xl shadow-slate-900/15 opacity-95 pointer-events-none rounded-xl border border-slate-200/60 bg-white">
+                                        <CardItem card={activeCard} isDragging />
+                                    </div>
+                                )}
+                            </DragOverlay>
+                        </DndContext>
+                    </div>
                 </div>
+
+                <ActivitySidebar boardId={boardId} />
             </main>
 
             {showShortcuts && <KeyboardShortcutsModal onClose={() => setShowShortcuts(false)} />}
