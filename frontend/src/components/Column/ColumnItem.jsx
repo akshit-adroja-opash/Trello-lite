@@ -6,11 +6,14 @@ import toast from 'react-hot-toast';
 import CardItem from '../Card/CardItem';
 import { deleteColumn, updateColumn } from '../../api/column.api';
 import useBoardStore from '../../store/boardStore';
+import useAuthStore from '../../store/authstore';
+import { canDeleteColumn, canEditColumn, canCreateCard } from '../../utils/rolePermissions';
 
 const CARD_HEIGHT = 88; 
 const VIRTUALIZE_THRESHOLD = 8; 
 
 const ColumnItem = ({ column, cards, searchQuery, filterLabel, onAddCard, boardId, socket }) => {
+  const role = useAuthStore((s) => s.user?.role || "Viewer");
     const [addingCard, setAddingCard] = useState(false);
     const [newCardTitle, setNewCardTitle] = useState('');
     const [editingName, setEditingName] = useState(false);
@@ -43,6 +46,7 @@ const ColumnItem = ({ column, cards, searchQuery, filterLabel, onAddCard, boardI
     };
 
     const handleRenameColumn = async () => {
+    if (!canEditColumn(role)) return; // prevent rename if not allowed
         if (!colName.trim() || colName === column.name) { setEditingName(false); return; }
         try {
             const res = await updateColumn(column._id, { name: colName });
@@ -54,6 +58,7 @@ const ColumnItem = ({ column, cards, searchQuery, filterLabel, onAddCard, boardI
     };
 
     const handleDeleteColumn = async () => {
+    if (!canDeleteColumn(role)) return; // prevent delete if not allowed
         if (!confirm(`Delete column "${column.name}"?`)) return;
         try {
             await deleteColumn(column._id);

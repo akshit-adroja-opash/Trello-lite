@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const activitySchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        ref: 'User',    
         required: true
     },
     board: {
