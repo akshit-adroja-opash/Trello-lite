@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable';
 import ColumnItem from './ColumnItem';
+import useBoardStore from '../../store/boardStore';
+import { canCreateColumn } from '../../utils/rolePermissions';
 
 const ColumnList = ({ columns, cards, searchQuery, filterLabel, onAddCard, onAddColumn, boardId, socket }) => {
     const [newColName, setNewColName] = useState('');
     const [adding, setAdding] = useState(false);
+    const boardRole = useBoardStore(s => s.boardRole);
 
     const handleAdd = async () => {
         if (!newColName.trim()) return;
@@ -31,7 +34,7 @@ const ColumnList = ({ columns, cards, searchQuery, filterLabel, onAddCard, onAdd
             </SortableContext>
 
             <div className="shrink-0 w-72 group/btn">
-                {adding ? (
+                {canCreateColumn(boardRole) && (adding ? (
                     <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 animate-in fade-in zoom-in-95 duration-150">
                         <input 
                             autoFocus 
@@ -68,7 +71,7 @@ const ColumnList = ({ columns, cards, searchQuery, filterLabel, onAddCard, onAdd
                             <span>Add list</span>
                         </span>
                     </button>
-                )}
+                ))}
             </div>
         </div>
     );

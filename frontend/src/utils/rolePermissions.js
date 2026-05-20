@@ -12,31 +12,31 @@ const ROLE_HIERARCHY = {
 };
 
 /** Workspace level permissions */
-export const canCreateWorkspace = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.Admin;
+export const canCreateWorkspace = (role) => ROLE_HIERARCHY[role] === ROLE_HIERARCHY.Owner;
 export const canDeleteWorkspace = (role) => ROLE_HIERARCHY[role] === ROLE_HIERARCHY.Owner;
-export const canManageRoles = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.Admin;
-export const canInviteRemoveUsers = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.Admin;
+export const canManageRoles = (role) => ROLE_HIERARCHY[role] === ROLE_HIERARCHY.Owner;
+export const canInviteRemoveUsers = (role) => ROLE_HIERARCHY[role] === ROLE_HIERARCHY.Owner;
 
 /** Board level permissions */
-export const canCreateBoard = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.Admin;
-export const canDeleteBoard = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.Admin && role !== "Viewer";
-export const canArchiveBoard = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.Admin;
-export const canEditBoardSettings = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.Admin;
+export const canCreateBoard = (role) => ROLE_HIERARCHY[role] === ROLE_HIERARCHY.Owner;
+export const canDeleteBoard = (role) => ROLE_HIERARCHY[role] === ROLE_HIERARCHY.Owner;
+export const canArchiveBoard = (role) => ROLE_HIERARCHY[role] === ROLE_HIERARCHY.Owner;
+export const canEditBoardSettings = (role) => ROLE_HIERARCHY[role] === ROLE_HIERARCHY.Owner;
 
-/** Column level permissions */
-export const canCreateColumn = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.Editor;
-export const canEditColumn = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.Editor;
-export const canDeleteColumn = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.Editor;
-export const canReorderColumns = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.Editor;
+/** Column level permissions — Admin (Project Manager) + Owner can manage columns */
+export const canCreateColumn = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.Admin;
+export const canEditColumn = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.Admin;
+export const canDeleteColumn = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.Admin;
+export const canReorderColumns = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.Admin;
 
-/** Card level permissions */
+/** Card level permissions — Editor (Developer) + Admin + Owner */
 export const canCreateCard = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.Editor;
 export const canEditCard = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.Editor;
 export const canDeleteCard = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.Editor;
 export const canMoveCard = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.Editor;
-export const canAssignMembers = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.Editor;
+export const canAssignMembers = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.Admin;
 export const canAddLabels = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.Editor;
-export const canChangeDueDate = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.Editor;
+export const canChangeDueDate = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.Admin;
 export const canComment = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.Editor;
 
 /** Helper to get current role from auth store */

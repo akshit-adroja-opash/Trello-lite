@@ -1,5 +1,6 @@
 import Board from '../models/Board.js';
 import Card from '../models/Card.js';
+import Column from '../models/Column.js';
 import Workspace from '../models/Workspace.js';
 import { ApiError } from '../utils/apiError.js';
 
@@ -10,6 +11,16 @@ export const requireBoardRole = (...allowedRoles) => async (req, res, next) => {
         if (!boardId && req.params.cardId) {
             const card = await Card.findById(req.params.cardId).select('board');
             boardId = card?.board?.toString();
+        }
+
+        if (!boardId && req.params.columnId) {
+            const column = await Column.findById(req.params.columnId).select('board');
+            boardId = column?.board?.toString();
+        }
+
+        if (!boardId && req.body?.columnId) {
+            const column = await Column.findById(req.body.columnId).select('board');
+            boardId = column?.board?.toString();
         }
 
         if (!boardId) return next(new ApiError(400, 'boardId required'));
@@ -31,9 +42,8 @@ export const requireBoardRole = (...allowedRoles) => async (req, res, next) => {
                 const wsMember = workspace.members.find(m => m.user.toString() === req.user._id.toString());
                 if (wsMember) {
                     let inheritedRole = 'Viewer';
-                    if (wsMember.role === 'admin' || wsMember.role === 'editor') {
-                        inheritedRole = 'Editor';
-                    }
+                    if (wsMember.role === 'admin') inheritedRole = 'Admin';
+                    else if (wsMember.role === 'editor') inheritedRole = 'Editor';
                     member = { role: inheritedRole };
                 }
             }

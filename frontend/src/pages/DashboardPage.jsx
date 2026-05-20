@@ -183,7 +183,9 @@ const DashboardPage = () => {
           </div>
         )}
 
-        {workspaces.map(ws => (
+        {workspaces.map(ws => {
+          const isWsOwner = ws.owner === user?._id || ws.owner?._id === user?._id;
+          return (
           <div key={ws._id} className="mb-12 bg-white rounded-2xl border border-slate-200/70 p-6 shadow-sm transition-all hover:shadow-md">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-150">
               <div className="flex items-center gap-3.5">
@@ -200,16 +202,21 @@ const DashboardPage = () => {
                 </div>
               </div>
               <div className="flex items-center gap-2 self-end sm:self-auto">
+                {isWsOwner && (
                 <button onClick={() => setShowInvite(ws._id)}
                   className="text-xs font-semibold border border-slate-200 text-slate-600 hover:text-slate-800 hover:bg-slate-50 px-3.5 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5">
                   <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 019 21c-2.307 0-4.484-.633-6.351-1.766z" /></svg>
                   Invite Members
                 </button>
+                )}
+                {isWsOwner && (
                 <button onClick={() => setShowCreateBoard(ws._id)}
                   className="text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1">
                   <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
                   Add Board
                 </button>
+                )}
+                {isWsOwner && (
                 <button onClick={() => handleDeleteWorkspace(ws._id)}
                   className="text-xs font-semibold border border-slate-200 text-slate-600 hover:text-red-600 hover:bg-red-50 hover:border-red-100 px-3.5 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5"
                   title="Delete Workspace">
@@ -218,6 +225,7 @@ const DashboardPage = () => {
                   </svg>
                   <span>Delete</span>
                 </button>
+                )}
               </div>
             </div>
 
@@ -245,6 +253,7 @@ const DashboardPage = () => {
                   <span className="text-white font-bold text-sm tracking-wide z-10 drop-shadow-sm group-hover:underline decoration-white/60 underline-offset-4">{board.name}</span>
                 </Link>
               ))}
+              {isWsOwner && (
               <button onClick={() => setShowCreateBoard(ws._id)}
                 className="h-28 rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 hover:border-indigo-500 hover:text-indigo-600 hover:bg-indigo-50/30 transition-all duration-200 gap-1.5 group">
                 <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100 group-hover:bg-indigo-50 group-hover:border-indigo-100 transition-colors">
@@ -252,9 +261,11 @@ const DashboardPage = () => {
                 </div>
                 <span className="text-xs font-bold tracking-wide">Create New Board</span>
               </button>
+              )}
             </div>
           </div>
-        ))}
+          );
+        })}
       </main>
 
       {showCreateWs && (
@@ -334,8 +345,9 @@ const DashboardPage = () => {
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Role</label>
               <select value={inviteRole} onChange={e => setInviteRole(e.target.value)}
                 className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm font-medium focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all cursor-pointer">
-                <option value="viewer">Viewer </option>
-                <option value="editor">Editor</option>
+                <option value="viewer">Viewer (Client)</option>
+                <option value="editor">Editor (Developer)</option>
+                <option value="admin">Admin (Project Manager)</option>
               </select>
             </div>
             <div className="flex gap-3 pt-2">

@@ -2,6 +2,7 @@ import { create } from "zustand";
 
 const useBoardStore = create((set, get) => ({
   board: null,
+  boardRole: 'Viewer',
   columns: [],
   cards: {},
   presence: [],
@@ -9,6 +10,7 @@ const useBoardStore = create((set, get) => ({
   future: [],
 
   setBoard: (board) => set({ board }),
+  setBoardRole: (boardRole) => set({ boardRole }),
   setColumns: (columns) => set({ columns }),
 
   setCardsForColumn: (columnId, cards) =>

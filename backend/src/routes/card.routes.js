@@ -6,12 +6,12 @@ import { requireBoardRole } from '../middleware/role.middleware.js';
 const router = Router();
 router.use(verifyJWT);
 
-router.post('/', requireBoardRole('Owner', 'Editor'), createCard);
+router.post('/', requireBoardRole('Owner', 'Admin', 'Editor'), createCard);
 router.get('/column/:columnId', getCards);
 router.get('/:cardId', getSingleCard);
 router.get('/:cardId/activities', getCardActivities);
-router.patch('/:cardId', requireBoardRole('Owner', 'Editor'), updateCard);
-router.delete('/:cardId', requireBoardRole('Owner', 'Editor'), deleteCard);
-router.patch('/:cardId/move', requireBoardRole('Owner', 'Editor'), moveCard);
+router.patch('/:cardId', requireBoardRole('Owner', 'Admin', 'Editor'), updateCard);
+router.delete('/:cardId', requireBoardRole('Owner', 'Admin', 'Editor'), deleteCard);
+router.patch('/:cardId/move', requireBoardRole('Owner', 'Admin', 'Editor'), moveCard);
 
 export default router;

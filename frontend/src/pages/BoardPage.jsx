@@ -27,9 +27,9 @@ const BoardPage = () => {
     const connected = useSocketStore(s => s.connected);
     
 
-    const { board, columns, cards, presence, setBoard, setColumns, setCardsForColumn,
+    const { board, columns, cards, presence, setBoard, setBoardRole, setColumns, setCardsForColumn,
         addColumn, updateColumn, removeColumn, addCard, updateCard: storeUpdateCard,
-        moveCardOptimistic, removeCard, setPresence, undo, redo} = useBoardStore();
+        moveCardOptimistic, removeCard, setPresence, undo, redo, boardRole} = useBoardStore();
 
     const [loading, setLoading] = useState(true);
     const [activeCard, setActiveCard] = useState(null);
@@ -55,10 +55,20 @@ const BoardPage = () => {
             const boardRes =
                 await getSingleBoard(boardId);
 
-            setBoard(
-                boardRes.data?.board ||
-                boardRes.board
-            );
+            const boardData = boardRes.data?.board || boardRes.board;
+            setBoard(boardData);
+
+            // Determine current user's role on this board
+            if (boardData && user) {
+                if (boardData.owner?._id === user._id || boardData.owner === user._id) {
+                    setBoardRole('Owner');
+                } else {
+                    const member = boardData.members?.find(m =>
+                        (m.user?._id || m.user) === user._id
+                    );
+                    setBoardRole(member?.role || 'Viewer');
+                }
+            }
 
             const colRes =
                 await getColumnsByBoard(boardId);
@@ -228,6 +238,7 @@ useEffect(() => {
     const handleDragEnd = useCallback(async ({ active, over }) => {
         setActiveCard(null); setActiveColumn(null);
         if (!over || active.id === over.id) return;
+        if (boardRole === 'Viewer') return;
         const activeType = active.data.current?.type;
 
         if (activeType === 'card') {

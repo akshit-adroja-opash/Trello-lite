@@ -6,6 +6,7 @@ import useBoardStore from '../../store/boardStore';
 import useSocketStore from '../../store/socketStore';
 import useAuthStore from '../../store/authstore';
 import Avatar from '../../UI/Avatar';
+import { canEditCard, canDeleteCard } from '../../utils/rolePermissions';
 
 const LABEL_COLORS = ['#4F46E5', '#0EA5E9', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6'];
 
@@ -34,10 +35,12 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
     const [typingUser, setTypingUser] = useState(null);
     const typingTimerRef = useRef(null);
 
-    const { updateCard: storeUpdate, removeCard, board } = useBoardStore();
+    const { updateCard: storeUpdate, removeCard, board, boardRole } = useBoardStore();
     const socket = useSocketStore(s => s.socket);
     const boardId = useBoardStore(s => s.board?._id);
     const currentUser = useAuthStore(s => s.user);
+    const canEdit = canEditCard(boardRole);
+    const canDelete = canDeleteCard(boardRole);
 
     const boardMembers = board?.members || [];
 
@@ -101,6 +104,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
     };
 
     const handleSave = async () => {
+        if (!canEdit) return;
         setSaving(true);
         try {
             const res = await updateCard(card._id, {
@@ -120,6 +124,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
     };
 
     const handleDelete = async () => {
+        if (!canDelete) return;
         if (!confirm('Are you sure you want to permanently delete this card?')) return;
         try {
             await deleteCard(card._id);
@@ -155,7 +160,8 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                     <input 
                         value={title} 
                         onChange={handleTitleChange}
-                        className="flex-1 text-xl font-bold text-slate-800 bg-transparent border-b border-transparent focus:border-indigo-500 focus:outline-none transition-all px-1 py-0.5 rounded-sm" 
+                        readOnly={!canEdit}
+                        className="flex-1 text-xl font-bold text-slate-800 bg-transparent border-b border-transparent focus:border-indigo-500 focus:outline-none transition-all px-1 py-0.5 rounded-sm disabled:cursor-default" 
                         placeholder="Untitled Task"
                     />
                     {typingUser && (
@@ -220,6 +226,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                 </div>
                             ) : (
                                 <textarea rows={5} value={description} onChange={handleDescriptionChange}
+                                    readOnly={!canEdit}
                                     placeholder="Add structural Markdown updates (headers, tables, links)..."
                                     className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 resize-none transition-all duration-150" />
                             )}
@@ -323,14 +330,15 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                         )}
 
                         <div className="space-y-2 pt-5 border-t border-slate-100">
-                            <button onClick={handleSave} disabled={saving}
+                            <button onClick={handleSave} disabled={saving || !canEdit}
                                 className="w-full h-10 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-xl shadow-md transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2">
                                 {saving ? (
                                     <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                 ) : 'Save changes'}
                             </button>
                             <button onClick={handleDelete}
-                                className="w-full h-10 bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white text-sm font-semibold rounded-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 border border-rose-200 hover:border-transparent">
+                                className="w-full h-10 bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white text-sm font-semibold rounded-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 border border-rose-200 hover:border-transparent"
+                                style={{ display: canDelete ? undefined : 'none' }}>
                                 Delete card
                             </button>
                         </div>

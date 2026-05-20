@@ -13,7 +13,7 @@ const CARD_HEIGHT = 88;
 const VIRTUALIZE_THRESHOLD = 8; 
 
 const ColumnItem = ({ column, cards, searchQuery, filterLabel, onAddCard, boardId, socket }) => {
-  const role = useAuthStore((s) => s.user?.role || "Viewer");
+  const role = useBoardStore((s) => s.boardRole);
     const [addingCard, setAddingCard] = useState(false);
     const [newCardTitle, setNewCardTitle] = useState('');
     const [editingName, setEditingName] = useState(false);
@@ -84,7 +84,7 @@ const ColumnItem = ({ column, cards, searchQuery, filterLabel, onAddCard, boardI
                         onClick={e => e.stopPropagation()} />
                 ) : (
                     <h3 className="font-bold text-sm text-slate-800 flex-1 truncate pr-2 tracking-tight"
-                        onDoubleClick={() => setEditingName(true)}>
+                        onDoubleClick={() => canEditColumn(role) && setEditingName(true)}>
                         {column.name}
                         <span className="ml-2 bg-slate-200/60 text-slate-500 font-bold text-[11px] px-2 py-0.5 rounded-full">
                             {filteredCards.length}
@@ -94,7 +94,8 @@ const ColumnItem = ({ column, cards, searchQuery, filterLabel, onAddCard, boardI
                 
                 <button onClick={e => { e.stopPropagation(); handleDeleteColumn(); }}
                     className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all opacity-0 group-hover/header:opacity-100 focus:opacity-100"
-                    title="Delete column">
+                    title="Delete column"
+                    style={{ display: canDeleteColumn(role) ? undefined : 'none' }}>
                     <svg width="11" height="11" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2.5">
                         <path d="M1 1l12 12M13 1L1 13"/>
                     </svg>
@@ -153,7 +154,7 @@ const ColumnItem = ({ column, cards, searchQuery, filterLabel, onAddCard, boardI
                             </button>
                         </div>
                     </div>
-                ) : (
+                ) : canCreateCard(role) ? (
                     <button onClick={() => setAddingCard(true)}
                         className="w-full text-left text-slate-500 hover:text-indigo-600 hover:bg-indigo-50/60 text-xs font-bold px-2.5 py-2 rounded-xl transition-all flex items-center gap-2 group/addbtn">
                         <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3" className="text-slate-400 group-hover/addbtn:text-indigo-600 transition-colors">
@@ -161,7 +162,7 @@ const ColumnItem = ({ column, cards, searchQuery, filterLabel, onAddCard, boardI
                         </svg>
                         <span>Add a card</span>
                     </button>
-                )}
+                ) : null}
             </div>
         </div>
     );
