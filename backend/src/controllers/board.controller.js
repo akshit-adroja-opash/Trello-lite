@@ -1,5 +1,7 @@
 import Board from '../models/Board.js';
 import Workspace from '../models/Workspace.js';
+import Column from '../models/Column.js';
+import { generateIndexBetween } from '../utils/fractionalIndex.js';
 import { ApiError } from '../utils/apiError.js';
 
 export const createBoard = async (req, res, next) => {
@@ -15,6 +17,19 @@ export const createBoard = async (req, res, next) => {
             name, workspace: workspaceId, owner: req.user._id, background,
             members: [{ user: req.user._id, role: 'Owner' }]
         });
+
+        // Automatically populate new board with default columns
+        const defaultLists = ['Backlog', 'In Progress', 'Code Review', 'Done'];
+        let lastOrder = null;
+        for (const listName of defaultLists) {
+            lastOrder = generateIndexBetween(lastOrder, null);
+            await Column.create({
+                name: listName,
+                board: board._id,
+                order: lastOrder
+            });
+        }
+
         res.status(201).json({ status: 'success', data: { board } });
     } catch (error) { next(error); }
 };

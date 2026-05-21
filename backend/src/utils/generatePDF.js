@@ -31,10 +31,9 @@ export const generatePDF = async (data, fileName) => {
     doc.moveDown();
 
     data.columns.forEach((column) => {
+        doc.fontSize(18).text(column.name || column.title || "Unnamed Column");
 
-        doc.fontSize(18).text(column.title);
-
-        column.cards.forEach((card) => {
+        (column.cards || []).forEach((card) => {
             doc.fontSize(12).text(`• ${card.title}`);
         });
 
@@ -43,5 +42,5 @@ export const generatePDF = async (data, fileName) => {
 
     doc.end();
 
-    return filePath;
+    return filePath.replace(/\\/g, '/');
 };

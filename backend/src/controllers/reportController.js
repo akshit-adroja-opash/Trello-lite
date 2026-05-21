@@ -8,13 +8,7 @@ export const generateFullReport = async (req, res) => {
 
         const { boardId } = req.params;
 
-        const board = await Board.findById(boardId)
-            .populate({
-                path: "columns",
-                populate: {
-                    path: "cards",
-                },
-            });
+        const board = await Board.findById(boardId);
 
         if (!board) {
             return res.status(404).json({
@@ -22,10 +16,18 @@ export const generateFullReport = async (req, res) => {
             });
         }
 
+        const Column = (await import("../models/Column.js")).default;
+        const Card = (await import("../models/Card.js")).default;
+
+        const columns = await Column.find({ board: boardId }).sort("order").lean();
+        for (const col of columns) {
+            col.cards = await Card.find({ column: col._id }).sort("order").lean();
+        }
+
         const pdfPath = await generatePDF(
             {
-                boardName: board.title,
-                columns: board.columns,
+                boardName: board.name,
+                columns: columns,
             },
             `full-report-${Date.now()}.pdf`
         );
@@ -54,13 +56,7 @@ export const generateClientReport = async (req, res) => {
 
         const { boardId } = req.params;
 
-        const board = await Board.findById(boardId)
-            .populate({
-                path: "columns",
-                populate: {
-                    path: "cards",
-                },
-            });
+        const board = await Board.findById(boardId);
 
         if (!board) {
             return res.status(404).json({
@@ -68,18 +64,26 @@ export const generateClientReport = async (req, res) => {
             });
         }
 
+        const Column = (await import("../models/Column.js")).default;
+        const Card = (await import("../models/Card.js")).default;
+
+        const columns = await Column.find({ board: boardId }).sort("order").lean();
+        for (const col of columns) {
+            col.cards = await Card.find({ column: col._id }).sort("order").lean();
+        }
+
         const completedCards = [];
 
-        board.columns.forEach((column) => {
+        columns.forEach((column) => {
 
-            if (column.title.toLowerCase() === "done") {
+            if (column.name.toLowerCase() === "done") {
                 completedCards.push(...column.cards);
             }
         });
 
         const pdfPath = await generatePDF(
             {
-                boardName: board.title,
+                boardName: board.name,
                 columns: [
                     {
                         title: "Completed Milestones",

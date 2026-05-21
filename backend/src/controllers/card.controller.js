@@ -18,7 +18,8 @@ export const getCards = async (req, res, next) => {
     try {
         const { columnId } = req.params;
         const cards = await Card.find({ column: columnId }).sort('order')
-            .populate('assignees', 'username email avatar');
+            .populate('assignees', 'username email avatar')
+            .populate('comments.user', 'username email avatar');
         res.status(200).json({ status: 'success', data: { cards } });
     } catch (error) { next(error); }
 };
@@ -26,7 +27,9 @@ export const getCards = async (req, res, next) => {
 export const getSingleCard = async (req, res, next) => {
     try {
         const { cardId } = req.params;
-        const card = await Card.findById(cardId).populate('assignees', 'username email avatar');
+        const card = await Card.findById(cardId)
+            .populate('assignees', 'username email avatar')
+            .populate('comments.user', 'username email avatar');
         if (!card) return next(new ApiError(404, 'Card not found'));
         res.status(200).json({ status: 'success', data: { card } });
     } catch (error) { next(error); }
@@ -124,6 +127,9 @@ export const addComment = async (req, res, next) => {
     card.comments.push(comment);
     await card.save();
 
+    const populatedCard = await Card.findById(card._id).populate('comments.user', 'username avatar');
+    const newComment = populatedCard.comments[populatedCard.comments.length - 1];
+
     const Activity = (await import('../models/Activity.js')).default;
     await Activity.create({
       board: card.board,
@@ -135,22 +141,42 @@ export const addComment = async (req, res, next) => {
 
     try {
       const { getIO } = await import('../config/socket.js');
+      const { sendNotificationToUser } = await import('../sockets/user.socket.js');
+      const Board = (await import('../models/Board.js')).default;
       const Notification = (await import('../models/Notification.js')).default;
-      const notif = await Notification.create({
-        recipient: null,
-        sender: req.user._id,
-        type: 'BOARD_COMMENT',
-        message: `${req.user.username || 'User'} commented on card "${card.title}"`,
-        relatedEntity: card._id,
-        entityModel: 'Card'
-      });
-      const io = getIO();
-      io.to(card.board.toString()).emit('new_notification', notif);
+
+      const boardObj = await Board.findById(card.board);
+      if (boardObj) {
+        const io = getIO();
+        const recipients = new Set();
+
+        if (boardObj.owner.toString() !== req.user._id.toString()) {
+          recipients.add(boardObj.owner.toString());
+        }
+        for (const m of boardObj.members || []) {
+          if (m.user && m.user.toString() !== req.user._id.toString()) {
+            recipients.add(m.user.toString());
+          }
+        }
+
+        for (const recipientId of recipients) {
+          const notif = await Notification.create({
+            recipient: recipientId,
+            sender: req.user._id,
+            type: 'BOARD_COMMENT',
+            message: `${req.user.username || 'User'} commented on card "${card.title}"`,
+            relatedEntity: card._id,
+            entityModel: 'Card'
+          });
+
+          sendNotificationToUser(io, recipientId, notif);
+        }
+      }
     } catch (socketErr) {
       console.error('Socket notification error (comment):', socketErr.message);
     }
 
-    res.status(201).json({ status: 'success', data: { comment } });
+    res.status(201).json({ status: 'success', data: { comment: newComment } });
   } catch (err) {
     next(err);
   }

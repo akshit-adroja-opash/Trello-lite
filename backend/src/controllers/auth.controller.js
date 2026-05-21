@@ -66,19 +66,20 @@ export const getMe = async (req, res, next) => {
 export const updateProfile = async (req, res, next) => {
   try {
     const userId = req.user._id;
-    const updates = {};
+    const user = await User.findById(userId);
+    if (!user) return next(new ApiError(404, 'User not found'));
 
-    if (req.body.username) updates.username = req.body.username;
-    if (req.body.email) updates.email = req.body.email;
-    if (req.body.password) updates.password = req.body.password; // will be hashed by pre-save hook
+    if (req.body.username) user.username = req.body.username;
+    if (req.body.email) user.email = req.body.email;
+    if (req.body.password) user.password = req.body.password;
     if (req.file) {
-      updates.avatar = `/uploads/avatars/${req.file.filename}`;
+      user.avatar = `/uploads/avatars/${req.file.filename}`;
     }
 
-    const updatedUser = await User.findByIdAndUpdate(userId, updates, {
-      new: true,
-      runValidators: true,
-    }).select('-password');
+    await user.save();
+
+    const updatedUser = user.toObject();
+    delete updatedUser.password;
 
     res.status(200).json({ status: 'success', data: { user: updatedUser } });
   } catch (err) {
