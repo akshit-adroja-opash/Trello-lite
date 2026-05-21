@@ -8,6 +8,8 @@ import { createBoard, getBoardsByWorkspace } from '../api/board.api';
 import Avatar from '../UI/Avatar';
 import { getRoleDisplayName } from '../utils/roleDisplay';
 import NotificationBell from '../components/Notifications/NotificationBell';
+import DashboardSidebar from '../components/Layout/DashboardSidebar';
+
 
 const BOARD_COLORS = [
   'linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)', 
@@ -160,7 +162,10 @@ const DashboardPage = () => {
       </header>
 
       <main className="max-w-6xl mx-auto px-6 sm:px-8 py-10">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10 border-b border-slate-100 pb-6">
+        <div className="flex gap-8">
+          <DashboardSidebar />
+          <div className="flex-1">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10 border-b border-slate-100 pb-6">
           <div>
             <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">My Workspaces</h1>
             <p className="text-slate-500 mt-1">Collaborate, manage workflows, and track pipeline metrics</p>
@@ -275,6 +280,8 @@ const DashboardPage = () => {
           </div>
           );
         })}
+          </div>
+        </div>
       </main>
 
       {showCreateWs && (
