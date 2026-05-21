@@ -36,7 +36,7 @@ const CardItem = ({ card, columnId, isDragging: externalDragging }) => {
             >
                 <div
                     onClick={() => setOpen(true)}
-                    className="w-full bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200 cursor-grab active:cursor-grabbing p-3.5 select-none overflow-hidden"
+                    className="w-full bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700/80 shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200 cursor-grab active:cursor-grabbing p-3.5 select-none overflow-hidden"
                     style={{
                         borderTop: firstColor ? `3.5px solid ${firstColor}` : undefined
                     }}
@@ -59,24 +59,24 @@ const CardItem = ({ card, columnId, isDragging: externalDragging }) => {
                         </div>
                     )}
 
-                    <h4 className="text-sm font-semibold text-slate-800 leading-snug group-hover/card:text-indigo-600 transition-colors duration-150">
+                    <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200 leading-snug group-hover/card:text-indigo-600 dark:group-hover/card:text-indigo-400 transition-colors duration-150">
                         {card.title || "Untitled Task"}
                     </h4>
 
                     {totalItems > 0 && (
                         <div className="mt-3 mb-1">
                             <div className="flex justify-between items-center text-[11px] font-bold mb-1">
-                                <span className="text-slate-400 flex items-center gap-1">
+                                <span className="text-slate-400 dark:text-slate-500 flex items-center gap-1">
                                     <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                                     </svg>
                                     {doneItems}/{totalItems} Tasks
                                 </span>
-                                <span className={progress === 100 ? 'text-emerald-600' : 'text-slate-500'}>
+                                <span className={progress === 100 ? 'text-emerald-600' : 'text-slate-500 dark:text-slate-400'}>
                                     {progress}%
                                 </span>
                             </div>
-                            <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
                                 <div 
                                     className={`h-full rounded-full transition-all duration-300 ${
                                         progress === 100 ? 'bg-emerald-500' : 'bg-indigo-500'
@@ -87,17 +87,17 @@ const CardItem = ({ card, columnId, isDragging: externalDragging }) => {
                         </div>
                     )}
 
-                    <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2 text-slate-400">
+                    <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-700/50 flex items-center justify-between gap-2 text-slate-400">
                         <div className="flex items-center gap-2 flex-wrap">
                             
                             {card.dueDate && (
                                 <div 
                                     className={`flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-md border transition-colors ${
                                         isOverdue
-                                            ? 'bg-rose-50 text-rose-600 border-rose-200/60'
+                                            ? 'bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 border-rose-200/60 dark:border-rose-800/40'
                                             : isDueSoon
-                                            ? 'bg-amber-50 text-amber-700 border-amber-200/60'
-                                            : 'bg-slate-50 text-slate-500 border-slate-200/80'
+                                            ? 'bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border-amber-200/60 dark:border-amber-800/40'
+                                            : 'bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 border-slate-200/80 dark:border-slate-800'
                                     }`}
                                     title={isOverdue ? 'Overdue' : isDueSoon ? 'Due soon' : 'Due date'}
                                 >
@@ -111,7 +111,7 @@ const CardItem = ({ card, columnId, isDragging: externalDragging }) => {
                             )}
 
                             {card.description && (
-                                <div className="text-slate-400/80" title="This card has a description.">
+                                <div className="text-slate-400/80 dark:text-slate-500" title="This card has a description.">
                                     <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h12M4 18h8" />
                                     </svg>
@@ -124,7 +124,7 @@ const CardItem = ({ card, columnId, isDragging: externalDragging }) => {
                                 {card.assignees.slice(0, 3).map((a, idx) => (
                                     <div 
                                         key={a._id || idx}
-                                        className="w-5.5 h-5.5 rounded-full ring-2 ring-white bg-indigo-600 text-[10px] font-bold text-white flex items-center justify-center overflow-hidden shrink-0"
+                                        className="w-5.5 h-5.5 rounded-full ring-2 ring-white dark:ring-slate-800 bg-indigo-600 text-[10px] font-bold text-white flex items-center justify-center overflow-hidden shrink-0"
                                         title={a.username || 'Assignee'}
                                     >
                                         {a.avatar ? (
@@ -135,7 +135,7 @@ const CardItem = ({ card, columnId, isDragging: externalDragging }) => {
                                     </div>
                                 ))}
                                 {card.assignees.length > 3 && (
-                                    <div className="w-5.5 h-5.5 rounded-full ring-2 ring-white bg-slate-200 text-[9px] font-bold text-slate-600 flex items-center justify-center shrink-0">
+                                    <div className="w-5.5 h-5.5 rounded-full ring-2 ring-white dark:ring-slate-800 bg-slate-200 dark:bg-slate-700 text-[9px] font-bold text-slate-600 dark:text-slate-300 flex items-center justify-center shrink-0">
                                         +{card.assignees.length - 3}
                                     </div>
                                 )}

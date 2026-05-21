@@ -68,17 +68,17 @@ const ActivitySidebar = ({ boardId }) => {
     };
 
     return (
-        <div className="w-[320px] h-full bg-white border-l border-slate-200 flex flex-col">
+        <div className="w-[320px] h-full bg-white dark:bg-slate-800 border-l border-slate-200 dark:border-slate-700/50 flex flex-col transition-colors duration-200">
 
             {/* HEADER */}
 
-            <div className="p-4 border-b border-slate-200">
+            <div className="p-4 border-b border-slate-200 dark:border-slate-700">
 
-                <h2 className="text-lg font-bold text-slate-800">
+                <h2 className="text-lg font-bold text-slate-800 dark:text-white">
                     Activity Feed
                 </h2>
 
-                <p className="text-sm text-slate-500 mt-1">
+                <p className="text-sm text-slate-550 dark:text-slate-400 mt-1">
                     Live board activity
                 </p>
 
@@ -89,14 +89,14 @@ const ActivitySidebar = ({ boardId }) => {
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
 
                 {loading && (
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
                         Loading activities...
                     </p>
                 )}
 
                 {!loading &&
                     activities.length === 0 && (
-                        <p className="text-sm text-slate-500">
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
                             No activities yet
                         </p>
                     )}
@@ -105,7 +105,7 @@ const ActivitySidebar = ({ boardId }) => {
 
                     <div
                         key={activity._id}
-                        className="bg-slate-50 border border-slate-100 rounded-xl p-3"
+                        className="bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-xl p-3"
                     >
 
                         {/* USER */}
@@ -120,13 +120,13 @@ const ActivitySidebar = ({ boardId }) => {
 
                             <div>
 
-                                <p className="text-sm font-semibold text-slate-800">
+                                <p className="text-sm font-semibold text-slate-800 dark:text-white">
 
                                     {activity.user?.username || "User"}
 
                                 </p>
 
-                                <p className="text-xs text-slate-400">
+                                <p className="text-xs text-slate-400 dark:text-slate-450">
 
                                     {formatTime(
                                         activity.createdAt
@@ -140,7 +140,7 @@ const ActivitySidebar = ({ boardId }) => {
 
                         {/* ACTION */}
 
-                        <p className="text-sm text-slate-700 leading-relaxed">
+                        <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
 
                             {activity.details}
 

@@ -71,7 +71,7 @@ const ColumnItem = ({ column, cards, searchQuery, filterLabel, onAddCard, boardI
 
     return (
         <div ref={setNodeRef} style={style}
-            className={`shrink-0 w-72 flex flex-col bg-slate-100/80 border border-slate-200/60 rounded-2xl max-h-[calc(100vh-6.5rem)] transition-shadow duration-200 ${isDragging ? 'shadow-none' : 'shadow-sm'}`}>
+            className={`shrink-0 w-72 flex flex-col bg-slate-100/80 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-700/50 rounded-2xl max-h-[calc(100vh-6.5rem)] transition-shadow duration-200 ${isDragging ? 'shadow-none' : 'shadow-sm'}`}>
 
             <div className="flex items-center justify-between pl-4 pr-2.5 pt-3.5 pb-2.5 cursor-grab active:cursor-grabbing select-none group/header"
                 {...attributes} {...listeners}>
@@ -80,20 +80,20 @@ const ColumnItem = ({ column, cards, searchQuery, filterLabel, onAddCard, boardI
                         onChange={e => setColName(e.target.value)}
                         onBlur={handleRenameColumn}
                         onKeyDown={e => { if (e.key === 'Enter') handleRenameColumn(); if (e.key === 'Escape') setEditingName(false); }}
-                        className="flex-1 h-8 px-2.5 rounded-xl border border-indigo-500 bg-white text-sm font-bold text-slate-800 focus:outline-none focus:ring-4 focus:ring-indigo-500/10"
+                        className="flex-1 h-8 px-2.5 rounded-xl border border-indigo-500 dark:border-indigo-600 bg-white dark:bg-slate-900 text-sm font-bold text-slate-800 dark:text-white focus:outline-none focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-indigo-500/5"
                         onClick={e => e.stopPropagation()} />
                 ) : (
-                    <h3 className="font-bold text-sm text-slate-800 flex-1 truncate pr-2 tracking-tight"
+                    <h3 className="font-bold text-sm text-slate-800 dark:text-white flex-1 truncate pr-2 tracking-tight"
                         onDoubleClick={() => canEditColumn(role) && setEditingName(true)}>
                         {column.name}
-                        <span className="ml-2 bg-slate-200/60 text-slate-500 font-bold text-[11px] px-2 py-0.5 rounded-full">
+                        <span className="ml-2 bg-slate-200/60 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 font-bold text-[11px] px-2 py-0.5 rounded-full">
                             {filteredCards.length}
                         </span>
                     </h3>
                 )}
                 
                 <button onClick={e => { e.stopPropagation(); handleDeleteColumn(); }}
-                    className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all opacity-0 group-hover/header:opacity-100 focus:opacity-100"
+                    className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-955/20 transition-all opacity-0 group-hover/header:opacity-100 focus:opacity-100"
                     title="Delete column"
                     style={{ display: canDeleteColumn(role) ? undefined : 'none' }}>
                     <svg width="11" height="11" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -121,7 +121,7 @@ const ColumnItem = ({ column, cards, searchQuery, filterLabel, onAddCard, boardI
                     ) : (
                         <>
                             {filteredCards.length === 0 && !addingCard && (
-                                <div className="text-center text-slate-400 text-xs font-semibold py-6 border-2 border-dashed border-slate-200 rounded-xl my-1 bg-slate-50/40 select-none">
+                                <div className="text-center text-slate-450 dark:text-slate-500 text-xs font-semibold py-6 border-2 border-dashed border-slate-200 dark:border-slate-700/60 rounded-xl my-1 bg-slate-50/40 dark:bg-slate-900/10 select-none">
                                     Drop cards here
                                 </div>
                             )}
@@ -135,29 +135,29 @@ const ColumnItem = ({ column, cards, searchQuery, filterLabel, onAddCard, boardI
                 </SortableContext>
             </div>
 
-            <div className="p-2 pt-1.5 shrink-0 border-t border-slate-200/20">
+            <div className="p-2 pt-1.5 shrink-0 border-t border-slate-200/20 dark:border-slate-700/30">
                 {addingCard ? (
-                    <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm animate-in fade-in zoom-in-95 duration-150">
+                    <div className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in zoom-in-95 duration-150">
                         <textarea autoFocus rows={2} value={newCardTitle}
                             onChange={e => setNewCardTitle(e.target.value)}
                             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAddCard(); } if (e.key === 'Escape') setAddingCard(false); }}
                             placeholder="Type a title for this card..."
-                            className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 resize-none mb-2" />
+                            className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 resize-none mb-2" />
                         <div className="flex gap-1.5 justify-end">
                             <button onClick={() => setAddingCard(false)}
-                                className="text-slate-500 hover:text-slate-800 text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-slate-50 transition-colors">
+                                className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
                                 Cancel
                             </button>
                             <button onClick={handleAddCard}
-                                className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3.5 py-1.5 rounded-lg shadow-sm shadow-indigo-100 transition-colors">
+                                className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3.5 py-1.5 rounded-lg shadow-sm shadow-indigo-100 dark:shadow-none transition-colors">
                                 Add card
                             </button>
                         </div>
                     </div>
                 ) : canCreateCard(role) ? (
                     <button onClick={() => setAddingCard(true)}
-                        className="w-full text-left text-slate-500 hover:text-indigo-600 hover:bg-indigo-50/60 text-xs font-bold px-2.5 py-2 rounded-xl transition-all flex items-center gap-2 group/addbtn">
-                        <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3" className="text-slate-400 group-hover/addbtn:text-indigo-600 transition-colors">
+                        className="w-full text-left text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50/60 dark:hover:bg-indigo-950/20 text-xs font-bold px-2.5 py-2 rounded-xl transition-all flex items-center gap-2 group/addbtn">
+                        <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3" className="text-slate-450 dark:text-slate-400 group-hover/addbtn:text-indigo-600 transition-colors">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                         </svg>
                         <span>Add a card</span>
