@@ -39,3 +39,11 @@ export const deleteWorkspace = async (workspaceId) => {
   const response = await API.delete(`/workspaces/${workspaceId}`);
   return response.data;
 };
+
+// Fetch total overdue tasks count for the dashboard
+// Note: endpoint requires workspaceId
+export const getOverdueCount = async (workspaceId) => {
+  const response = await API.get(`/workspaces/${workspaceId}/overdue-count`);
+  return response.data;
+};
+

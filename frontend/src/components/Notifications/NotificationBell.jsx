@@ -1,43 +1,37 @@
-import React, { useEffect } from 'react';
-import { FiBell } from 'react-icons/fi';
+import { useState, useEffect } from 'react';
 import useNotificationStore from '../../store/notificationStore';
 import NotificationDropdown from './NotificationDropdown';
 
-/**
- * Renders a bell icon with unread count badge.
- * On mount it fetches notifications and registers socket listeners via the store.
- */
 const NotificationBell = () => {
-  const unreadCount = useNotificationStore((s) => s.unreadCount);
-  const fetch = useNotificationStore((s) => s.fetchNotifications);
-  const initSocket = useNotificationStore((s) => s.initSocketListeners);
-  const [open, setOpen] = React.useState(false);
+    const unreadCount = useNotificationStore(s => s.unreadCount);
+    const fetchNotifications = useNotificationStore(s => s.fetchNotifications);
+    const initSocketListeners = useNotificationStore(s => s.initSocketListeners);
+    const [open, setOpen] = useState(false);
 
-  useEffect(() => {
-    fetch();
-    initSocket();
-  }, [fetch, initSocket]);
+    useEffect(() => {
+        fetchNotifications();
+        initSocketListeners();
+    }, [fetchNotifications, initSocketListeners]);
 
-  return (
-    <div className="relative inline-block">
-      <button
-        onClick={() => setOpen((prev) => !prev)}
-        className="flex items-center p-2 hover:bg-white/10 rounded-lg transition-colors"
-        aria-label="Notifications"
-      >
-        <FiBell className="w-5 h-5 text-[#e0e0e0]" />
-        {unreadCount > 0 && (
-          <span
-            className="absolute -top-1 -right-1 bg-red-500 text-xs text-white rounded-full w-5 h-5 flex items-center justify-center animate-pulse"
-            title={`${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}`}
-          >
-            {unreadCount}
-          </span>
-        )}
-      </button>
-      {open && <NotificationDropdown onClose={() => setOpen(false)} />}
-    </div>
-  );
+    return (
+        <div className="relative">
+            <button
+                onClick={() => setOpen(v => !v)}
+                className="relative w-10 h-10 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-all shadow-sm hover:shadow"
+                aria-label="Notifications"
+            >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 shadow-sm">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                )}
+            </button>
+            {open && <NotificationDropdown onClose={() => setOpen(false)} />}
+        </div>
+    );
 };
 
 export default NotificationBell;

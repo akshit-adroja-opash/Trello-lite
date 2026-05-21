@@ -92,7 +92,6 @@ const RegisterPage = () => {
               required
               className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm font-medium focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all"
             >
-              <option value="admin">Admin</option>
               <option value="project_manager">Project Manager</option>
               <option value="developer">Developer</option>
             </select>

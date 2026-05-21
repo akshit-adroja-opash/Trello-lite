@@ -8,6 +8,8 @@ import BoardPage from "./pages/BoardPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import useAuthStore from "./store/authstore";
 import useSocketStore from "./store/socketStore";
+import MyTasksPage from "./pages/MyTasksPage";
+import ProfilePage from "./pages/ProfilePage";
 
 const App = () => {
   const { connect, disconnect } = useSocketStore();
@@ -47,6 +49,22 @@ const App = () => {
           element={
             <ProtectedRoute>
               <BoardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/my-tasks"
+          element={
+            <ProtectedRoute>
+              <MyTasksPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
             </ProtectedRoute>
           }
         />

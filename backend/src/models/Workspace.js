@@ -20,10 +20,11 @@ const workspaceSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User'
         },
+        // admin = Admin, project_manager = Project Manager, developer = Developer, client = Client
         role: {
             type: String,
-            enum: ['admin', 'editor', 'viewer', 'member'],
-            default: 'viewer'
+            enum: ['admin', 'project_manager', 'developer', 'client'],
+            default: 'client'
         }
     }]
 }, { timestamps: true });

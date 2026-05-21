@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useState, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors, closestCorners } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
@@ -19,9 +19,11 @@ import CardItem from '../components/Card/CardItem';
 import Avatar from '../UI/Avatar';
 import ActivitySidebar from '../components/Board/ActivitySidebar';
 import KeyboardShortcutsModal from '../components/Board/KeyboardShortcutsModal';
+import NotificationBell from '../components/Notifications/NotificationBell';
 
 const BoardPage = () => {
     const { id: boardId } = useParams();
+    const navigate = useNavigate();
     const user = useAuthStore(s => s.user);
     const socket = useSocketStore(s => s.socket);
     const connected = useSocketStore(s => s.connected);
@@ -93,9 +95,10 @@ const BoardPage = () => {
                 })
             );
 
-        } catch {
+        } catch (err) {
 
-            toast.error("Failed to load board");
+            toast.error(err.response?.data?.message || err.message || "Failed to load board");
+            navigate('/dashboard');
 
         } finally {
 
@@ -280,7 +283,7 @@ useEffect(() => {
                 socket?.emit('column:update', { boardId, column: updated });
             } catch { toast.error('Failed to reorder column'); }
         }
-    }, [cards, columns, boardId, socket]);
+    }, [cards, columns, boardId, socket, boardRole, user]);
 
     const handleAddColumn = async (name) => {
         try {
@@ -398,7 +401,7 @@ useEffect(() => {
                             </span>
                         )}
                     </div>
-                    
+                    <NotificationBell />
                     <button onClick={() => setShowShortcuts(true)}
                         className="w-10 h-10 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-500 hover:text-slate-800 text-sm font-bold transition-all flex items-center justify-center shadow-sm hover:shadow"
                         title="Keyboard shortcuts (?)">

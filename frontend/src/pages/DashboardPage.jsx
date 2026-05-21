@@ -2,9 +2,12 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import useAuthStore from '../store/authstore';
-import { createWorkspace, deleteWorkspace, getWorkspaces, inviteMember } from '../api/workspace.api';
+import { createWorkspace, deleteWorkspace, getWorkspaces, inviteMember, getOverdueCount } from '../api/workspace.api';
+
 import { createBoard, getBoardsByWorkspace } from '../api/board.api';
 import Avatar from '../UI/Avatar';
+import { getRoleDisplayName } from '../utils/roleDisplay';
+import NotificationBell from '../components/Notifications/NotificationBell';
 
 const BOARD_COLORS = [
   'linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)', 
@@ -143,10 +146,12 @@ const DashboardPage = () => {
           <span className="font-bold text-slate-900 text-lg tracking-tight">Trello<span className="text-indigo-600 font-medium">lite</span></span>
         </div>
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2.5 bg-slate-50 pl-2 pr-3 py-1.5 rounded-full border border-slate-100">
+          <Link to="/profile"
+            className="flex items-center gap-2.5 bg-slate-50 pl-2 pr-3 py-1.5 rounded-full border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50/40 transition-all">
             <Avatar name={user?.username || '?'} size={28} className="shadow-inner" />
             <span className="text-sm font-medium text-slate-700 hidden sm:block">{user?.username}</span>
-          </div>
+          </Link>
+          <NotificationBell />
           <button onClick={handleLogout}
             className="text-sm font-medium text-slate-500 hover:text-red-600 bg-white hover:bg-red-50 border border-slate-200 hover:border-red-100 rounded-xl px-4 py-2 transition-all duration-200 shadow-sm">
             Logout
@@ -160,11 +165,13 @@ const DashboardPage = () => {
             <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">My Workspaces</h1>
             <p className="text-slate-500 mt-1">Collaborate, manage workflows, and track pipeline metrics</p>
           </div>
+          {user?.role !== 'developer' && (
           <button onClick={() => setShowCreateWs(true)}
             className="self-start sm:self-auto bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all duration-200 shadow-sm shadow-indigo-100 hover:shadow-md hover:shadow-indigo-200 hover:-translate-y-0.5 flex items-center gap-2">
             <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
             Create Workspace
           </button>
+          )}
         </div>
 
         {workspaces.length === 0 && (
@@ -177,9 +184,11 @@ const DashboardPage = () => {
             </div>
             <h3 className="text-lg font-bold text-slate-800 mb-1">No workspaces found</h3>
             <p className="text-slate-500 text-sm max-w-xs mx-auto mb-6">Get started by building a fresh workspace hub to separate your operational workflows.</p>
+            {user?.role !== 'developer' && (
             <button onClick={() => setShowCreateWs(true)} className="inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition-all shadow-sm">
               Create your first Workspace
             </button>
+            )}
           </div>
         )}
 
@@ -237,7 +246,7 @@ const DashboardPage = () => {
                     <Avatar name={member.user?.username || member.user?.email || '?'} size={20} />
                     <span className="text-xs font-medium text-slate-700">{member.user?.email}</span>
                     <span className="text-[10px] font-bold text-slate-500 uppercase ml-1 px-1.5 py-0.5 bg-slate-200/50 rounded-md">
-                      {member.role}
+                      {getRoleDisplayName(member.role)}
                     </span>
                   </div>
                 ))}
@@ -345,9 +354,9 @@ const DashboardPage = () => {
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Role</label>
               <select value={inviteRole} onChange={e => setInviteRole(e.target.value)}
                 className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm font-medium focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all cursor-pointer">
-                <option value="viewer">Viewer (Client)</option>
-                <option value="editor">Editor (Developer)</option>
-                <option value="admin">Admin (Project Manager)</option>
+                <option value="client">Client</option>
+                <option value="developer">Developer</option>
+                <option value="project_manager">Project Manager</option>
               </select>
             </div>
             <div className="flex gap-3 pt-2">

@@ -98,3 +98,66 @@ export const getCardActivities = async (req, res, next) => {
         res.status(200).json({ status: 'success', data: { activities } });
     } catch (error) { next(error); }
 };
+
+export const getMyTasks = async (req, res, next) => {
+    try {
+        const cards = await Card.find({ assignees: req.user._id })
+            .populate('board', 'title')
+            .populate('column', 'title')
+            .populate('assignees', 'username email avatar')
+            .sort({ dueDate: 1 });
+        res.status(200).json({ status: 'success', data: { cards } });
+    } catch (error) { next(error); }
+};
+
+// Add comment to a card
+export const addComment = async (req, res, next) => {
+  try {
+    const { cardId } = req.params;
+    const { text } = req.body;
+
+    if (!text) return next(new ApiError(400, 'Comment text is required'));
+
+    const card = await Card.findById(cardId);
+    if (!card) return next(new ApiError(404, 'Card not found'));
+
+    const comment = { user: req.user._id, text };
+    card.comments.push(comment);
+    await card.save();
+
+    // Log activity
+    const Activity = (await import('../models/Activity.js')).default;
+    await Activity.create({
+      board: card.board,
+      user: req.user._id,
+      action: 'commented',
+      target: card._id,
+      details: `Commented on card "${card.title}"`
+    });
+
+    // Emit BOARD_COMMENT notification via socket
+    try {
+      const { getIO } = await import('../config/socket.js');
+      const Notification = (await import('../models/Notification.js')).default;
+      const notif = await Notification.create({
+        recipient: null, // broadcast to board members
+        sender: req.user._id,
+        type: 'BOARD_COMMENT',
+        message: `${req.user.username || 'User'} commented on card "${card.title}"`,
+        relatedEntity: card._id,
+        entityModel: 'Card'
+      });
+      const io = getIO();
+      io.to(card.board.toString()).emit('new_notification', notif);
+    } catch (socketErr) {
+      console.error('Socket notification error (comment):', socketErr.message);
+    }
+
+    res.status(201).json({ status: 'success', data: { comment } });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Existing exports (no change needed as they are exported individually)
+

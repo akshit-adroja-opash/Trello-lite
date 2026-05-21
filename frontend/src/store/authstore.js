@@ -1,5 +1,6 @@
 import { create } from "zustand";
-import { loginUser, registerUser, getMe, logoutUser } from "../api/auth.api";
+import { devtools } from "zustand/middleware";
+import { loginUser, registerUser, getMe, logoutUser, updateProfile as apiUpdateProfile } from "../api/auth.api";
 
 const useAuthStore = create((set) => ({
   user: null,
@@ -69,6 +70,11 @@ const useAuthStore = create((set) => ({
       user: null,
       token: null,
     });
+  },
+
+  updateProfile: async (formData) => {
+    const res = await apiUpdateProfile(formData);
+    set({ user: res.data.user });
   },
 }));
 

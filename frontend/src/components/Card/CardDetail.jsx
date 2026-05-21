@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import ReactMarkdown from 'react-markdown';
-import { updateCard, deleteCard, getCardActivities } from '../../api/card.api';
+import { updateCard, deleteCard, getCardActivities, addComment } from '../../api/card.api';
 import useBoardStore from '../../store/boardStore';
 import useSocketStore from '../../store/socketStore';
 import useAuthStore from '../../store/authstore';
@@ -23,6 +23,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
     const [description, setDescription] = useState(initialCard.description || '');
     const [previewMd, setPreviewMd] = useState(false);
     const [dueDate, setDueDate] = useState(initialCard.dueDate ? initialCard.dueDate.slice(0, 10) : '');
+    const [commentText, setCommentText] = useState('');
     const [labels, setLabels] = useState(initialCard.labels || []);
     const [newLabel, setNewLabel] = useState({ name: '', color: LABEL_COLORS[0] });
     const [checklist, setChecklist] = useState(initialCard.checklist || []);
@@ -121,6 +122,27 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
             if (err.response?.status === 409) toast.error('Conflict: Modified by another user');
             else toast.error('Failed to save changes');
         } finally { setSaving(false); }
+    };
+
+    // Add a new comment
+    const handleAddComment = async () => {
+      if (!commentText.trim()) return;
+      try {
+        const res = await addComment(card._id, { text: commentText.trim() });
+        const newComment = res.data?.comment;
+        if (newComment) {
+          setCard(prev => ({
+            ...prev,
+            comments: [...(prev.comments || []), newComment]
+          }));
+          // optional real-time broadcast
+          socket?.emit('card:comment', { boardId, cardId: card._id, comment: newComment });
+          setCommentText('');
+          toast.success('Comment added');
+        }
+      } catch (err) {
+        toast.error('Failed to add comment');
+      }
     };
 
     const handleDelete = async () => {
@@ -303,6 +325,50 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                             }>Due Date</SectionTitle>
                             <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)}
                                 className="w-full h-10 px-3 rounded-lg border border-slate-200 bg-white text-sm text-slate-700 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition font-medium text-left" />
+                            
+                            {/* Comment Section */}
+                            <div className="space-y-4 mt-6">
+                              <SectionTitle icon={
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                  <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h12a2 2 0 012 2z" />
+                                </svg>
+                              }>Comments</SectionTitle>
+                              {/* List existing comments */}
+                              <div className="space-y-3 max-h-48 overflow-y-auto pr-1">
+                                {card.comments && card.comments.length > 0 ? (
+                                  card.comments.map((c, idx) => (
+                                    <div key={idx} className="flex items-start gap-2">
+                                      <Avatar name={c.user?.username || '?'} size={24} />
+                                      <div className="flex-1 text-sm">
+                                        <span className="font-medium text-slate-800">{c.user?.username || 'User'}</span>
+                                        <span className="ml-2">{c.text}</span>
+                                        <div className="text-xs text-slate-500 mt-0.5">{new Date(c.createdAt).toLocaleString()}</div>
+                                      </div>
+                                    </div>
+                                  ))
+                                ) : (
+                                  <p className="text-xs text-slate-400">No comments yet.</p>
+                                )}
+                              </div>
+                              {/* Add new comment if allowed */}
+                              {(['Owner','Admin','Editor'].includes(boardRole)) && (
+                                <div className="flex mt-3">
+                                  <input
+                                    type="text"
+                                    placeholder="Add a comment..."
+                                    value={commentText}
+                                    onChange={e => setCommentText(e.target.value)}
+                                    className="flex-1 h-9 px-3 rounded-lg border border-slate-200 bg-white text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+                                    onKeyDown={e => e.key === 'Enter' && handleAddComment()}
+                                  />
+                                  <button
+                                    onClick={handleAddComment}
+                                    className="ml-2 px-4 h-9 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg"
+                                    disabled={!commentText.trim()}
+                                  >Post</button>
+                                </div>
+                              )}
+                            </div>
                         </div>
 
                         {boardMembers.length > 0 && (

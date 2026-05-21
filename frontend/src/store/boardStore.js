@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 const useBoardStore = create((set, get) => ({
   board: null,
-  boardRole: 'Viewer',
+  boardRole: 'Viewer', // client by default until board loads
   columns: [],
   cards: {},
   presence: [],

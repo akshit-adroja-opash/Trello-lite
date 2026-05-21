@@ -30,6 +30,11 @@ export const getBoardMembers = async (boardId) => {
   return response.data;
 };
 
+export const addBoardMember = async (boardId, data) => {
+  const response = await API.post(`/boards/${boardId}/members`, data);
+  return response.data;
+};
+
 export const updateBoardMemberRole = async (boardId, memberId, data) => {
   const response = await API.patch(`/boards/${boardId}/members/${memberId}`, data);
   return response.data;

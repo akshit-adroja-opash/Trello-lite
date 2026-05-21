@@ -8,7 +8,8 @@ const boardSchema = new mongoose.Schema({
     isStarred: { type: Boolean, default: false },
     members: [{
         user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-        role: { type: String, enum: ['Owner', 'Editor', 'Viewer'], default: 'Editor' }
+        // Owner = Admin, Admin = Project Manager, Editor = Developer, Viewer = Client
+        role: { type: String, enum: ['Owner', 'Admin', 'Editor', 'Viewer'], default: 'Editor' }
     }]
 }, { timestamps: true });
 

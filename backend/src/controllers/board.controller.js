@@ -35,6 +35,33 @@ export const getSingleBoard = async (req, res, next) => {
             .populate('owner', 'username email avatar')
             .populate('members.user', 'username email avatar');
         if (!board) return next(new ApiError(404, 'Board not found'));
+
+        // Access control check: Check if user is owner, board member, or workspace member
+        const ownerId = board.owner?._id || board.owner;
+        const isOwner = ownerId.toString() === req.user._id.toString();
+
+        let isMember = isOwner || board.members.some(m => {
+            const memberUserId = m.user?._id || m.user;
+            return memberUserId && memberUserId.toString() === req.user._id.toString();
+        });
+
+        if (!isMember) {
+            const workspaceId = board.workspace?._id || board.workspace;
+            if (workspaceId) {
+                const workspace = await Workspace.findById(workspaceId);
+                if (workspace) {
+                    isMember = workspace.members.some(m => {
+                        const wsUserId = m.user?._id || m.user;
+                        return wsUserId && wsUserId.toString() === req.user._id.toString();
+                    });
+                }
+            }
+        }
+
+        if (!isMember) {
+            return next(new ApiError(403, 'Access denied'));
+        }
+
         res.status(200).json({ status: 'success', data: { board } });
     } catch (error) { next(error); }
 };

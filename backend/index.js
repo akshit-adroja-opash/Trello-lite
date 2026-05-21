@@ -3,6 +3,7 @@ import http from 'http';
 import app from './app.js';
 import connectDB from './src/config/db.js';
 import { initSocket } from './src/config/socket.js';
+import { startDueChecker } from './src/utils/dueChecker.js';
 
 dotenv.config();
 
@@ -15,6 +16,8 @@ connectDB()
     .then(() => {
         server.listen(PORT, () => {
             console.log(`🚀 Server running on port ${PORT}`);
+            // Start periodic card due date near checks
+            startDueChecker();
         });
     })
     .catch((err) => {

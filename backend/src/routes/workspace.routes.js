@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createWorkspace, deleteWorkspace, getMembers, getWorkspaces, inviteMember, removeMember, updateMemberRole, updateWorkspace } from '../controllers/workspace.controller.js';
+import { createWorkspace, deleteWorkspace, getMembers, getWorkspaces, inviteMember, removeMember, updateMemberRole, updateWorkspace, getOverdueCount } from '../controllers/workspace.controller.js';
 import { verifyJWT } from '../middleware/auth.middleware.js';
 
 const router = Router();
@@ -13,7 +13,7 @@ router.get('/:workspaceId/members', getMembers);
 router.patch('/:workspaceId/members/:memberId', updateMemberRole);
 router.delete('/:workspaceId/members/:memberId', removeMember);
 router.patch('/:workspaceId', updateWorkspace);
-router.delete('/:workspaceId', deleteWorkspace);
+router.get('/:workspaceId/overdue-count', getOverdueCount);
 
 
 export default router;

@@ -34,3 +34,13 @@ export const getCardActivities = async (cardId) => {
     const response = await API.get(`/cards/${cardId}/activities`);
     return response.data;
 };
+
+export const addComment = async (cardId, data) => {
+    const response = await API.post(`/cards/${cardId}/comments`, data);
+    return response.data;
+};
+
+export const getMyTasks = async () => {
+    const response = await API.get('/cards/my-tasks');
+    return response.data;
+};

@@ -41,9 +41,15 @@ export const requireBoardRole = (...allowedRoles) => async (req, res, next) => {
             if (workspace) {
                 const wsMember = workspace.members.find(m => m.user.toString() === req.user._id.toString());
                 if (wsMember) {
+                    // Map workspace role → board role (display names)
+                    // admin           → Owner  (Admin)
+                    // project_manager → Admin  (Project Manager)
+                    // developer       → Editor (Developer)
+                    // client          → Viewer (Client)
                     let inheritedRole = 'Viewer';
-                    if (wsMember.role === 'admin') inheritedRole = 'Admin';
-                    else if (wsMember.role === 'editor') inheritedRole = 'Editor';
+                    if (wsMember.role === 'admin') inheritedRole = 'Owner';
+                    else if (wsMember.role === 'project_manager') inheritedRole = 'Admin';
+                    else if (wsMember.role === 'developer') inheritedRole = 'Editor';
                     member = { role: inheritedRole };
                 }
             }

@@ -6,6 +6,10 @@ export const register = async (req, res, next) => {
   try {
     const { username, email, password, role = "developer" } = req.body;
 
+    if (role === "admin") {
+      throw new ApiError(400, "Registration with 'admin' role is not allowed");
+    }
+
     const existingUser = await User.findOne({ $or: [{ username }, { email }] });
     if (existingUser) {
       throw new ApiError(400, "User already exists");
@@ -59,10 +63,35 @@ export const getMe = async (req, res, next) => {
   }
 };
 
+export const updateProfile = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const updates = {};
+
+    // optional fields
+    if (req.body.username) updates.username = req.body.username;
+    if (req.body.email) updates.email = req.body.email;
+    if (req.body.password) updates.password = req.body.password; // will be hashed by pre-save hook
+    if (req.file) {
+      // store relative path to avatar
+      updates.avatar = `/uploads/avatars/${req.file.filename}`;
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updates, {
+      new: true,
+      runValidators: true,
+    }).select('-password');
+
+    res.status(200).json({ status: 'success', data: { user: updatedUser } });
+  } catch (err) {
+    next(err);
+  }
+};
+
+
 export const logout = async (req, res, next) => {
   try {
     res.clearCookie('token');
-
     res.status(200).json({
       status: 'success',
       message: 'Logged out successfully'
@@ -71,3 +100,4 @@ export const logout = async (req, res, next) => {
     next(error);
   }
 };
+
