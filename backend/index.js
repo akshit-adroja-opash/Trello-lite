@@ -16,7 +16,6 @@ connectDB()
     .then(() => {
         server.listen(PORT, () => {
             console.log(`🚀 Server running on port ${PORT}`);
-            // Start periodic card due date near checks
             startDueChecker();
         });
     })

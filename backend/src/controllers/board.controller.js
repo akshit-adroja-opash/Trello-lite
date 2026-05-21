@@ -36,7 +36,6 @@ export const getSingleBoard = async (req, res, next) => {
             .populate('members.user', 'username email avatar');
         if (!board) return next(new ApiError(404, 'Board not found'));
 
-        // Access control check: Check if user is owner, board member, or workspace member
         const ownerId = board.owner?._id || board.owner;
         const isOwner = ownerId.toString() === req.user._id.toString();
 

@@ -6,7 +6,6 @@ export const createColumn = async (req, res, next) => {
     try {
         const { name, boardId } = req.body;
         if (!name || !boardId) return next(new ApiError(400, 'name and boardId are required'));
-        // Find the last column by ascending order, take the last one
         const columns = await Column.find({ board: boardId }).sort('order');
         const last = columns[columns.length - 1];
         const order = generateIndexBetween(last?.order ?? null, null);

@@ -68,12 +68,10 @@ export const updateProfile = async (req, res, next) => {
     const userId = req.user._id;
     const updates = {};
 
-    // optional fields
     if (req.body.username) updates.username = req.body.username;
     if (req.body.email) updates.email = req.body.email;
     if (req.body.password) updates.password = req.body.password; // will be hashed by pre-save hook
     if (req.file) {
-      // store relative path to avatar
       updates.avatar = `/uploads/avatars/${req.file.filename}`;
     }
 

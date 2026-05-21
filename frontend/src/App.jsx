@@ -10,6 +10,7 @@ import useAuthStore from "./store/authstore";
 import useSocketStore from "./store/socketStore";
 import MyTasksPage from "./pages/MyTasksPage";
 import ProfilePage from "./pages/ProfilePage";
+import ReportsPage from "./pages/ReportsPage";
 
 const App = () => {
   const { connect, disconnect } = useSocketStore();
@@ -36,6 +37,10 @@ const App = () => {
         <Route path="/" element={token ? <Navigate to="/dashboard" /> : <LoginPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route
+    path="/reports/:boardId"
+    element={<ReportsPage />}
+/>
         <Route
           path="/dashboard"
           element={

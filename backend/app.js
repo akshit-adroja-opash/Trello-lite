@@ -12,6 +12,7 @@ import columnRoutes from "./src/routes/column.routes.js";
 import cardRoutes from "./src/routes/card.routes.js";
 import activityRoutes from "./src/routes/activity.routes.js";
 import notificationRoutes from "./src/routes/notification.routes.js";
+import reportRoutes from "./src/routes/report.routes.js";
 
 const app = express();
 
@@ -38,6 +39,7 @@ app.use("/api/v1/columns", columnRoutes);
 app.use("/api/v1/cards", cardRoutes);
 app.use("/api/v1/activities", activityRoutes);
 app.use("/api/v1/notifications", notificationRoutes);
+app.use("/api/v1/reports", reportRoutes);
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok" });
 });

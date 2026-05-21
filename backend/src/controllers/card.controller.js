@@ -110,7 +110,6 @@ export const getMyTasks = async (req, res, next) => {
     } catch (error) { next(error); }
 };
 
-// Add comment to a card
 export const addComment = async (req, res, next) => {
   try {
     const { cardId } = req.params;
@@ -125,7 +124,6 @@ export const addComment = async (req, res, next) => {
     card.comments.push(comment);
     await card.save();
 
-    // Log activity
     const Activity = (await import('../models/Activity.js')).default;
     await Activity.create({
       board: card.board,
@@ -135,12 +133,11 @@ export const addComment = async (req, res, next) => {
       details: `Commented on card "${card.title}"`
     });
 
-    // Emit BOARD_COMMENT notification via socket
     try {
       const { getIO } = await import('../config/socket.js');
       const Notification = (await import('../models/Notification.js')).default;
       const notif = await Notification.create({
-        recipient: null, // broadcast to board members
+        recipient: null,
         sender: req.user._id,
         type: 'BOARD_COMMENT',
         message: `${req.user.username || 'User'} commented on card "${card.title}"`,
@@ -159,5 +156,4 @@ export const addComment = async (req, res, next) => {
   }
 };
 
-// Existing exports (no change needed as they are exported individually)
 
