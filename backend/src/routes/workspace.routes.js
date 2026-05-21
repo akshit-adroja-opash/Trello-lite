@@ -13,6 +13,7 @@ router.get('/:workspaceId/members', getMembers);
 router.patch('/:workspaceId/members/:memberId', updateMemberRole);
 router.delete('/:workspaceId/members/:memberId', removeMember);
 router.patch('/:workspaceId', updateWorkspace);
+router.delete('/:workspaceId', deleteWorkspace);
 router.get('/:workspaceId/overdue-count', getOverdueCount);
 
 

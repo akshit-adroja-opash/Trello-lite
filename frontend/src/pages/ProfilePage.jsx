@@ -1,12 +1,16 @@
 import { useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import useAuthStore from '../store/authstore';
 import Avatar from '../UI/Avatar';
 import ThemeToggle from '../components/ThemeToggle';
+import DashboardSidebar from '../components/Layout/DashboardSidebar';
+import NotificationBell from '../components/Notifications/NotificationBell';
+import { getRoleDisplayName } from '../utils/roleDisplay';
 
 const ProfilePage = () => {
-  const { user, updateProfile } = useAuthStore();
+  const navigate = useNavigate();
+  const { user, updateProfile, logout } = useAuthStore();
 
   const [username, setUsername] = useState(user?.username || '');
   const [email, setEmail] = useState(user?.email || '');
@@ -22,6 +26,19 @@ const ProfilePage = () => {
     if (!file) return;
     setAvatarFile(file);
     setAvatarPreview(URL.createObjectURL(file));
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
+
+  const getAvatarUrl = () => {
+    if (avatarPreview) return avatarPreview;
+    if (!user?.avatar) return null;
+    if (user.avatar.startsWith('http') || user.avatar.startsWith('data:')) return user.avatar;
+    const backendBase = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:5000';
+    return `${backendBase}${user.avatar}`;
   };
 
   const handleSubmit = async (e) => {
@@ -51,118 +68,233 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/50 dark:bg-slate-900 text-slate-600 dark:text-slate-300 antialiased font-sans transition-colors duration-200">
-      <header className="h-16 bg-white dark:bg-slate-800 border-b border-slate-200/80 dark:border-slate-700/50 sticky top-0 z-40 flex items-center justify-between px-6 sm:px-8 shadow-sm transition-all duration-200">
-        <div className="flex items-center gap-4">
-          <Link to="/dashboard"
-            className="flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white text-sm font-semibold transition-all group bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 px-3.5 py-2 rounded-xl shadow-sm">
-            <svg className="w-4 h-4 transform group-hover:-translate-x-0.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M19 12H5M12 5l-7 7 7 7"/>
+    <div className="min-h-screen bg-background text-on-surface antialiased overflow-x-hidden flex flex-col dark:bg-slate-900 dark:text-white transition-colors duration-200">
+      
+      {/* TopAppBar */}
+      <header className="bg-surface-bright/80 dark:bg-slate-800 backdrop-blur-xl border-b border-outline-variant/30 shadow-sm flex justify-between items-center w-full px-6 h-16 fixed top-0 z-50">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-md shadow-indigo-200 dark:shadow-none">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="3" width="7" height="18" rx="2" fill="white" />
+              <rect x="14" y="3" width="7" height="11" rx="2" fill="white" opacity="0.7" />
             </svg>
-            <span className="hidden sm:inline">Dashboard</span>
-          </Link>
-          <span className="text-slate-300 dark:text-slate-600 text-lg font-light">/</span>
-          <h1 className="font-extrabold text-slate-900 dark:text-white text-base tracking-tight">My Profile</h1>
+          </div>
+          <span className="font-bold text-slate-900 dark:text-white text-lg tracking-tight animate-pulse">
+            Trello<span className="text-indigo-600 font-medium">lite</span>
+          </span>
         </div>
-        <div>
+
+        <div className="flex items-center gap-4">
           <ThemeToggle />
+          <NotificationBell />
+          <div className="h-6 w-px bg-outline-variant dark:bg-slate-700 mx-2"></div>
+          
+          <Link to="/profile" className="flex items-center gap-2 bg-surface-container-low dark:bg-slate-700 px-3 py-1.5 rounded-full border border-surface-variant dark:border-slate-700 hover:bg-surface-variant/50 transition-all">
+            <Avatar 
+              name={user?.username || '?'} 
+              avatar={user?.avatar ? (user.avatar.startsWith('http') ? user.avatar : `${import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:5000'}${user.avatar}`) : null}
+              size={24} 
+              className="shadow-inner" 
+            />
+            <span className="text-label-md font-label-md text-on-surface dark:text-slate-200 hidden sm:inline">{user?.username}</span>
+          </Link>
+
+          <button onClick={handleLogout} className="text-label-md font-label-md text-on-surface-variant border border-outline-variant dark:border-slate-700 px-4 py-1.5 rounded-md hover:bg-surface-variant/50 transition-colors">
+            Logout
+          </button>
         </div>
       </header>
 
-      <main className="max-w-lg mx-auto px-6 py-12">
-        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/70 dark:border-slate-700/50 shadow-sm p-8">
+      {/* Main Container wrapper */}
+      <div className="flex flex-1 pt-16 h-full">
+        
+        {/* Left Fixed Sidebar */}
+        <DashboardSidebar />
 
-          {/* Avatar */}
-          <div className="flex flex-col items-center mb-8">
-            <div
-              className="relative cursor-pointer group"
-              onClick={() => fileRef.current?.click()}
-            >
-              {avatarPreview || user?.avatar ? (
-                <img
-                  src={avatarPreview || user.avatar}
-                  alt="avatar"
-                  className="w-20 h-20 rounded-full object-cover ring-4 ring-indigo-100 dark:ring-slate-700 shadow"
-                />
-              ) : (
-                <div className="w-20 h-20 rounded-full bg-indigo-600 flex items-center justify-center text-white text-2xl font-bold ring-4 ring-indigo-100 dark:ring-slate-700 shadow">
-                  {(user?.username || '?').charAt(0).toUpperCase()}
-                </div>
-              )}
-              <div className="absolute inset-0 rounded-full bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              </div>
+        {/* Content Canvas */}
+        <main className="flex-1 ml-0 md:ml-sidebar-width p-6 md:p-10 overflow-y-auto w-full max-w-[1440px] mx-auto">
+          
+          {/* Breadcrumb / Header Section */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4 border-b border-slate-100 dark:border-slate-800 pb-6">
+            <div>
+              <h1 className="text-headline-xl font-headline-xl text-on-surface dark:text-white mb-2">My Profile</h1>
+              <p className="text-body-lg font-body-lg text-on-surface-variant dark:text-slate-350">Manage your account settings and personal information</p>
             </div>
-            <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
-            <p className="text-xs text-slate-400 dark:text-slate-450 mt-2">Click avatar to change photo</p>
-            <span className="mt-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 px-2.5 py-0.5 rounded-full border border-indigo-100 dark:border-indigo-900/60">
-              {user?.role === 'admin' ? 'Admin' : user?.role === 'project_manager' ? 'Project Manager' : 'Developer'}
-            </span>
+            
+            <nav className="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400">
+              <Link className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" to="/dashboard">Dashboard</Link>
+              <span className="material-symbols-outlined text-sm">chevron_right</span>
+              <span className="text-slate-900 dark:text-white font-bold">My Profile</span>
+            </nav>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Username</label>
-              <input
-                value={username}
-                onChange={e => setUsername(e.target.value)}
-                className="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                className="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all"
-              />
-            </div>
-
-            <div className="pt-2 border-t border-slate-100 dark:border-slate-700">
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">New Password <span className="text-slate-300 dark:text-slate-650 lowercase font-normal">(leave blank to keep current)</span></label>
-              <input
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all"
-              />
-            </div>
-
-            {password && (
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Confirm Password</label>
-                <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={e => setConfirmPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className={`w-full h-11 px-3.5 rounded-xl border text-slate-800 dark:text-white text-sm font-medium placeholder-slate-400 focus:outline-none focus:ring-4 transition-all ${
-                    confirmPassword && password !== confirmPassword
-                      ? 'border-rose-400 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/20 focus:ring-rose-500/10'
-                      : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:border-indigo-500 focus:ring-indigo-500/10'
-                  }`}
-                />
+          {/* Profile Form Bento Grid */}
+          <div className="flex flex-col items-center py-4">
+            <div className="w-full max-w-2xl bg-white/70 dark:bg-slate-800/80 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-3xl shadow-xl shadow-indigo-900/5 overflow-hidden transition-all duration-300">
+              
+              {/* Decorative Top Header */}
+              <div className="h-28 bg-gradient-to-r from-primary via-secondary to-primary-container relative overflow-hidden">
+                <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }} />
               </div>
-            )}
 
-            <button
-              type="submit"
-              disabled={saving}
-              className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 mt-2"
-            >
-              {saving ? (
-                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : 'Save Changes'}
-            </button>
-          </form>
-        </div>
-      </main>
+              {/* Profile Card Body */}
+              <div className="px-6 sm:px-10 pb-10 -mt-14 flex flex-col items-center">
+                
+                {/* Avatar Section */}
+                <div className="relative group cursor-pointer" onClick={() => fileRef.current?.click()}>
+                  <div className="w-28 h-28 rounded-full bg-indigo-600 flex items-center justify-center text-white text-4xl font-bold border-4 border-white dark:border-slate-800 shadow-xl relative z-10 overflow-hidden transition-transform group-hover:scale-105 duration-300">
+                    {getAvatarUrl() ? (
+                      <img
+                        src={getAvatarUrl()}
+                        alt="avatar"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span>{(user?.username || '?').charAt(0).toUpperCase()}</span>
+                    )}
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity z-20">
+                      <span className="material-symbols-outlined text-white text-2xl">photo_camera</span>
+                    </div>
+                  </div>
+                  
+                  {/* Verified Badge */}
+                  <div className="absolute -bottom-1 -right-1 bg-white dark:bg-slate-800 p-1.5 rounded-full shadow-lg z-30 border border-slate-100 dark:border-slate-700 flex items-center justify-center">
+                    <span className="material-symbols-outlined text-indigo-600 dark:text-indigo-400 text-base" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+                  </div>
+                </div>
+
+                <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
+
+                {/* Role Badge and Text */}
+                <div className="text-center mt-4 mb-8">
+                  <p className="text-xs text-slate-400 dark:text-slate-450 mb-2.5">Click avatar to change photo</p>
+                  <span className="inline-block px-3.5 py-1 bg-primary/10 text-primary dark:text-indigo-300 dark:bg-indigo-950/40 rounded-full text-xs font-bold uppercase tracking-widest border border-indigo-100 dark:border-indigo-900/60 shadow-sm">
+                    {getRoleDisplayName(user?.role)}
+                  </span>
+                </div>
+
+                {/* Form Fields */}
+                <form onSubmit={handleSubmit} className="w-full space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Username */}
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block ml-1">Username</label>
+                      <div className="relative group">
+                        <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-[20px] transition-colors group-focus-within:text-indigo-600 dark:group-focus-within:text-indigo-400">alternate_email</span>
+                        <input
+                          type="text"
+                          value={username}
+                          onChange={e => setUsername(e.target.value)}
+                          className="w-full h-12 pl-11 pr-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 text-slate-800 dark:text-white text-sm font-medium transition-all"
+                          placeholder="Username"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    {/* Email */}
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block ml-1">Email Address</label>
+                      <div className="relative group">
+                        <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-[20px] transition-colors group-focus-within:text-indigo-600 dark:group-focus-within:text-indigo-400">mail</span>
+                        <input
+                          type="email"
+                          value={email}
+                          onChange={e => setEmail(e.target.value)}
+                          className="w-full h-12 pl-11 pr-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 text-slate-800 dark:text-white text-sm font-medium transition-all"
+                          placeholder="Email Address"
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Password Divider & Fields */}
+                  <div className="pt-2 border-t border-slate-100 dark:border-slate-700/60">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                      {/* Password */}
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block ml-1">
+                          New Password <span className="text-[10px] normal-case font-normal text-slate-400 dark:text-slate-500">(leave blank to keep current)</span>
+                        </label>
+                        <div className="relative group">
+                          <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-[20px] transition-colors group-focus-within:text-indigo-600 dark:group-focus-within:text-indigo-400">lock</span>
+                          <input
+                            type="password"
+                            value={password}
+                            onChange={e => setPassword(e.target.value)}
+                            className="w-full h-12 pl-11 pr-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 text-slate-800 dark:text-white text-sm font-medium transition-all"
+                            placeholder="••••••••"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Confirm Password */}
+                      {password && (
+                        <div className="space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                          <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block ml-1">Confirm Password</label>
+                          <div className="relative group">
+                            <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-[20px] transition-colors group-focus-within:text-indigo-600 dark:group-focus-within:text-indigo-400">lock_reset</span>
+                            <input
+                              type="password"
+                              value={confirmPassword}
+                              onChange={e => setConfirmPassword(e.target.value)}
+                              className={`w-full h-12 pl-11 pr-4 bg-slate-50 dark:bg-slate-900 border rounded-xl focus:outline-none focus:ring-4 transition-all text-slate-800 dark:text-white text-sm font-medium ${
+                                confirmPassword && password !== confirmPassword
+                                  ? 'border-rose-400 dark:border-rose-800 focus:border-rose-500 focus:ring-rose-500/10'
+                                  : 'border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:ring-indigo-500/10'
+                              }`}
+                              placeholder="••••••••"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Submit Button */}
+                  <div className="pt-4">
+                    <button
+                      type="submit"
+                      disabled={saving}
+                      className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/35 transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-95 duration-200 flex items-center justify-center gap-2"
+                    >
+                      {saving ? (
+                        <>
+                          <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          Saving changes...
+                        </>
+                      ) : (
+                        <>
+                          Save Changes
+                          <span className="material-symbols-outlined text-xl">check_circle</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Timestamp Footer */}
+                  {user?.updatedAt && (
+                    <div className="pt-4 border-t border-slate-150 dark:border-slate-700/60 text-center">
+                      <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">
+                        Last updated: {new Date(user.updatedAt).toLocaleString(undefined, {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </p>
+                    </div>
+                  )}
+                </form>
+              </div>
+
+            </div>
+          </div>
+
+        </main>
+      </div>
     </div>
   );
 };
