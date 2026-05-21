@@ -11,16 +11,16 @@ const NavItem = ({ to, label, icon }) => {
       className={
         'group flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold transition-all border ' +
         (isActive
-          ? 'bg-indigo-50 border-indigo-200 text-indigo-700 shadow-sm'
-          : 'bg-white/70 border-slate-200/70 text-slate-600 hover:border-indigo-200 hover:bg-indigo-50/40 hover:text-indigo-700')
+          ? 'bg-indigo-50 border-indigo-200 text-indigo-700 shadow-sm dark:bg-indigo-950/40 dark:border-indigo-850 dark:text-indigo-400'
+          : 'bg-white/70 border-slate-200/70 text-slate-600 hover:border-indigo-200 hover:bg-indigo-50/40 hover:text-indigo-700 dark:bg-slate-900/50 dark:border-slate-700/50 dark:text-slate-300 dark:hover:bg-slate-800/80 dark:hover:text-white')
       }
     >
       <span
         className={
-          'w-9 h-9 rounded-xl flex items-center justify-center border transition-all ' +
+          'w-9 h-9 rounded-xl flex items-center justify-center border transition-all shrink-0 ' +
           (isActive
             ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
-            : 'bg-white border-slate-200 text-slate-500 group-hover:border-indigo-200 group-hover:text-indigo-600')
+            : 'bg-white border-slate-200 text-slate-500 group-hover:border-indigo-200 group-hover:text-indigo-600 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400 dark:group-hover:text-indigo-400 dark:group-hover:border-indigo-900')
         }
       >
         {icon}
@@ -42,10 +42,10 @@ const DashboardSidebar = () => {
       className="hidden lg:block w-72 shrink-0"
       aria-label="Dashboard sidebar"
     >
-      <div className="sticky top-24 rounded-2xl border border-slate-200/80 bg-white/70 backdrop-blur px-3.5 py-3.5 shadow-sm">
+      <div className="sticky top-24 rounded-2xl border border-slate-200/80 bg-white/70 backdrop-blur px-3.5 py-3.5 shadow-sm dark:bg-slate-800/80 dark:border-slate-700/80">
         <div className="px-2.5 pb-3">
-          <div className="text-xs font-bold uppercase tracking-wider text-slate-500">Workspace</div>
-          <div className="mt-1 text-base font-extrabold text-slate-900">Navigation</div>
+          <div className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Workspace</div>
+          <div className="mt-1 text-base font-extrabold text-slate-900 dark:text-white">Navigation</div>
         </div>
 
         <nav className="space-y-2">
@@ -99,8 +99,8 @@ const DashboardSidebar = () => {
         </nav>
 
         <div className="mt-4 px-2.5">
-          <div className="text-xs text-slate-500 leading-relaxed">
-            Signed in as <span className="font-bold text-slate-700">{user?.username || 'User'}</span>
+          <div className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            Signed in as <span className="font-bold text-slate-700 dark:text-slate-200">{user?.username || 'User'}</span>
           </div>
         </div>
       </div>

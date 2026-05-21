@@ -17,7 +17,7 @@ const NotificationBell = () => {
         <div className="relative">
             <button
                 onClick={() => setOpen(v => !v)}
-                className="relative w-10 h-10 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-all shadow-sm hover:shadow"
+                className="relative w-10 h-10 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white flex items-center justify-center transition-all shadow-sm hover:shadow"
                 aria-label="Notifications"
             >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">

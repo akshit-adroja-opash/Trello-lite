@@ -20,6 +20,7 @@ import Avatar from '../UI/Avatar';
 import ActivitySidebar from '../components/Board/ActivitySidebar';
 import KeyboardShortcutsModal from '../components/Board/KeyboardShortcutsModal';
 import NotificationBell from '../components/Notifications/NotificationBell';
+import ThemeToggle from '../components/ThemeToggle';
 
 const BoardPage = () => {
     const { id: boardId } = useParams();
@@ -314,18 +315,18 @@ useEffect(() => {
     const allLabels = [...new Set(Object.values(cards).flat().flatMap(c => c.labels?.map(l => l.name) || []))];
 
     if (loading) return (
-        <div className="flex flex-col gap-4 items-center justify-center h-screen bg-slate-50">
+        <div className="flex flex-col gap-4 items-center justify-center h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-200">
             <div className="relative w-12 h-12 flex items-center justify-center">
-                <div className="absolute w-12 h-12 rounded-full border-4 border-indigo-100 animate-pulse" />
+                <div className="absolute w-12 h-12 rounded-full border-4 border-indigo-100 dark:border-indigo-950 animate-pulse" />
                 <div className="absolute w-12 h-12 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin" />
             </div>
-            <p className="text-sm font-semibold text-slate-500 tracking-wide animate-pulse">Assembling board space...</p>
+            <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 tracking-wide animate-pulse">Assembling board space...</p>
         </div>
     );
 
     return (
         <div
-            className="flex flex-col h-screen overflow-hidden bg-slate-50/50 text-slate-600 antialiased font-sans selection:bg-indigo-500/10"
+            className="flex flex-col h-screen overflow-hidden bg-slate-50/50 dark:bg-slate-900 text-slate-600 dark:text-slate-350 antialiased font-sans selection:bg-indigo-500/10 transition-colors duration-200"
             onMouseMove={handleMouseMove}
         >
             {cursors.map(cursor => (
@@ -341,19 +342,19 @@ useEffect(() => {
                 </div>
             ))}
 
-            <header className="shrink-0 h-16 bg-white border-b border-slate-200/80 sticky top-0 z-40 flex items-center justify-between px-6 sm:px-8 shadow-sm backdrop-blur-md bg-white/90 gap-4">
+            <header className="shrink-0 h-16 bg-white dark:bg-slate-800 border-b border-slate-200/80 dark:border-slate-700/50 sticky top-0 z-40 flex items-center justify-between px-6 sm:px-8 shadow-sm backdrop-blur-md bg-white/90 dark:bg-slate-800/90 gap-4 transition-all duration-200">
                 
                 <div className="flex items-center gap-3.5 min-w-0">
                     <Link to="/dashboard"
-                        className="flex items-center gap-2 text-slate-500 hover:text-slate-800 text-sm font-semibold transition-all group shrink-0 bg-white hover:bg-slate-50 border border-slate-200 px-3.5 py-2 rounded-xl shadow-sm">
+                        className="flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white text-sm font-semibold transition-all group shrink-0 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 px-3.5 py-2 rounded-xl shadow-sm">
                         <svg className="w-4 h-4 transform group-hover:-translate-x-0.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                             <path d="M19 12H5M12 5l-7 7 7 7"/>
                         </svg>
                         <span className="hidden sm:inline">Dashboard</span>
                     </Link>
-                    <span className="text-slate-300 hidden sm:inline text-lg font-light">/</span>
+                    <span className="text-slate-300 dark:text-slate-655 hidden sm:inline text-lg font-light">/</span>
                     <div className="flex items-center gap-2.5 min-w-0">
-                        <h1 className="font-extrabold text-slate-900 text-base md:text-lg tracking-tight truncate">{board?.name}</h1>
+                        <h1 className="font-extrabold text-slate-900 dark:text-white text-base md:text-lg tracking-tight truncate">{board?.name}</h1>
                         {!connected && (
                             <span className="shrink-0 flex items-center gap-1.5 text-xs bg-amber-50 text-amber-600 border border-amber-200 px-2.5 py-1 rounded-lg font-bold animate-pulse">
                                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
@@ -370,12 +371,12 @@ useEffect(() => {
                         </svg>
                         <input ref={searchRef} value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
                             placeholder="Filter board cards... (/)"
-                            className="w-full h-10 pl-10 pr-3.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all" />
+                            className="w-full h-10 pl-10 pr-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all" />
                     </div>
                     {allLabels.length > 0 && (
                         <div className="relative">
                             <select value={filterLabel} onChange={e => setFilterLabel(e.target.value)}
-                                className="h-10 pl-3.5 pr-9 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 text-sm font-semibold appearance-none focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all cursor-pointer">
+                                className="h-10 pl-3.5 pr-9 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-350 text-sm font-semibold appearance-none focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all cursor-pointer">
                                 <option value="">All labels</option>
                                 {allLabels.map(l => <option key={l} value={l}>{l}</option>)}
                             </select>
@@ -387,23 +388,24 @@ useEffect(() => {
                 </div>
 
                 <div className="flex items-center gap-3.5 shrink-0">
-                    <div className="flex items-center gap-2 bg-slate-100 border border-slate-200/60 p-1.5 rounded-xl">
+                    <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-700/50 border border-slate-200/60 dark:border-slate-700/50 p-1.5 rounded-xl">
                         <div className="flex -space-x-1.5 hover:-space-x-0.5 transition-all pl-0.5">
                             {presence.map(u => (
-                                <div key={u.userId} className="ring-2 ring-white rounded-full shadow-sm transition-transform hover:scale-108 hover:z-20">
+                                <div key={u.userId} className="ring-2 ring-white dark:ring-slate-800 rounded-full shadow-sm transition-transform hover:scale-108 hover:z-20">
                                     <Avatar name={u.username} avatar={u.avatar} size={26} />
                                 </div>
                             ))}
                         </div>
                         {presence.length > 0 && (
-                            <span className="text-xs font-bold text-slate-500 pr-2 pl-1 hidden md:inline">
+                            <span className="text-xs font-bold text-slate-505 dark:text-slate-400 pr-2 pl-1 hidden md:inline">
                                 {presence.length} viewing
                             </span>
                         )}
                     </div>
+                    <ThemeToggle />
                     <NotificationBell />
                     <button onClick={() => setShowShortcuts(true)}
-                        className="w-10 h-10 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-500 hover:text-slate-800 text-sm font-bold transition-all flex items-center justify-center shadow-sm hover:shadow"
+                        className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white text-sm font-bold transition-all flex items-center justify-center shadow-sm hover:shadow"
                         title="Keyboard shortcuts (?)">
                         ?
                     </button>
