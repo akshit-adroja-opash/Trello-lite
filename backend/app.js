@@ -13,10 +13,15 @@ import cardRoutes from "./src/routes/card.routes.js";
 import activityRoutes from "./src/routes/activity.routes.js";
 import notificationRoutes from "./src/routes/notification.routes.js";
 import reportRoutes from "./src/routes/report.routes.js";
+import analyticsRoutes from "./src/routes/analytics.routes.js";
+
 
 const app = express();
 
-const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173").split(",");
+const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173")
+  .split(",")
+  .map(origin => origin.trim())
+  .filter(Boolean);
 app.use(
   cors({
     origin: allowedOrigins,
@@ -40,6 +45,8 @@ app.use("/api/v1/cards", cardRoutes);
 app.use("/api/v1/activities", activityRoutes);
 app.use("/api/v1/notifications", notificationRoutes);
 app.use("/api/v1/reports", reportRoutes);
+app.use("/api/v1/analytics", analyticsRoutes);
+
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok" });
 });

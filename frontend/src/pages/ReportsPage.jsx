@@ -11,6 +11,7 @@ import DashboardSidebar from "../components/Layout/DashboardSidebar";
 import Navbar from "../components/Layout/Navbar";
 
 const ReportsPage = () => {
+  const backendBase = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:5000';
   const { boardId } = useParams();
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
@@ -79,7 +80,7 @@ const ReportsPage = () => {
       toast.success("Full report generated");
       setLastReport(data.report);
       const normalizedPath = data.report.pdfUrl.replace(/\\/g, "/");
-      window.open(`http://localhost:5000/${normalizedPath}`, "_blank");
+      window.open(`${backendBase}/${normalizedPath}`, "_blank");
     } catch (error) {
       console.error(error);
       toast.error("Failed to generate full report");
@@ -98,7 +99,7 @@ const ReportsPage = () => {
       toast.success("Client report generated");
       setLastReport(data.report);
       const normalizedPath = data.report.pdfUrl.replace(/\\/g, "/");
-      window.open(`http://localhost:5000/${normalizedPath}`, "_blank");
+      window.open(`${backendBase}/${normalizedPath}`, "_blank");
     } catch (error) {
       console.error(error);
       toast.error("Failed to generate client report");
@@ -231,7 +232,7 @@ const ReportsPage = () => {
                         </div>
                         <div className="flex items-center gap-3">
                           <a
-                            href={`http://localhost:5000/${lastReport.pdfUrl.replace(/\\/g, "/")}`}
+                            href={`${backendBase}/${lastReport.pdfUrl.replace(/\\/g, "/")}`}
                             target="_blank"
                             rel="noreferrer"
                             className="h-9 px-4 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all shadow-sm"

@@ -11,6 +11,7 @@ import useSocketStore from "./store/socketStore";
 import MyTasksPage from "./pages/MyTasksPage";
 import ProfilePage from "./pages/ProfilePage";
 import ReportsPage from "./pages/ReportsPage";
+import AnalyticsPage from "./pages/AnalyticsPage";
 
 const App = () => {
   const { connect, disconnect } = useSocketStore();
@@ -82,6 +83,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/analytics"
+          element={
+            <ProtectedRoute>
+              <AnalyticsPage />
             </ProtectedRoute>
           }
         />

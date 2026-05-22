@@ -1,7 +1,7 @@
 export const canGenerateFullReport = (req, res, next) => {
     if (
         req.user.role === "admin" ||
-        req.user.role === "pm"
+        req.user.role === "project_manager"
     ) {
         return next();
     }
@@ -14,7 +14,7 @@ export const canGenerateFullReport = (req, res, next) => {
 export const canGenerateClientReport = (req, res, next) => {
     if (
         req.user.role === "admin" ||
-        req.user.role === "pm" ||
+        req.user.role === "project_manager" ||
         req.user.role === "client"
     ) {
         return next();

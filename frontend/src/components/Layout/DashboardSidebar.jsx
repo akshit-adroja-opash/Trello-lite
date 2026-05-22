@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import useAuthStore from '../../store/authstore';
 import useSidebarStore from '../../store/sidebarStore';
-
 import {
   FiSettings,
   FiUsers,
@@ -104,9 +103,8 @@ const DashboardSidebar = ({
       )}
 
       <aside
-        className={`fixed left-0 top-16 h-[calc(100vh-64px)] w-sidebar-width pt-6 pb-6 z-40 overflow-y-auto bg-surface-container-low/95 md:bg-surface-container-low/70 backdrop-blur-xl border-r border-slate-200/10 dark:border-white/10 shadow-xl flex flex-col transition-transform duration-300 md:translate-x-0 ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`fixed left-0 top-16 h-[calc(100vh-64px)] w-sidebar-width pt-6 pb-6 z-40 overflow-y-auto bg-surface-container-low/95 md:bg-surface-container-low/70 backdrop-blur-xl border-r border-slate-200/10 dark:border-white/10 shadow-xl flex flex-col transition-transform duration-300 md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
         aria-label="Dashboard sidebar"
       >
         <div className="px-6 mb-8">
@@ -147,6 +145,12 @@ const DashboardSidebar = ({
             icon={<FiUser size={18} />}
           />
 
+          <NavItem
+            to="/analytics"
+            label="Analytics"
+            icon={<FiBarChart2 size={18} />}
+          />
+
           {canManageWorkspace && (
             <button
               onClick={() => {
@@ -161,19 +165,6 @@ const DashboardSidebar = ({
               </span>
             </button>
           )}
-
-          {canManageWorkspace && (
-            <Link
-              to="/workspace-members"
-              onClick={closeSidebar}
-              className="flex items-center gap-3 py-3 px-6 text-on-surface-variant hover:bg-surface-variant/50 rounded-2xl transition-all duration-200"
-            >
-              <FiUsers size={18} />
-              <span className="text-label-md font-label-md">
-                Team Members
-              </span>
-            </Link>
-          )}
         </nav>
 
         <div className="mt-auto px-4 border-t border-outline-variant/30 pt-4 flex flex-col gap-2">
@@ -187,6 +178,7 @@ const DashboardSidebar = ({
               Account Settings
             </span>
           </Link>
+
 
           <button
             onClick={(e) => {

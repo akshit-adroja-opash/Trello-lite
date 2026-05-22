@@ -1,3 +1,5 @@
+import useAuthStore from '../store/authstore';
+
 /**
  * Role-based permission helpers for the frontend.
  *
@@ -47,7 +49,6 @@ export const canMoveCard = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.Edit
 
 /** Helper to get current role from auth store */
 export const getCurrentRole = () => {
-  const useAuthStore = require('../store/authstore').default;
   const user = useAuthStore.getState().user;
   return user?.role || 'Viewer';
 };

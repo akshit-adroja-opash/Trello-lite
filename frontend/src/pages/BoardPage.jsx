@@ -6,6 +6,7 @@ import { arrayMove } from '@dnd-kit/sortable';
 import debounce from 'lodash/debounce';
 import { FiUsers } from 'react-icons/fi';
 import BoardMembersModal from '../components/Board/BoardMembersModal';
+import BoardSettingsModal from '../components/Board/BoardSettingsModal';
 
 import useBoardStore from '../store/boardStore';
 import useSocketStore from '../store/socketStore';
@@ -30,11 +31,11 @@ const BoardPage = () => {
     const user = useAuthStore(s => s.user);
     const socket = useSocketStore(s => s.socket);
     const connected = useSocketStore(s => s.connected);
-    
+
 
     const { board, columns, cards, presence, setBoard, setBoardRole, setColumns, setCardsForColumn,
         addColumn, updateColumn, removeColumn, addCard, updateCard: storeUpdateCard,
-        moveCardOptimistic, removeCard, setPresence, undo, redo, boardRole} = useBoardStore();
+        moveCardOptimistic, removeCard, setPresence, undo, redo, boardRole } = useBoardStore();
 
     const [loading, setLoading] = useState(true);
     const [activeCard, setActiveCard] = useState(null);
@@ -46,138 +47,139 @@ const BoardPage = () => {
     const searchRef = useRef(null);
     const emitCursorRef = useRef(null);
     const [membersModalOpen, setMembersModalOpen] = useState(false);
+    const [settingsModalOpen, setSettingsModalOpen] = useState(false);
 
 
     const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
-   useEffect(() => {
+    useEffect(() => {
 
-    const load = async () => {
+        const load = async () => {
 
-        setLoading(true);
+            setLoading(true);
 
-        try {
+            try {
 
-            const boardRes =
-                await getSingleBoard(boardId);
+                const boardRes =
+                    await getSingleBoard(boardId);
 
-            const boardData = boardRes.data?.board || boardRes.board;
-            setBoard(boardData);
+                const boardData = boardRes.data?.board || boardRes.board;
+                setBoard(boardData);
 
 
-            const colRes =
-                await getColumnsByBoard(boardId);
+                const colRes =
+                    await getColumnsByBoard(boardId);
 
-            const cols =
-                colRes.data?.columns || [];
+                const cols =
+                    colRes.data?.columns || [];
 
-            setColumns(cols);
+                setColumns(cols);
 
-            await Promise.all(
-                cols.map(async (col) => {
+                await Promise.all(
+                    cols.map(async (col) => {
 
-                    const cardRes =
-                        await getCardsByColumn(
-                            col._id
+                        const cardRes =
+                            await getCardsByColumn(
+                                col._id
+                            );
+
+                        setCardsForColumn(
+                            col._id,
+                            cardRes.data?.cards || []
                         );
+                    })
+                );
 
-                    setCardsForColumn(
-                        col._id,
-                        cardRes.data?.cards || []
-                    );
-                })
-            );
+            } catch (err) {
 
-        } catch (err) {
+                toast.error(err.response?.data?.message || err.message || "Failed to load board");
+                navigate('/dashboard');
 
-            toast.error(err.response?.data?.message || err.message || "Failed to load board");
-            navigate('/dashboard');
+            } finally {
 
-        } finally {
+                setLoading(false);
+            }
+        };
 
-            setLoading(false);
-        }
-    };
+        load();
 
-    load();
+    }, [boardId]);
 
-}, [boardId]);
-
-useEffect(() => {
-    if (board && user) {
-        const ownerId = board.owner?._id || board.owner;
-        if (ownerId === user._id) {
-            setBoardRole('Owner');
+    useEffect(() => {
+        if (board && user) {
+            const ownerId = board.owner?._id || board.owner;
+            if (ownerId === user._id) {
+                setBoardRole('Owner');
+            } else {
+                const member = board.members?.find(m =>
+                    (m.user?._id || m.user) === user._id
+                );
+                setBoardRole(member?.role || 'Viewer');
+            }
         } else {
-            const member = board.members?.find(m =>
-                (m.user?._id || m.user) === user._id
-            );
-            setBoardRole(member?.role || 'Viewer');
+            setBoardRole('Viewer');
         }
-    } else {
-        setBoardRole('Viewer');
-    }
-}, [board, user, setBoardRole]);
+    }, [board, user, setBoardRole]);
 
-useEffect(() => {
+    useEffect(() => {
 
-    const handleKeyDown = (e) => {
+        const handleKeyDown = (e) => {
 
-        /*
-          =========================
-          UNDO
-          CTRL + Z
-          =========================
-        */
+            /*
+              =========================
+              UNDO
+              CTRL + Z
+              =========================
+            */
 
-        if (
-            (e.ctrlKey || e.metaKey) &&
-            !e.shiftKey &&
-            e.key.toLowerCase() === "z"
-        ) {
+            if (
+                (e.ctrlKey || e.metaKey) &&
+                !e.shiftKey &&
+                e.key.toLowerCase() === "z"
+            ) {
 
-            e.preventDefault();
+                e.preventDefault();
 
-            undo();
+                undo();
 
-            toast.success("Undo successful");
-        }
+                toast.success("Undo successful");
+            }
 
-        /*
-          =========================
-          REDO
-          CTRL + SHIFT + Z
-          =========================
-        */
+            /*
+              =========================
+              REDO
+              CTRL + SHIFT + Z
+              =========================
+            */
 
-        if (
-            (e.ctrlKey || e.metaKey) &&
-            e.shiftKey &&
-            e.key.toLowerCase() === "z"
-        ) {
+            if (
+                (e.ctrlKey || e.metaKey) &&
+                e.shiftKey &&
+                e.key.toLowerCase() === "z"
+            ) {
 
-            e.preventDefault();
+                e.preventDefault();
 
-            redo();
+                redo();
 
-            toast.success("Redo successful");
-        }
-    };
+                toast.success("Redo successful");
+            }
+        };
 
-    window.addEventListener(
-        "keydown",
-        handleKeyDown
-    );
-
-    return () => {
-
-        window.removeEventListener(
+        window.addEventListener(
             "keydown",
             handleKeyDown
         );
-    };
 
-}, [undo, redo]);
+        return () => {
+
+            window.removeEventListener(
+                "keydown",
+                handleKeyDown
+            );
+        };
+
+    }, [undo, redo]);
 
 
 
@@ -198,10 +200,10 @@ useEffect(() => {
                 return [...filtered, data];
             });
         });
-        
+
         return () => {
             socket.emit('board:leave', { boardId });
-            ['board:presence','card:moved','card:created','card:updated','card:deleted','column:created','column:updated','column:deleted','cursor:update']
+            ['board:presence', 'card:moved', 'card:created', 'card:updated', 'card:deleted', 'column:created', 'column:updated', 'column:deleted', 'cursor:update']
                 .forEach(e => socket.off(e));
             setCursors([]);
         };
@@ -351,14 +353,14 @@ useEffect(() => {
             ))}
 
             <header className="shrink-0 bg-white dark:bg-slate-800 border-b border-slate-200/80 dark:border-slate-700/50 sticky top-0 z-40 flex flex-col md:flex-row items-stretch md:items-center justify-between p-4 md:px-8 md:py-0 md:h-16 shadow-sm backdrop-blur-md bg-white/90 dark:bg-slate-800/90 gap-3 transition-all duration-200">
-                
+
                 {/* Left Side: Back button + Board Title & Right side buttons on mobile */}
                 <div className="flex items-center justify-between md:justify-start gap-3.5 min-w-0 w-full md:w-auto">
                     <div className="flex items-center gap-3.5 min-w-0">
                         <Link to="/dashboard"
                             className="flex items-center gap-2 text-slate-505 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white text-sm font-semibold transition-all group shrink-0 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 px-3 py-1.5 md:px-3.5 md:py-2 rounded-xl shadow-sm">
                             <svg className="w-4 h-4 transform group-hover:-translate-x-0.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                <path d="M19 12H5M12 5l-7 7 7 7"/>
+                                <path d="M19 12H5M12 5l-7 7 7 7" />
                             </svg>
                             <span className="hidden sm:inline">Dashboard</span>
                         </Link>
@@ -374,18 +376,27 @@ useEffect(() => {
                         </div>
                     </div>
 
-                    {/* On mobile, render the quick action items (Theme, Notifications, Members) inline on the right */}
+                    {/* On mobile, render the quick action items (Theme, Notifications, Members, Settings) inline on the right */}
                     <div className="flex items-center gap-2 md:hidden">
                         <ThemeToggle />
                         <NotificationBell />
                         {(boardRole === 'Owner' || boardRole === 'Admin' || board?.role === 'owner' || board?.role === 'admin') && (
-                            <button
-                                onClick={() => setMembersModalOpen(true)}
-                                className="flex items-center justify-center bg-surface-container p-2 rounded-xl hover:bg-surface-container-high transition"
-                                title="Members"
-                            >
-                                <FiUsers size={16} />
-                            </button>
+                            <>
+                                <button
+                                    onClick={() => setMembersModalOpen(true)}
+                                    className="flex items-center justify-center bg-surface-container p-2 rounded-xl hover:bg-surface-container-high transition"
+                                    title="Members"
+                                >
+                                    <FiUsers size={16} />
+                                </button>
+                                <button
+                                    onClick={() => setSettingsModalOpen(true)}
+                                    className="flex items-center justify-center bg-surface-container p-2 rounded-xl hover:bg-surface-container-high transition text-slate-700 dark:text-slate-250"
+                                    title="Board Settings"
+                                >
+                                    <span className="material-symbols-outlined text-[18px]">settings</span>
+                                </button>
+                            </>
                         )}
                     </div>
                 </div>
@@ -394,7 +405,7 @@ useEffect(() => {
                 <div className="flex items-center gap-2 w-full md:flex-1 md:max-w-md">
                     <div className="relative flex-1 group">
                         <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                            <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
                         </svg>
                         <input ref={searchRef} value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
                             placeholder="Filter board cards..."
@@ -425,7 +436,7 @@ useEffect(() => {
                             ))}
                         </div>
                         {presence.length > 0 && (
-                            <span className="text-xs font-bold text-slate-505 dark:text-slate-400 pr-2 pl-1">
+                            <span className="text-xs font-bold text-slate-550 dark:text-slate-400 pr-2 pl-1">
                                 {presence.length} viewing
                             </span>
                         )}
@@ -433,13 +444,22 @@ useEffect(() => {
                     <ThemeToggle />
                     <NotificationBell />
                     {(boardRole === 'Owner' || boardRole === 'Admin' || board?.role === 'owner' || board?.role === 'admin') && (
-                        <button
-                            onClick={() => setMembersModalOpen(true)}
-                            className="flex items-center gap-2 bg-surface-container px-4 py-2 rounded-2xl hover:bg-surface-container-high transition font-semibold text-sm"
-                        >
-                            <FiUsers size={18} />
-                            Members
-                        </button>
+                        <>
+                            <button
+                                onClick={() => setMembersModalOpen(true)}
+                                className="flex items-center gap-2 bg-surface-container px-4 py-2 rounded-2xl hover:bg-surface-container-high transition font-semibold text-sm"
+                            >
+                                <FiUsers size={18} />
+                                Members
+                            </button>
+                            <button
+                                onClick={() => setSettingsModalOpen(true)}
+                                className="flex items-center gap-2 bg-surface-container px-4 py-2 rounded-2xl hover:bg-surface-container-high transition font-semibold text-sm text-slate-700 dark:text-slate-200"
+                            >
+                                <span className="material-symbols-outlined text-[18px]">settings</span>
+                                Settings
+                            </button>
+                        </>
                     )}
                     <button onClick={() => setShowShortcuts(true)}
                         className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white text-sm font-bold transition-all flex items-center justify-center shadow-sm hover:shadow"
@@ -454,7 +474,7 @@ useEffect(() => {
                     <div className="h-full px-8 py-6 min-w-max">
                         <DndContext sensors={sensors} collisionDetection={closestCorners}
                             onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-                            
+
                             <ColumnList
                                 columns={columns} cards={cards}
                                 searchQuery={searchQuery} filterLabel={filterLabel}
@@ -483,6 +503,12 @@ useEffect(() => {
                 onClose={() =>
                     setMembersModalOpen(false)
                 }
+            />
+            <BoardSettingsModal
+                board={board}
+                isOpen={settingsModalOpen}
+                onClose={() => setSettingsModalOpen(false)}
+                onBoardUpdated={(updatedBoard) => setBoard(updatedBoard)}
             />
         </div>
     );

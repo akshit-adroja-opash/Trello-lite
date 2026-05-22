@@ -88,7 +88,7 @@ const BoardMembersModal = ({
             await updateBoardMemberRole(
                 board._id,
                 memberId,
-                role
+                { role }
             );
 
             setMembers((prev) =>

@@ -153,3 +153,18 @@ export const updateBoardMemberRole = async (req, res, next) => {
         res.status(200).json({ status: 'success', data: { member } });
     } catch (error) { next(error); }
 };
+
+export const removeBoardMember = async (req, res, next) => {
+    try {
+        const { boardId, memberId } = req.params;
+        const board = await Board.findById(boardId);
+        if (!board) return next(new ApiError(404, 'Board not found'));
+        if (board.owner.toString() !== req.user._id.toString())
+            return next(new ApiError(403, 'Only the owner can remove members'));
+
+        board.members = board.members.filter(m => m.user.toString() !== memberId);
+        await board.save();
+        res.status(200).json({ status: 'success', data: { board } });
+    } catch (error) { next(error); }
+};
+

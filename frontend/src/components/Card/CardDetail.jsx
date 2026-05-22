@@ -46,7 +46,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
     const boardMembers = board?.members || [];
 
     useEffect(() => {
-        getCardActivities(card._id).then(res => setActivities(res.data?.activities || [])).catch(() => {});
+        getCardActivities(card._id).then(res => setActivities(res.data?.activities || [])).catch(() => { });
     }, [card._id]);
 
     useEffect(() => {
@@ -126,23 +126,23 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
 
     // Add a new comment
     const handleAddComment = async () => {
-      if (!commentText.trim()) return;
-      try {
-        const res = await addComment(card._id, { text: commentText.trim() });
-        const newComment = res.data?.comment;
-        if (newComment) {
-          setCard(prev => ({
-            ...prev,
-            comments: [...(prev.comments || []), newComment]
-          }));
-          // optional real-time broadcast
-          socket?.emit('card:comment', { boardId, cardId: card._id, comment: newComment });
-          setCommentText('');
-          toast.success('Comment added');
+        if (!commentText.trim()) return;
+        try {
+            const res = await addComment(card._id, { text: commentText.trim() });
+            const newComment = res.data?.comment;
+            if (newComment) {
+                setCard(prev => ({
+                    ...prev,
+                    comments: [...(prev.comments || []), newComment]
+                }));
+                // optional real-time broadcast
+                socket?.emit('card:comment', { boardId, cardId: card._id, comment: newComment });
+                setCommentText('');
+                toast.success('Comment added');
+            }
+        } catch (err) {
+            toast.error('Failed to add comment');
         }
-      } catch (err) {
-        toast.error('Failed to add comment');
-      }
     };
 
     const handleDelete = async () => {
@@ -176,14 +176,14 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                 <div className="flex items-center gap-4 p-6 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/20">
                     <div className="w-5 h-5 shrink-0 text-indigo-600 dark:text-indigo-400">
                         <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                            <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
+                            <rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18M9 21V9" />
                         </svg>
                     </div>
-                    <input 
-                        value={title} 
+                    <input
+                        value={title}
                         onChange={handleTitleChange}
                         readOnly={!canEdit}
-                        className="flex-1 text-xl font-bold text-slate-800 dark:text-white bg-transparent border-b border-transparent focus:border-indigo-500 focus:outline-none transition-all px-1 py-0.5 rounded-sm disabled:cursor-default" 
+                        className="flex-1 text-xl font-bold text-slate-800 dark:text-white bg-transparent border-b border-transparent focus:border-indigo-500 focus:outline-none transition-all px-1 py-0.5 rounded-sm disabled:cursor-default"
                         placeholder="Untitled Task"
                     />
                     {typingUser && (
@@ -197,12 +197,12 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
 
                 <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div className="md:col-span-2 space-y-8">
-                        
+
                         <div className="bg-slate-50/60 dark:bg-slate-900/30 p-5 rounded-xl border border-slate-100 dark:border-slate-700/50">
                             <SectionTitle icon={
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M7 7h.01M6 20l6.5-6.5A2.5 2.5 0 0016 10c0-1.38-.62-2.5-1.5-2.5S12 8.62 12 10a2.5 2.5 0 00.5 1.5L6 18H4v-2z"/></svg>
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M7 7h.01M6 20l6.5-6.5A2.5 2.5 0 0016 10c0-1.38-.62-2.5-1.5-2.5S12 8.62 12 10a2.5 2.5 0 00.5 1.5L6 18H4v-2z" /></svg>
                             }>Labels</SectionTitle>
-                            
+
                             <div className="flex flex-wrap gap-2 mb-4">
                                 {labels.map((l, i) => (
                                     <span key={i} className="flex items-center gap-1.5 text-xs px-3 py-1 rounded-md text-white font-semibold shadow-sm"
@@ -213,7 +213,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                     </span>
                                 ))}
                             </div>
-                            
+
                             <div className="flex flex-col gap-3">
                                 <div className="flex gap-2">
                                     <input value={newLabel.name} onChange={e => setNewLabel(p => ({ ...p, name: e.target.value }))}
@@ -235,7 +235,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                         <div>
                             <div className="flex items-center justify-between mb-3">
                                 <SectionTitle icon={
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h7"/></svg>
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h7" /></svg>
                                 }>Description</SectionTitle>
                                 <button onClick={() => setPreviewMd(v => !v)}
                                     className="text-xs font-semibold px-3 py-1 bg-slate-50 dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 rounded-md transition-colors border border-slate-200 dark:border-slate-700">
@@ -257,13 +257,13 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                         <div>
                             <div className="flex items-center justify-between mb-3">
                                 <SectionTitle icon={
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
                                 }>Checklist</SectionTitle>
                                 {checklist.length > 0 && (
                                     <span className="text-xs bg-indigo-50 dark:bg-indigo-950/40 font-bold px-2.5 py-0.5 rounded-full text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/60">{progressPercent}%</span>
                                 )}
                             </div>
-                            
+
                             {checklist.length > 0 && (
                                 <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2 mb-4 overflow-hidden">
                                     <div className="bg-gradient-to-r from-indigo-500 to-cyan-500 h-2 rounded-full transition-all duration-300"
@@ -284,7 +284,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                     </div>
                                 ))}
                             </div>
-                            
+
                             <div className="flex gap-2">
                                 <input value={newCheckItem} onChange={e => setNewCheckItem(e.target.value)}
                                     onKeyDown={e => e.key === 'Enter' && addCheck()}
@@ -298,7 +298,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                         {activities.length > 0 && (
                             <div className="pt-5 border-t border-slate-100 dark:border-slate-700">
                                 <SectionTitle icon={
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                 }>Activity Log</SectionTitle>
                                 <div className="space-y-3 max-h-48 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent">
                                     {activities.map(a => (
@@ -321,57 +321,57 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                     <div className="space-y-6 bg-slate-50/60 dark:bg-slate-900/30 p-5 rounded-xl border border-slate-100 dark:border-slate-700/50 h-fit">
                         <div>
                             <SectionTitle icon={
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                             }>Due Date</SectionTitle>
                             <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)}
                                 className="w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition font-medium text-left" />
-                            
+
                             <div className="space-y-4 mt-6">
-                              <SectionTitle icon={
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                                  <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h12a2 2 0 012 2z" />
-                                </svg>
-                              }>Comments</SectionTitle>
-                              <div className="space-y-3 max-h-48 overflow-y-auto pr-1">
-                                {card.comments && card.comments.length > 0 ? (
-                                  card.comments.map((c, idx) => (
-                                    <div key={idx} className="flex items-start gap-2">
-                                      <Avatar name={c.user?.username || '?'} size={24} />
-                                      <div className="flex-1 text-sm">
-                                        <span className="font-medium text-slate-800 dark:text-slate-200">{c.user?.username || 'User'}</span>
-                                        <span className="ml-2 text-slate-700 dark:text-slate-300">{c.text}</span>
-                                        <div className="text-xs text-slate-500 dark:text-slate-500 mt-0.5">{new Date(c.createdAt).toLocaleString()}</div>
-                                      </div>
-                                    </div>
-                                  ))
-                                ) : (
-                                  <p className="text-xs text-slate-400 dark:text-slate-500">No comments yet.</p>
-                                )}
-                              </div>
-                              {(['Owner','Admin','Editor'].includes(boardRole)) && (
-                                <div className="flex mt-3">
-                                  <input
-                                    type="text"
-                                    placeholder="Add a comment..."
-                                    value={commentText}
-                                    onChange={e => setCommentText(e.target.value)}
-                                    className="flex-1 h-9 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
-                                    onKeyDown={e => e.key === 'Enter' && handleAddComment()}
-                                  />
-                                  <button
-                                    onClick={handleAddComment}
-                                    className="ml-2 px-4 h-9 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold"
-                                    disabled={!commentText.trim()}
-                                  >Post</button>
+                                <SectionTitle icon={
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h12a2 2 0 012 2z" />
+                                    </svg>
+                                }>Comments</SectionTitle>
+                                <div className="space-y-3 max-h-48 overflow-y-auto pr-1">
+                                    {card.comments && card.comments.length > 0 ? (
+                                        card.comments.map((c, idx) => (
+                                            <div key={idx} className="flex items-start gap-2">
+                                                <Avatar name={c.user?.username || '?'} size={24} />
+                                                <div className="flex-1 text-sm">
+                                                    <span className="font-medium text-slate-800 dark:text-slate-200">{c.user?.username || 'User'}</span>
+                                                    <span className="ml-2 text-slate-700 dark:text-slate-300">{c.text}</span>
+                                                    <div className="text-xs text-slate-500 dark:text-slate-500 mt-0.5">{new Date(c.createdAt).toLocaleString()}</div>
+                                                </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-xs text-slate-400 dark:text-slate-500">No comments yet.</p>
+                                    )}
                                 </div>
-                              )}
+                                {(['Owner', 'Admin', 'Editor'].includes(boardRole)) && (
+                                    <div className="flex mt-3">
+                                        <input
+                                            type="text"
+                                            placeholder="Add a comment..."
+                                            value={commentText}
+                                            onChange={e => setCommentText(e.target.value)}
+                                            className="flex-1 h-9 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+                                            onKeyDown={e => e.key === 'Enter' && handleAddComment()}
+                                        />
+                                        <button
+                                            onClick={handleAddComment}
+                                            className="ml-2 px-4 h-9 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold"
+                                            disabled={!commentText.trim()}
+                                        >Post</button>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
                         {boardMembers.length > 0 && (
                             <div>
                                 <SectionTitle icon={
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                                 }>Assignees</SectionTitle>
                                 <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent">
                                     {boardMembers.map(m => {
