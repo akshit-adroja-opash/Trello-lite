@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import ReactMarkdown from 'react-markdown';
-import { updateCard, deleteCard, getCardActivities, addComment } from '../../api/card.api';
+import { updateCard, deleteCard, getCardActivities, addComment, saveCardAsTemplate, toggleCommentReaction } from '../../api/card.api';
 import useBoardStore from '../../store/boardStore';
 import useSocketStore from '../../store/socketStore';
 import useAuthStore from '../../store/authstore';
@@ -16,6 +16,51 @@ const SectionTitle = ({ children, icon }) => (
         {children}
     </h4>
 );
+
+const EmojiPickerPopover = ({ onSelect }) => {
+    const [open, setOpen] = useState(false);
+    const popoverRef = useRef(null);
+    const EMOJIS = ['👍', '❤️', '👀', '🔥', '🎉', '🚀', '😄', '👎'];
+
+    useEffect(() => {
+        const clickOutside = (e) => {
+            if (popoverRef.current && !popoverRef.current.contains(e.target)) {
+                setOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', clickOutside);
+        return () => document.removeEventListener('mousedown', clickOutside);
+    }, []);
+
+    return (
+        <div className="relative inline-block text-left" ref={popoverRef}>
+            <button
+                type="button"
+                onClick={() => setOpen(!open)}
+                className="w-5 h-5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-650 dark:hover:text-slate-300 transition flex items-center justify-center cursor-pointer text-xs font-bold border border-dashed border-slate-300 dark:border-slate-700 hover:border-solid"
+                title="Add reaction"
+            >
+                ＋
+            </button>
+            {open && (
+                <div className="absolute bottom-full left-0 mb-1.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-205 dark:border-slate-700 shadow-xl p-1.5 flex gap-1 z-40 animate-in fade-in slide-in-from-bottom-1 duration-100">
+                    {EMOJIS.map(emoji => (
+                        <button
+                            key={emoji}
+                            onClick={() => {
+                                onSelect(emoji);
+                                setOpen(false);
+                            }}
+                            className="w-7 h-7 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-sm transition-colors cursor-pointer"
+                        >
+                            {emoji}
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
 
 const CardDetail = ({ card: initialCard, columnId, onClose }) => {
     const [card, setCard] = useState(initialCard);
@@ -58,13 +103,20 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
         const handleUserStopTyping = ({ cardId }) => {
             if (cardId === card._id) setTypingUser(null);
         };
+        const handleCardUpdate = ({ card: updatedCard }) => {
+            if (updatedCard && updatedCard._id === card._id) {
+                setCard(updatedCard);
+            }
+        };
 
         socket.on('card:user-typing', handleUserTyping);
         socket.on('card:user-stop-typing', handleUserStopTyping);
+        socket.on('card:update', handleCardUpdate);
 
         return () => {
             socket.off('card:user-typing', handleUserTyping);
             socket.off('card:user-stop-typing', handleUserStopTyping);
+            socket.off('card:update', handleCardUpdate);
         };
     }, [socket, card._id]);
 
@@ -131,17 +183,32 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
             const res = await addComment(card._id, { text: commentText.trim() });
             const newComment = res.data?.comment;
             if (newComment) {
-                setCard(prev => ({
-                    ...prev,
-                    comments: [...(prev.comments || []), newComment]
-                }));
-                // optional real-time broadcast
-                socket?.emit('card:comment', { boardId, cardId: card._id, comment: newComment });
+                const updatedCardObj = {
+                    ...card,
+                    comments: [...(card.comments || []), newComment]
+                };
+                setCard(updatedCardObj);
+                storeUpdate(updatedCardObj);
+                socket?.emit('card:update', { boardId, card: updatedCardObj });
                 setCommentText('');
                 toast.success('Comment added');
             }
         } catch (err) {
             toast.error('Failed to add comment');
+        }
+    };
+
+    const handleToggleReaction = async (commentId, emoji) => {
+        try {
+            const res = await toggleCommentReaction(card._id, commentId, emoji);
+            const updatedCard = res.data?.card;
+            if (updatedCard) {
+                setCard(updatedCard);
+                storeUpdate(updatedCard);
+                socket?.emit('card:update', { boardId, card: updatedCard });
+            }
+        } catch (err) {
+            toast.error('Failed to update reaction');
         }
     };
 
@@ -154,6 +221,19 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
             socket?.emit('card:delete', { boardId, cardId: card._id, columnId });
             onClose();
         } catch { toast.error('Failed to delete card'); }
+    };
+
+    const [savingTemplate, setSavingTemplate] = useState(false);
+    const handleSaveTemplate = async () => {
+        setSavingTemplate(true);
+        try {
+            await saveCardAsTemplate(card._id);
+            toast.success('Card saved as a reusable template');
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Failed to save card template');
+        } finally {
+            setSavingTemplate(false);
+        }
     };
 
     const toggleAssignee = (userId) =>
@@ -335,36 +415,71 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                 <div className="space-y-3 max-h-48 overflow-y-auto pr-1">
                                     {card.comments && card.comments.length > 0 ? (
                                         card.comments.map((c, idx) => (
-                                            <div key={idx} className="flex items-start gap-2">
-                                                <Avatar name={c.user?.username || '?'} size={24} />
-                                                <div className="flex-1 text-sm">
-                                                    <span className="font-medium text-slate-800 dark:text-slate-200">{c.user?.username || 'User'}</span>
-                                                    <span className="ml-2 text-slate-700 dark:text-slate-300">{c.text}</span>
-                                                    <div className="text-xs text-slate-500 dark:text-slate-500 mt-0.5">{new Date(c.createdAt).toLocaleString()}</div>
-                                                </div>
-                                            </div>
-                                        ))
+                                             <div key={idx} className="flex items-start gap-2.5 pb-2.5 border-b border-slate-100/50 dark:border-slate-700/30 last:border-b-0">
+                                                 <Avatar name={c.user?.username || '?'} avatar={c.user?.avatar} size={24} />
+                                                 <div className="flex-1 text-sm">
+                                                     <div className="flex items-center justify-between">
+                                                         <span className="font-bold text-slate-800 dark:text-slate-200 text-xs">{c.user?.username || 'User'}</span>
+                                                         <span className="text-[9px] text-slate-400 dark:text-slate-500">{new Date(c.createdAt).toLocaleString()}</span>
+                                                     </div>
+                                                     <div className="mt-1 text-xs text-slate-700 dark:text-slate-300 leading-normal break-words markdown-comment">
+                                                         <ReactMarkdown>{c.text}</ReactMarkdown>
+                                                     </div>
+                                                     
+                                                     {/* Reactions Bar */}
+                                                     <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                                                         {c.reactions && c.reactions.map((react, rIdx) => {
+                                                             const hasReacted = react.users?.some(u => (typeof u === 'object' ? u._id : u) === currentUser?._id);
+                                                             const tooltipText = react.users?.map(u => u.username || 'User').join(', ') || '';
+                                                             return (
+                                                                 <button
+                                                                     key={rIdx}
+                                                                     onClick={() => handleToggleReaction(c._id, react.emoji)}
+                                                                     title={tooltipText}
+                                                                     className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold transition-all border cursor-pointer ${
+                                                                         hasReacted
+                                                                             ? 'bg-indigo-50 border-indigo-200 text-indigo-650 dark:bg-indigo-950/40 dark:border-indigo-900/60 dark:text-indigo-400'
+                                                                             : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-slate-350 dark:hover:border-slate-700'
+                                                                     }`}
+                                                                 >
+                                                                     <span>{react.emoji}</span>
+                                                                     <span>{react.users?.length || 0}</span>
+                                                                 </button>
+                                                             );
+                                                         })}
+                                                         <EmojiPickerPopover onSelect={(emoji) => handleToggleReaction(c._id, emoji)} />
+                                                     </div>
+                                                 </div>
+                                             </div>
+                                         ))
                                     ) : (
                                         <p className="text-xs text-slate-400 dark:text-slate-500">No comments yet.</p>
                                     )}
                                 </div>
-                                {(['Owner', 'Admin', 'Editor'].includes(boardRole)) && (
-                                    <div className="flex mt-3">
-                                        <input
-                                            type="text"
-                                            placeholder="Add a comment..."
-                                            value={commentText}
-                                            onChange={e => setCommentText(e.target.value)}
-                                            className="flex-1 h-9 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
-                                            onKeyDown={e => e.key === 'Enter' && handleAddComment()}
-                                        />
-                                        <button
-                                            onClick={handleAddComment}
-                                            className="ml-2 px-4 h-9 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold"
-                                            disabled={!commentText.trim()}
-                                        >Post</button>
-                                    </div>
-                                )}
+                                 {(['Owner', 'Admin', 'Editor'].includes(boardRole)) && (
+                                     <div className="space-y-2 mt-3">
+                                         <input
+                                             type="text"
+                                             placeholder="Add a comment... (Markdown supported)"
+                                             value={commentText}
+                                             onChange={e => setCommentText(e.target.value)}
+                                             className="w-full h-10 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-sm"
+                                             onKeyDown={e => e.key === 'Enter' && handleAddComment()}
+                                         />
+                                         <div className="flex items-center justify-between px-0.5">
+                                             <span className="text-[10px] text-slate-450 dark:text-slate-500 font-semibold flex items-center gap-1">
+                                                <span className="material-symbols-outlined text-[12px] text-slate-400 dark:text-slate-500">info</span>
+                                                Markdown supported
+                                             </span>
+                                             <button
+                                                 onClick={handleAddComment}
+                                                 className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shadow-sm"
+                                                 disabled={!commentText.trim()}
+                                             >Post</button>
+                                         </div>
+                                     </div>
+                                 )}
+                                
                             </div>
                         </div>
 
@@ -399,6 +514,19 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                     <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                 ) : 'Save changes'}
                             </button>
+                            {canEdit && (
+                                <button onClick={handleSaveTemplate} disabled={savingTemplate}
+                                    className="w-full h-10 bg-indigo-50 dark:bg-indigo-950/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 text-indigo-650 dark:text-indigo-400 text-sm font-semibold rounded-xl transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 border border-indigo-200 dark:border-indigo-900/55 hover:border-transparent">
+                                    {savingTemplate ? (
+                                        <span className="w-4 h-4 border-2 border-indigo-600/30 border-t-indigo-600 rounded-full animate-spin" />
+                                    ) : (
+                                        <>
+                                            <span className="material-symbols-outlined text-[18px]">bookmark</span>
+                                            Save as template
+                                        </>
+                                    )}
+                                </button>
+                            )}
                             <button onClick={handleDelete}
                                 className="w-full h-10 bg-rose-50 dark:bg-rose-950/20 hover:bg-rose-600 dark:hover:bg-rose-600 text-rose-600 dark:text-rose-400 hover:text-white text-sm font-semibold rounded-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 border border-rose-200 dark:border-rose-900/50 hover:border-transparent"
                                 style={{ display: canDelete ? undefined : 'none' }}>

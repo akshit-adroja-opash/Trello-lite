@@ -44,3 +44,18 @@ export const getMyTasks = async () => {
     const response = await API.get('/cards/my-tasks');
     return response.data;
 };
+
+export const saveCardAsTemplate = async (cardId) => {
+    const response = await API.post(`/cards/${cardId}/save-template`);
+    return response.data;
+};
+
+export const getBoardTemplates = async (boardId) => {
+    const response = await API.get(`/cards/board/${boardId}/templates`);
+    return response.data;
+};
+
+export const toggleCommentReaction = async (cardId, commentId, emoji) => {
+    const response = await API.post(`/cards/${cardId}/comments/${commentId}/react`, { emoji });
+    return response.data;
+};

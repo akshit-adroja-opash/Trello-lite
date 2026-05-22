@@ -424,3 +424,25 @@ input:-webkit-autofill:active {
   from { opacity: 0; transform: scale(0.96) translateY(4px); }
   to { opacity: 1; transform: scale(1) translateY(0); }
 }
+
+/* Markdown comments styling */
+.markdown-comment p {
+  margin: 0 0 0.5rem 0;
+  line-height: 1.4;
+}
+.markdown-comment p:last-child {
+  margin-bottom: 0;
+}
+.markdown-comment ul, .markdown-comment ol {
+  margin: 0.25rem 0 0.5rem 1.25rem;
+  padding: 0;
+}
+.markdown-comment li {
+  margin-bottom: 0.125rem;
+}
+.markdown-comment code {
+  font-family: monospace;
+  background: var(--surface-raised);
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+}

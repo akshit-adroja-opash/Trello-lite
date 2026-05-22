@@ -15,6 +15,16 @@ const COLORS = [
 const Avatar = ({ name = '?', avatar, size = 32 }) => {
     const safeName = name && name.trim() ? name.trim() : '?';
     const initial = safeName.charAt(0).toUpperCase();
+
+    const getAvatarUrl = (path) => {
+        if (!path) return '';
+        if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
+            return path;
+        }
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+        const host = apiUrl.split('/api')[0];
+        return `${host}${path.startsWith('/') ? '' : '/'}${path}`;
+    };
     
     const getBgColor = (str) => {
         let hash = 0;
@@ -32,7 +42,7 @@ const Avatar = ({ name = '?', avatar, size = 32 }) => {
     if (avatar) {
         return (
             <img 
-                src={avatar} 
+                src={getAvatarUrl(avatar)} 
                 alt={safeName} 
                 title={safeName}
                 style={{ width: size, height: size }}

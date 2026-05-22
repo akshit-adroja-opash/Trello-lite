@@ -17,9 +17,14 @@ const cardSchema = new mongoose.Schema({
     comments: [{
         user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
         text: { type: String, required: true },
+        reactions: [{
+            emoji: { type: String, required: true },
+            users: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+        }],
         createdAt: { type: Date, default: Date.now }
     }],
     checklist: [checklistItemSchema],
+    isTemplate: { type: Boolean, default: false },
     version: { type: Number, default: 0 }
 }, { timestamps: true });
 

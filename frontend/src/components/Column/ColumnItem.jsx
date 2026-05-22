@@ -5,6 +5,8 @@ import { CSS } from '@dnd-kit/utilities';
 import toast from 'react-hot-toast';
 import CardItem from '../Card/CardItem';
 import { deleteColumn, updateColumn } from '../../api/column.api';
+import { createCard as createCardApi, getBoardTemplates } from '../../api/card.api';
+import { generateIndexBetween } from '../../utils/fractionalIndex';
 import useBoardStore from '../../store/boardStore';
 import useAuthStore from '../../store/authstore';
 import { canDeleteColumn, canEditColumn, canCreateCard } from '../../utils/rolePermissions';
@@ -66,7 +68,50 @@ const ColumnItem = ({ column, cards, searchQuery, filterLabel, onAddCard, boardI
     const [editingName, setEditingName] = useState(false);
     const [colName, setColName] = useState(column.name);
 
-    const { removeColumn, updateColumn: storeUpdateColumn } = useBoardStore();
+    const [templates, setTemplates] = useState([]);
+    const [showTemplateMenu, setShowTemplateMenu] = useState(false);
+
+    const { removeColumn, updateColumn: storeUpdateColumn, addCard } = useBoardStore();
+
+    const handleOpenTemplates = async () => {
+        setShowTemplateMenu(!showTemplateMenu);
+        if (!showTemplateMenu) {
+            try {
+                const res = await getBoardTemplates(boardId);
+                setTemplates(res.data?.templates || []);
+            } catch {
+                toast.error("Failed to load card templates");
+            }
+        }
+    };
+
+    const handleAddCardFromTemplate = async (template) => {
+        const colCards = cards || [];
+        const last = colCards[colCards.length - 1];
+        const order = generateIndexBetween(last?.order || null, null);
+        try {
+            const res = await createCardApi({
+                title: template.title,
+                description: template.description || '',
+                columnId: column._id,
+                boardId,
+                order,
+                labels: template.labels?.map(l => ({ name: l.name, color: l.color })) || [],
+                checklist: template.checklist?.map(item => ({ text: item.text, done: false })) || []
+            });
+            const card = res.data?.card;
+            if (card) {
+                addCard(card);
+                socket?.emit('card:create', { boardId, card });
+                toast.success(`Created card from template "${template.title}"`);
+                setAddingCard(false);
+                setShowTemplateMenu(false);
+            }
+        } catch (err) {
+            toast.error('Failed to create card from template');
+        }
+    };
+
     const colors = getColumnColorClasses(column.name);
 
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -193,15 +238,51 @@ const ColumnItem = ({ column, cards, searchQuery, filterLabel, onAddCard, boardI
                             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAddCard(); } if (e.key === 'Escape') setAddingCard(false); }}
                             placeholder="Type a title for this card..."
                             className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 resize-none mb-2" />
-                        <div className="flex gap-1.5 justify-end">
-                            <button onClick={() => setAddingCard(false)}
-                                className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                                Cancel
-                            </button>
-                            <button onClick={handleAddCard}
-                                className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3.5 py-1.5 rounded-lg shadow-sm shadow-indigo-100 dark:shadow-none transition-colors">
-                                Add card
-                            </button>
+                        <div className="flex gap-1.5 items-center justify-between">
+                            <div className="relative">
+                                <button onClick={handleOpenTemplates}
+                                    className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-850 dark:hover:text-indigo-350 text-xs font-bold px-2.5 py-1.5 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition-colors flex items-center gap-1 cursor-pointer"
+                                    title="Create from template"
+                                >
+                                    <span className="material-symbols-outlined text-[16px]">bookmark</span>
+                                    <span>Template</span>
+                                </button>
+                                
+                                {showTemplateMenu && (
+                                    <div className="absolute bottom-full left-0 mb-2 w-56 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl py-2 z-30 animate-in fade-in slide-in-from-bottom-2 duration-150">
+                                        <div className="px-3 py-1.5 border-b border-slate-100 dark:border-slate-700/60 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                                            Select Card Template
+                                        </div>
+                                        <div className="max-h-40 overflow-y-auto custom-scrollbar mt-1">
+                                            {templates.length > 0 ? (
+                                                templates.map(temp => (
+                                                    <button key={temp._id} onClick={() => handleAddCardFromTemplate(temp)}
+                                                        className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors truncate flex items-center gap-2 cursor-pointer"
+                                                    >
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0" />
+                                                        <span>{temp.title}</span>
+                                                    </button>
+                                                ))
+                                            ) : (
+                                                <div className="px-3 py-3 text-center text-[11px] font-medium text-slate-400 dark:text-slate-500">
+                                                    No templates saved yet.
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                            
+                            <div className="flex gap-1.5">
+                                <button onClick={() => { setAddingCard(false); setShowTemplateMenu(false); }}
+                                    className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer">
+                                    Cancel
+                                </button>
+                                <button onClick={handleAddCard}
+                                    className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3.5 py-1.5 rounded-lg shadow-sm shadow-indigo-100 dark:shadow-none transition-colors cursor-pointer">
+                                    Add card
+                                </button>
+                            </div>
                         </div>
                     </div>
                 ) : canCreateCard(role) ? (

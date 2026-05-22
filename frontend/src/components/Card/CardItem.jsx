@@ -6,6 +6,7 @@ import { updateCard } from '../../api/card.api';
 import useBoardStore from '../../store/boardStore';
 import useSocketStore from '../../store/socketStore';
 import toast from 'react-hot-toast';
+import Avatar from '../../UI/Avatar';
 
 const CardItem = ({ card, columnId, isDragging: externalDragging }) => {
     const [open, setOpen] = useState(false);
@@ -198,17 +199,12 @@ const CardItem = ({ card, columnId, isDragging: externalDragging }) => {
                         {card.assignees?.length > 0 && (
                             <div className="flex -space-x-1.5 overflow-hidden">
                                 {card.assignees.slice(0, 3).map((a, idx) => (
-                                    <div 
+                                    <Avatar
                                         key={a._id || idx}
-                                        className="w-5.5 h-5.5 rounded-full ring-2 ring-white dark:ring-slate-800 bg-indigo-600 text-[10px] font-bold text-white flex items-center justify-center overflow-hidden shrink-0"
-                                        title={a.username || 'Assignee'}
-                                    >
-                                        {a.avatar ? (
-                                            <img src={a.avatar} alt={a.username} className="w-full h-full object-cover" />
-                                        ) : (
-                                            <span>{(a.username || '?').charAt(0).toUpperCase()}</span>
-                                        )}
-                                    </div>
+                                        name={a.username}
+                                        avatar={a.avatar}
+                                        size={22}
+                                    />
                                 ))}
                                 {card.assignees.length > 3 && (
                                     <div className="w-5.5 h-5.5 rounded-full ring-2 ring-white dark:ring-slate-800 bg-slate-200 dark:bg-slate-700 text-[9px] font-bold text-slate-600 dark:text-slate-300 flex items-center justify-center shrink-0">
