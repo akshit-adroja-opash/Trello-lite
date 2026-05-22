@@ -135,11 +135,10 @@ const DashboardPage = () => {
     }
   };
 
-  const handleDeleteBoard = async (e, workspaceId, boardId) => {
+  const handleDeleteBoard = async (boardId, workspaceId, e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!confirm('Are you sure you want to delete this board? This will permanently delete all its columns and cards.')) return;
-    
+    if (!confirm('Are you sure you want to delete this board? All lists and cards within it will be permanently deleted.')) return;
     try {
       await deleteBoard(boardId);
       setBoardsByWorkspace(p => ({
@@ -151,7 +150,6 @@ const DashboardPage = () => {
       toast.error(err.response?.data?.message || 'Failed to delete board');
     }
   };
-
   const openWorkspaceSettings = (workspace) => {
     setSelectedWorkspace(workspace);
     setSettingOpen(true);
@@ -290,26 +288,27 @@ const DashboardPage = () => {
                   {/* Boards Grid */}
                   <div className="p-6">
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                      {(boardsByWorkspace[ws._id] || []).map((board, index) => (
-                        <div key={board._id} className="relative group">
-                          <Link to={`/board/${board._id}`}
-                            className="block h-32 rounded-2xl p-4 flex flex-col justify-end hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 relative overflow-hidden shadow-sm hover:shadow-md"
+                      {(boardsByWorkspace[ws._id] || []).map((board, index) => {
+                        const isBoardOwner = board.owner === user?._id || board.owner?._id === user?._id;
+                        return (
+                          <Link key={board._id} to={`/board/${board._id}`}
+                            className="block h-32 rounded-2xl p-4 flex flex-col justify-end hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 group relative overflow-hidden shadow-sm hover:shadow-md"
                             style={{ background: board.background || BOARD_COLORS[index % BOARD_COLORS.length] }}>
-                            <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors z-0"></div>
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors z-0"></div>
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent z-0" />
-                            <h4 className="text-white font-headline-md font-bold text-lg relative z-10 drop-shadow-md hover:underline decoration-white/60 underline-offset-4">{board.name}</h4>
+                            {isBoardOwner && (
+                              <button
+                                onClick={(e) => handleDeleteBoard(board._id, ws._id, e)}
+                                className="absolute top-3 right-3 z-20 w-8 h-8 rounded-full bg-black/30 hover:bg-rose-600 text-white flex items-center justify-center transition-all duration-200 opacity-0 group-hover:opacity-100 hover:scale-105"
+                                title="Delete Board"
+                              >
+                                <span className="material-symbols-outlined text-[18px]">delete</span>
+                              </button>
+                            )}
+                            <h4 className="text-white font-headline-md font-bold text-lg relative z-10 drop-shadow-md group-hover:underline decoration-white/60 underline-offset-4">{board.name}</h4>
                           </Link>
-                          {(isWsOwner || board.owner === user?._id || board.owner?._id === user?._id) && (
-                            <button
-                              onClick={(e) => handleDeleteBoard(e, ws._id, board._id)}
-                              className="absolute top-2.5 right-2.5 w-8 h-8 rounded-xl bg-white/15 hover:bg-rose-600/90 text-white flex items-center justify-center transition-all duration-200 opacity-0 group-hover:opacity-100 z-20 shadow-sm border border-white/10 backdrop-blur-sm cursor-pointer"
-                              title="Delete Board"
-                            >
-                              <span className="material-symbols-outlined text-[16px] font-bold">delete</span>
-                            </button>
-                          )}
-                        </div>
-                      ))}
+                        );
+                      })}
 
                       {isWsOwner && (
                         <button 
