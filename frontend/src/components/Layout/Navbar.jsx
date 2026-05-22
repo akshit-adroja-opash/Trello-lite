@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuthStore from '../../store/authstore';
+import useSidebarStore from '../../store/sidebarStore';
 import ThemeToggle from '../ThemeToggle';
 import NotificationBell from '../Notifications/NotificationBell';
 import Avatar from '../../UI/Avatar';
@@ -8,6 +9,7 @@ import Avatar from '../../UI/Avatar';
 const Navbar = () => {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
+  const toggleSidebar = useSidebarStore((s) => s.toggle);
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -25,6 +27,14 @@ const Navbar = () => {
   return (
     <header className="bg-surface-bright/80 dark:bg-slate-800 backdrop-blur-xl border-b border-outline-variant/30 shadow-sm flex justify-between items-center w-full px-6 h-16 fixed top-0 z-50">
       <div className="flex items-center gap-3">
+        <button
+          onClick={toggleSidebar}
+          className="md:hidden p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors flex items-center justify-center"
+          aria-label="Toggle navigation"
+        >
+          <span className="material-symbols-outlined text-[22px]">menu</span>
+        </button>
+
         <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-md shadow-indigo-200 dark:shadow-none">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
             <rect x="3" y="3" width="7" height="18" rx="2" fill="white" />

@@ -129,8 +129,12 @@ export const shareReportLink = async (req, res) => {
         { new: true }
     );
 
+    const protocol = req.protocol;
+    const host = req.get('host');
+    const shareUrl = `${protocol}://${host}/api/v1/reports/shared/${token}`;
+
     res.json({
-        shareUrl: `http://localhost:5000/api/reports/shared/${token}`,
+        shareUrl,
         report,
     });
 };

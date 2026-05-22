@@ -12,6 +12,53 @@ import { canDeleteColumn, canEditColumn, canCreateCard } from '../../utils/roleP
 const CARD_HEIGHT = 88; 
 const VIRTUALIZE_THRESHOLD = 8; 
 
+const getColumnColorClasses = (name) => {
+    const lowerName = name.toLowerCase();
+    if (lowerName.includes('backlog') || lowerName.includes('todo') || lowerName.includes('to do')) {
+        return {
+            bg: 'bg-blue-50/60 dark:bg-blue-950/15',
+            border: 'border-blue-200/60 dark:border-blue-900/30',
+            text: 'text-blue-800 dark:text-blue-300',
+            badge: 'bg-blue-100/80 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300',
+            bar: 'bg-blue-500/85 dark:bg-blue-400/85'
+        };
+    }
+    if (lowerName.includes('progress') || lowerName.includes('active') || lowerName.includes('doing')) {
+        return {
+            bg: 'bg-amber-50/65 dark:bg-amber-950/15',
+            border: 'border-amber-200/60 dark:border-amber-900/30',
+            text: 'text-amber-800 dark:text-amber-300',
+            badge: 'bg-amber-100/80 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300',
+            bar: 'bg-amber-500/85 dark:bg-amber-400/85'
+        };
+    }
+    if (lowerName.includes('review') || lowerName.includes('testing') || lowerName.includes('qa')) {
+        return {
+            bg: 'bg-indigo-50/60 dark:bg-indigo-950/15',
+            border: 'border-indigo-200/60 dark:border-indigo-900/30',
+            text: 'text-indigo-800 dark:text-indigo-300',
+            badge: 'bg-indigo-100/80 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300',
+            bar: 'bg-indigo-500/85 dark:bg-indigo-400/85'
+        };
+    }
+    if (lowerName.includes('done') || lowerName.includes('complete') || lowerName.includes('finish')) {
+        return {
+            bg: 'bg-emerald-50/60 dark:bg-emerald-950/15',
+            border: 'border-emerald-200/60 dark:border-emerald-900/30',
+            text: 'text-emerald-800 dark:text-emerald-300',
+            badge: 'bg-emerald-100/80 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300',
+            bar: 'bg-emerald-500/85 dark:bg-emerald-400/85'
+        };
+    }
+    return {
+        bg: 'bg-slate-100/80 dark:bg-slate-800/40',
+        border: 'border-slate-200/60 dark:border-slate-700/50',
+        text: 'text-slate-800 dark:text-white',
+        badge: 'bg-slate-200/60 dark:bg-slate-700/50 text-slate-505 dark:text-slate-400',
+        bar: 'bg-slate-400/85 dark:bg-slate-500/85'
+    };
+};
+
 const ColumnItem = ({ column, cards, searchQuery, filterLabel, onAddCard, boardId, socket }) => {
   const role = useBoardStore((s) => s.boardRole);
     const [addingCard, setAddingCard] = useState(false);
@@ -20,6 +67,7 @@ const ColumnItem = ({ column, cards, searchQuery, filterLabel, onAddCard, boardI
     const [colName, setColName] = useState(column.name);
 
     const { removeColumn, updateColumn: storeUpdateColumn } = useBoardStore();
+    const colors = getColumnColorClasses(column.name);
 
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
         id: column._id,
@@ -71,7 +119,9 @@ const ColumnItem = ({ column, cards, searchQuery, filterLabel, onAddCard, boardI
 
     return (
         <div ref={setNodeRef} style={style}
-            className={`shrink-0 w-72 flex flex-col bg-slate-100/80 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-700/50 rounded-2xl max-h-[calc(100vh-6.5rem)] transition-shadow duration-200 ${isDragging ? 'shadow-none' : 'shadow-sm'}`}>
+            className={`shrink-0 w-72 flex flex-col ${colors.bg} border ${colors.border} rounded-2xl max-h-[calc(100vh-6.5rem)] transition-shadow duration-200 ${isDragging ? 'shadow-none' : 'shadow-sm'}`}>
+
+            <div className={`h-1 w-full rounded-t-2xl ${colors.bar}`} />
 
             <div className="flex items-center justify-between pl-4 pr-2.5 pt-3.5 pb-2.5 cursor-grab active:cursor-grabbing select-none group/header"
                 {...attributes} {...listeners}>
@@ -83,10 +133,10 @@ const ColumnItem = ({ column, cards, searchQuery, filterLabel, onAddCard, boardI
                         className="flex-1 h-8 px-2.5 rounded-xl border border-indigo-500 dark:border-indigo-600 bg-white dark:bg-slate-900 text-sm font-bold text-slate-800 dark:text-white focus:outline-none focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-indigo-500/5"
                         onClick={e => e.stopPropagation()} />
                 ) : (
-                    <h3 className="font-bold text-sm text-slate-800 dark:text-white flex-1 truncate pr-2 tracking-tight"
+                    <h3 className={`font-bold text-sm ${colors.text} flex-1 truncate pr-2 tracking-tight`}
                         onDoubleClick={() => canEditColumn(role) && setEditingName(true)}>
                         {column.name}
-                        <span className="ml-2 bg-slate-200/60 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 font-bold text-[11px] px-2 py-0.5 rounded-full">
+                        <span className={`ml-2 ${colors.badge} font-bold text-[11px] px-2 py-0.5 rounded-full`}>
                             {filteredCards.length}
                         </span>
                     </h3>

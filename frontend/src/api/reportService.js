@@ -6,6 +6,9 @@ export const generateFullReport = async (boardId) => {
 };
 export const generateClientReport = async (boardId) => {
   const res = await API.post(`/reports/client/${boardId}`);
-  
+  return res.data;
+};
+export const shareReportLink = async (reportId) => {
+  const res = await API.post(`/reports/share/${reportId}`);
   return res.data;
 };

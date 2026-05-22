@@ -172,7 +172,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
             onClick={onClose}>
             <div className="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 w-full max-w-3xl transform scale-100 transition-all duration-200 overflow-hidden"
                 onClick={e => e.stopPropagation()}>
-                
+
                 <div className="flex items-center gap-4 p-6 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/20">
                     <div className="w-5 h-5 shrink-0 text-indigo-600 dark:text-indigo-400">
                         <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">

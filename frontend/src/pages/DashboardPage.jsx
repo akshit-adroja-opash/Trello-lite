@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import useAuthStore from '../store/authstore';
-import { createWorkspace, deleteWorkspace, getWorkspaces, inviteMember } from '../api/workspace.api';
+import { createWorkspace, deleteWorkspace, getWorkspaces, inviteMember, getOverdueCount } from '../api/workspace.api';
 import { createBoard, getBoardsByWorkspace } from '../api/board.api';
 import Avatar from '../UI/Avatar';
 import { getRoleDisplayName } from '../utils/roleDisplay';
 import DashboardSidebar from '../components/Layout/DashboardSidebar';
-import Navbar from './Layout/Navbar';
+import Navbar from '../components/Layout/Navbar';
+import WorkspaceSettingsModal from '../components/workspace/WorkspaceSettingsModal';
 
 const BOARD_COLORS = [
   'linear-gradient(180deg, #5A5EE0 0%, #3031B7 100%)', 
@@ -49,6 +50,10 @@ const DashboardPage = () => {
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState('viewer');
 
+  const [selectedWorkspace, setSelectedWorkspace] = useState(null);
+  const [settingOpen, setSettingOpen] = useState(false);
+  const [overdueCounts, setOverdueCounts] = useState({});
+
   const user = useAuthStore(s => s.user);
   const logout = useAuthStore(s => s.logout);
   const navigate = useNavigate();
@@ -61,11 +66,20 @@ const DashboardPage = () => {
         const wsList = wsRes.data?.workspaces || [];
         setWorkspaces(wsList);
         const map = {};
+        const overdueMap = {};
         await Promise.all(wsList.map(async ws => {
           const bRes = await getBoardsByWorkspace(ws._id);
           map[ws._id] = bRes.data?.boards || [];
+          try {
+            const countRes = await getOverdueCount(ws._id);
+            overdueMap[ws._id] = countRes.data?.overdueCount || 0;
+          } catch (err) {
+            console.error('Failed to load overdue count for workspace', ws._id, err);
+            overdueMap[ws._id] = 0;
+          }
         }));
         setBoardsByWorkspace(map);
+        setOverdueCounts(overdueMap);
       } catch { toast.error('Failed to load dashboard'); }
       finally { setLoading(false); }
     };
@@ -79,6 +93,7 @@ const DashboardPage = () => {
       const ws = res.data?.workspace;
       setWorkspaces(p => [ws, ...p]);
       setBoardsByWorkspace(p => ({ ...p, [ws._id]: [] }));
+      setOverdueCounts(p => ({ ...p, [ws._id]: 0 }));
       setWsName(''); setWsDesc(''); setShowCreateWs(false);
       toast.success('Workspace created successfully');
     } catch (err) { toast.error(err.response?.data?.message || 'Failed to create workspace'); }
@@ -119,6 +134,10 @@ const DashboardPage = () => {
       toast.error(err.response?.data?.message || 'Failed to delete workspace');
     }
   };
+  const openWorkspaceSettings = (workspace) => {
+    setSelectedWorkspace(workspace);
+    setSettingOpen(true);
+  }
 
   const handleLogout = async () => { await logout(); navigate('/login'); };
 
@@ -190,7 +209,15 @@ const DashboardPage = () => {
                         {ws.name.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <h3 className="text-lg font-bold text-slate-800 dark:text-white">{ws.name}</h3>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="text-lg font-bold text-slate-800 dark:text-white">{ws.name}</h3>
+                          {overdueCounts[ws._id] > 0 && (
+                            <span className="inline-flex items-center gap-1 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 border border-rose-200/60 dark:border-rose-900/40 text-[11.5px] font-bold px-2 py-0.5 rounded-full select-none shadow-sm">
+                              <span className="material-symbols-outlined text-[13px] text-rose-500">alarm</span>
+                              {overdueCounts[ws._id]} Overdue
+                            </span>
+                          )}
+                        </div>
                         {ws.description && <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5">{ws.description}</p>}
                         <div className="flex items-center gap-1 text-xs text-slate-400 dark:text-slate-500 mt-1.5 font-medium">
                           <span className="material-symbols-outlined text-[15px] text-slate-400">link</span>
@@ -199,6 +226,12 @@ const DashboardPage = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-3.5 w-full sm:w-auto">
+                      {isWsOwner && (
+                        <button onClick={() => openWorkspaceSettings(ws)} className="flex-1 sm:flex-none h-10 px-4 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 duration-150 transition-all border border-slate-200/50 dark:border-slate-600/40">
+                          <span className="material-symbols-outlined text-[18px]">settings</span>
+                          Settings
+                        </button>
+                      )}
                       {isWsOwner && (
                         <button onClick={() => setShowInvite(ws._id)} className="flex-1 sm:flex-none h-10 px-4 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 duration-150 transition-all border border-slate-200/50 dark:border-slate-600/40">
                           <span className="material-symbols-outlined text-[18px]">person_add</span>
@@ -360,6 +393,19 @@ const DashboardPage = () => {
             </div>
           </div>
         </Modal>
+      )}
+
+      {settingOpen && selectedWorkspace && (
+        <WorkspaceSettingsModal 
+          workspace={selectedWorkspace} 
+          onClose={() => { setSettingOpen(false); setSelectedWorkspace(null); }} 
+          onWorkspaceUpdated={(updatedWs) => {
+            setWorkspaces(p => p.map(w => w._id === updatedWs._id ? { ...w, ...updatedWs } : w));
+            if (selectedWorkspace._id === updatedWs._id) {
+              setSelectedWorkspace(updatedWs);
+            }
+          }}
+        />
       )}
     </div>
   );

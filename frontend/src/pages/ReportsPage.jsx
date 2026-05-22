@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import useAuthStore from "../store/authstore";
 import { getWorkspaces } from "../api/workspace.api";
 import { getBoardsByWorkspace, getSingleBoard } from "../api/board.api";
-import { generateClientReport, generateFullReport } from "../api/reportService";
+import { generateClientReport, generateFullReport, shareReportLink } from "../api/reportService";
 import ReportActions from "../components/ReportActions";
 import Avatar from "../UI/Avatar";
 import DashboardSidebar from "../components/Layout/DashboardSidebar";
@@ -21,6 +21,8 @@ const ReportsPage = () => {
   const [boardsByWorkspace, setBoardsByWorkspace] = useState({});
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [lastReport, setLastReport] = useState(null);
+  const [sharing, setSharing] = useState(false);
 
   // Load single board info if boardId is provided
   useEffect(() => {
@@ -75,6 +77,7 @@ const ReportsPage = () => {
     try {
       const data = await generateFullReport(activeId);
       toast.success("Full report generated");
+      setLastReport(data.report);
       const normalizedPath = data.report.pdfUrl.replace(/\\/g, "/");
       window.open(`http://localhost:5000/${normalizedPath}`, "_blank");
     } catch (error) {
@@ -93,6 +96,7 @@ const ReportsPage = () => {
     try {
       const data = await generateClientReport(activeId);
       toast.success("Client report generated");
+      setLastReport(data.report);
       const normalizedPath = data.report.pdfUrl.replace(/\\/g, "/");
       window.open(`http://localhost:5000/${normalizedPath}`, "_blank");
     } catch (error) {
@@ -100,6 +104,22 @@ const ReportsPage = () => {
       toast.error("Failed to generate client report");
     } finally {
       setGenerating(false);
+    }
+  };
+
+  const handleCopyShareLink = async () => {
+    if (!lastReport?._id) return;
+    setSharing(true);
+    try {
+      const res = await shareReportLink(lastReport._id);
+      const url = res.shareUrl;
+      await navigator.clipboard.writeText(url);
+      toast.success("Share link copied to clipboard!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to generate share link");
+    } finally {
+      setSharing(false);
     }
   };
 
@@ -187,6 +207,53 @@ const ReportsPage = () => {
                       onFullReport={handleFullReport}
                       onClientReport={handleClientReport}
                     />
+                  )}
+
+                  {lastReport && (
+                    <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-700/60 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                      <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-450 mb-3 flex items-center gap-2">
+                        <span className="material-symbols-outlined text-[18px] text-emerald-500">check_circle</span>
+                        Last Generated Report
+                      </h3>
+                      <div className="bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-bold text-slate-800 dark:text-white capitalize">
+                              {lastReport.type} Report
+                            </span>
+                            <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100/30 px-2 py-0.5 rounded-full uppercase">
+                              Ready
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                            Generated on {new Date(lastReport.createdAt || Date.now()).toLocaleString()}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <a
+                            href={`http://localhost:5000/${lastReport.pdfUrl.replace(/\\/g, "/")}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="h-9 px-4 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all shadow-sm"
+                          >
+                            <span className="material-symbols-outlined text-[16px]">download</span>
+                            Download
+                          </a>
+                          <button
+                            onClick={handleCopyShareLink}
+                            disabled={sharing}
+                            className="h-9 px-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all shadow-sm hover:shadow-indigo-600/10"
+                          >
+                            {sharing ? (
+                              <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            ) : (
+                              <span className="material-symbols-outlined text-[16px]">share</span>
+                            )}
+                            Copy Share Link
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   )}
                 </div>
               </div>

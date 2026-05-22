@@ -1,172 +1,151 @@
-# Frontend ↔ Backend Gap Analysis
+# Trello-Lite: Codebase Audit & Gap Analysis Report
 
-## Legend
-- ✅ Connected & Working
-- ❌ Not Connected / Missing
-- ⚠️ Partially Connected
+This document details the issues identified during a comprehensive audit of the Trello-lite codebase. The audit focused on finding mismatches between the frontend React components/pages and the backend Express routes, including orphan endpoints, incorrect base URL references, misconfigured CORS, and discrepancies in the role/permission systems.
 
 ---
 
-## 1. AUTH — `backend/src/routes/auth.routes.js`
+## 1. Frontend Components Lacking API Calls / UI Implementation
 
-| Backend Route | Frontend API | Page/Component Used | Status |
-|---|---|---|---|
-| `POST /auth/register` | `auth.api.js → registerUser` | `RegisterPage.jsx` | ✅ |
-| `POST /auth/login` | `auth.api.js → loginUser` | `LoginPage.jsx` | ✅ |
-| `GET /auth/me` | `auth.api.js → getMe` | `App.jsx` | ✅ |
-| `POST /auth/logout` | `auth.api.js → logoutUser` | `DashboardPage.jsx` | ✅ |
-| `PATCH /auth/profile` | `auth.api.js → updateProfile` | ❌ **No ProfilePage exists** | ❌ |
+### 1.1 Unimplemented Workspace Member & Role Management UI
+* **Files**: 
+  * `frontend/src/pages/DashboardPage.jsx`
+  * `frontend/src/api/workspace.api.js` (Lines 14–26)
+* **Description**: The frontend defines workspace member roles management API calls (`getMembers`, `updateMemberRole`, `removeMember`, `updateWorkspace`, `getOverdueCount`) but there is **no UI component** or page in the frontend that invokes these endpoints. While workspace invitation is implemented, workspace member role modification, member removal, workspace renaming, board member lists viewing, and board member role management are completely missing from the UI.
+* **How to Fix**: 
+  Create a "Workspace Settings" modal or tab inside `DashboardPage.jsx` accessible only to workspace owners (`Owner`/`admin`). This UI should load members using `getMembers` and allow updating roles or removing members.
 
-**Missing:**
-- `updateProfile` API function exists in `auth.api.js` but **no ProfilePage.jsx** is created
-- No UI anywhere to call this endpoint (username change, password change, avatar upload)
+### 1.2 Unimplemented Board Member & Role Management UI
+* **Files**: 
+  * `frontend/src/pages/BoardPage.jsx`
+  * `frontend/src/api/board.api.js` (Lines 35–51)
+* **Description**: Similar to the workspace-level endpoints, board-level member management routes (`getBoardMembers`, `addBoardMember`, `updateBoardMemberRole`) are declared in the board API helper but have no corresponding UI components to trigger them in `BoardPage.jsx`.
+* **How to Fix**: 
+  Implement a "Board Members" dropdown or modal in the board header. This component will fetch current board members using `getBoardMembers` and allow board owners (`Owner`) to add members or modify their board role.
 
----
-
-## 2. WORKSPACE — `backend/src/routes/workspace.routes.js`
-
-| Backend Route | Frontend API | Page/Component Used | Status |
-|---|---|---|---|
-| `POST /workspaces` | `workspace.api.js → createWorkspace` | `DashboardPage.jsx` | ✅ |
-| `GET /workspaces` | `workspace.api.js → getWorkspaces` | `DashboardPage.jsx` | ✅ |
-| `POST /:id/invite` | `workspace.api.js → inviteMember` | `DashboardPage.jsx` | ✅ |
-| `GET /:id/members` | `workspace.api.js → getMembers` | ❌ **Never called in any page** | ❌ |
-| `PATCH /:id/members/:memberId` | `workspace.api.js → updateMemberRole` | ❌ **Never called in any page** | ❌ |
-| `DELETE /:id/members/:memberId` | `workspace.api.js → removeMember` | ❌ **Never called in any page** | ❌ |
-| `PATCH /:id` | `workspace.api.js → updateWorkspace` | ❌ **Never called in any page** | ❌ |
-| `DELETE /:id` | `workspace.api.js → deleteWorkspace` | `DashboardPage.jsx` | ✅ |
-| `GET /:id/overdue-count` | `workspace.api.js → getOverdueCount` | ❌ **Never called in any page** | ❌ |
-
-**Missing:**
-- `getMembers` — API ready, no UI to list workspace members separately
-- `updateMemberRole` — API ready, no UI to change a member's role after invite
-- `removeMember` — API ready, no UI to remove a member from workspace
-- `updateWorkspace` — API ready, no UI to rename/edit workspace description
-- `getOverdueCount` — API ready, never called on Dashboard to show overdue badge
+### 1.3 Missing Workspace Overdue Count Summaries
+* **Files**: 
+  * `frontend/src/pages/DashboardPage.jsx`
+  * `frontend/src/api/workspace.api.js` (Line 29)
+* **Description**: While `workspace.api.js` contains a `getOverdueCount` method to retrieve the number of tasks past their due dates in a workspace, `DashboardPage.jsx` does not import or call this function to render an alert badge or status summary.
+* **How to Fix**: 
+  Import `getOverdueCount` into `DashboardPage.jsx`. Fetch the count for each workspace upon dashboard mount and render an indicator/badge next to the workspace title.
 
 ---
 
-## 3. BOARD — `backend/src/routes/board.routes.js`
+## 2. API Endpoint & URL Mismatches
 
-| Backend Route | Frontend API | Page/Component Used | Status |
-|---|---|---|---|
-| `POST /boards` | `board.api.js → createBoard` | `DashboardPage.jsx` | ✅ |
-| `GET /boards/workspace/:id` | `board.api.js → getBoardsByWorkspace` | `DashboardPage.jsx` | ✅ |
-| `GET /boards/:boardId` | `board.api.js → getSingleBoard` | `BoardPage.jsx` | ✅ |
-| `PATCH /boards/:boardId` | `board.api.js → updateBoard` | ❌ **Never called in any page** | ❌ |
-| `DELETE /boards/:boardId` | `board.api.js → deleteBoard` | ❌ **Never called in any page** | ❌ |
-| `GET /boards/:boardId/members` | `board.api.js → getBoardMembers` | ❌ **Never called in any page** | ❌ |
-| `POST /boards/:boardId/members` | ❌ **Missing in board.api.js** | ❌ **No UI** | ❌ |
-| `PATCH /boards/:boardId/members/:memberId` | `board.api.js → updateBoardMemberRole` | ❌ **Never called in any page** | ❌ |
-
-**Missing:**
-- `addBoardMember` — backend route `POST /boards/:boardId/members` exists but **no frontend API function** and **no UI**
-- `updateBoard` — API ready, no UI to rename board or change background
-- `deleteBoard` — API ready, no UI button anywhere
-- `getBoardMembers` — API ready, never used in BoardPage
-- `updateBoardMemberRole` — API ready, no UI
-
----
-
-## 4. COLUMN — `backend/src/routes/column.routes.js`
-
-| Backend Route | Frontend API | Page/Component Used | Status |
-|---|---|---|---|
-| `POST /columns` | `column.api.js → createColumn` | `BoardPage.jsx` | ✅ |
-| `GET /columns/board/:boardId` | `column.api.js → getColumnsByBoard` | `BoardPage.jsx` | ✅ |
-| `PATCH /columns/reorder` | `column.api.js → reorderColumn` | `BoardPage.jsx` | ✅ |
-| `PATCH /columns/:columnId` | `column.api.js → updateColumn` | `ColumnItem.jsx` | ✅ |
-| `DELETE /columns/:columnId` | `column.api.js → deleteColumn` | `ColumnItem.jsx` | ✅ |
-
-**Status: ✅ Fully Connected**
+### 2.1 Missing `/v1` Prefix in Shared Report Generation URL
+* **Files**: 
+  * `backend/src/controllers/reportController.js` (Line 133)
+  * `backend/src/routes/report.routes.js`
+* **Description**: The backend controller generates a shareable URL as:
+  `http://localhost:5000/api/reports/shared/${token}`
+  However, the reports router is mounted with the `/api/v1` namespace prefix inside `backend/app.js`:
+  `app.use("/api/v1/reports", reportRouter);`
+  The generated URL is missing the `/v1` namespace, so clicking it results in a `404 Not Found` error.
+* **How to Fix**: 
+  Modify the `shareReportLink` controller to construct the URL using the correct prefix and extract the request host dynamically:
+  ```javascript
+  const protocol = req.protocol;
+  const host = req.get('host');
+  const shareUrl = `${protocol}://${host}/api/v1/reports/shared/${token}`;
+  ```
 
 ---
 
-## 5. CARD — `backend/src/routes/card.routes.js`
+## 3. Orphan Backend Routes (Registered but Never Called)
 
-| Backend Route | Frontend API | Page/Component Used | Status |
-|---|---|---|---|
-| `POST /cards` | `card.api.js → createCard` | `BoardPage.jsx` | ✅ |
-| `GET /cards/column/:columnId` | `card.api.js → getCardsByColumn` | `BoardPage.jsx` | ✅ |
-| `GET /cards/my-tasks` | ❌ **Missing in card.api.js** | `MyTasksPage.jsx` (uses axios directly) | ⚠️ |
-| `GET /cards/:cardId` | `card.api.js → getSingleCard` | Not used in any page | ⚠️ |
-| `GET /cards/:cardId/activities` | `card.api.js → getCardActivities` | `CardDetail.jsx` | ✅ |
-| `POST /cards/:cardId/comments` | `card.api.js → addComment` | `CardDetail.jsx` | ✅ |
-| `PATCH /cards/:cardId` | `card.api.js → updateCard` | `CardDetail.jsx` | ✅ |
-| `DELETE /cards/:cardId` | `card.api.js → deleteCard` | `CardDetail.jsx` | ✅ |
-| `PATCH /cards/:cardId/move` | `card.api.js → moveCard` | `BoardPage.jsx` | ✅ |
+### 3.1 Uncalled Workspace & Board Member Management Endpoints
+* **Files**: 
+  * `backend/src/routes/workspace.routes.js`
+  * `backend/src/routes/board.routes.js`
+* **Description**: The endpoints listed below exist on the backend but have no frontend integration:
+  * `GET /api/v1/workspaces/:workspaceId/members` (getMembers)
+  * `PATCH /api/v1/workspaces/:workspaceId/members/:memberId` (updateMemberRole)
+  * `DELETE /api/v1/workspaces/:workspaceId/members/:memberId` (removeMember)
+  * `PATCH /api/v1/workspaces/:workspaceId` (updateWorkspace)
+  * `GET /api/v1/workspaces/:workspaceId/overdue-count` (getOverdueCount)
+  * `PATCH /api/v1/boards/:boardId` (updateBoard)
+  * `DELETE /api/v1/boards/:boardId` (deleteBoard)
+  * `GET /api/v1/boards/:boardId/members` (getBoardMembers)
+  * `POST /api/v1/boards/:boardId/members` (addBoardMember)
+  * `PATCH /api/v1/boards/:boardId/members/:memberId` (updateBoardMemberRole)
+* **How to Fix**: 
+  Create settings views in the frontend client (as detailed in Section 1) to wire up these endpoints.
 
-**Missing:**
-- `GET /cards/my-tasks` — `MyTasksPage.jsx` calls it directly via `API.get('/cards/my-tasks')` instead of using a proper API wrapper function in `card.api.js`
-- `MyTasksPage` route `/my-tasks` is **not registered in `App.jsx`** — page exists but is unreachable
-- `getSingleCard` — function exists in `card.api.js` but never called anywhere in frontend
+### 3.2 Uncalled Card Single Fetch Route
+* **Files**: 
+  * `backend/src/routes/card.routes.js`
+* **Description**: The backend defines `GET /api/v1/cards/:cardId` (which maps to `getSingleCard` in `card.api.js`), but this is never invoked because board boards retrieve card data nested inside columns, rendering this route an orphan.
+* **How to Fix**: 
+  Keep for utility/future page links or remove if unnecessary to reduce API surface area.
 
----
-
-## 6. NOTIFICATIONS — `backend/src/controllers/notification.controller.js`
-
-| Backend Route | Frontend API | Page/Component Used | Status |
-|---|---|---|---|
-| `GET /notifications` | ❌ **`notification.api.js` file does not exist** | `notificationStore.js` tries to import it | ❌ |
-| `PATCH /notifications/:id/read` | ❌ **`notification.api.js` file does not exist** | `notificationStore.js` tries to import it | ❌ |
-| `PATCH /notifications/read-all` | ❌ **`notification.api.js` file does not exist** | `notificationStore.js` tries to import it | ❌ |
-
-**Missing:**
-- `notification.api.js` file **does not exist at all** — `notificationStore.js` imports from `../api/notification.api` which will throw a runtime error
-- Notification routes are **not registered in `app.js`** — no `app.use('/api/v1/notifications', notificationRoutes)` line exists
-- `NotificationBell` component exists but is **never rendered** in `App.jsx`, `DashboardPage.jsx`, or `BoardPage.jsx`
-
----
-
-## 7. ACTIVITY — `backend/src/routes/activity.routes.js`
-
-| Backend Route | Frontend API | Page/Component Used | Status |
-|---|---|---|---|
-| `GET /activities/board/:boardId` | No API wrapper (uses axios directly) | `ActivitySidebar.jsx` | ⚠️ |
-
-**Missing:**
-- No `activity.api.js` file — `ActivitySidebar.jsx` calls `API.get('/activities/board/${boardId}')` directly
-- ActivitySidebar has **no real-time updates** — only fetches on mount, no socket listener
+### 3.3 Uncalled Report Sharing Routes
+* **Files**: 
+  * `backend/src/routes/report.routes.js`
+* **Description**: The routes `POST /api/v1/reports/share/:reportId` and `GET /api/v1/reports/shared/:token` have no matching frontend triggers. The client only supports generating full and client reports via direct downloads.
+* **How to Fix**: 
+  Introduce a "Copy Share Link" option in the reports dashboard next to generated PDFs to leverage this background capability.
 
 ---
 
-## 8. BACKEND — Registered but Missing in `app.js`
+## 4. Hardcoded Base URLs / Env Fallback Inconsistencies
 
-| Controller | Routes File | Registered in app.js | Status |
-|---|---|---|---|
-| `notification.controller.js` | No routes file exists | ❌ Not registered | ❌ |
-| `upload.middleware.js` | Used in auth routes | Static files `/uploads` not served | ⚠️ |
+### 4.1 Hardcoded Port in ReportsPage.jsx
+* **Files**: 
+  * `frontend/src/pages/ReportsPage.jsx` (Lines 79 and 97)
+* **Description**: When rendering generated PDF reports in a new browser tab, the frontend hardcodes the server base URL:
+  `window.open("http://localhost:5000/" + normalizedPath, "_blank");`
+  This breaks in staging/production setups where the backend runs on a different port or domain.
+* **How to Fix**: 
+  Construct the URL using Vite's environment config dynamically:
+  ```javascript
+  const backendBase = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:5000';
+  window.open(`${backendBase}/${normalizedPath}`, "_blank");
+  ```
 
 ---
 
-## Summary — What Needs to Be Created/Fixed
+## 5. Express CORS Configuration Bugs
 
-### 🔴 Critical (App will crash / feature completely broken)
+### 5.1 Lack of White Space Trimming in CORS Origin Split
+* **Files**: 
+  * `backend/app.js` (Lines 19–21)
+* **Description**: In `backend/app.js`, CORS is initialized by splitting origins by comma:
+  `const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173").split(",");`
+  If `process.env.CORS_ORIGIN` contains spaces between domains (e.g. `http://localhost:5173, http://127.0.0.1:5173`), the second origin is parsed with leading spaces (e.g. `' http://127.0.0.1:5173'`), failing CORS preflight requests.
+* **How to Fix**: 
+  Sanitize the origins array by trimming whitespace:
+  ```javascript
+  const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173")
+      .split(",")
+      .map(origin => origin.trim())
+      .filter(Boolean);
+  ```
 
-| # | What | Fix |
-|---|---|---|
-| 1 | `notification.api.js` missing | Create `frontend/src/api/notification.api.js` |
-| 2 | Notification routes not in `app.js` | Add `app.use('/api/v1/notifications', notificationRoutes)` |
-| 3 | Notification routes file missing | Create `backend/src/routes/notification.routes.js` |
-| 4 | `MyTasksPage` not in `App.jsx` routes | Add `<Route path="/my-tasks" element={<MyTasksPage />} />` |
+---
 
-### 🟡 Medium (Feature exists but not wired)
+## 6. Critical Security & Role Discrepancies
 
-| # | What | Fix |
-|---|---|---|
-| 5 | `NotificationBell` never rendered | Add to `DashboardPage.jsx` and `BoardPage.jsx` header |
-| 6 | `addBoardMember` missing in `board.api.js` | Add `POST /boards/:boardId/members` function |
-| 7 | `getOverdueCount` never called | Call in `DashboardPage.jsx` per workspace |
-| 8 | `updateWorkspace` never called | Add edit workspace UI in `DashboardPage.jsx` |
-| 9 | `removeMember` / `updateMemberRole` never called | Add member management UI |
-| 10 | `updateBoard` / `deleteBoard` never called | Add board settings UI in `BoardPage.jsx` |
-| 11 | `MyTasksPage` uses raw axios instead of api wrapper | Add `getMyTasks` to `card.api.js` |
-| 12 | ActivitySidebar not real-time | Add socket listener for new activities |
+### 6.1 Report Permissions & Global User Role Mismatch
+* **Files**: 
+  * `backend/src/models/User.js` (Line 25)
+  * `backend/src/middleware/reportPermission.js` (Lines 4 and 17)
+  * `frontend/src/components/ReportActions.jsx` (Lines 9–10)
+* **Description**: The global role system contains conflicting naming definitions:
+  * **User Model Schema**: Defines roles enum as `['admin', 'project_manager', 'developer']`.
+  * **Report Permission Middleware**: Verifies permission checking `req.user.role === 'admin' || req.user.role === 'pm'`.
+  * **The Mismatch**: Because the model stores the string `'project_manager'` while the middleware checks for `'pm'`, a user registered with the Project Manager role will be rejected with an `Access Denied` error when attempting to generate a report.
+  * **Client Role**: The client report middleware checks for `req.user.role === 'client'`, but `'client'` is not even a valid value in the User model schema enum.
+* **How to Fix**: 
+  Standardize naming conventions to match. Change the checks inside `reportPermission.js` to reference `'project_manager'` instead of `'pm'`.
 
-### 🟢 Low (Nice to have)
-
-| # | What | Fix |
-|---|---|---|
-| 13 | `ProfilePage` missing | Create page using existing `updateProfile` API |
-| 14 | `getSingleCard` never used | Use in CardDetail instead of passing card as prop |
-| 15 | Avatar uploads — `/uploads` not served statically | Add `app.use('/uploads', express.static('uploads'))` in `app.js` |
+### 6.2 Browser Environment `require` Reference in rolePermissions.js
+* **Files**: 
+  * `frontend/src/utils/rolePermissions.js` (Line 50)
+* **Description**: The file uses a Node.js CommonJS `require()` statement in the browser environment:
+  `const useAuthStore = require('../store/authstore').default;`
+  Since Vite React builds use ES module loaders in modern browsers, execution of this helper will crash with `ReferenceError: require is not defined`.
+* **How to Fix**: 
+  Replace the dynamic `require` with an static ES `import` statement at the top of the file:
+  `import useAuthStore from '../store/authstore';`

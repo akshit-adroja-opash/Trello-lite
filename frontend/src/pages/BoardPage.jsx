@@ -4,6 +4,8 @@ import toast from 'react-hot-toast';
 import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors, closestCorners } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 import debounce from 'lodash/debounce';
+import { FiUsers } from 'react-icons/fi';
+import BoardMembersModal from '../components/Board/BoardMembersModal';
 
 import useBoardStore from '../store/boardStore';
 import useSocketStore from '../store/socketStore';
@@ -43,6 +45,7 @@ const BoardPage = () => {
     const [cursors, setCursors] = useState([]);
     const searchRef = useRef(null);
     const emitCursorRef = useRef(null);
+    const [membersModalOpen, setMembersModalOpen] = useState(false);
 
 
     const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
@@ -61,17 +64,6 @@ const BoardPage = () => {
             const boardData = boardRes.data?.board || boardRes.board;
             setBoard(boardData);
 
-            // Determine current user's role on this board
-            if (boardData && user) {
-                if (boardData.owner?._id === user._id || boardData.owner === user._id) {
-                    setBoardRole('Owner');
-                } else {
-                    const member = boardData.members?.find(m =>
-                        (m.user?._id || m.user) === user._id
-                    );
-                    setBoardRole(member?.role || 'Viewer');
-                }
-            }
 
             const colRes =
                 await getColumnsByBoard(boardId);
@@ -110,6 +102,22 @@ const BoardPage = () => {
     load();
 
 }, [boardId]);
+
+useEffect(() => {
+    if (board && user) {
+        const ownerId = board.owner?._id || board.owner;
+        if (ownerId === user._id) {
+            setBoardRole('Owner');
+        } else {
+            const member = board.members?.find(m =>
+                (m.user?._id || m.user) === user._id
+            );
+            setBoardRole(member?.role || 'Viewer');
+        }
+    } else {
+        setBoardRole('Viewer');
+    }
+}, [board, user, setBoardRole]);
 
 useEffect(() => {
 
@@ -342,39 +350,58 @@ useEffect(() => {
                 </div>
             ))}
 
-            <header className="shrink-0 h-16 bg-white dark:bg-slate-800 border-b border-slate-200/80 dark:border-slate-700/50 sticky top-0 z-40 flex items-center justify-between px-6 sm:px-8 shadow-sm backdrop-blur-md bg-white/90 dark:bg-slate-800/90 gap-4 transition-all duration-200">
+            <header className="shrink-0 bg-white dark:bg-slate-800 border-b border-slate-200/80 dark:border-slate-700/50 sticky top-0 z-40 flex flex-col md:flex-row items-stretch md:items-center justify-between p-4 md:px-8 md:py-0 md:h-16 shadow-sm backdrop-blur-md bg-white/90 dark:bg-slate-800/90 gap-3 transition-all duration-200">
                 
-                <div className="flex items-center gap-3.5 min-w-0">
-                    <Link to="/dashboard"
-                        className="flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white text-sm font-semibold transition-all group shrink-0 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 px-3.5 py-2 rounded-xl shadow-sm">
-                        <svg className="w-4 h-4 transform group-hover:-translate-x-0.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                            <path d="M19 12H5M12 5l-7 7 7 7"/>
-                        </svg>
-                        <span className="hidden sm:inline">Dashboard</span>
-                    </Link>
-                    <span className="text-slate-300 dark:text-slate-655 hidden sm:inline text-lg font-light">/</span>
-                    <div className="flex items-center gap-2.5 min-w-0">
-                        <h1 className="font-extrabold text-slate-900 dark:text-white text-base md:text-lg tracking-tight truncate">{board?.name}</h1>
-                        {!connected && (
-                            <span className="shrink-0 flex items-center gap-1.5 text-xs bg-amber-50 text-amber-600 border border-amber-200 px-2.5 py-1 rounded-lg font-bold animate-pulse">
-                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                                Syncing Loss...
-                            </span>
+                {/* Left Side: Back button + Board Title & Right side buttons on mobile */}
+                <div className="flex items-center justify-between md:justify-start gap-3.5 min-w-0 w-full md:w-auto">
+                    <div className="flex items-center gap-3.5 min-w-0">
+                        <Link to="/dashboard"
+                            className="flex items-center gap-2 text-slate-505 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white text-sm font-semibold transition-all group shrink-0 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 px-3 py-1.5 md:px-3.5 md:py-2 rounded-xl shadow-sm">
+                            <svg className="w-4 h-4 transform group-hover:-translate-x-0.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                <path d="M19 12H5M12 5l-7 7 7 7"/>
+                            </svg>
+                            <span className="hidden sm:inline">Dashboard</span>
+                        </Link>
+                        <span className="text-slate-300 dark:text-slate-655 hidden sm:inline text-lg font-light">/</span>
+                        <div className="flex items-center gap-2.5 min-w-0">
+                            <h1 className="font-extrabold text-slate-900 dark:text-white text-base md:text-lg tracking-tight truncate">{board?.name}</h1>
+                            {!connected && (
+                                <span className="shrink-0 flex items-center gap-1.5 text-xs bg-amber-50 text-amber-600 border border-amber-200 px-2.5 py-1 rounded-lg font-bold animate-pulse">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                                    Syncing...
+                                </span>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* On mobile, render the quick action items (Theme, Notifications, Members) inline on the right */}
+                    <div className="flex items-center gap-2 md:hidden">
+                        <ThemeToggle />
+                        <NotificationBell />
+                        {(boardRole === 'Owner' || boardRole === 'Admin' || board?.role === 'owner' || board?.role === 'admin') && (
+                            <button
+                                onClick={() => setMembersModalOpen(true)}
+                                className="flex items-center justify-center bg-surface-container p-2 rounded-xl hover:bg-surface-container-high transition"
+                                title="Members"
+                            >
+                                <FiUsers size={16} />
+                            </button>
                         )}
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2 flex-1 max-w-md">
+                {/* Center / Row 2: Search & Filter */}
+                <div className="flex items-center gap-2 w-full md:flex-1 md:max-w-md">
                     <div className="relative flex-1 group">
                         <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                             <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
                         </svg>
                         <input ref={searchRef} value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-                            placeholder="Filter board cards... (/)"
+                            placeholder="Filter board cards..."
                             className="w-full h-10 pl-10 pr-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all" />
                     </div>
                     {allLabels.length > 0 && (
-                        <div className="relative">
+                        <div className="relative shrink-0">
                             <select value={filterLabel} onChange={e => setFilterLabel(e.target.value)}
                                 className="h-10 pl-3.5 pr-9 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-350 text-sm font-semibold appearance-none focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all cursor-pointer">
                                 <option value="">All labels</option>
@@ -387,8 +414,9 @@ useEffect(() => {
                     )}
                 </div>
 
-                <div className="flex items-center gap-3.5 shrink-0">
-                    <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-700/50 border border-slate-200/60 dark:border-slate-700/50 p-1.5 rounded-xl">
+                {/* Right Side (Desktop only helper row) */}
+                <div className="hidden md:flex items-center gap-3.5 shrink-0">
+                    <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-700/50 border border-slate-200/65 dark:border-slate-700/50 p-1.5 rounded-xl">
                         <div className="flex -space-x-1.5 hover:-space-x-0.5 transition-all pl-0.5">
                             {presence.map(u => (
                                 <div key={u.userId} className="ring-2 ring-white dark:ring-slate-800 rounded-full shadow-sm transition-transform hover:scale-108 hover:z-20">
@@ -397,13 +425,22 @@ useEffect(() => {
                             ))}
                         </div>
                         {presence.length > 0 && (
-                            <span className="text-xs font-bold text-slate-505 dark:text-slate-400 pr-2 pl-1 hidden md:inline">
+                            <span className="text-xs font-bold text-slate-505 dark:text-slate-400 pr-2 pl-1">
                                 {presence.length} viewing
                             </span>
                         )}
                     </div>
                     <ThemeToggle />
                     <NotificationBell />
+                    {(boardRole === 'Owner' || boardRole === 'Admin' || board?.role === 'owner' || board?.role === 'admin') && (
+                        <button
+                            onClick={() => setMembersModalOpen(true)}
+                            className="flex items-center gap-2 bg-surface-container px-4 py-2 rounded-2xl hover:bg-surface-container-high transition font-semibold text-sm"
+                        >
+                            <FiUsers size={18} />
+                            Members
+                        </button>
+                    )}
                     <button onClick={() => setShowShortcuts(true)}
                         className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white text-sm font-bold transition-all flex items-center justify-center shadow-sm hover:shadow"
                         title="Keyboard shortcuts (?)">
@@ -440,6 +477,13 @@ useEffect(() => {
             </main>
 
             {showShortcuts && <KeyboardShortcutsModal onClose={() => setShowShortcuts(false)} />}
+            <BoardMembersModal
+                board={board}
+                isOpen={membersModalOpen}
+                onClose={() =>
+                    setMembersModalOpen(false)
+                }
+            />
         </div>
     );
 };
