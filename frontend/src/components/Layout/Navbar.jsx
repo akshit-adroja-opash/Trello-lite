@@ -4,9 +4,8 @@ import useAuthStore from '../../store/authstore';
 import useSidebarStore from '../../store/sidebarStore';
 import ThemeToggle from '../ThemeToggle';
 import NotificationBell from '../Notifications/NotificationBell';
-import Avatar from '../../UI/Avatar';
 
-const Navbar = () => {
+const Navbar = ({ searchQuery, setSearchQuery }) => {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const toggleSidebar = useSidebarStore((s) => s.toggle);
@@ -17,53 +16,56 @@ const Navbar = () => {
     navigate('/login');
   };
 
-  const getAvatarUrl = () => {
-    if (!user?.avatar) return null;
-    return user.avatar.startsWith('http')
-      ? user.avatar
-      : `${import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:5000'}${user.avatar}`;
-  };
-
   return (
-    <header className="bg-surface-bright/80 dark:bg-slate-800 backdrop-blur-xl border-b border-outline-variant/30 shadow-sm flex justify-between items-center w-full px-6 h-16 fixed top-0 z-50">
-      <div className="flex items-center gap-3">
-        <button
-          onClick={toggleSidebar}
-          className="md:hidden p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors flex items-center justify-center"
-          aria-label="Toggle navigation"
-        >
-          <span className="material-symbols-outlined text-[22px]">menu</span>
-        </button>
-
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-md shadow-indigo-200 dark:shadow-none">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <rect x="3" y="3" width="7" height="18" rx="2" fill="white" />
-            <rect x="14" y="3" width="7" height="11" rx="2" fill="white" opacity="0.7" />
-          </svg>
-        </div>
-        <span className="font-bold text-slate-900 dark:text-white text-lg tracking-tight">
-          Trello<span className="text-indigo-600 font-medium">lite</span>
-        </span>
-      </div>
-
-      <div className="flex items-center gap-4">
-        <ThemeToggle />
-        <NotificationBell />
-        <div className="h-6 w-px bg-outline-variant dark:bg-slate-700 mx-2"></div>
+    <header className="fixed top-0 right-0 w-full lg:w-[calc(100%-280px)] h-16 z-40 bg-surface-container-lowest dark:bg-slate-800 border-b border-outline-variant dark:border-slate-700 transition-colors">
+      <div className="flex justify-between items-center px-6 lg:px-10 h-full">
         
-        <Link to="/profile" className="flex items-center gap-2 bg-surface-container-low dark:bg-slate-700 px-3 py-1.5 rounded-full border border-surface-variant dark:border-slate-700 hover:bg-surface-variant/50 transition-all">
-          <Avatar 
-            name={user?.username || '?'} 
-            avatar={getAvatarUrl()}
-            size={24} 
-            className="shadow-inner" 
-          />
-          <span className="text-label-md font-label-md text-on-surface dark:text-slate-200 hidden sm:inline">{user?.username}</span>
-        </Link>
+        {/* Search Bar / Mobile Menu trigger */}
+        <div className="flex items-center flex-1 max-w-md relative">
+          <button
+            onClick={toggleSidebar}
+            className="lg:hidden p-2 text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-slate-700 rounded-lg mr-2 transition-colors"
+          >
+            <span className="material-symbols-outlined">menu</span>
+          </button>
+          
+          {setSearchQuery && (
+            <>
+              <span className="material-symbols-outlined absolute left-12 lg:left-3 top-1/2 -translate-y-1/2 text-outline dark:text-slate-400">search</span>
+              <input 
+                value={searchQuery || ''}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="w-full pl-20 lg:pl-10 pr-4 py-2 bg-surface-container-low dark:bg-slate-900 border border-outline-variant dark:border-slate-750 rounded-lg focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none font-body-md text-on-surface dark:text-white" 
+                placeholder="Search workspaces, boards..." 
+                type="text"
+              />
+            </>
+          )}
+        </div>
 
-        <button onClick={handleLogout} className="text-label-md font-label-md text-on-surface-variant border border-outline-variant dark:border-slate-700 px-4 py-1.5 rounded-md hover:bg-surface-variant/50 transition-colors">
-          Logout
-        </button>
+        {/* Global Toolbar items */}
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
+            <ThemeToggle />
+            <NotificationBell />
+          </div>
+          <div className="h-8 w-px bg-outline-variant dark:bg-slate-700 mx-1"></div>
+          <div className="flex items-center gap-4">
+            <Link to="/profile" className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-secondary-fixed text-on-secondary-fixed dark:text-slate-800 font-bold text-xs border border-outline-variant dark:border-slate-700 flex items-center justify-center">
+                {user?.username?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || '?'}
+              </div>
+              <span className="font-body-md font-semibold text-on-surface dark:text-white hidden sm:inline">{user?.username}</span>
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="px-4 py-1.5 border border-outline-variant dark:border-slate-700 rounded-lg font-body-md text-on-surface-variant dark:text-slate-300 hover:bg-error-container hover:text-on-error-container hover:border-error-container transition-all"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+
       </div>
     </header>
   );

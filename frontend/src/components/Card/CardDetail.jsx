@@ -8,14 +8,7 @@ import useAuthStore from '../../store/authstore';
 import Avatar from '../../UI/Avatar';
 import { canEditCard, canDeleteCard } from '../../utils/rolePermissions';
 
-const LABEL_COLORS = ['#4F46E5', '#0EA5E9', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6'];
-
-const SectionTitle = ({ children, icon }) => (
-    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
-        <span className="text-indigo-500">{icon}</span>
-        {children}
-    </h4>
-);
+const LABEL_COLORS = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6'];
 
 const EmojiPickerPopover = ({ onSelect }) => {
     const [open, setOpen] = useState(false);
@@ -37,13 +30,13 @@ const EmojiPickerPopover = ({ onSelect }) => {
             <button
                 type="button"
                 onClick={() => setOpen(!open)}
-                className="w-5 h-5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-650 dark:hover:text-slate-300 transition flex items-center justify-center cursor-pointer text-xs font-bold border border-dashed border-slate-300 dark:border-slate-700 hover:border-solid"
+                className="w-5 h-5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-350 transition flex items-center justify-center cursor-pointer text-xs font-bold border border-dashed border-slate-300 dark:border-slate-700 hover:border-solid"
                 title="Add reaction"
             >
                 ＋
             </button>
             {open && (
-                <div className="absolute bottom-full left-0 mb-1.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-205 dark:border-slate-700 shadow-xl p-1.5 flex gap-1 z-40 animate-in fade-in slide-in-from-bottom-1 duration-100">
+                <div className="absolute bottom-full left-0 mb-1.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl p-1.5 flex gap-1 z-40 animate-in fade-in slide-in-from-bottom-1 duration-100">
                     {EMOJIS.map(emoji => (
                         <button
                             key={emoji}
@@ -51,7 +44,7 @@ const EmojiPickerPopover = ({ onSelect }) => {
                                 onSelect(emoji);
                                 setOpen(false);
                             }}
-                            className="w-7 h-7 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-sm transition-colors cursor-pointer"
+                            className="w-7 h-7 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-750 rounded-lg text-sm transition-colors cursor-pointer"
                         >
                             {emoji}
                         </button>
@@ -80,6 +73,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
     const [saving, setSaving] = useState(false);
     const [typingUser, setTypingUser] = useState(null);
     const typingTimerRef = useRef(null);
+    const titleInputRef = useRef(null);
 
     const { updateCard: storeUpdate, removeCard, board, boardRole } = useBoardStore();
     const socket = useSocketStore(s => s.socket);
@@ -176,7 +170,6 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
         } finally { setSaving(false); }
     };
 
-    // Add a new comment
     const handleAddComment = async () => {
         if (!commentText.trim()) return;
         try {
@@ -248,292 +241,374 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
     const progressPercent = checklist.length > 0 ? Math.round((doneCount / checklist.length) * 100) : 0;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-start justify-center bg-slate-900/60 backdrop-blur-sm overflow-y-auto py-10 px-4 transition-all duration-300"
-            onClick={onClose}>
-            <div className="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 w-full max-w-3xl transform scale-100 transition-all duration-200 overflow-hidden"
-                onClick={e => e.stopPropagation()}>
-
-                <div className="flex items-center gap-4 p-6 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/20">
-                    <div className="w-5 h-5 shrink-0 text-indigo-600 dark:text-indigo-400">
-                        <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                            <rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18M9 21V9" />
-                        </svg>
+        <div 
+            className="fixed inset-0 z-[60] bg-slate-900/40 backdrop-blur-[4px] flex items-center justify-center p-4 transition-all duration-300"
+            onClick={onClose}
+        >
+            {/* Modal Container */}
+            <div 
+                className="bg-white dark:bg-slate-800 w-full max-w-5xl h-fit max-h-[90vh] rounded-xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in duration-300 text-on-surface dark:text-slate-100"
+                onClick={e => e.stopPropagation()}
+            >
+                {/* Modal Header */}
+                <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700/60 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/10">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <span className="material-symbols-outlined text-secondary dark:text-indigo-400" style={{ fontVariationSettings: "'FILL' 1" }}>view_kanban</span>
+                        <input
+                            ref={titleInputRef}
+                            value={title}
+                            onChange={handleTitleChange}
+                            readOnly={!canEdit}
+                            className="text-lg font-bold text-slate-800 dark:text-white bg-transparent border-b border-transparent focus:border-indigo-500 focus:outline-none transition-all px-1 py-0.5 rounded-sm disabled:cursor-default truncate flex-1"
+                            placeholder="Untitled Task"
+                        />
+                        {typingUser && (
+                            <span className="text-xs text-green-500 font-semibold whitespace-nowrap animate-pulse">
+                                {typingUser} is typing...
+                            </span>
+                        )}
+                        {canEdit && (
+                            <button 
+                                onClick={() => titleInputRef.current?.focus()}
+                                className="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md transition-colors text-slate-500"
+                                title="Edit Title"
+                            >
+                                <span className="material-symbols-outlined text-base">edit</span>
+                            </button>
+                        )}
                     </div>
-                    <input
-                        value={title}
-                        onChange={handleTitleChange}
-                        readOnly={!canEdit}
-                        className="flex-1 text-xl font-bold text-slate-800 dark:text-white bg-transparent border-b border-transparent focus:border-indigo-500 focus:outline-none transition-all px-1 py-0.5 rounded-sm disabled:cursor-default"
-                        placeholder="Untitled Task"
-                    />
-                    {typingUser && (
-                        <p className="text-sm text-green-500 font-semibold whitespace-nowrap">
-                            {typingUser} is typing...
-                        </p>
-                    )}
-                    <button onClick={onClose}
-                        className="text-slate-400 hover:text-rose-600 w-8 h-8 flex items-center justify-center rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all duration-150 text-base">✕</button>
+                    <button 
+                        onClick={onClose}
+                        className="p-1.5 hover:bg-rose-50 dark:hover:bg-rose-950/20 text-slate-400 hover:text-rose-650 rounded-full transition-colors"
+                        title="Close Modal"
+                    >
+                        <span className="material-symbols-outlined">close</span>
+                    </button>
                 </div>
 
-                <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div className="md:col-span-2 space-y-8">
-
-                        <div className="bg-slate-50/60 dark:bg-slate-900/30 p-5 rounded-xl border border-slate-100 dark:border-slate-700/50">
-                            <SectionTitle icon={
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M7 7h.01M6 20l6.5-6.5A2.5 2.5 0 0016 10c0-1.38-.62-2.5-1.5-2.5S12 8.62 12 10a2.5 2.5 0 00.5 1.5L6 18H4v-2z" /></svg>
-                            }>Labels</SectionTitle>
-
-                            <div className="flex flex-wrap gap-2 mb-4">
-                                {labels.map((l, i) => (
-                                    <span key={i} className="flex items-center gap-1.5 text-xs px-3 py-1 rounded-md text-white font-semibold shadow-sm"
-                                        style={{ backgroundColor: l.color }}>
-                                        {l.name}
-                                        <button onClick={() => setLabels(p => p.filter((_, j) => j !== i))}
-                                            className="hover:bg-black/10 rounded-full w-4 h-4 flex items-center justify-center transition-colors text-[10px]">✕</button>
-                                    </span>
-                                ))}
+                {/* Modal Body */}
+                <div className="flex flex-col md:flex-row overflow-y-auto flex-1 max-h-[calc(90vh-4rem)]">
+                    
+                    {/* Left Column: Primary Content */}
+                    <div className="flex-1 p-6 space-y-8 overflow-y-auto custom-scrollbar">
+                        
+                        {/* Labels Section */}
+                        <section className="bg-slate-50/50 dark:bg-slate-900/30 p-6 rounded-xl border border-slate-200/60 dark:border-slate-700/60">
+                            <div className="flex items-center gap-2 mb-4">
+                                <span className="material-symbols-outlined text-sm text-secondary dark:text-indigo-400">label</span>
+                                <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400">LABELS</span>
                             </div>
-
-                            <div className="flex flex-col gap-3">
+                            
+                            <div className="space-y-4">
                                 <div className="flex gap-2">
-                                    <input value={newLabel.name} onChange={e => setNewLabel(p => ({ ...p, name: e.target.value }))}
-                                        placeholder="Create custom tag..."
-                                        className="flex-1 h-9 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition text-sm font-medium" />
-                                    <button onClick={addLabel}
-                                        className="h-9 px-4 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-lg shadow-sm transition-all">Add</button>
+                                    <input 
+                                        value={newLabel.name} 
+                                        onChange={e => setNewLabel(p => ({ ...p, name: e.target.value }))}
+                                        placeholder="Create custom tag..." 
+                                        type="text"
+                                        className="flex-1 bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-700 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all dark:text-white"
+                                    />
+                                    <button 
+                                        onClick={addLabel}
+                                        className="bg-secondary dark:bg-indigo-600 text-on-secondary px-4 py-1.5 rounded-lg font-bold text-sm hover:opacity-90 active:scale-95 transition-all"
+                                    >
+                                        Add
+                                    </button>
                                 </div>
+
                                 <div className="flex flex-wrap gap-1.5 items-center justify-start py-1">
                                     {LABEL_COLORS.map(c => (
-                                        <button key={c} onClick={() => setNewLabel(p => ({ ...p, color: c }))}
-                                            className={`w-5 h-5 rounded-full transition-all ${newLabel.color === c ? 'ring-2 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 ring-indigo-500 scale-110 shadow-sm' : 'hover:scale-105'}`}
-                                            style={{ backgroundColor: c }} />
+                                        <button 
+                                            key={c} 
+                                            onClick={() => setNewLabel(p => ({ ...p, color: c }))}
+                                            className={`w-7 h-7 rounded-full transition-transform hover:scale-110 ${newLabel.color === c ? 'ring-2 ring-offset-2 ring-indigo-500 scale-105' : ''}`}
+                                            style={{ backgroundColor: c }}
+                                        />
+                                    ))}
+                                </div>
+
+                                <div className="flex flex-wrap gap-2 pt-2">
+                                    {labels.map((l, i) => (
+                                        <span 
+                                            key={i} 
+                                            className="flex items-center gap-1.5 text-xs px-3 py-1 rounded-md text-white font-semibold shadow-sm"
+                                            style={{ backgroundColor: l.color }}
+                                        >
+                                            {l.name}
+                                            <button 
+                                                onClick={() => setLabels(p => p.filter((_, j) => j !== i))}
+                                                className="hover:bg-black/15 rounded-full w-4 h-4 flex items-center justify-center transition-colors text-[9px]"
+                                            >
+                                                ✕
+                                            </button>
+                                        </span>
                                     ))}
                                 </div>
                             </div>
-                        </div>
+                        </section>
 
-                        <div>
-                            <div className="flex items-center justify-between mb-3">
-                                <SectionTitle icon={
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h7" /></svg>
-                                }>Description</SectionTitle>
-                                <button onClick={() => setPreviewMd(v => !v)}
-                                    className="text-xs font-semibold px-3 py-1 bg-slate-50 dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 rounded-md transition-colors border border-slate-200 dark:border-slate-700">
-                                    {previewMd ? '✏️ Edit' : '👁️ Preview'}
+                        {/* Description Section */}
+                        <section className="space-y-3">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-sm text-secondary dark:text-indigo-400">notes</span>
+                                    <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400">DESCRIPTION</span>
+                                </div>
+                                <button 
+                                    onClick={() => setPreviewMd(!previewMd)}
+                                    className="flex items-center gap-1 px-3 py-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-750 transition-colors text-xs text-on-surface-variant dark:text-slate-300 font-medium cursor-pointer"
+                                >
+                                    <span className="material-symbols-outlined text-[15px]">{previewMd ? 'edit' : 'visibility'}</span>
+                                    <span>{previewMd ? 'Edit' : 'Preview'}</span>
                                 </button>
                             </div>
+                            
                             {previewMd ? (
-                                <div className="prose prose-slate dark:prose-invert prose-sm max-w-none text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 rounded-xl p-4 min-h-[140px] border border-slate-200 dark:border-slate-700 shadow-inner overflow-auto">
+                                <div className="prose prose-slate dark:prose-invert prose-sm max-w-none text-slate-650 dark:text-slate-350 bg-slate-50 dark:bg-slate-900 rounded-xl p-4 min-h-[120px] border border-slate-200 dark:border-slate-700 shadow-inner overflow-auto">
                                     <ReactMarkdown>{description || '*No description provided yet.*'}</ReactMarkdown>
                                 </div>
                             ) : (
-                                <textarea rows={5} value={description} onChange={handleDescriptionChange}
+                                <textarea 
+                                    value={description}
+                                    onChange={handleDescriptionChange}
                                     readOnly={!canEdit}
-                                    placeholder="Add structural Markdown updates (headers, tables, links)..."
-                                    className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 resize-none transition-all duration-150" />
+                                    className="w-full bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-700 rounded-xl p-4 text-sm text-on-surface dark:text-white focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all resize-none" 
+                                    placeholder="Add a more detailed description..." 
+                                    rows="5"
+                                />
                             )}
-                        </div>
+                        </section>
 
-                        <div>
-                            <div className="flex items-center justify-between mb-3">
-                                <SectionTitle icon={
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
-                                }>Checklist</SectionTitle>
+                        {/* Checklist Section */}
+                        <section className="space-y-4">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-sm text-secondary dark:text-indigo-400">check_box</span>
+                                    <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400">CHECKLIST</span>
+                                </div>
                                 {checklist.length > 0 && (
-                                    <span className="text-xs bg-indigo-50 dark:bg-indigo-950/40 font-bold px-2.5 py-0.5 rounded-full text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/60">{progressPercent}%</span>
+                                    <span className="text-xs bg-indigo-50 dark:bg-indigo-950/40 font-bold px-2.5 py-0.5 rounded-full text-indigo-650 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/60">
+                                        {progressPercent}%
+                                    </span>
                                 )}
                             </div>
 
                             {checklist.length > 0 && (
-                                <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2 mb-4 overflow-hidden">
-                                    <div className="bg-gradient-to-r from-indigo-500 to-cyan-500 h-2 rounded-full transition-all duration-300"
-                                        style={{ width: `${progressPercent}%` }} />
+                                <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+                                    <div 
+                                        className="bg-gradient-to-r from-indigo-500 to-cyan-500 h-2 rounded-full transition-all duration-300"
+                                        style={{ width: `${progressPercent}%` }}
+                                    />
                                 </div>
                             )}
 
-                            <div className="space-y-2 mb-4 max-h-56 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent">
+                            <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
                                 {checklist.map((item, i) => (
-                                    <div key={i} className="flex items-center gap-3 group bg-slate-50/40 dark:bg-slate-900/20 hover:bg-slate-50 dark:hover:bg-slate-900/50 px-4 py-2.5 rounded-lg border border-slate-100 dark:border-slate-800 transition-all duration-100">
-                                        <input type="checkbox" checked={item.done} onChange={() => toggleCheck(i)}
-                                            className="w-4.5 h-4.5 accent-indigo-600 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 rounded cursor-pointer shrink-0" />
-                                        <span className={`flex-1 text-sm ${item.done ? 'line-through text-slate-400 dark:text-slate-500 font-medium' : 'text-slate-700 dark:text-slate-300'}`}>
+                                    <div key={i} className="flex items-center gap-3 group bg-slate-50/40 dark:bg-slate-900/20 hover:bg-slate-50 dark:hover:bg-slate-900/50 px-4 py-2.5 rounded-lg border border-slate-100 dark:border-slate-800 transition-all">
+                                        <input 
+                                            type="checkbox" 
+                                            checked={item.done} 
+                                            onChange={() => toggleCheck(i)}
+                                            className="w-4.5 h-4.5 accent-indigo-600 bg-white dark:bg-slate-800 border-slate-350 dark:border-slate-700 rounded cursor-pointer shrink-0" 
+                                        />
+                                        <span className={`flex-1 text-sm ${item.done ? 'line-through text-slate-400 dark:text-slate-500 font-medium' : 'text-slate-750 dark:text-slate-300'}`}>
                                             {item.text}
                                         </span>
-                                        <button onClick={() => removeCheck(i)}
-                                            className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-600 p-1 rounded-md hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all text-xs">✕</button>
+                                        <button 
+                                            onClick={() => removeCheck(i)}
+                                            className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-600 p-1 rounded-md hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all text-xs"
+                                        >
+                                            ✕
+                                        </button>
                                     </div>
                                 ))}
                             </div>
 
                             <div className="flex gap-2">
-                                <input value={newCheckItem} onChange={e => setNewCheckItem(e.target.value)}
+                                <input 
+                                    value={newCheckItem}
+                                    onChange={e => setNewCheckItem(e.target.value)}
                                     onKeyDown={e => e.key === 'Enter' && addCheck()}
-                                    placeholder="Add task checkpoint..."
-                                    className="flex-1 h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10" />
-                                <button onClick={addCheck}
-                                    className="h-10 px-4 bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 transition shadow-sm">Add Item</button>
+                                    placeholder="Add task checkpoint..." 
+                                    type="text"
+                                    className="flex-1 bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-700 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all dark:text-white"
+                                />
+                                <button 
+                                    onClick={addCheck}
+                                    className="bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 px-4 py-1.5 rounded-lg font-bold text-sm hover:bg-slate-200 dark:hover:bg-slate-750 transition-all active:scale-95 border border-slate-200 dark:border-slate-700"
+                                >
+                                    Add Item
+                                </button>
                             </div>
-                        </div>
+                        </section>
+                    </div>
 
-                        {activities.length > 0 && (
-                            <div className="pt-5 border-t border-slate-100 dark:border-slate-700">
-                                <SectionTitle icon={
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                }>Activity Log</SectionTitle>
-                                <div className="space-y-3 max-h-48 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent">
-                                    {activities.map(a => (
-                                        <div key={a._id} className="flex items-start gap-3 bg-slate-50/40 dark:bg-slate-900/20 p-3 rounded-lg border border-slate-100 dark:border-slate-800">
-                                            <Avatar name={a.user?.username || '?'} size={24} />
-                                            <div className="text-xs text-slate-500 dark:text-slate-400 leading-normal flex-1">
-                                                <span className="font-bold text-slate-700 dark:text-slate-300">{a.user?.username}</span>
-                                                {' '}{a.details}
-                                                <div className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 font-medium">
-                                                    {new Date(a.createdAt).toLocaleString()}
+                    {/* Right Column: Aside Meta & Actions */}
+                    <aside className="w-full md:w-80 p-6 bg-slate-50/50 dark:bg-slate-900/40 border-l border-slate-200 dark:border-slate-700/60 space-y-8 overflow-y-auto custom-scrollbar">
+                        
+                        {/* Due Date */}
+                        <section className="space-y-2">
+                            <div className="flex items-center gap-2">
+                                <span className="material-symbols-outlined text-sm text-secondary dark:text-indigo-400">calendar_today</span>
+                                <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 uppercase">Due Date</span>
+                            </div>
+                            <div className="relative">
+                                <input 
+                                    type="date" 
+                                    value={dueDate} 
+                                    onChange={e => setDueDate(e.target.value)}
+                                    className="w-full bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-on-surface dark:text-white outline-none cursor-pointer" 
+                                />
+                            </div>
+                        </section>
+
+                        {/* Comments */}
+                        <section className="space-y-4">
+                            <div className="flex items-center gap-2">
+                                <span className="material-symbols-outlined text-sm text-secondary dark:text-indigo-400">chat_bubble</span>
+                                <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 uppercase">Comments</span>
+                            </div>
+
+                            {/* Comment Feed */}
+                            <div className="max-h-60 overflow-y-auto space-y-4 pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
+                                {card.comments && card.comments.length > 0 ? (
+                                    card.comments.map((c, idx) => (
+                                        <div key={idx} className="flex gap-2.5 pb-2 border-b border-slate-105 dark:border-slate-800 last:border-b-0">
+                                            <div className="shrink-0">
+                                                <Avatar name={c.user?.username || '?'} avatar={c.user?.avatar} size={26} />
+                                            </div>
+                                            <div className="space-y-1 flex-1 min-w-0">
+                                                <div className="flex items-baseline justify-between gap-1 flex-wrap">
+                                                    <span className="font-bold text-xs text-slate-800 dark:text-slate-200 truncate">{c.user?.username || 'User'}</span>
+                                                    <span className="text-[9px] text-slate-450 dark:text-slate-500 whitespace-nowrap">
+                                                        {new Date(c.createdAt).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                                    </span>
+                                                </div>
+                                                <div className="bg-white dark:bg-slate-800 p-2 rounded-lg border border-slate-150 dark:border-slate-700/60 text-xs text-on-surface dark:text-slate-200 break-words leading-relaxed">
+                                                    <ReactMarkdown>{c.text}</ReactMarkdown>
+                                                </div>
+                                                
+                                                {/* Reactions */}
+                                                <div className="flex flex-wrap items-center gap-1 mt-1">
+                                                    {c.reactions && c.reactions.map((react, rIdx) => {
+                                                        const hasReacted = react.users?.some(u => (typeof u === 'object' ? u._id : u) === currentUser?._id);
+                                                        const tooltipText = react.users?.map(u => u.username || 'User').join(', ') || '';
+                                                        return (
+                                                            <button
+                                                                key={rIdx}
+                                                                onClick={() => handleToggleReaction(c._id, react.emoji)}
+                                                                title={tooltipText}
+                                                                className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold transition-all border cursor-pointer ${
+                                                                    hasReacted
+                                                                        ? 'bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-950/40 dark:border-indigo-900/60 dark:text-indigo-400'
+                                                                        : 'bg-slate-50 dark:bg-slate-850 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-slate-350 dark:hover:border-slate-600'
+                                                                }`}
+                                                            >
+                                                                <span>{react.emoji}</span>
+                                                                <span>{react.users?.length || 0}</span>
+                                                            </button>
+                                                        );
+                                                    })}
+                                                    <EmojiPickerPopover onSelect={(emoji) => handleToggleReaction(c._id, emoji)} />
                                                 </div>
                                             </div>
                                         </div>
-                                    ))}
+                                    ))
+                                ) : (
+                                    <p className="text-xs text-slate-400 dark:text-slate-500">No comments yet.</p>
+                                )}
+                            </div>
+
+                            {/* Comment Input */}
+                            <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-850">
+                                <textarea 
+                                    value={commentText}
+                                    onChange={e => setCommentText(e.target.value)}
+                                    placeholder="Add a comment... (Markdown supported)" 
+                                    className="w-full bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-700 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all resize-none min-h-[60px] dark:text-white"
+                                />
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-1 text-[9px] text-slate-450 dark:text-slate-500 font-semibold">
+                                        <span className="material-symbols-outlined text-[12px]">info</span>
+                                        <span>Markdown supported</span>
+                                    </div>
+                                    <button 
+                                        onClick={handleAddComment}
+                                        disabled={!commentText.trim()}
+                                        className="bg-indigo-600 hover:bg-indigo-750 text-white px-3 py-1.5 rounded-lg font-bold text-xs hover:opacity-90 active:scale-95 transition-all cursor-pointer disabled:opacity-40"
+                                    >
+                                        Post
+                                    </button>
                                 </div>
                             </div>
-                        )}
-                    </div>
+                        </section>
 
-                    <div className="space-y-6 bg-slate-50/60 dark:bg-slate-900/30 p-5 rounded-xl border border-slate-100 dark:border-slate-700/50 h-fit">
-                        <div>
-                            <SectionTitle icon={
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                            }>Due Date</SectionTitle>
-                            <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)}
-                                className="w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition font-medium text-left" />
-
-                            <div className="space-y-4 mt-6">
-                                <SectionTitle icon={
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                                        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h12a2 2 0 012 2z" />
-                                    </svg>
-                                }>Comments</SectionTitle>
-                                <div className="space-y-3 max-h-48 overflow-y-auto pr-1">
-                                    {card.comments && card.comments.length > 0 ? (
-                                        card.comments.map((c, idx) => (
-                                             <div key={idx} className="flex items-start gap-2.5 pb-2.5 border-b border-slate-100/50 dark:border-slate-700/30 last:border-b-0">
-                                                 <Avatar name={c.user?.username || '?'} avatar={c.user?.avatar} size={24} />
-                                                 <div className="flex-1 text-sm">
-                                                     <div className="flex items-center justify-between">
-                                                         <span className="font-bold text-slate-800 dark:text-slate-200 text-xs">{c.user?.username || 'User'}</span>
-                                                         <span className="text-[9px] text-slate-400 dark:text-slate-500">{new Date(c.createdAt).toLocaleString()}</span>
-                                                     </div>
-                                                     <div className="mt-1 text-xs text-slate-700 dark:text-slate-300 leading-normal break-words markdown-comment">
-                                                         <ReactMarkdown>{c.text}</ReactMarkdown>
-                                                     </div>
-                                                     
-                                                     {/* Reactions Bar */}
-                                                     <div className="flex flex-wrap items-center gap-1.5 mt-2">
-                                                         {c.reactions && c.reactions.map((react, rIdx) => {
-                                                             const hasReacted = react.users?.some(u => (typeof u === 'object' ? u._id : u) === currentUser?._id);
-                                                             const tooltipText = react.users?.map(u => u.username || 'User').join(', ') || '';
-                                                             return (
-                                                                 <button
-                                                                     key={rIdx}
-                                                                     onClick={() => handleToggleReaction(c._id, react.emoji)}
-                                                                     title={tooltipText}
-                                                                     className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold transition-all border cursor-pointer ${
-                                                                         hasReacted
-                                                                             ? 'bg-indigo-50 border-indigo-200 text-indigo-650 dark:bg-indigo-950/40 dark:border-indigo-900/60 dark:text-indigo-400'
-                                                                             : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-slate-350 dark:hover:border-slate-700'
-                                                                     }`}
-                                                                 >
-                                                                     <span>{react.emoji}</span>
-                                                                     <span>{react.users?.length || 0}</span>
-                                                                 </button>
-                                                             );
-                                                         })}
-                                                         <EmojiPickerPopover onSelect={(emoji) => handleToggleReaction(c._id, emoji)} />
-                                                     </div>
-                                                 </div>
-                                             </div>
-                                         ))
-                                    ) : (
-                                        <p className="text-xs text-slate-400 dark:text-slate-500">No comments yet.</p>
-                                    )}
-                                </div>
-                                 {(['Owner', 'Admin', 'Editor'].includes(boardRole)) && (
-                                     <div className="space-y-2 mt-3">
-                                         <input
-                                             type="text"
-                                             placeholder="Add a comment... (Markdown supported)"
-                                             value={commentText}
-                                             onChange={e => setCommentText(e.target.value)}
-                                             className="w-full h-10 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-sm"
-                                             onKeyDown={e => e.key === 'Enter' && handleAddComment()}
-                                         />
-                                         <div className="flex items-center justify-between px-0.5">
-                                             <span className="text-[10px] text-slate-450 dark:text-slate-500 font-semibold flex items-center gap-1">
-                                                <span className="material-symbols-outlined text-[12px] text-slate-400 dark:text-slate-500">info</span>
-                                                Markdown supported
-                                             </span>
-                                             <button
-                                                 onClick={handleAddComment}
-                                                 className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shadow-sm"
-                                                 disabled={!commentText.trim()}
-                                             >Post</button>
-                                         </div>
-                                     </div>
-                                 )}
-                                
-                            </div>
-                        </div>
-
+                        {/* Assignees */}
                         {boardMembers.length > 0 && (
-                            <div>
-                                <SectionTitle icon={
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-                                }>Assignees</SectionTitle>
-                                <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent">
+                            <section className="space-y-2.5">
+                                <div className="flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-sm text-secondary dark:text-indigo-400">group</span>
+                                    <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 uppercase">Assignees</span>
+                                </div>
+                                <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
                                     {boardMembers.map(m => {
                                         const member = m.user;
                                         if (!member) return null;
                                         const id = member._id;
                                         const checked = assignees.includes(id);
                                         return (
-                                            <button key={id} onClick={() => toggleAssignee(id)}
-                                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all ${checked ? 'bg-indigo-600 text-white shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'}`}>
+                                            <button 
+                                                key={id} 
+                                                onClick={() => toggleAssignee(id)}
+                                                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition-all border ${
+                                                    checked 
+                                                        ? 'bg-secondary text-white border-transparent' 
+                                                        : 'hover:bg-slate-100 dark:hover:bg-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+                                                }`}
+                                            >
                                                 <Avatar name={member.username || '?'} avatar={member.avatar} size={22} />
                                                 <span className="flex-1 text-left truncate">{member.username}</span>
-                                                {checked && <span className="text-sm">✓</span>}
+                                                {checked && <span className="text-sm font-bold">✓</span>}
                                             </button>
                                         );
                                     })}
                                 </div>
-                            </div>
+                            </section>
                         )}
 
-                        <div className="space-y-2 pt-5 border-t border-slate-100 dark:border-slate-700">
-                            <button onClick={handleSave} disabled={saving || !canEdit}
-                                className="w-full h-10 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-xl shadow-md transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2">
+                        {/* Action Buttons */}
+                        <section className="pt-6 space-y-2.5 border-t border-slate-200 dark:border-slate-700/60">
+                            <button 
+                                onClick={handleSave}
+                                disabled={saving || !canEdit}
+                                className="w-full bg-secondary dark:bg-indigo-600 text-white py-2.5 rounded-xl font-bold text-sm shadow-md hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                            >
                                 {saving ? (
                                     <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                 ) : 'Save changes'}
                             </button>
+
                             {canEdit && (
-                                <button onClick={handleSaveTemplate} disabled={savingTemplate}
-                                    className="w-full h-10 bg-indigo-50 dark:bg-indigo-950/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 text-indigo-650 dark:text-indigo-400 text-sm font-semibold rounded-xl transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 border border-indigo-200 dark:border-indigo-900/55 hover:border-transparent">
-                                    {savingTemplate ? (
-                                        <span className="w-4 h-4 border-2 border-indigo-600/30 border-t-indigo-600 rounded-full animate-spin" />
-                                    ) : (
-                                        <>
-                                            <span className="material-symbols-outlined text-[18px]">bookmark</span>
-                                            Save as template
-                                        </>
-                                    )}
+                                <button 
+                                    onClick={handleSaveTemplate}
+                                    disabled={savingTemplate}
+                                    className="w-full bg-slate-100 dark:bg-slate-750 text-slate-800 dark:text-slate-200 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-[0.98] transition-all border border-slate-200 dark:border-slate-700/60"
+                                >
+                                    <span className="material-symbols-outlined text-[16px]">bookmark</span>
+                                    <span>Save as template</span>
                                 </button>
                             )}
-                            <button onClick={handleDelete}
-                                className="w-full h-10 bg-rose-50 dark:bg-rose-950/20 hover:bg-rose-600 dark:hover:bg-rose-600 text-rose-600 dark:text-rose-400 hover:text-white text-sm font-semibold rounded-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 border border-rose-200 dark:border-rose-900/50 hover:border-transparent"
-                                style={{ display: canDelete ? undefined : 'none' }}>
-                                Delete card
-                            </button>
-                        </div>
-                    </div>
+
+                            {canDelete && (
+                                <button 
+                                    onClick={handleDelete}
+                                    className="w-full bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center hover:bg-rose-600 hover:text-white transition-all border border-rose-200 dark:border-rose-900/50"
+                                >
+                                    Delete card
+                                </button>
+                            )}
+                        </section>
+                    </aside>
                 </div>
             </div>
         </div>

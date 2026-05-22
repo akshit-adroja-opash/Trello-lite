@@ -470,101 +470,81 @@ const BoardPage = () => {
                 </div>
             ))}
 
-            <header className="shrink-0 bg-white dark:bg-slate-800 border-b border-slate-200/80 dark:border-slate-700/50 sticky top-0 z-40 flex flex-col md:flex-row items-stretch md:items-center justify-between p-4 md:px-8 md:py-0 md:h-16 shadow-sm backdrop-blur-md bg-white/90 dark:bg-slate-800/90 gap-3 transition-all duration-200">
-
-                {/* Left Side: Back button + Board Title & Right side buttons on mobile */}
-                <div className="flex items-center justify-between md:justify-start gap-3.5 min-w-0 w-full md:w-auto">
-                    <div className="flex items-center gap-3.5 min-w-0">
-                        <Link to="/dashboard"
-                            className="flex items-center gap-2 text-slate-505 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white text-sm font-semibold transition-all group shrink-0 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 px-3 py-1.5 md:px-3.5 md:py-2 rounded-xl shadow-sm">
-                            <svg className="w-4 h-4 transform group-hover:-translate-x-0.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                <path d="M19 12H5M12 5l-7 7 7 7" />
+            <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700/80 px-6 py-3 flex flex-col md:flex-row items-center justify-between sticky top-0 z-50 shrink-0 gap-4">
+                <div className="flex items-center space-x-6 w-full md:w-auto">
+                    <div className="flex items-center space-x-2 text-slate-500">
+                        <Link to="/dashboard" className="hover:text-primary dark:hover:text-indigo-400 transition-colors flex items-center space-x-1">
+                            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
                             </svg>
-                            <span className="hidden sm:inline">Dashboard</span>
+                            <span className="text-sm font-medium">Dashboard</span>
                         </Link>
-                        <span className="text-slate-300 dark:text-slate-655 hidden sm:inline text-lg font-light">/</span>
-                        <div className="flex items-center gap-2.5 min-w-0">
-                            <h1 className="font-extrabold text-slate-900 dark:text-white text-base md:text-lg tracking-tight truncate">{board?.name}</h1>
-                            {!connected && (
-                                <span className="shrink-0 flex items-center gap-1.5 text-xs bg-amber-50 text-amber-600 border border-amber-200 px-2.5 py-1 rounded-lg font-bold animate-pulse">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                                    Syncing...
-                                </span>
-                            )}
-                        </div>
-                        <div className="flex items-center bg-slate-100 dark:bg-slate-700/60 p-0.5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 ml-2">
-                            <button
-                                onClick={() => setViewMode('kanban')}
-                                className={`px-3 py-1 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 ${
-                                    viewMode === 'kanban'
-                                        ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm'
-                                        : 'text-slate-400 hover:text-slate-700 dark:hover:text-slate-255'
-                                }`}
-                            >
-                                <span className="material-symbols-outlined text-[15px]">dashboard</span>
-                                Board
-                            </button>
-                            <button
-                                onClick={() => setViewMode('calendar')}
-                                className={`px-3 py-1 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 ${
-                                    viewMode === 'calendar'
-                                        ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm'
-                                        : 'text-slate-400 hover:text-slate-700 dark:hover:text-slate-255'
-                                }`}
-                            >
-                                <span className="material-symbols-outlined text-[15px]">calendar_month</span>
-                                Calendar
-                            </button>
-                        </div>
+                        <span className="text-slate-300 dark:text-slate-600">/</span>
+                        <h1 className="text-slate-900 dark:text-white font-bold text-lg">{board?.name}</h1>
+                        {!connected && (
+                            <span className="shrink-0 flex items-center gap-1 bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-250 dark:border-amber-900/50 px-2 py-0.5 rounded text-[10px] font-bold animate-pulse ml-2">
+                                Syncing...
+                            </span>
+                        )}
                     </div>
 
-                    {/* On mobile, render the quick action items (Theme, Notifications, Members, Settings) inline on the right */}
-                    <div className="flex items-center gap-2 md:hidden">
-                        <ThemeToggle />
-                        <NotificationBell />
-                        {(boardRole === 'Owner' || boardRole === 'Admin' || board?.role === 'owner' || board?.role === 'admin') && (
-                            <>
-                                <button
-                                    onClick={() => setMembersModalOpen(true)}
-                                    className="flex items-center justify-center bg-surface-container p-2 rounded-xl hover:bg-surface-container-high transition"
-                                    title="Members"
-                                >
-                                    <FiUsers size={16} />
-                                </button>
-                                <button
-                                    onClick={() => setSettingsModalOpen(true)}
-                                    className="flex items-center justify-center bg-surface-container p-2 rounded-xl hover:bg-surface-container-high transition text-slate-700 dark:text-slate-250"
-                                    title="Board Settings"
-                                >
-                                    <span className="material-symbols-outlined text-[18px]">settings</span>
-                                </button>
-                            </>
-                        )}
+                    <div className="flex bg-slate-100 dark:bg-slate-700/50 p-1 rounded-lg" data-purpose="view-toggles">
+                        <button
+                            onClick={() => setViewMode('kanban')}
+                            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${
+                                viewMode === 'kanban'
+                                    ? 'bg-white dark:bg-slate-800 shadow-sm text-slate-900 dark:text-white'
+                                    : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                            }`}
+                        >
+                            Board
+                        </button>
+                        <button
+                            onClick={() => setViewMode('calendar')}
+                            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${
+                                viewMode === 'calendar'
+                                    ? 'bg-white dark:bg-slate-800 shadow-sm text-slate-900 dark:text-white'
+                                    : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                            }`}
+                        >
+                            Calendar
+                        </button>
                     </div>
                 </div>
 
-                {/* Center / Row 2: Search & Filter */}
-                <div className="flex items-center gap-2 w-full md:flex-1 md:max-w-md">
-                    <div className="relative flex-1 group">
-                        <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                            <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
-                        </svg>
-                        <input ref={searchRef} value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+                <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
+                    {/* Search */}
+                    <div className="relative flex-1 md:flex-initial">
+                        <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+                            </svg>
+                        </span>
+                        <input
+                            ref={searchRef}
+                            value={searchQuery}
+                            onChange={e => setSearchQuery(e.target.value)}
+                            className="pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm w-full md:w-64 focus:ring-primary focus:border-primary text-slate-800 dark:text-white outline-none"
                             placeholder="Filter board cards..."
-                            className="w-full h-10 pl-10 pr-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all" />
+                            type="text"
+                        />
                     </div>
+
+                    {/* Filters Toggle Button */}
                     <button
                         onClick={() => setShowFilters(!showFilters)}
-                        className={`h-10 px-4 rounded-xl border flex items-center gap-2 text-sm font-semibold transition-all shrink-0 ${
+                        className={`flex items-center space-x-2 px-4 py-2 border rounded-lg text-sm font-medium transition-all ${
                             showFilters
-                                ? 'bg-indigo-50 border-indigo-200 text-indigo-605 dark:bg-indigo-950/40 dark:border-indigo-900/60 dark:text-indigo-400 font-bold animate-none'
-                                : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-350 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                ? 'bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-950/40 dark:border-indigo-900/60 dark:text-indigo-400'
+                                : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-350'
                         }`}
                     >
-                        <span className="material-symbols-outlined text-[18px]">filter_list</span>
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+                        </svg>
                         <span>Filters</span>
                         {(selectedLabels.length > 0 || selectedAssignees.length > 0 || dueDateFilter !== 'all' || sortBy !== 'default') && (
-                            <span className="w-5 h-5 rounded-full bg-indigo-600 dark:bg-indigo-550 text-white text-[10px] flex items-center justify-center font-bold">
+                            <span className="w-5 h-5 rounded-full bg-indigo-650 text-white text-[10px] flex items-center justify-center font-bold">
                                 {
                                     (selectedLabels.length > 0 ? 1 : 0) +
                                     (selectedAssignees.length > 0 ? 1 : 0) +
@@ -574,66 +554,162 @@ const BoardPage = () => {
                             </span>
                         )}
                     </button>
-                </div>
 
-                {/* Right Side (Desktop only helper row) */}
-                <div className="hidden md:flex items-center gap-3.5 shrink-0">
-                    <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-700/50 border border-slate-200/65 dark:border-slate-700/50 p-1.5 rounded-xl">
-                        <div className="flex -space-x-1.5 hover:-space-x-0.5 transition-all pl-0.5">
-                            {presence.map(u => (
-                                <div key={u.userId} className="ring-2 ring-white dark:ring-slate-800 rounded-full shadow-sm transition-transform hover:scale-108 hover:z-20">
-                                    <Avatar name={u.username} avatar={u.avatar} size={26} />
-                                </div>
-                            ))}
-                        </div>
+                    {/* Members Presence */}
+                    <div className="flex -space-x-2">
+                        {presence.map(u => (
+                            <div key={u.userId} title={u.username} className="ring-2 ring-white dark:ring-slate-850 rounded-full shadow-sm">
+                                <Avatar name={u.username} avatar={u.avatar} size={28} />
+                            </div>
+                        ))}
                         {presence.length > 0 && (
-                            <span className="text-xs font-bold text-slate-550 dark:text-slate-400 pr-2 pl-1">
+                            <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center text-[10px] border-2 border-white dark:border-slate-800 font-medium">
                                 {presence.length} viewing
-                            </span>
+                            </div>
                         )}
                     </div>
-                    <ThemeToggle />
-                    <NotificationBell />
-                    {(boardRole === 'Owner' || boardRole === 'Admin' || board?.role === 'owner' || board?.role === 'admin') && (
-                        <>
-                            <button
-                                onClick={() => setMembersModalOpen(true)}
-                                className="flex items-center gap-2 bg-surface-container px-4 py-2 rounded-2xl hover:bg-surface-container-high transition font-semibold text-sm"
-                            >
-                                <FiUsers size={18} />
-                                Members
-                            </button>
-                            <button
-                                onClick={() => setSettingsModalOpen(true)}
-                                className="flex items-center gap-2 bg-surface-container px-4 py-2 rounded-2xl hover:bg-surface-container-high transition font-semibold text-sm text-slate-700 dark:text-slate-200"
-                            >
-                                <span className="material-symbols-outlined text-[18px]">settings</span>
-                                Settings
-                            </button>
-                        </>
-                    )}
-                    <button onClick={() => setShowShortcuts(true)}
-                        className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white text-sm font-bold transition-all flex items-center justify-center shadow-sm hover:shadow"
-                        title="Keyboard shortcuts (?)">
-                        ?
-                    </button>
+
+                    <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-2"></div>
+
+                    {/* Tools and Action buttons */}
+                    <div className="flex items-center space-x-2">
+                        <ThemeToggle />
+                        <NotificationBell />
+                        
+                        {(boardRole === 'Owner' || boardRole === 'Admin' || board?.role === 'owner' || board?.role === 'admin') && (
+                            <>
+                                <button
+                                    onClick={() => setMembersModalOpen(true)}
+                                    className="flex items-center space-x-2 px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300"
+                                >
+                                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+                                    </svg>
+                                    <span>Members</span>
+                                </button>
+                                <button
+                                    onClick={() => setSettingsModalOpen(true)}
+                                    className="flex items-center space-x-2 px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300"
+                                >
+                                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+                                        <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+                                    </svg>
+                                    <span>Settings</span>
+                                </button>
+                            </>
+                        )}
+                        
+                        <button
+                            onClick={() => setShowShortcuts(true)}
+                            className="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 text-sm font-semibold flex items-center justify-center shadow-sm"
+                            title="Keyboard shortcuts (?)"
+                        >
+                            ?
+                        </button>
+                    </div>
                 </div>
             </header>
 
             {showFilters && (
-                <FilterSortPanel
-                    uniqueLabels={uniqueLabels}
-                    uniqueAssignees={uniqueAssignees}
-                    selectedLabels={selectedLabels}
-                    setSelectedLabels={setSelectedLabels}
-                    selectedAssignees={selectedAssignees}
-                    setSelectedAssignees={setSelectedAssignees}
-                    dueDateFilter={dueDateFilter}
-                    setDueDateFilter={setDueDateFilter}
-                    sortBy={sortBy}
-                    setSortBy={setSortBy}
-                    onClearAll={handleClearAllFilters}
-                />
+                <div className="bg-white dark:bg-slate-850 border-b border-slate-150 dark:border-slate-800 px-6 py-4 grid grid-cols-1 md:grid-cols-4 gap-6 items-start shrink-0">
+                    <div data-purpose="filter-labels">
+                        <span className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Labels</span>
+                        {uniqueLabels.length === 0 ? (
+                            <p className="text-sm text-slate-500 dark:text-slate-400 italic font-medium">No labels on this board</p>
+                        ) : (
+                            <div className="flex flex-wrap gap-2">
+                                {uniqueLabels.map(label => (
+                                    <label key={label.name} className="flex items-center space-x-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded px-2 py-1.5 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedLabels.includes(label.name)}
+                                            onChange={() => {
+                                                setSelectedLabels(prev => prev.includes(label.name) ? prev.filter(name => name !== label.name) : [...prev, label.name])
+                                            }}
+                                            className="rounded text-primary focus:ring-primary h-4 w-4"
+                                        />
+                                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-350">{label.name}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                    <div data-purpose="filter-assignees">
+                        <span className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Assignees</span>
+                        {uniqueAssignees.length === 0 ? (
+                            <p className="text-sm text-slate-500 dark:text-slate-400 italic font-medium">No assignees on this board</p>
+                        ) : (
+                            <div className="flex flex-wrap gap-2">
+                                {uniqueAssignees.map(u => (
+                                    <label key={u._id} className="flex items-center space-x-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded px-2 py-1.5 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedAssignees.includes(u._id)}
+                                            onChange={() => {
+                                                setSelectedAssignees(prev => prev.includes(u._id) ? prev.filter(id => id !== u._id) : [...prev, u._id])
+                                            }}
+                                            className="rounded text-primary focus:ring-primary h-4 w-4"
+                                        />
+                                        <div className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-[10px] font-bold">
+                                            {u.username?.charAt(0).toUpperCase() || u.email?.charAt(0).toUpperCase() || '?'}
+                                        </div>
+                                        <span className="text-xs text-slate-750 dark:text-slate-350">{u.username}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                    <div data-purpose="filter-due-date">
+                        <span className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Due Date</span>
+                        <div className="space-y-1.5">
+                            <label className="flex items-center text-xs text-slate-700 dark:text-slate-350 cursor-pointer">
+                                <input
+                                    type="radio"
+                                    name="due"
+                                    checked={dueDateFilter === 'all'}
+                                    onChange={() => setDueDateFilter('all')}
+                                    className="mr-2 text-primary focus:ring-primary h-4 w-4"
+                                />
+                                All Dates
+                            </label>
+                            <label className="flex items-center text-xs text-slate-700 dark:text-slate-350 cursor-pointer">
+                                <input
+                                    type="radio"
+                                    name="due"
+                                    checked={dueDateFilter === 'overdue'}
+                                    onChange={() => setDueDateFilter('overdue')}
+                                    className="mr-2 text-primary focus:ring-primary h-4 w-4"
+                                />
+                                Overdue
+                            </label>
+                            <label className="flex items-center text-xs text-slate-700 dark:text-slate-350 cursor-pointer">
+                                <input
+                                    type="radio"
+                                    name="due"
+                                    checked={dueDateFilter === 'today'}
+                                    onChange={() => setDueDateFilter('today')}
+                                    className="mr-2 text-primary focus:ring-primary h-4 w-4"
+                                />
+                                Due Today
+                            </label>
+                        </div>
+                    </div>
+                    <div data-purpose="filter-sorting">
+                        <span className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Sort Cards By</span>
+                        <select
+                            value={sortBy}
+                            onChange={e => setSortBy(e.target.value)}
+                            className="w-full text-sm border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-white rounded-lg focus:ring-primary focus:border-primary py-2 px-3 outline-none"
+                        >
+                            <option value="default">Default (Column Order)</option>
+                            <option value="dueDate">Due Date</option>
+                            <option value="titleAsc">Title: A-Z</option>
+                            <option value="titleDesc">Title: Z-A</option>
+                            <option value="newest">Newest Created</option>
+                        </select>
+                    </div>
+                </div>
             )}
 
             <main className="flex-1 flex overflow-hidden">

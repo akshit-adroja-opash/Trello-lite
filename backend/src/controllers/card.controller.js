@@ -163,6 +163,21 @@ export const addComment = async (req, res, next) => {
                     }
                 }
 
+                // Include workspace members who also have access to the board
+                try {
+                    const Workspace = (await import('../models/Workspace.js')).default;
+                    const workspaceObj = await Workspace.findById(boardObj.workspace);
+                    if (workspaceObj) {
+                        for (const m of workspaceObj.members || []) {
+                            if (m.user && m.user.toString() !== req.user._id.toString()) {
+                                recipients.add(m.user.toString());
+                            }
+                        }
+                    }
+                } catch (wsErr) {
+                    console.error('Failed to include workspace members in notification:', wsErr.message);
+                }
+
                 for (const recipientId of recipients) {
                     const notif = await Notification.create({
                         recipient: recipientId,

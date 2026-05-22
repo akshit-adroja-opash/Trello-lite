@@ -2,21 +2,28 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import useAuthStore from '../store/authstore';
+import useSidebarStore from '../store/sidebarStore';
 import { createWorkspace, deleteWorkspace, getWorkspaces, inviteMember, getOverdueCount } from '../api/workspace.api';
 import { createBoard, getBoardsByWorkspace, deleteBoard } from '../api/board.api';
 import Avatar from '../UI/Avatar';
 import { getRoleDisplayName } from '../utils/roleDisplay';
-import DashboardSidebar from '../components/Layout/DashboardSidebar';
-import Navbar from '../components/Layout/Navbar';
 import WorkspaceSettingsModal from '../components/workspace/WorkspaceSettingsModal';
+import Navbar from '../components/Layout/Navbar';
+import DashboardSidebar from '../components/Layout/DashboardSidebar';
 
 const BOARD_COLORS = [
-  'linear-gradient(180deg, #5A5EE0 0%, #3031B7 100%)', 
-  'linear-gradient(180deg, #0075A7 0%, #004C6E 100%)', 
-  'linear-gradient(180deg, #D94670 0%, #8A1A40 100%)', 
+  'linear-gradient(135deg, #005f73 0%, #0a9396 100%)', 
+  'linear-gradient(135deg, #4361ee 0%, #7209b7 100%)', 
+  'linear-gradient(135deg, #3f37c9 0%, #480ca8 100%)', 
   'linear-gradient(180deg, #D44D4D 0%, #8C2222 100%)', 
   'linear-gradient(180deg, #D69E2E 0%, #975A16 100%)', 
   'linear-gradient(180deg, #38B2AC 0%, #234E52 100%)'
+];
+
+const BOARD_WALLPAPERS = [
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuC1i5fjseQCfG4niYiPxCzhZD8Hc-LEY-cxV3kUkzJDaCTDVdckufRHZ3QoM2qOb_8qjLfbDmDjBYKKjgLVU5ZoHbWX3odoio3aR11LOfBUYdRE_ovJ01KcK4Jp3hiDky2I_Rs8ktUYp2sj_uPJ-G4g3HcF7jmuWqdDm1GnX3_yn3Av11GUDo0UGMCiTe2OhnZJGhXOdY_v22V1GwJqCVE37HWETLMk0wr5wRb3kgid-cDodEah2FBSjZgvBuveaBZGRHTd8PE4Hv4',
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuCaULM4vsaEJfc_9MxHuJtf84ANjItmdqPH2Z53tfiz9WNZmVnUU1oLw2AQqYB-IC9kTjAHhXgEzn4353ZYDvhd7PWfzBoH_MoF5-c74gkGntBqQQT1kcJUFK4lkB3WDULgW1k5XkbM2S4-Q2SFR0X3civoEdowEm5qoZhcxufukYd_1pgjHzX5Ec6Ya0jIB4QjasEZ8Q9N9xVsNnZYKOGhDQWwkxmKLrLIpCCwPGjO18E3qVLh_EZUMgkd5lbD3AyeeuMpU0WSJQs',
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuBaOFw_CKRYhyArL6ifoMbG-KasP1zmdS6FC475IVA38Uf90O-D6VRbgknHd_IJ3zatzdCjrtuVVMWn_PRPQR4s0R44VjAw3TP5S0FrBphhLltfkVCEoAvBskP8PB9SIQRH6LjniJjNb5BdF5mAyJWyOZ3PSfJP3x0p9GEclbbUOgN0JJ4nIU0MxGhbfy-rwkiJr9NvLJj_jUeSeu9zPLcNeVZVqNbGDhJcxqo2mX59pgbZEH2XTK9nC1bBsQamvQ7iMtVh8i1_he8'
 ];
 
 const Modal = ({ title, onClose, children }) => (
@@ -53,10 +60,15 @@ const DashboardPage = () => {
   const [selectedWorkspace, setSelectedWorkspace] = useState(null);
   const [settingOpen, setSettingOpen] = useState(false);
   const [overdueCounts, setOverdueCounts] = useState({});
+  const [searchQuery, setSearchQuery] = useState('');
 
   const user = useAuthStore(s => s.user);
   const logout = useAuthStore(s => s.logout);
   const navigate = useNavigate();
+
+  const isSidebarOpen = useSidebarStore(s => s.isOpen);
+  const toggleSidebar = useSidebarStore(s => s.toggle);
+  const closeSidebar = useSidebarStore(s => s.close);
 
   useEffect(() => {
     const load = async () => {
@@ -150,6 +162,7 @@ const DashboardPage = () => {
       toast.error(err.response?.data?.message || 'Failed to delete board');
     }
   };
+
   const openWorkspaceSettings = (workspace) => {
     setSelectedWorkspace(workspace);
     setSettingOpen(true);
@@ -167,28 +180,29 @@ const DashboardPage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background text-on-surface antialiased overflow-x-hidden flex flex-col dark:bg-slate-900 dark:text-white transition-colors duration-200">
+    <div className="min-h-screen bg-background text-on-surface antialiased overflow-x-hidden flex flex-col dark:bg-slate-900 dark:text-white transition-colors duration-200 selection:bg-secondary-fixed">
       
-      {/* TopAppBar */}
-      <Navbar />
+      {/* Left Sidebar Layout */}
+      <DashboardSidebar 
+        currentWorkspace={selectedWorkspace} 
+        openWorkspaceSettings={openWorkspaceSettings} 
+      />
 
-      {/* Main Container wrapper */}
-      <div className="flex flex-1 pt-16 h-full">
-        
-        {/* Left Fixed Sidebar */}
-        <DashboardSidebar />
+      {/* Top Navigation Bar */}
+      <Navbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 
-        {/* Content Canvas */}
-        <main className="flex-1 ml-0 md:ml-sidebar-width p-6 md:p-10 overflow-y-auto w-full max-w-[1440px] mx-auto">
+      {/* Main Content Canvas */}
+      <main className="ml-0 lg:ml-[280px] pt-16 min-h-screen">
+        <div className="max-w-[1400px] mx-auto p-6 lg:p-10">
           
           {/* Page Header */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+          <div className="flex justify-between items-end mb-12">
             <div>
-              <h1 className="text-headline-xl font-headline-xl text-on-surface dark:text-white mb-2">My Workspaces</h1>
-              <p className="text-body-lg font-body-lg text-on-surface-variant dark:text-slate-350">Collaborate, manage workflows, and track pipeline metrics across teams.</p>
+              <h2 className="font-headline-lg text-3xl font-bold text-primary dark:text-white mb-1">My Workspaces</h2>
+              <p className="font-body-md text-on-primary-container dark:text-slate-400 max-w-2xl">Collaborate, manage workflows, and track pipeline metrics across teams.</p>
             </div>
             {user?.role !== 'developer' && (
-              <button onClick={() => setShowCreateWs(true)} className="bg-primary-container text-white px-6 py-3 rounded-lg flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98] font-label-md font-semibold self-start md:self-auto shadow-sm transition-all duration-200">
+              <button onClick={() => setShowCreateWs(true)} className="bg-secondary text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-secondary/10">
                 <span className="material-symbols-outlined">add</span>
                 Create Workspace
               </button>
@@ -213,99 +227,124 @@ const DashboardPage = () => {
 
           {/* Workspaces List */}
           <section className="space-y-8">
-            {workspaces.map(ws => {
-              const isWsOwner = ws.owner === user?._id || ws.owner?._id === user?._id;
-              return (
-                <div key={ws._id} className="bg-surface-container-lowest dark:bg-slate-800/40 rounded-xl border border-surface-variant dark:border-slate-700 shadow-sm overflow-hidden mb-8">
-                  
-                  {/* Workspace Header */}
-                  <div className="p-6 border-b border-slate-100 dark:border-slate-700/60 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-50/50 dark:bg-slate-800/40">
-                    <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/60 rounded-xl flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-headline-md font-bold text-xl shadow-sm">
-                        {ws.name.charAt(0).toUpperCase()}
+            {workspaces
+              .filter(ws => {
+                const wsMatches = ws.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                  (ws.description && ws.description.toLowerCase().includes(searchQuery.toLowerCase()));
+                const boards = boardsByWorkspace[ws._id] || [];
+                const boardMatches = boards.some(b => b.name.toLowerCase().includes(searchQuery.toLowerCase()));
+                return wsMatches || boardMatches;
+              })
+              .map(ws => {
+                const isWsOwner = ws.owner === user?._id || ws.owner?._id === user?._id;
+                const boards = (boardsByWorkspace[ws._id] || []).filter(b => 
+                  b.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  ws.name.toLowerCase().includes(searchQuery.toLowerCase())
+                );
+                
+                return (
+                  <div key={ws._id} className="tonal-card rounded-3xl p-8 border border-outline-variant dark:border-slate-700 dark:bg-slate-800/40 overflow-hidden mb-8">
+                    
+                    {/* Workspace Meta Header */}
+                    <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-8">
+                      <div className="flex gap-4">
+                        <div className="w-16 h-16 rounded-2xl bg-primary-fixed-dim text-on-primary-fixed text-2xl font-black border border-outline-variant dark:border-slate-700 flex items-center justify-center">
+                          {ws.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-headline-lg text-headline-sm text-primary dark:text-white">{ws.name}</span>
+                            {overdueCounts[ws._id] > 0 && (
+                              <span className="inline-flex items-center gap-1 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 border border-rose-200/60 dark:border-rose-900/40 text-[11.5px] font-bold px-2 py-0.5 rounded-full select-none shadow-sm animate-pulse">
+                                <span className="material-symbols-outlined text-[13px] text-rose-500">alarm</span>
+                                {overdueCounts[ws._id]} Overdue
+                              </span>
+                            )}
+                          </div>
+                          {ws.description && <p className="font-body-md text-on-primary-container dark:text-slate-400 mb-1">{ws.description}</p>}
+                          <div className="flex items-center gap-1.5 text-on-primary-container dark:text-slate-400">
+                            <span className="material-symbols-outlined text-[18px]">link</span>
+                            <span className="font-body-sm font-semibold">{ws.members?.length || 1} members</span>
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="text-lg font-bold text-slate-800 dark:text-white">{ws.name}</h3>
-                          {overdueCounts[ws._id] > 0 && (
-                            <span className="inline-flex items-center gap-1 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 border border-rose-200/60 dark:border-rose-900/40 text-[11.5px] font-bold px-2 py-0.5 rounded-full select-none shadow-sm">
-                              <span className="material-symbols-outlined text-[13px] text-rose-500">alarm</span>
-                              {overdueCounts[ws._id]} Overdue
+
+                      <div className="flex gap-2 flex-wrap w-full md:w-auto">
+                        {isWsOwner && (
+                          <button onClick={() => openWorkspaceSettings(ws)} className="flex-1 md:flex-none flex items-center justify-center gap-1 px-4 py-2 bg-surface-container-low dark:bg-slate-700 text-on-surface-variant dark:text-slate-200 rounded-lg border border-outline-variant dark:border-slate-600 hover:bg-surface-container-high dark:hover:bg-slate-650 transition-colors font-body-sm font-semibold">
+                            <span className="material-symbols-outlined text-[18px]">settings</span>
+                            <span>Settings</span>
+                          </button>
+                        )}
+                        {isWsOwner && (
+                          <button onClick={() => setShowInvite(ws._id)} className="flex-1 md:flex-none flex items-center justify-center gap-1 px-4 py-2 bg-surface-container-low dark:bg-slate-700 text-on-surface-variant dark:text-slate-200 rounded-lg border border-outline-variant dark:border-slate-600 hover:bg-surface-container-high dark:hover:bg-slate-650 transition-colors font-body-sm font-semibold">
+                            <span className="material-symbols-outlined text-[18px]">person_add</span>
+                            <span>Invite Members</span>
+                          </button>
+                        )}
+                        {isWsOwner && (
+                          <button onClick={() => setShowCreateBoard(ws._id)} className="flex-1 md:flex-none flex items-center justify-center gap-1 px-4 py-2 bg-secondary text-white rounded-lg border border-secondary hover:opacity-90 transition-opacity font-body-sm font-semibold">
+                            <span className="material-symbols-outlined text-[18px]">add</span>
+                            <span>Add Board</span>
+                          </button>
+                        )}
+                        {isWsOwner && (
+                          <button onClick={() => handleDeleteWorkspace(ws._id)} className="flex-1 md:flex-none flex items-center justify-center gap-1 px-4 py-2 text-error hover:bg-error-container hover:text-on-error-container rounded-lg transition-all font-body-sm font-semibold">
+                            <span className="material-symbols-outlined text-[18px]">delete</span>
+                            <span>Delete</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Members Strip */}
+                    {ws.members && ws.members.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-4 border-y border-outline-variant/30 py-4 mb-8">
+                        <span className="font-label-caps text-label-caps text-outline dark:text-slate-400 mr-2">MEMBERS:</span>
+                        {ws.members.map(member => (
+                          <div key={member._id} className="flex items-center gap-1 bg-surface-container-low dark:bg-slate-700 border border-outline-variant dark:border-slate-600 px-2 py-1 rounded-full shadow-sm">
+                            <div className="w-6 h-6 rounded-full bg-secondary-fixed text-on-secondary-fixed dark:text-slate-800 flex items-center justify-center text-[10px] font-bold">
+                              {(member.user?.username || member.user?.email || '?').charAt(0).toUpperCase()}
+                            </div>
+                            <span className="font-body-sm font-semibold text-on-surface dark:text-slate-200">{member.user?.username || member.user?.email}</span>
+                            <span className="font-label-caps text-[10px] bg-secondary-fixed-dim text-on-secondary-fixed-variant dark:text-slate-900 px-1.5 py-0.5 rounded-full uppercase ml-1">
+                              {getRoleDisplayName(member.role)}
                             </span>
-                          )}
-                        </div>
-                        {ws.description && <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5">{ws.description}</p>}
-                        <div className="flex items-center gap-1 text-xs text-slate-400 dark:text-slate-500 mt-1.5 font-medium">
-                          <span className="material-symbols-outlined text-[15px] text-slate-400">link</span>
-                          <span>{ws.members?.length || 1} members</span>
-                        </div>
+                          </div>
+                        ))}
                       </div>
-                    </div>
-                    <div className="flex items-center gap-3.5 w-full sm:w-auto">
-                      {isWsOwner && (
-                        <button onClick={() => openWorkspaceSettings(ws)} className="flex-1 sm:flex-none h-10 px-4 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 duration-150 transition-all border border-slate-200/50 dark:border-slate-600/40">
-                          <span className="material-symbols-outlined text-[18px]">settings</span>
-                          Settings
-                        </button>
-                      )}
-                      {isWsOwner && (
-                        <button onClick={() => setShowInvite(ws._id)} className="flex-1 sm:flex-none h-10 px-4 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 duration-150 transition-all border border-slate-200/50 dark:border-slate-600/40">
-                          <span className="material-symbols-outlined text-[18px]">person_add</span>
-                          Invite Members
-                        </button>
-                      )}
-                      {isWsOwner && (
-                        <button onClick={() => setShowCreateBoard(ws._id)} className="flex-1 sm:flex-none h-10 px-4 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-2 shadow-md shadow-indigo-600/10 hover:shadow-indigo-600/20 hover:-translate-y-0.5 active:translate-y-0 duration-150 transition-all">
-                          <span className="material-symbols-outlined text-[18px]">add</span>
-                          Add Board
-                        </button>
-                      )}
-                      {isWsOwner && (
-                        <button onClick={() => handleDeleteWorkspace(ws._id)} className="flex-1 sm:flex-none h-10 px-4 border border-rose-200 dark:border-rose-900/60 rounded-xl text-sm font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/20 flex items-center justify-center gap-2 hover:-translate-y-0.5 active:translate-y-0 duration-150 transition-all">
-                          <span className="material-symbols-outlined text-[18px]">delete</span>
-                          Delete
-                        </button>
-                      )}
-                    </div>
-                  </div>
+                    )}
 
-                  {/* Members Strip */}
-                  {ws.members && ws.members.length > 0 && (
-                    <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700/60 bg-white/40 dark:bg-slate-900/20 flex flex-wrap items-center gap-4">
-                      <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Members:</span>
-                      {ws.members.map(member => (
-                        <div key={member._id} className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800/80 border border-slate-200/50 dark:border-slate-700 px-3 py-1.5 rounded-full shadow-sm">
-                          <Avatar name={member.user?.username || member.user?.email || '?'} size={20} />
-                          <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">{member.user?.username || member.user?.email}</span>
-                          <span className="text-[9px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 px-2 py-0.5 rounded-full ml-1 uppercase border border-indigo-100/40 dark:border-indigo-900/30">
-                            {getRoleDisplayName(member.role)}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Boards Grid */}
-                  <div className="p-6">
+                    {/* Boards Grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                      {(boardsByWorkspace[ws._id] || []).map((board, index) => {
+                      {boards.map((board, index) => {
                         const isBoardOwner = board.owner === user?._id || board.owner?._id === user?._id;
                         return (
                           <Link key={board._id} to={`/board/${board._id}`}
-                            className="block h-32 rounded-2xl p-4 flex flex-col justify-end hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 group relative overflow-hidden shadow-sm hover:shadow-md"
-                            style={{ background: board.background || BOARD_COLORS[index % BOARD_COLORS.length] }}>
-                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors z-0"></div>
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent z-0" />
+                            className="relative h-44 rounded-xl overflow-hidden group cursor-pointer border border-outline-variant dark:border-slate-700 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md block"
+                          >
+                            <div className="absolute inset-0" style={{ background: board.background || BOARD_COLORS[index % BOARD_COLORS.length] }}></div>
+                            {BOARD_WALLPAPERS[index % BOARD_WALLPAPERS.length] && (
+                              <img className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-30 transition-transform group-hover:scale-110"
+                                src={BOARD_WALLPAPERS[index % BOARD_WALLPAPERS.length]}
+                                alt=""
+                              />
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                            
                             {isBoardOwner && (
                               <button
                                 onClick={(e) => handleDeleteBoard(board._id, ws._id, e)}
-                                className="absolute top-3 right-3 z-20 w-8 h-8 rounded-full bg-black/30 hover:bg-rose-600 text-white flex items-center justify-center transition-all duration-200 opacity-0 group-hover:opacity-100 hover:scale-105"
+                                className="absolute top-3 right-3 z-20 w-8 h-8 rounded-full bg-black/35 hover:bg-rose-600 text-white flex items-center justify-center transition-all duration-200 opacity-0 group-hover:opacity-100 hover:scale-105"
                                 title="Delete Board"
                               >
                                 <span className="material-symbols-outlined text-[18px]">delete</span>
                               </button>
                             )}
-                            <h4 className="text-white font-headline-md font-bold text-lg relative z-10 drop-shadow-md group-hover:underline decoration-white/60 underline-offset-4">{board.name}</h4>
+
+                            <div className="absolute bottom-0 left-0 p-6 w-full bg-gradient-to-t from-black/60 to-transparent">
+                              <span className="text-white font-headline-lg text-headline-lg drop-shadow">{board.name}</span>
+                            </div>
                           </Link>
                         );
                       })}
@@ -313,22 +352,23 @@ const DashboardPage = () => {
                       {isWsOwner && (
                         <button 
                           onClick={() => setShowCreateBoard(ws._id)} 
-                          className="h-32 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30 hover:bg-white dark:hover:bg-slate-800/60 hover:border-indigo-500 dark:hover:border-indigo-500 flex flex-col items-center justify-center gap-2.5 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 duration-200 group"
+                          className="h-44 rounded-xl border-2 border-dashed border-outline-variant dark:border-slate-700 flex flex-col items-center justify-center gap-sm text-outline dark:text-slate-400 hover:border-secondary hover:text-secondary dark:hover:text-indigo-400 hover:bg-secondary-fixed/20 dark:hover:bg-slate-750/30 transition-all cursor-pointer group"
                         >
-                          <span className="material-symbols-outlined text-[28px] text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">add_circle</span>
-                          <span className="text-sm font-semibold tracking-wide">Create New Board</span>
+                          <div className="w-12 h-12 rounded-full border-2 border-current flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <span className="material-symbols-outlined text-[32px]">add</span>
+                          </div>
+                          <span className="font-body-md font-semibold">Create New Board</span>
                         </button>
                       )}
                     </div>
-                  </div>
 
-                </div>
-              );
-            })}
+                  </div>
+                );
+              })}
           </section>
 
-        </main>
-      </div>
+        </div>
+      </main>
 
       {/* MODALS */}
       {showCreateWs && (
@@ -341,7 +381,7 @@ const DashboardPage = () => {
                 className="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all" />
             </div>
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Description <span className="text-slate-300 dark:text-slate-600 lowercase font-normal">(optional)</span></label>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Description <span className="text-slate-300 dark:text-slate-650 lowercase font-normal">(optional)</span></label>
               <input value={wsDesc} onChange={e => setWsDesc(e.target.value)}
                 placeholder="Briefly summarize operations inside this hub..."
                 className="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all" />
@@ -389,7 +429,7 @@ const DashboardPage = () => {
               <button onClick={handleCreateBoard} disabled={!boardName.trim()}
                 className="flex-1 h-11 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl shadow-sm transition-all">Launch Board</button>
               <button onClick={() => setShowCreateBoard(null)}
-                className="flex-1 h-11 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-350 text-sm font-semibold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">Cancel</button>
+                className="flex-1 h-11 border border-slate-200 dark:border-slate-700 text-slate-650 dark:text-slate-350 text-sm font-semibold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">Cancel</button>
             </div>
           </div>
         </Modal>
@@ -417,7 +457,7 @@ const DashboardPage = () => {
               <button onClick={handleInvite} disabled={!inviteEmail.trim()}
                 className="flex-1 h-11 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl shadow-sm transition-all">Send Invitation</button>
               <button onClick={() => setShowInvite(null)}
-                className="flex-1 h-11 border border-slate-200 dark:border-slate-700 text-slate-650 dark:text-slate-300 text-sm font-semibold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">Cancel</button>
+                className="flex-1 h-11 border border-slate-200 dark:border-slate-700 text-slate-650 dark:text-slate-350 text-sm font-semibold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">Cancel</button>
             </div>
           </div>
         </Modal>

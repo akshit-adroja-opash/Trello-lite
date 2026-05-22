@@ -2,14 +2,13 @@ import { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import useAuthStore from '../store/authstore';
-import Avatar from '../UI/Avatar';
 import DashboardSidebar from '../components/Layout/DashboardSidebar';
 import Navbar from '../components/Layout/Navbar';
 import { getRoleDisplayName } from '../utils/roleDisplay';
 
 const ProfilePage = () => {
   const navigate = useNavigate();
-  const { user, updateProfile, logout } = useAuthStore();
+  const { user, updateProfile } = useAuthStore();
 
   const [username, setUsername] = useState(user?.username || '');
   const [email, setEmail] = useState(user?.email || '');
@@ -25,11 +24,6 @@ const ProfilePage = () => {
     if (!file) return;
     setAvatarFile(file);
     setAvatarPreview(URL.createObjectURL(file));
-  };
-
-  const handleLogout = async () => {
-    await logout();
-    navigate('/login');
   };
 
   const getAvatarUrl = () => {
@@ -69,7 +63,7 @@ const ProfilePage = () => {
   return (
     <div className="min-h-screen bg-background text-on-surface antialiased overflow-x-hidden flex flex-col dark:bg-slate-900 dark:text-white transition-colors duration-200">
       
-      {/* TopAppBar */}
+      {/* Top Navigation Bar */}
       <Navbar />
 
       {/* Main Container wrapper */}
@@ -79,184 +73,208 @@ const ProfilePage = () => {
         <DashboardSidebar />
 
         {/* Content Canvas */}
-        <main className="flex-1 ml-0 md:ml-sidebar-width p-6 md:p-10 overflow-y-auto w-full max-w-[1440px] mx-auto">
+        <main className="flex-1 ml-0 lg:ml-[280px] p-6 lg:p-10 overflow-y-auto w-full max-w-[1440px] mx-auto">
           
-          {/* Breadcrumb / Header Section */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4 border-b border-slate-100 dark:border-slate-800 pb-6">
+          {/* Breadcrumbs & Header */}
+          <div className="flex justify-between items-end mb-10">
             <div>
-              <h1 className="text-headline-xl font-headline-xl text-on-surface dark:text-white mb-2">My Profile</h1>
-              <p className="text-body-lg font-body-lg text-on-surface-variant dark:text-slate-350">Manage your account settings and personal information</p>
+              <h1 className="font-headline-lg text-headline-lg text-primary dark:text-white mb-1">My Profile</h1>
+              <p className="font-body-md text-on-surface-variant dark:text-slate-400">Manage your account settings and personal information</p>
             </div>
-            
-            <nav className="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400">
-              <Link className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" to="/dashboard">Dashboard</Link>
-              <span className="material-symbols-outlined text-sm">chevron_right</span>
-              <span className="text-slate-900 dark:text-white font-bold">My Profile</span>
+            <nav className="flex items-center gap-1 text-body-sm">
+              <Link className="text-secondary hover:underline dark:text-indigo-400" to="/dashboard">Dashboard</Link>
+              <span className="material-symbols-outlined text-sm opacity-40">chevron_right</span>
+              <span className="text-on-surface-variant dark:text-slate-350 font-bold">My Profile</span>
             </nav>
           </div>
 
-          {/* Profile Form Bento Grid */}
-          <div className="flex flex-col items-center py-4">
-            <div className="w-full max-w-2xl bg-white/70 dark:bg-slate-800/80 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-3xl shadow-xl shadow-indigo-900/5 overflow-hidden transition-all duration-300">
+          {/* Profile Central Section */}
+          <div className="max-w-4xl mx-auto glass-card bg-white/95 dark:bg-slate-800/90 backdrop-blur border border-outline-variant/50 dark:border-slate-700 rounded-2xl overflow-hidden shadow-xl shadow-indigo-900/5">
+            
+            {/* Decorative Header Banner */}
+            <div className="h-48 bg-gradient-to-r from-primary-container to-secondary dark:from-slate-900 dark:to-indigo-950 relative overflow-hidden flex justify-center items-end pb-8">
+              <div className="absolute inset-0 opacity-15" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }} />
               
-              {/* Decorative Top Header */}
-              <div className="h-28 bg-gradient-to-r from-primary via-secondary to-primary-container relative overflow-hidden">
-                <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }} />
-              </div>
-
-              {/* Profile Card Body */}
-              <div className="px-6 sm:px-10 pb-10 -mt-14 flex flex-col items-center">
-                
-                {/* Avatar Section */}
-                <div className="relative group cursor-pointer" onClick={() => fileRef.current?.click()}>
-                  <div className="w-28 h-28 rounded-full bg-indigo-600 flex items-center justify-center text-white text-4xl font-bold border-4 border-white dark:border-slate-800 shadow-xl relative z-10 overflow-hidden transition-transform group-hover:scale-105 duration-300">
-                    {getAvatarUrl() ? (
-                      <img
-                        src={getAvatarUrl()}
-                        alt="avatar"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <span>{(user?.username || '?').charAt(0).toUpperCase()}</span>
-                    )}
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity z-20">
-                      <span className="material-symbols-outlined text-white text-2xl">photo_camera</span>
-                    </div>
-                  </div>
-                  
-                  {/* Verified Badge */}
-                  <div className="absolute -bottom-1 -right-1 bg-white dark:bg-slate-800 p-1.5 rounded-full shadow-lg z-30 border border-slate-100 dark:border-slate-700 flex items-center justify-center">
-                    <span className="material-symbols-outlined text-indigo-600 dark:text-indigo-400 text-base" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
-                  </div>
-                </div>
-
-                <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
-
-                {/* Role Badge and Text */}
-                <div className="text-center mt-4 mb-8">
-                  <p className="text-xs text-slate-400 dark:text-slate-450 mb-2.5">Click avatar to change photo</p>
-                  <span className="inline-block px-3.5 py-1 bg-primary/10 text-primary dark:text-indigo-300 dark:bg-indigo-950/40 rounded-full text-xs font-bold uppercase tracking-widest border border-indigo-100 dark:border-indigo-900/60 shadow-sm">
-                    {getRoleDisplayName(user?.role)}
-                  </span>
-                </div>
-
-                {/* Form Fields */}
-                <form onSubmit={handleSubmit} className="w-full space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Username */}
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block ml-1">Username</label>
-                      <div className="relative group">
-                        <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-[20px] transition-colors group-focus-within:text-indigo-600 dark:group-focus-within:text-indigo-400">alternate_email</span>
-                        <input
-                          type="text"
-                          value={username}
-                          onChange={e => setUsername(e.target.value)}
-                          className="w-full h-12 pl-11 pr-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 text-slate-800 dark:text-white text-sm font-medium transition-all"
-                          placeholder="Username"
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    {/* Email */}
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block ml-1">Email Address</label>
-                      <div className="relative group">
-                        <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-[20px] transition-colors group-focus-within:text-indigo-600 dark:group-focus-within:text-indigo-400">mail</span>
-                        <input
-                          type="email"
-                          value={email}
-                          onChange={e => setEmail(e.target.value)}
-                          className="w-full h-12 pl-11 pr-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 text-slate-800 dark:text-white text-sm font-medium transition-all"
-                          placeholder="Email Address"
-                          required
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Password Divider & Fields */}
-                  <div className="pt-2 border-t border-slate-100 dark:border-slate-700/60">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
-                      {/* Password */}
-                      <div className="space-y-2">
-                        <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block ml-1">
-                          New Password <span className="text-[10px] normal-case font-normal text-slate-400 dark:text-slate-500">(leave blank to keep current)</span>
-                        </label>
-                        <div className="relative group">
-                          <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-[20px] transition-colors group-focus-within:text-indigo-600 dark:group-focus-within:text-indigo-400">lock</span>
-                          <input
-                            type="password"
-                            value={password}
-                            onChange={e => setPassword(e.target.value)}
-                            className="w-full h-12 pl-11 pr-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 text-slate-800 dark:text-white text-sm font-medium transition-all"
-                            placeholder="••••••••"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Confirm Password */}
-                      {password && (
-                        <div className="space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
-                          <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block ml-1">Confirm Password</label>
-                          <div className="relative group">
-                            <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-[20px] transition-colors group-focus-within:text-indigo-600 dark:group-focus-within:text-indigo-400">lock_reset</span>
-                            <input
-                              type="password"
-                              value={confirmPassword}
-                              onChange={e => setConfirmPassword(e.target.value)}
-                              className={`w-full h-12 pl-11 pr-4 bg-slate-50 dark:bg-slate-900 border rounded-xl focus:outline-none focus:ring-4 transition-all text-slate-800 dark:text-white text-sm font-medium ${
-                                confirmPassword && password !== confirmPassword
-                                  ? 'border-rose-400 dark:border-rose-800 focus:border-rose-500 focus:ring-rose-500/10'
-                                  : 'border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:ring-indigo-500/10'
-                              }`}
-                              placeholder="••••••••"
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Submit Button */}
-                  <div className="pt-4">
-                    <button
-                      type="submit"
-                      disabled={saving}
-                      className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/35 transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-95 duration-200 flex items-center justify-center gap-2"
-                    >
-                      {saving ? (
-                        <>
-                          <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                          Saving changes...
-                        </>
-                      ) : (
-                        <>
-                          Save Changes
-                          <span className="material-symbols-outlined text-xl">check_circle</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-
-                  {/* Timestamp Footer */}
-                  {user?.updatedAt && (
-                    <div className="pt-4 border-t border-slate-150 dark:border-slate-700/60 text-center">
-                      <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">
-                        Last updated: {new Date(user.updatedAt).toLocaleString(undefined, {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
-                      </p>
-                    </div>
+              {/* Profile Avatar Group */}
+              <div className="relative group">
+                <div 
+                  onClick={() => fileRef.current?.click()}
+                  className="w-32 h-32 rounded-full border-[6px] border-white dark:border-slate-850 bg-secondary dark:bg-indigo-650 flex items-center justify-center text-on-secondary text-5xl font-black shadow-xl translate-y-16 overflow-hidden relative z-10 cursor-pointer transition-transform hover:scale-105"
+                >
+                  {getAvatarUrl() ? (
+                    <img
+                      src={getAvatarUrl()}
+                      alt="avatar"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span>{(user?.username || '?').charAt(0).toUpperCase()}</span>
                   )}
-                </form>
+                  {/* Hover edit mask overlay */}
+                  <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                    <span className="material-symbols-outlined text-white text-2xl">photo_camera</span>
+                  </div>
+                </div>
+
+                <div className="absolute bottom-1 right-1 bg-white dark:bg-slate-800 p-1.5 rounded-full shadow-md text-primary dark:text-white ring-2 ring-transparent z-20 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[18px] text-indigo-600 dark:text-indigo-400" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+                </div>
+
+                <div className="absolute -bottom-24 left-1/2 -translate-x-1/2 w-full text-center">
+                  <button 
+                    onClick={() => fileRef.current?.click()}
+                    className="text-xs font-label-caps text-on-surface-variant dark:text-slate-400 uppercase tracking-widest hover:text-primary dark:hover:text-white transition-colors"
+                  >
+                    Click avatar to change photo
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
+
+            {/* Profile Form */}
+            <form onSubmit={handleSubmit} className="pt-24 pb-10 px-8 lg:px-12">
+              
+              {/* Role Badge Display */}
+              <div className="flex justify-center mb-10">
+                <span className="bg-surface-container dark:bg-slate-700/60 px-6 py-2 rounded-full font-label-caps text-label-caps text-on-surface-variant dark:text-slate-300 border border-outline-variant/30 dark:border-slate-700">
+                  {getRoleDisplayName(user?.role)}
+                </span>
               </div>
 
+              {/* Form Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                
+                {/* Username Field */}
+                <div className="space-y-2">
+                  <label className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 ml-1 uppercase">USERNAME</label>
+                  <div className="relative group">
+                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant dark:text-slate-400 text-lg">alternate_email</span>
+                    <input 
+                      className="w-full h-14 pl-12 pr-4 bg-surface-container-lowest dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-xl font-body-md text-on-surface dark:text-white focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all" 
+                      type="text" 
+                      value={username}
+                      onChange={e => setUsername(e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Email Field */}
+                <div className="space-y-2">
+                  <label className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 ml-1 uppercase">EMAIL ADDRESS</label>
+                  <div className="relative">
+                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant dark:text-slate-400 text-lg">mail</span>
+                    <input 
+                      className="w-full h-14 pl-12 pr-4 bg-surface-container-lowest dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-xl font-body-md text-on-surface dark:text-white focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all" 
+                      type="email" 
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Password Field */}
+                <div className="space-y-2">
+                  <label className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 ml-1 uppercase">
+                    NEW PASSWORD <span className="text-[10px] lowercase text-outline dark:text-slate-500 font-normal">(leave blank to keep current)</span>
+                  </label>
+                  <div className="relative">
+                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant dark:text-slate-400 text-lg">lock</span>
+                    <input 
+                      className="w-full h-14 pl-12 pr-4 bg-surface-container-lowest dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-xl font-body-md text-on-surface dark:text-white focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all" 
+                      placeholder="••••••••" 
+                      type="password"
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                {/* Confirm Password */}
+                <div className="space-y-2">
+                  <label className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 ml-1 uppercase">CONFIRM PASSWORD</label>
+                  <div className="relative">
+                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant dark:text-slate-400 text-lg">history</span>
+                    <input 
+                      className={`w-full h-14 pl-12 pr-4 bg-surface-container-lowest dark:bg-slate-900 border rounded-xl font-body-md text-on-surface dark:text-white focus:ring-2 focus:ring-secondary/20 outline-none transition-all ${
+                        confirmPassword && password !== confirmPassword
+                          ? 'border-rose-450 focus:border-rose-500 focus:ring-rose-500/10'
+                          : 'border-outline-variant dark:border-slate-700 focus:border-secondary'
+                      }`}
+                      placeholder="••••••••" 
+                      type="password"
+                      value={confirmPassword}
+                      onChange={e => setConfirmPassword(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Save Action */}
+              <div className="flex flex-col items-center gap-6">
+                <button 
+                  type="submit"
+                  disabled={saving}
+                  className="w-full md:w-[400px] bg-secondary-container text-on-secondary-container h-14 rounded-xl font-bold font-title-md flex items-center justify-center gap-4 hover:brightness-110 active:scale-[0.98] transition-all shadow-lg shadow-secondary/20 disabled:opacity-50"
+                >
+                  {saving ? 'Saving changes...' : 'Save Changes'}
+                  <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                </button>
+                
+                {user?.updatedAt && (
+                  <div className="flex items-center gap-1.5 text-on-surface-variant/60 dark:text-slate-450 font-body-sm">
+                    <span className="material-symbols-outlined text-sm">schedule</span>
+                    Last updated: {new Date(user.updatedAt).toLocaleString(undefined, {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </div>
+                )}
+              </div>
+
+            </form>
+          </div>
+
+          {/* Additional Settings Grid */}
+          <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
+            {/* Two-Factor Auth */}
+            <div className="glass-card p-6 bg-white/95 dark:bg-slate-800/95 backdrop-blur border border-outline-variant/30 dark:border-slate-750 rounded-2xl flex items-center gap-4 group cursor-pointer hover:bg-surface-container-lowest dark:hover:bg-slate-700 transition-colors shadow-sm">
+              <div className="w-12 h-12 rounded-xl bg-primary-container dark:bg-slate-900 flex items-center justify-center text-secondary dark:text-indigo-400 group-hover:scale-110 transition-transform">
+                <span className="material-symbols-outlined">security</span>
+              </div>
+              <div>
+                <h4 className="font-title-md text-sm text-primary dark:text-white">Two-Factor Auth</h4>
+                <p className="text-xs text-on-surface-variant dark:text-slate-400">Enhanced security</p>
+              </div>
+            </div>
+
+            {/* Connected Devices */}
+            <div className="glass-card p-6 bg-white/95 dark:bg-slate-800/95 backdrop-blur border border-outline-variant/30 dark:border-slate-750 rounded-2xl flex items-center gap-4 group cursor-pointer hover:bg-surface-container-lowest dark:hover:bg-slate-700 transition-colors shadow-sm">
+              <div className="w-12 h-12 rounded-xl bg-surface-container dark:bg-slate-700 flex items-center justify-center text-on-surface-variant dark:text-slate-350 group-hover:scale-110 transition-transform">
+                <span className="material-symbols-outlined">devices</span>
+              </div>
+              <div>
+                <h4 className="font-title-md text-sm text-primary dark:text-white">Connected Devices</h4>
+                <p className="text-xs text-on-surface-variant dark:text-slate-400">3 active sessions</p>
+              </div>
+            </div>
+
+            {/* Delete Account */}
+            <div className="glass-card p-6 bg-white/95 dark:bg-slate-800/95 backdrop-blur border border-outline-variant/30 dark:border-slate-750 rounded-2xl flex items-center gap-4 group cursor-pointer hover:bg-surface-container-lowest dark:hover:bg-slate-700 transition-colors shadow-sm">
+              <div className="w-12 h-12 rounded-xl bg-error-container dark:bg-rose-950/40 flex items-center justify-center text-error group-hover:scale-110 transition-transform">
+                <span className="material-symbols-outlined text-rose-500">delete_forever</span>
+              </div>
+              <div>
+                <h4 className="font-title-md text-sm text-primary dark:text-white">Delete Account</h4>
+                <p className="text-xs text-error">Permanent action</p>
+              </div>
             </div>
           </div>
 

@@ -446,3 +446,21 @@ input:-webkit-autofill:active {
   padding: 0.1rem 0.3rem;
   border-radius: 4px;
 }
+
+.tonal-card {
+  background: var(--surface);
+  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.05);
+}
+
+.grid-background {
+  background-color: #f7f9fb;
+  background-image: 
+    linear-gradient(#e2e8f0 1px, transparent 1px),
+    linear-gradient(90deg, #e2e8f0 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.auth-card {
+  box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.05), 0 4px 6px -2px rgba(15, 23, 42, 0.02);
+  backdrop-filter: blur(8px);
+}

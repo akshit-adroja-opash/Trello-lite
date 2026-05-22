@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react';
 import { useSortable, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { List } from 'react-window';
 import { CSS } from '@dnd-kit/utilities';
 import toast from 'react-hot-toast';
 import CardItem from '../Card/CardItem';
@@ -9,10 +8,7 @@ import { createCard as createCardApi, getBoardTemplates } from '../../api/card.a
 import { generateIndexBetween } from '../../utils/fractionalIndex';
 import useBoardStore from '../../store/boardStore';
 import useAuthStore from '../../store/authstore';
-import { canDeleteColumn, canEditColumn, canCreateCard } from '../../utils/rolePermissions';
-
-const CARD_HEIGHT = 88; 
-const VIRTUALIZE_THRESHOLD = 8; 
+import { canDeleteColumn, canEditColumn, canCreateCard } from '../../utils/rolePermissions'; 
 
 const getColumnColorClasses = (name) => {
     const lowerName = name.toLowerCase();
@@ -160,7 +156,6 @@ const ColumnItem = ({ column, cards, searchQuery, filterLabel, onAddCard, boardI
         } catch { toast.error('Failed to delete column'); }
     };
 
-    const useVirtualize = filteredCards.length > VIRTUALIZE_THRESHOLD;
 
     return (
         <div ref={setNodeRef} style={style}
@@ -197,36 +192,18 @@ const ColumnItem = ({ column, cards, searchQuery, filterLabel, onAddCard, boardI
                 </button>
             </div>
 
-            <div className={`flex-1 px-3 custom-scrollbar min-h-[20px] ${useVirtualize ? 'overflow-hidden' : 'overflow-y-auto pb-1'}`}>
+            <div className="flex-1 px-3 custom-scrollbar min-h-[20px] overflow-y-auto pb-1">
                 <SortableContext items={filteredCards.map(c => c._id)} strategy={verticalListSortingStrategy}>
-                    {useVirtualize ? (
-                        <List
-                            height={Math.min(filteredCards.length * CARD_HEIGHT, 440)}
-                            itemCount={filteredCards.length}
-                            itemSize={CARD_HEIGHT}
-                            width="100%"
-                            className="custom-scrollbar"
-                        >
-                            {({ index, style }) => (
-                                <div style={{ ...style, paddingTop: '2px', paddingBottom: '6px' }}>
-                                    <CardItem card={filteredCards[index]} columnId={column._id} />
-                                </div>
-                            )}
-                        </List>
-                    ) : (
-                        <>
-                            {filteredCards.length === 0 && !addingCard && (
-                                <div className="text-center text-slate-450 dark:text-slate-500 text-xs font-semibold py-6 border-2 border-dashed border-slate-200 dark:border-slate-700/60 rounded-xl my-1 bg-slate-50/40 dark:bg-slate-900/10 select-none">
-                                    Drop cards here
-                                </div>
-                            )}
-                            {filteredCards.map(card => (
-                                <div key={card._id} className="pb-2">
-                                    <CardItem card={card} columnId={column._id} />
-                                </div>
-                            ))}
-                        </>
+                    {filteredCards.length === 0 && !addingCard && (
+                        <div className="text-center text-slate-450 dark:text-slate-500 text-xs font-semibold py-6 border-2 border-dashed border-slate-200 dark:border-slate-700/60 rounded-xl my-1 bg-slate-50/40 dark:bg-slate-900/10 select-none">
+                            Drop cards here
+                        </div>
                     )}
+                    {filteredCards.map(card => (
+                        <div key={card._id} className="pb-2">
+                            <CardItem card={card} columnId={column._id} />
+                        </div>
+                    ))}
                 </SortableContext>
             </div>
 

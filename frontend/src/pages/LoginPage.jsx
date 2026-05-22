@@ -10,6 +10,7 @@ const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,102 +27,124 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-slate-50/50 relative overflow-hidden antialiased font-sans">
-      <div
-        className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-40 pointer-events-none"
-      />
-
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-200/80 p-8 sm:p-10 relative z-10 transition-all">
-        <div className="flex items-center gap-2.5 mb-8">
-          <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-md shadow-indigo-200">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <rect x="3" y="3" width="7" height="18" rx="2" fill="white" />
-              <rect x="14" y="3" width="7" height="11" rx="2" fill="white" opacity="0.7" />
-            </svg>
-          </div>
-          <span className="font-extrabold text-lg text-slate-900 tracking-tight">Trello-lite</span>
-        </div>
-
-        <div className="mb-8">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-indigo-600 mb-1">Secure Gateway</p>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Sign in to your account</h1>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-1.5">Email address</label>
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="name@company.com"
-              required
-              className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all"
-            />
+    <div className="min-h-screen flex flex-col justify-between bg-background dark:bg-slate-900 grid-background selection:bg-secondary-fixed antialiased font-sans transition-colors duration-200">
+      
+      {/* Login Container */}
+      <main className="flex-1 flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-[480px] bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 rounded-xl p-8 md:p-10 auth-card">
+          
+          {/* Brand Logo & Header */}
+          <div className="flex items-center gap-2 mb-8">
+            <div className="w-10 h-10 bg-secondary rounded-lg flex items-center justify-center">
+              <span className="material-symbols-outlined text-white" style={{ fontVariationSettings: "'FILL' 1" }}>dashboard_customize</span>
+            </div>
+            <span className="font-headline-lg text-title-md text-primary dark:text-white tracking-tight">Trellolite</span>
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-1.5">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-              className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all"
-            />
+          {/* Header Labels */}
+          <div className="mb-8">
+            <p className="font-label-caps text-label-caps text-secondary mb-1 uppercase tracking-wider">SECURE GATEWAY</p>
+            <h1 className="font-headline-lg text-headline-lg text-primary dark:text-white">Sign in to your account</h1>
           </div>
 
-          <div>
-  
-          </div>
-
-          <div className="flex items-center justify-between pt-1">
-            <label className="flex items-center gap-2 text-sm text-slate-600 font-medium cursor-pointer select-none">
+          {/* Login Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            
+            {/* Email */}
+            <div className="flex flex-col gap-1">
+              <label className="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-350 font-medium" htmlFor="email">Email address</label>
               <input
-                type="checkbox"
-                className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500/20 accent-indigo-600"
+                type="email"
+                id="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="name@company.com"
+                required
+                className="w-full px-4 py-2 bg-surface-container-low dark:bg-slate-900 border border-outline-variant dark:border-slate-705 rounded-lg font-body-md text-on-surface dark:text-white placeholder:text-on-primary-container dark:placeholder:text-slate-500 transition-all focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none"
               />
-              Remember me
-            </label>
-            <Link to="#" className="text-sm font-semibold text-indigo-600 hover:text-indigo-700 transition-colors">
-              Forgot password?
-            </Link>
+            </div>
+
+            {/* Password */}
+            <div className="flex flex-col gap-1">
+              <label className="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-350 font-medium" htmlFor="password">Password</label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="••••••"
+                  required
+                  className="w-full px-4 py-2 pr-12 bg-surface-container-low dark:bg-slate-900 border border-outline-variant dark:border-slate-705 rounded-lg font-body-md text-on-surface dark:text-white placeholder:text-on-primary-container dark:placeholder:text-slate-500 transition-all focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant dark:text-slate-400 hover:text-primary dark:hover:text-white transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[20px]">
+                    {showPassword ? "visibility_off" : "visibility"}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* Helper Actions */}
+            <div className="flex items-center justify-between pt-1">
+              <label className="flex items-center gap-2 text-body-sm text-slate-600 dark:text-slate-400 font-medium cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 text-secondary border-outline-variant rounded focus:ring-secondary/25 dark:bg-slate-900 dark:border-slate-700 accent-secondary"
+                />
+                <span>Remember me</span>
+              </label>
+              <Link to="#" className="text-body-sm font-semibold text-secondary hover:underline decoration-2 underline-offset-4 transition-all">
+                Forgot password?
+              </Link>
+            </div>
+
+            {/* Submit Action */}
+            <div className="pt-4">
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-secondary text-white py-3 px-6 rounded-lg font-semibold hover:opacity-90 active:scale-[0.98] transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-60 disabled:pointer-events-none"
+              >
+                {loading ? (
+                  <>
+                    <span className="w-5 h-5 border-2 border-white/35 border-t-white rounded-full animate-spin" />
+                    <span>Signing in...</span>
+                  </>
+                ) : (
+                  "Sign in"
+                )}
+              </button>
+            </div>
+          </form>
+
+          {/* Secondary Action */}
+          <div className="mt-8 text-center">
+            <p className="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400">
+              Don't have an account?{' '}
+              <Link to="/register" className="text-secondary font-semibold hover:underline decoration-2 underline-offset-4 transition-all">Sign up</Link>
+            </p>
           </div>
+        </div>
+      </main>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full h-11 mt-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm transition-all hover:shadow-md hover:shadow-indigo-100 active:scale-[0.98] disabled:opacity-60 disabled:pointer-events-none flex items-center justify-center gap-2"
-          >
-            {loading ? (
-              <>
-                <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
-                <span>Signing in...</span>
-              </>
-            ) : (
-              'Sign in'
-            )}
-          </button>
-        </form>
-
-        <p className="text-center text-sm text-slate-500 font-medium mt-6">
-          Don't have an account?{' '}
-          <Link to="/register" className="font-bold text-indigo-600 hover:text-indigo-700 transition-colors">
-            Sign up
-          </Link>
-        </p>
-      </div>
+      {/* Footer */}
+      <footer className="w-full bg-surface-container-lowest dark:bg-slate-950 border-t border-outline-variant dark:border-slate-800 py-6 px-10">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 max-w-7xl mx-auto">
+          <p className="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-450">© 2026 Trellolite. All rights reserved.</p>
+          <div className="flex gap-6">
+            <a className="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-405 hover:text-primary dark:hover:text-white transition-colors" href="#">Privacy Policy</a>
+            <a className="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-405 hover:text-primary dark:hover:text-white transition-colors" href="#">Terms of Service</a>
+            <a className="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-405 hover:text-primary dark:hover:text-white transition-colors" href="#">Help Center</a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
 
 export default LoginPage;
-
