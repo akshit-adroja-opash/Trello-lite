@@ -2,9 +2,19 @@ import { useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import CardDetail from './CardDetail';
+import { updateCard } from '../../api/card.api';
+import useBoardStore from '../../store/boardStore';
+import useSocketStore from '../../store/socketStore';
+import toast from 'react-hot-toast';
 
 const CardItem = ({ card, columnId, isDragging: externalDragging }) => {
     const [open, setOpen] = useState(false);
+    const [showChecklistDropdown, setShowChecklistDropdown] = useState(false);
+
+    const { updateCard: storeUpdateCard, boardRole, board } = useBoardStore();
+    const socket = useSocketStore(s => s.socket);
+    const boardId = board?._id;
+    const canEdit = ['Owner', 'Admin', 'Editor'].includes(boardRole);
 
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
         id: card._id,
@@ -24,6 +34,38 @@ const CardItem = ({ card, columnId, isDragging: externalDragging }) => {
     const totalItems = card.checklist?.length || 0;
     const progress   = totalItems > 0 ? Math.round((doneItems / totalItems) * 100) : 0;
     const firstColor = card.labels?.[0]?.color;
+
+    const handleChecklistItemToggle = async (e, itemIdOrIdx) => {
+        e.stopPropagation();
+        if (!canEdit) {
+            toast.error("You don't have permission to edit cards");
+            return;
+        }
+
+        const updatedChecklist = card.checklist.map((item, idx) => {
+            const matches = item._id ? item._id === itemIdOrIdx : idx === itemIdOrIdx;
+            return matches ? { ...item, done: !item.done } : item;
+        });
+
+        try {
+            const res = await updateCard(card._id, {
+                ...card,
+                checklist: updatedChecklist,
+                version: card.version
+            });
+            const updatedCard = res.data?.card;
+            if (updatedCard) {
+                storeUpdateCard(updatedCard);
+                socket?.emit('card:update', { boardId, card: updatedCard });
+            }
+        } catch (err) {
+            if (err.response?.status === 409) {
+                toast.error('Conflict: card was modified by someone else');
+            } else {
+                toast.error('Failed to update checklist item');
+            }
+        }
+    };
 
     return (
         <>
@@ -70,7 +112,19 @@ const CardItem = ({ card, columnId, isDragging: externalDragging }) => {
                                     <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                                     </svg>
-                                    {doneItems}/{totalItems} Tasks
+                                    <span>{doneItems}/{totalItems} Tasks</span>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setShowChecklistDropdown(!showChecklistDropdown);
+                                        }}
+                                        className="p-0.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-350 transition-colors ml-0.5 flex items-center cursor-pointer"
+                                        title="Quick view checklist"
+                                    >
+                                        <span className="material-symbols-outlined text-[16px] leading-none">
+                                            {showChecklistDropdown ? 'keyboard_arrow_up' : 'keyboard_arrow_down'}
+                                        </span>
+                                    </button>
                                 </span>
                                 <span className={progress === 100 ? 'text-emerald-600' : 'text-slate-500 dark:text-slate-400'}>
                                     {progress}%
@@ -84,6 +138,28 @@ const CardItem = ({ card, columnId, isDragging: externalDragging }) => {
                                     style={{ width: `${progress}%` }}
                                 />
                             </div>
+                            
+                            {showChecklistDropdown && (
+                                <div className="mt-2.5 p-2 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-100 dark:border-slate-800 flex flex-col gap-1.5 max-h-32 overflow-y-auto custom-scrollbar shadow-inner">
+                                    {card.checklist.map((item, idx) => (
+                                        <label 
+                                            key={item._id || idx} 
+                                            onClick={(e) => e.stopPropagation()}
+                                            className="flex items-start gap-2 cursor-pointer text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 select-none transition-colors"
+                                        >
+                                            <input 
+                                                type="checkbox"
+                                                checked={item.done}
+                                                onChange={(e) => handleChecklistItemToggle(e, item._id || idx)}
+                                                className="w-3.5 h-3.5 rounded mt-0.5 text-indigo-650 border-slate-300 focus:ring-indigo-500 dark:bg-slate-900 dark:border-slate-750 cursor-pointer"
+                                            />
+                                            <span className={`text-[11px] leading-tight font-medium ${item.done ? 'line-through text-slate-400 dark:text-slate-500' : ''}`}>
+                                                {item.text}
+                                            </span>
+                                        </label>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     )}
 

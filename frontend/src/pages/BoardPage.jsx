@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useState, useRef } from 'react';
+import { useEffect, useCallback, useState, useRef, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors, closestCorners } from '@dnd-kit/core';
@@ -24,6 +24,8 @@ import ActivitySidebar from '../components/Board/ActivitySidebar';
 import KeyboardShortcutsModal from '../components/Board/KeyboardShortcutsModal';
 import NotificationBell from '../components/Notifications/NotificationBell';
 import ThemeToggle from '../components/ThemeToggle';
+import BoardCalendarView from '../components/Board/BoardCalendarView';
+import FilterSortPanel from '../components/Board/FilterSortPanel';
 
 const BoardPage = () => {
     const { id: boardId } = useParams();
@@ -48,6 +50,12 @@ const BoardPage = () => {
     const emitCursorRef = useRef(null);
     const [membersModalOpen, setMembersModalOpen] = useState(false);
     const [settingsModalOpen, setSettingsModalOpen] = useState(false);
+    const [viewMode, setViewMode] = useState('kanban');
+    const [showFilters, setShowFilters] = useState(false);
+    const [selectedLabels, setSelectedLabels] = useState([]);
+    const [selectedAssignees, setSelectedAssignees] = useState([]);
+    const [dueDateFilter, setDueDateFilter] = useState('all');
+    const [sortBy, setSortBy] = useState('default');
 
 
     const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
@@ -322,7 +330,117 @@ const BoardPage = () => {
         emitCursorRef.current?.(e.clientX, e.clientY);
     }, []);
 
-    const allLabels = [...new Set(Object.values(cards).flat().flatMap(c => c.labels?.map(l => l.name) || []))];
+    const isSameDay = (d1, d2) => {
+        if (!d1 || !d2) return false;
+        const date1 = new Date(d1);
+        const date2 = new Date(d2);
+        return date1.getFullYear() === date2.getFullYear() &&
+               date1.getMonth() === date2.getMonth() &&
+               date1.getDate() === date2.getDate();
+    };
+
+    const uniqueLabels = useMemo(() => {
+        const map = new Map();
+        Object.values(cards).flat().flatMap(c => c.labels || []).forEach(l => {
+            if (l && l.name) {
+                map.set(l.name, l);
+            }
+        });
+        return Array.from(map.values());
+    }, [cards]);
+
+    const uniqueAssignees = useMemo(() => {
+        const list = [];
+        if (board?.owner) {
+            list.push(board.owner);
+        }
+        if (board?.members) {
+            board.members.forEach(m => {
+                if (m.user && !list.some(u => u._id === m.user._id)) {
+                    list.push(m.user);
+                }
+            });
+        }
+        Object.values(cards).flat().flatMap(c => c.assignees || []).forEach(a => {
+            if (a && a._id && !list.some(u => u._id === a._id)) {
+                list.push(a);
+            }
+        });
+        return list;
+    }, [board, cards]);
+
+    const handleClearAllFilters = () => {
+        setSelectedLabels([]);
+        setSelectedAssignees([]);
+        setDueDateFilter('all');
+        setSortBy('default');
+    };
+
+    const filteredCards = useMemo(() => {
+        const result = {};
+        const now = new Date();
+        
+        Object.entries(cards).forEach(([colId, colCards]) => {
+            let list = [...colCards];
+            
+            if (searchQuery) {
+                list = list.filter(c => c.title.toLowerCase().includes(searchQuery.toLowerCase()));
+            }
+            
+            if (selectedLabels.length > 0) {
+                list = list.filter(c => c.labels?.some(l => selectedLabels.includes(l.name)));
+            }
+            
+            if (selectedAssignees.length > 0) {
+                list = list.filter(c => c.assignees?.some(a => selectedAssignees.includes(a._id)));
+            }
+            
+            if (dueDateFilter !== 'all') {
+                list = list.filter(c => {
+                    if (!c.dueDate) return dueDateFilter === 'noDate';
+                    if (dueDateFilter === 'noDate') return false;
+                    
+                    const d = new Date(c.dueDate);
+                    if (dueDateFilter === 'overdue') {
+                         return d < now;
+                    }
+                    if (dueDateFilter === 'today') {
+                        return isSameDay(d, now);
+                    }
+                    if (dueDateFilter === 'week') {
+                        const endOfWeek = new Date();
+                        endOfWeek.setDate(now.getDate() + 7);
+                        return d >= now && d <= endOfWeek;
+                    }
+                    return true;
+                });
+            }
+            
+            if (sortBy !== 'default') {
+                list.sort((a, b) => {
+                    if (sortBy === 'dueDate') {
+                        if (!a.dueDate) return 1;
+                        if (!b.dueDate) return -1;
+                        return new Date(a.dueDate) - new Date(b.dueDate);
+                    }
+                    if (sortBy === 'titleAsc') {
+                        return a.title.localeCompare(b.title);
+                    }
+                    if (sortBy === 'titleDesc') {
+                        return b.title.localeCompare(a.title);
+                    }
+                    if (sortBy === 'newest') {
+                        return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+                    }
+                    return 0;
+                });
+            }
+            
+            result[colId] = list;
+        });
+        
+        return result;
+    }, [cards, searchQuery, selectedLabels, selectedAssignees, dueDateFilter, sortBy]);
 
     if (loading) return (
         <div className="flex flex-col gap-4 items-center justify-center h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-200">
@@ -374,6 +492,30 @@ const BoardPage = () => {
                                 </span>
                             )}
                         </div>
+                        <div className="flex items-center bg-slate-100 dark:bg-slate-700/60 p-0.5 rounded-xl border border-slate-200/60 dark:border-slate-700/50 ml-2">
+                            <button
+                                onClick={() => setViewMode('kanban')}
+                                className={`px-3 py-1 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 ${
+                                    viewMode === 'kanban'
+                                        ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                                        : 'text-slate-400 hover:text-slate-700 dark:hover:text-slate-255'
+                                }`}
+                            >
+                                <span className="material-symbols-outlined text-[15px]">dashboard</span>
+                                Board
+                            </button>
+                            <button
+                                onClick={() => setViewMode('calendar')}
+                                className={`px-3 py-1 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 ${
+                                    viewMode === 'calendar'
+                                        ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                                        : 'text-slate-400 hover:text-slate-700 dark:hover:text-slate-255'
+                                }`}
+                            >
+                                <span className="material-symbols-outlined text-[15px]">calendar_month</span>
+                                Calendar
+                            </button>
+                        </div>
                     </div>
 
                     {/* On mobile, render the quick action items (Theme, Notifications, Members, Settings) inline on the right */}
@@ -411,18 +553,27 @@ const BoardPage = () => {
                             placeholder="Filter board cards..."
                             className="w-full h-10 pl-10 pr-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all" />
                     </div>
-                    {allLabels.length > 0 && (
-                        <div className="relative shrink-0">
-                            <select value={filterLabel} onChange={e => setFilterLabel(e.target.value)}
-                                className="h-10 pl-3.5 pr-9 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-350 text-sm font-semibold appearance-none focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all cursor-pointer">
-                                <option value="">All labels</option>
-                                {allLabels.map(l => <option key={l} value={l}>{l}</option>)}
-                            </select>
-                            <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </div>
-                    )}
+                    <button
+                        onClick={() => setShowFilters(!showFilters)}
+                        className={`h-10 px-4 rounded-xl border flex items-center gap-2 text-sm font-semibold transition-all shrink-0 ${
+                            showFilters
+                                ? 'bg-indigo-50 border-indigo-200 text-indigo-605 dark:bg-indigo-950/40 dark:border-indigo-900/60 dark:text-indigo-400 font-bold animate-none'
+                                : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-350 hover:bg-slate-100 dark:hover:bg-slate-800'
+                        }`}
+                    >
+                        <span className="material-symbols-outlined text-[18px]">filter_list</span>
+                        <span>Filters</span>
+                        {(selectedLabels.length > 0 || selectedAssignees.length > 0 || dueDateFilter !== 'all' || sortBy !== 'default') && (
+                            <span className="w-5 h-5 rounded-full bg-indigo-600 dark:bg-indigo-550 text-white text-[10px] flex items-center justify-center font-bold">
+                                {
+                                    (selectedLabels.length > 0 ? 1 : 0) +
+                                    (selectedAssignees.length > 0 ? 1 : 0) +
+                                    (dueDateFilter !== 'all' ? 1 : 0) +
+                                    (sortBy !== 'default' ? 1 : 0)
+                                }
+                            </span>
+                        )}
+                    </button>
                 </div>
 
                 {/* Right Side (Desktop only helper row) */}
@@ -469,27 +620,50 @@ const BoardPage = () => {
                 </div>
             </header>
 
+            {showFilters && (
+                <FilterSortPanel
+                    uniqueLabels={uniqueLabels}
+                    uniqueAssignees={uniqueAssignees}
+                    selectedLabels={selectedLabels}
+                    setSelectedLabels={setSelectedLabels}
+                    selectedAssignees={selectedAssignees}
+                    setSelectedAssignees={setSelectedAssignees}
+                    dueDateFilter={dueDateFilter}
+                    setDueDateFilter={setDueDateFilter}
+                    sortBy={sortBy}
+                    setSortBy={setSortBy}
+                    onClearAll={handleClearAllFilters}
+                />
+            )}
+
             <main className="flex-1 flex overflow-hidden">
                 <div className="flex-1 overflow-x-auto overflow-y-hidden custom-scrollbar">
-                    <div className="h-full px-8 py-6 min-w-max">
-                        <DndContext sensors={sensors} collisionDetection={closestCorners}
-                            onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+                    <div className={`h-full px-8 py-6 ${viewMode === 'kanban' ? 'min-w-max' : 'w-full'}`}>
+                        {viewMode === 'kanban' ? (
+                            <DndContext sensors={sensors} collisionDetection={closestCorners}
+                                onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
 
-                            <ColumnList
-                                columns={columns} cards={cards}
-                                searchQuery={searchQuery} filterLabel={filterLabel}
-                                onAddCard={handleAddCard} onAddColumn={handleAddColumn}
-                                boardId={boardId} socket={socket}
+                                <ColumnList
+                                    columns={columns} cards={filteredCards}
+                                    searchQuery={searchQuery} filterLabel=""
+                                    onAddCard={handleAddCard} onAddColumn={handleAddColumn}
+                                    boardId={boardId} socket={socket}
+                                />
+
+                                <DragOverlay dropAnimation={{ duration: 200, easing: 'cubic-bezier(0.18, 0.89, 0.32, 1.28)' }}>
+                                    {activeCard && (
+                                        <div className="transform rotate-[2.5deg] scale-[1.03] shadow-2xl shadow-slate-900/15 opacity-95 pointer-events-none rounded-xl border border-slate-200/60 bg-white">
+                                            <CardItem card={activeCard} isDragging />
+                                        </div>
+                                    )}
+                                </DragOverlay>
+                            </DndContext>
+                        ) : (
+                            <BoardCalendarView
+                                boardId={boardId}
+                                filteredCards={filteredCards}
                             />
-
-                            <DragOverlay dropAnimation={{ duration: 200, easing: 'cubic-bezier(0.18, 0.89, 0.32, 1.28)' }}>
-                                {activeCard && (
-                                    <div className="transform rotate-[2.5deg] scale-[1.03] shadow-2xl shadow-slate-900/15 opacity-95 pointer-events-none rounded-xl border border-slate-200/60 bg-white">
-                                        <CardItem card={activeCard} isDragging />
-                                    </div>
-                                )}
-                            </DragOverlay>
-                        </DndContext>
+                        )}
                     </div>
                 </div>
 

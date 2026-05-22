@@ -150,9 +150,17 @@ export const getWorkspaceAnalytics = async (req, res) => {
                 }
             },
             {
+                $group: {
+                    _id: { $toLower: "$name" },
+                    title: { $first: "$name" },
+                    cardCount: { $sum: { $size: "$cards" } }
+                }
+            },
+            {
                 $project: {
-                    title: "$name",
-                    cardCount: { $size: "$cards" }
+                    _id: 0,
+                    title: 1,
+                    cardCount: 1
                 }
             }
         ]);
