@@ -12,6 +12,8 @@ import MyTasksPage from "./pages/MyTasksPage";
 import ProfilePage from "./pages/ProfilePage";
 import ReportsPage from "./pages/ReportsPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
+import AssignTaskPage from "./pages/AssignTaskPage";
+
 
 const App = () => {
   const { connect, disconnect } = useSocketStore();
@@ -73,7 +75,7 @@ const App = () => {
         <Route
           path="/my-tasks"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["developer", "client"]}>
               <MyTasksPage />
             </ProtectedRoute>
           }
@@ -91,6 +93,14 @@ const App = () => {
           element={
             <ProtectedRoute allowedRoles={["admin", "project_manager"]}>
               <AnalyticsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/assign-task"
+          element={
+            <ProtectedRoute allowedRoles={["admin", "developer"]}>
+              <AssignTaskPage />
             </ProtectedRoute>
           }
         />

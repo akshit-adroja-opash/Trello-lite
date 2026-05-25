@@ -30,12 +30,12 @@ export const getWorkspaces = async (req, res, next) => {
 export const inviteMember = async (req, res, next) => {
     try {
         const { workspaceId } = req.params;
-        const { email, role = 'viewer' } = req.body;
+        const { email, role = 'client' } = req.body;
 
         const workspace = await Workspace.findById(workspaceId);
         if (!workspace) return next(new ApiError(404, 'Workspace not found'));
-        if (workspace.Admin?.toString() !== req.user._id.toString())
-            return next(new ApiError(403, 'Only the Admin can invite members'));
+        if (workspace.Admin?.toString() !== req.user._id.toString() && req.user.role !== 'admin' && req.user.role !== 'project_manager')
+            return next(new ApiError(403, 'Only the Admin or System Admin can invite members'));
 
         const invitee = await User.findOne({ email });
         if (!invitee) return next(new ApiError(404, 'User with that email not found'));
@@ -67,8 +67,8 @@ export const updateMemberRole = async (req, res, next) => {
         const { role } = req.body;
         const workspace = await Workspace.findById(workspaceId);
         if (!workspace) return next(new ApiError(404, 'Workspace not found'));
-        if (workspace.Admin?.toString() !== req.user._id.toString())
-            return next(new ApiError(403, 'Only the Admin can change roles'));
+        if (workspace.Admin?.toString() !== req.user._id.toString() && req.user.role !== 'admin' && req.user.role !== 'project_manager')
+            return next(new ApiError(403, 'Only the Admin or System Admin can change roles'));
         const member = workspace.members.id(memberId);
         if (!member) return next(new ApiError(404, 'Member not found'));
         member.role = role;
@@ -82,8 +82,8 @@ export const removeMember = async (req, res, next) => {
         const { workspaceId, memberId } = req.params;
         const workspace = await Workspace.findById(workspaceId);
         if (!workspace) return next(new ApiError(404, 'Workspace not found'));
-        if (workspace.Admin?.toString() !== req.user._id.toString())
-            return next(new ApiError(403, 'Only the Admin can remove members'));
+        if (workspace.Admin?.toString() !== req.user._id.toString() && req.user.role !== 'admin' && req.user.role !== 'project_manager')
+            return next(new ApiError(403, 'Only the Admin or System Admin can remove members'));
         workspace.members.pull({ _id: memberId });
         await workspace.save();
         res.status(200).json({ status: 'success', message: 'Member removed' });
@@ -96,8 +96,8 @@ export const updateWorkspace = async (req, res, next) => {
         const { name, description } = req.body;
         const workspace = await Workspace.findById(workspaceId);
         if (!workspace) return next(new ApiError(404, 'Workspace not found'));
-        if (workspace.Admin?.toString() !== req.user._id.toString())
-            return next(new ApiError(403, 'Only the Admin can update this workspace'));
+        if (workspace.Admin?.toString() !== req.user._id.toString() && req.user.role !== 'admin' && req.user.role !== 'project_manager')
+            return next(new ApiError(403, 'Only the Admin or System Admin can update this workspace'));
         if (name) workspace.name = name;
         if (description !== undefined) workspace.description = description;
         await workspace.save();
@@ -131,8 +131,8 @@ export const deleteWorkspace = async (req, res, next) => {
         const { workspaceId } = req.params;
         const workspace = await Workspace.findById(workspaceId);
         if (!workspace) return next(new ApiError(404, 'Workspace not found'));
-        if (workspace.Admin?.toString() !== req.user._id.toString())
-            return next(new ApiError(403, 'Only the Admin can delete this workspace'));
+        if (workspace.Admin?.toString() !== req.user._id.toString() && req.user.role !== 'admin' && req.user.role !== 'project_manager')
+            return next(new ApiError(403, 'Only the Admin or System Admin can delete this workspace'));
         await workspace.deleteOne();
         res.status(200).json({ status: 'success', message: 'Workspace deleted' });
     } catch (error) {

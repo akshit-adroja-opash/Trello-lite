@@ -86,8 +86,8 @@ export const updateBoard = async (req, res, next) => {
         const { name, background } = req.body;
         const board = await Board.findById(boardId);
         if (!board) return next(new ApiError(404, 'Board not found'));
-        if (board.Admin?.toString() !== req.user._id.toString())
-            return next(new ApiError(403, 'Only the Admin can update this board'));
+        if (board.Admin?.toString() !== req.user._id.toString() && req.user.role !== 'admin' && req.user.role !== 'project_manager')
+            return next(new ApiError(403, 'Only the Admin or System Admin can update this board'));
         if (name) board.name = name;
         if (background) board.background = background;
         await board.save();
@@ -100,8 +100,8 @@ export const deleteBoard = async (req, res, next) => {
         const { boardId } = req.params;
         const board = await Board.findById(boardId);
         if (!board) return next(new ApiError(404, 'Board not found'));
-        if (board.Admin?.toString() !== req.user._id.toString())
-            return next(new ApiError(403, 'Only the Admin can delete this board'));
+        if (board.Admin?.toString() !== req.user._id.toString() && req.user.role !== 'admin' && req.user.role !== 'project_manager')
+            return next(new ApiError(403, 'Only the Admin or System Admin can delete this board'));
         await board.deleteOne();
         res.status(200).json({ status: 'success', message: 'Board deleted' });
     } catch (error) { next(error); }
@@ -122,8 +122,8 @@ export const addBoardMember = async (req, res, next) => {
         const { email, role = 'Editor' } = req.body;
         const board = await Board.findById(boardId);
         if (!board) return next(new ApiError(404, 'Board not found'));
-        if (board.Admin?.toString() !== req.user._id.toString())
-            return next(new ApiError(403, 'Only the Admin can add members'));
+        if (board.Admin?.toString() !== req.user._id.toString() && req.user.role !== 'admin' && req.user.role !== 'project_manager')
+            return next(new ApiError(403, 'Only the Admin or System Admin can add members'));
 
         const { default: User } = await import('../models/User.js');
         const invitee = await User.findOne({ email });
@@ -144,8 +144,8 @@ export const updateBoardMemberRole = async (req, res, next) => {
         const { role } = req.body;
         const board = await Board.findById(boardId);
         if (!board) return next(new ApiError(404, 'Board not found'));
-        if (board.Admin?.toString() !== req.user._id.toString())
-            return next(new ApiError(403, 'Only the Admin can change roles'));
+        if (board.Admin?.toString() !== req.user._id.toString() && req.user.role !== 'admin' && req.user.role !== 'project_manager')
+            return next(new ApiError(403, 'Only the Admin or System Admin can change roles'));
         const member = board.members.find(m => m.user?.toString() === memberId);
         if (!member) return next(new ApiError(404, 'Member not found'));
         member.role = role;
@@ -159,8 +159,8 @@ export const removeBoardMember = async (req, res, next) => {
         const { boardId, memberId } = req.params;
         const board = await Board.findById(boardId);
         if (!board) return next(new ApiError(404, 'Board not found'));
-        if (board.Admin?.toString() !== req.user._id.toString())
-            return next(new ApiError(403, 'Only the Admin can remove members'));
+        if (board.Admin?.toString() !== req.user._id.toString() && req.user.role !== 'admin' && req.user.role !== 'project_manager')
+            return next(new ApiError(403, 'Only the Admin or System Admin can remove members'));
 
         board.members = board.members.filter(m => m.user?.toString() !== memberId);
         await board.save();

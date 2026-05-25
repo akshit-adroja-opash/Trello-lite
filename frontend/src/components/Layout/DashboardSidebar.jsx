@@ -119,7 +119,13 @@ const DashboardSidebar = ({ currentWorkspace, openWorkspaceSettings, boards: pro
 
           <nav className="flex flex-col gap-1">
             <NavItem to="/dashboard" label="Dashboard" icon="dashboard" />
-            <NavItem to="/my-tasks" label="My Tasks" icon="task_alt" />
+            {user?.role !== 'admin' && user?.role !== 'project_manager' && (
+              <NavItem to="/my-tasks" label="My Tasks" icon="task_alt" />
+            )}
+
+            {(user?.role === 'admin' || user?.role === 'developer') && (
+              <NavItem to="/assign-task" label="Assign Task" icon="assignment_turned_in" />
+            )}
 
             {canViewReports && (
               <NavItem to="/reports" label="Reports" icon="bar_chart" />

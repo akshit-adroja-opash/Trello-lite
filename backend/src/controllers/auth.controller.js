@@ -129,3 +129,58 @@ export const deleteAccount = async (req, res, next) => {
   }
 };
 
+export const getAllUsers = async (req, res, next) => {
+  try {
+    if (req.user.role !== 'admin') {
+      throw new ApiError(403, 'Only admins can view all users');
+    }
+    const users = await User.find().select('-password');
+    res.status(200).json({
+      status: 'success',
+      data: { users }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateUserRole = async (req, res, next) => {
+  try {
+    if (req.user.role !== 'admin') {
+      throw new ApiError(403, 'Only admins can update user roles');
+    }
+    const { role } = req.body;
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      throw new ApiError(404, 'User not found');
+    }
+    
+    user.role = role;
+    await user.save();
+    
+    res.status(200).json({
+      status: 'success',
+      data: { user }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteUser = async (req, res, next) => {
+  try {
+    if (req.user.role !== 'admin') {
+      throw new ApiError(403, 'Only admins can delete users');
+    }
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) {
+      throw new ApiError(404, 'User not found');
+    }
+    res.status(200).json({
+      status: 'success',
+      message: 'User deleted successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+};

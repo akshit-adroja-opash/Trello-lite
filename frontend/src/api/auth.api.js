@@ -36,3 +36,18 @@ export const deleteAccount = async () => {
     const response = await API.delete('/auth/account');
     return response.data;
 };
+
+export const getAllUsers = async () => {
+    const response = await API.get('/auth/users');
+    return response.data;
+};
+
+export const updateUserRole = async (userId, role) => {
+    const response = await API.patch(`/auth/users/${userId}/role`, { role });
+    return response.data;
+};
+
+export const deleteUser = async (userId) => {
+    const response = await API.delete(`/auth/users/${userId}`);
+    return response.data;
+};

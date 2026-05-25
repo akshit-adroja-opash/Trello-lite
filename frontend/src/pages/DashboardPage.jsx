@@ -56,7 +56,7 @@ const DashboardPage = () => {
 
   const [showInvite, setShowInvite] = useState(null);
   const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteRole, setInviteRole] = useState('viewer');
+  const [inviteRole, setInviteRole] = useState('client');
 
   const [selectedWorkspace, setSelectedWorkspace] = useState(null);
   const [settingOpen, setSettingOpen] = useState(false);
@@ -182,7 +182,7 @@ const DashboardPage = () => {
     if (!inviteEmail.trim()) return;
     try {
       await inviteMember(showInvite, { email: inviteEmail.trim(), role: inviteRole });
-      setInviteEmail(''); setInviteRole('viewer'); setShowInvite(null);
+      setInviteEmail(''); setInviteRole('client'); setShowInvite(null);
       toast.success('Invitation sent');
     } catch (err) { toast.error(err.response?.data?.message || 'Failed to send invite'); }
   };
@@ -339,7 +339,7 @@ const DashboardPage = () => {
                 return wsMatches || boardMatches;
               })
               .map(ws => {
-                const isWsAdmin = ws.Admin === user?._id || ws.Admin?._id === user?._id;
+                const isWsAdmin = ws.Admin === user?._id || ws.Admin?._id === user?._id || user?.role === 'admin' || user?.role === 'project_manager';
                 const boards = (boardsByWorkspace[ws._id] || []).filter(b =>
                   b.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                   ws.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -419,7 +419,7 @@ const DashboardPage = () => {
                     {/* Boards Grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                       {boards.map((board, index) => {
-                        const isBoardAdmin = board.Admin === user?._id || board.Admin?._id === user?._id;
+                        const isBoardAdmin = board.Admin === user?._id || board.Admin?._id === user?._id || user?.role === 'admin' || user?.role === 'project_manager';
                         return (
                           <Link key={board._id} to={`/board/${board._id}`}
                             className="relative h-44 rounded-xl overflow-hidden group cursor-pointer border border-outline-variant dark:border-slate-700 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md block"

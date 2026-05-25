@@ -16,7 +16,7 @@ router.post('/:cardId/comments', requireBoardRole('admin', 'project_manager', 'd
 router.post('/:cardId/comments/:commentId/react', requireBoardRole('admin', 'project_manager', 'developer'), toggleCommentReaction);
 router.post('/:cardId/save-template', requireBoardRole('admin', 'project_manager', 'developer'), saveCardAsTemplate);
 router.get('/board/:boardId/templates', getBoardTemplates);
-router.patch('/:cardId', requireBoardRole('admin', 'project_manager'), updateCard);
+router.patch('/:cardId', requireBoardRole('admin', 'project_manager', 'developer'), updateCard);
 router.delete('/:cardId', requireBoardRole('admin', 'project_manager'), deleteCard);
 router.patch('/:cardId/move', requireBoardRole('admin', 'project_manager', 'developer'), moveCard);
 

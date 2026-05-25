@@ -117,7 +117,7 @@ const BoardPage = () => {
     useEffect(() => {
         if (board && user) {
             const AdminId = board.Admin?._id || board.Admin;
-            if (AdminId === user._id) {
+            if (AdminId === user._id || user.role === 'admin' || user.role === 'project_manager') {
                 setBoardRole('admin');
             } else {
                 const member = board.members?.find(m =>

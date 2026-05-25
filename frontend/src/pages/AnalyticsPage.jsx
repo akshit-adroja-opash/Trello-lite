@@ -4,6 +4,8 @@ import { getWorkspaces } from "../api/workspace.api";
 import Navbar from "../components/Layout/Navbar";
 import DashboardSidebar from "../components/Layout/DashboardSidebar";
 import toast from "react-hot-toast";
+import useAuthStore from "../store/authstore";
+import { getAllUsers, updateUserRole, deleteUser } from "../api/auth.api";
 
 import {
     BarChart,
@@ -34,6 +36,44 @@ const AnalyticsPage = () => {
     const [analytics, setAnalytics] = useState(null);
     const [loading, setLoading] = useState(true);
     const [loadingData, setLoadingData] = useState(false);
+    
+    const { user } = useAuthStore();
+    const [allUsers, setAllUsers] = useState([]);
+
+    useEffect(() => {
+        if (user?.role === 'admin') {
+            const fetchUsers = async () => {
+                try {
+                    const res = await getAllUsers();
+                    setAllUsers(res.data?.users || []);
+                } catch (error) {
+                    console.error("Failed to load users", error);
+                }
+            };
+            fetchUsers();
+        }
+    }, [user]);
+
+    const handleRoleChange = async (userId, newRole) => {
+        try {
+            await updateUserRole(userId, newRole);
+            setAllUsers(prev => prev.map(u => u._id === userId ? { ...u, role: newRole } : u));
+            toast.success("User role updated");
+        } catch (error) {
+            toast.error("Failed to update user role");
+        }
+    };
+
+    const handleDeleteUser = async (userId) => {
+        if (!window.confirm("Are you sure you want to delete this user?")) return;
+        try {
+            await deleteUser(userId);
+            setAllUsers(prev => prev.filter(u => u._id !== userId));
+            toast.success("User deleted successfully");
+        } catch (error) {
+            toast.error("Failed to delete user");
+        }
+    };
 
     // Load workspaces on mount
     useEffect(() => {
@@ -322,7 +362,78 @@ const AnalyticsPage = () => {
                                     </div>
                                 </div>
 
+                                {/* ADMIN USER MANAGEMENT SECTION */}
+                                {user?.role === 'admin' && (
+                                    <div className="glass-card p-6 rounded-xl border border-outline-variant/50 dark:border-slate-700 bg-white/90 dark:bg-slate-800/90 backdrop-blur shadow-sm lg:col-span-2 flex flex-col mt-6">
+                                        <div className="mb-6">
+                                            <h3 className="font-title-md text-title-md text-on-surface dark:text-white">
+                                                User Management
+                                            </h3>
+                                            <p className="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400 mt-0.5">
+                                                Admin only: View, modify roles, and remove system users
+                                            </p>
+                                        </div>
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full text-left border-collapse">
+                                                <thead>
+                                                    <tr className="border-b border-outline-variant/50 dark:border-slate-700">
+                                                        <th className="py-3 px-4 font-label-md text-on-surface-variant dark:text-slate-400">Username</th>
+                                                        <th className="py-3 px-4 font-label-md text-on-surface-variant dark:text-slate-400">Email</th>
+                                                        <th className="py-3 px-4 font-label-md text-on-surface-variant dark:text-slate-400">Role</th>
+                                                        <th className="py-3 px-4 font-label-md text-on-surface-variant dark:text-slate-400 text-right">Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {allUsers.map((u) => (
+                                                        <tr key={u._id} className="border-b border-outline-variant/20 dark:border-slate-700/50 hover:bg-surface-container-lowest dark:hover:bg-slate-800/50 transition-colors">
+                                                            <td className="py-3 px-4 text-sm text-on-surface dark:text-white font-medium">
+                                                                <div className="flex items-center gap-3">
+                                                                    <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-bold shrink-0">
+                                                                        {u.username?.[0]?.toUpperCase()}
+                                                                    </div>
+                                                                    {u.username}
+                                                                </div>
+                                                            </td>
+                                                            <td className="py-3 px-4 text-sm text-on-surface-variant dark:text-slate-400">{u.email}</td>
+                                                            <td className="py-3 px-4 text-sm">
+                                                                <select
+                                                                    value={u.role || 'developer'}
+                                                                    onChange={(e) => handleRoleChange(u._id, e.target.value)}
+                                                                    disabled={u._id === user._id}
+                                                                    className="bg-transparent border border-outline-variant dark:border-slate-600 rounded px-2 py-1 text-sm text-on-surface dark:text-white outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
+                                                                >
+                                                                    <option value="developer">Developer</option>
+                                                                    <option value="project_manager">Project Manager</option>
+                                                                    <option value="client">Client</option>
+                                                                    <option value="admin">Admin</option>
+                                                                </select>
+                                                            </td>
+                                                            <td className="py-3 px-4 text-right">
+                                                                <button
+                                                                    onClick={() => handleDeleteUser(u._id)}
+                                                                    disabled={u._id === user._id}
+                                                                    className="text-error dark:text-rose-400 hover:text-error/80 dark:hover:text-rose-300 disabled:opacity-50 transition-colors"
+                                                                    title="Delete User"
+                                                                >
+                                                                    <span className="material-symbols-outlined text-[20px]">delete</span>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                    {allUsers.length === 0 && (
+                                                        <tr>
+                                                            <td colSpan="4" className="py-6 text-center text-on-surface-variant dark:text-slate-400 text-sm">
+                                                                No users found or loading...
+                                                            </td>
+                                                        </tr>
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
+
                         </div>
                     )}
                 </main>

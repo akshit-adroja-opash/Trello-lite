@@ -241,12 +241,12 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
     const progressPercent = checklist.length > 0 ? Math.round((doneCount / checklist.length) * 100) : 0;
 
     return (
-        <div 
+        <div
             className="fixed inset-0 z-[60] bg-slate-900/40 backdrop-blur-[4px] flex items-center justify-center p-4 transition-all duration-300"
             onClick={onClose}
         >
             {/* Modal Container */}
-            <div 
+            <div
                 className="bg-white dark:bg-slate-800 w-full max-w-5xl h-fit max-h-[90vh] rounded-xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in duration-300 text-on-surface dark:text-slate-100"
                 onClick={e => e.stopPropagation()}
             >
@@ -268,7 +268,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                             </span>
                         )}
                         {canEdit && (
-                            <button 
+                            <button
                                 onClick={() => titleInputRef.current?.focus()}
                                 className="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md transition-colors text-slate-500"
                                 title="Edit Title"
@@ -277,7 +277,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                             </button>
                         )}
                     </div>
-                    <button 
+                    <button
                         onClick={onClose}
                         className="p-1.5 hover:bg-rose-50 dark:hover:bg-rose-950/20 text-slate-400 hover:text-rose-650 rounded-full transition-colors"
                         title="Close Modal"
@@ -288,27 +288,27 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
 
                 {/* Modal Body */}
                 <div className="flex flex-col md:flex-row overflow-y-auto flex-1 max-h-[calc(90vh-4rem)]">
-                    
+
                     {/* Left Column: Primary Content */}
                     <div className="flex-1 p-6 space-y-8 overflow-y-auto custom-scrollbar">
-                        
+
                         {/* Labels Section */}
                         <section className="bg-slate-50/50 dark:bg-slate-900/30 p-6 rounded-xl border border-slate-200/60 dark:border-slate-700/60">
                             <div className="flex items-center gap-2 mb-4">
                                 <span className="material-symbols-outlined text-sm text-secondary dark:text-indigo-400">label</span>
                                 <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400">LABELS</span>
                             </div>
-                            
+
                             <div className="space-y-4">
                                 <div className="flex gap-2">
-                                    <input 
-                                        value={newLabel.name} 
+                                    <input
+                                        value={newLabel.name}
                                         onChange={e => setNewLabel(p => ({ ...p, name: e.target.value }))}
-                                        placeholder="Create custom tag..." 
+                                        placeholder="Create custom tag..."
                                         type="text"
                                         className="flex-1 bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-700 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all dark:text-white"
                                     />
-                                    <button 
+                                    <button
                                         onClick={addLabel}
                                         className="bg-secondary dark:bg-indigo-600 text-on-secondary px-4 py-1.5 rounded-lg font-bold text-sm hover:opacity-90 active:scale-95 transition-all"
                                     >
@@ -318,8 +318,8 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
 
                                 <div className="flex flex-wrap gap-1.5 items-center justify-start py-1">
                                     {LABEL_COLORS.map(c => (
-                                        <button 
-                                            key={c} 
+                                        <button
+                                            key={c}
                                             onClick={() => setNewLabel(p => ({ ...p, color: c }))}
                                             className={`w-7 h-7 rounded-full transition-transform hover:scale-110 ${newLabel.color === c ? 'ring-2 ring-offset-2 ring-indigo-500 scale-105' : ''}`}
                                             style={{ backgroundColor: c }}
@@ -329,13 +329,13 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
 
                                 <div className="flex flex-wrap gap-2 pt-2">
                                     {labels.map((l, i) => (
-                                        <span 
-                                            key={i} 
+                                        <span
+                                            key={i}
                                             className="flex items-center gap-1.5 text-xs px-3 py-1 rounded-md text-white font-semibold shadow-sm"
                                             style={{ backgroundColor: l.color }}
                                         >
                                             {l.name}
-                                            <button 
+                                            <button
                                                 onClick={() => setLabels(p => p.filter((_, j) => j !== i))}
                                                 className="hover:bg-black/15 rounded-full w-4 h-4 flex items-center justify-center transition-colors text-[9px]"
                                             >
@@ -354,7 +354,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                     <span className="material-symbols-outlined text-sm text-secondary dark:text-indigo-400">notes</span>
                                     <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400">DESCRIPTION</span>
                                 </div>
-                                <button 
+                                <button
                                     onClick={() => setPreviewMd(!previewMd)}
                                     className="flex items-center gap-1 px-3 py-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-750 transition-colors text-xs text-on-surface-variant dark:text-slate-300 font-medium cursor-pointer"
                                 >
@@ -362,18 +362,18 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                     <span>{previewMd ? 'Edit' : 'Preview'}</span>
                                 </button>
                             </div>
-                            
+
                             {previewMd ? (
                                 <div className="prose prose-slate dark:prose-invert prose-sm max-w-none text-slate-650 dark:text-slate-350 bg-slate-50 dark:bg-slate-900 rounded-xl p-4 min-h-[120px] border border-slate-200 dark:border-slate-700 shadow-inner overflow-auto">
                                     <ReactMarkdown>{description || '*No description provided yet.*'}</ReactMarkdown>
                                 </div>
                             ) : (
-                                <textarea 
+                                <textarea
                                     value={description}
                                     onChange={handleDescriptionChange}
                                     readOnly={!canEdit}
-                                    className="w-full bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-700 rounded-xl p-4 text-sm text-on-surface dark:text-white focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all resize-none" 
-                                    placeholder="Add a more detailed description..." 
+                                    className="w-full bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-700 rounded-xl p-4 text-sm text-on-surface dark:text-white focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all resize-none"
+                                    placeholder="Add a more detailed description..."
                                     rows="5"
                                 />
                             )}
@@ -395,7 +395,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
 
                             {checklist.length > 0 && (
                                 <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
-                                    <div 
+                                    <div
                                         className="bg-gradient-to-r from-indigo-500 to-cyan-500 h-2 rounded-full transition-all duration-300"
                                         style={{ width: `${progressPercent}%` }}
                                     />
@@ -405,16 +405,16 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                             <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
                                 {checklist.map((item, i) => (
                                     <div key={i} className="flex items-center gap-3 group bg-slate-50/40 dark:bg-slate-900/20 hover:bg-slate-50 dark:hover:bg-slate-900/50 px-4 py-2.5 rounded-lg border border-slate-100 dark:border-slate-800 transition-all">
-                                        <input 
-                                            type="checkbox" 
-                                            checked={item.done} 
+                                        <input
+                                            type="checkbox"
+                                            checked={item.done}
                                             onChange={() => toggleCheck(i)}
-                                            className="w-4.5 h-4.5 accent-indigo-600 bg-white dark:bg-slate-800 border-slate-350 dark:border-slate-700 rounded cursor-pointer shrink-0" 
+                                            className="w-4.5 h-4.5 accent-indigo-600 bg-white dark:bg-slate-800 border-slate-350 dark:border-slate-700 rounded cursor-pointer shrink-0"
                                         />
                                         <span className={`flex-1 text-sm ${item.done ? 'line-through text-slate-400 dark:text-slate-500 font-medium' : 'text-slate-750 dark:text-slate-300'}`}>
                                             {item.text}
                                         </span>
-                                        <button 
+                                        <button
                                             onClick={() => removeCheck(i)}
                                             className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-600 p-1 rounded-md hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all text-xs"
                                         >
@@ -425,15 +425,15 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                             </div>
 
                             <div className="flex gap-2">
-                                <input 
+                                <input
                                     value={newCheckItem}
                                     onChange={e => setNewCheckItem(e.target.value)}
                                     onKeyDown={e => e.key === 'Enter' && addCheck()}
-                                    placeholder="Add task checkpoint..." 
+                                    placeholder="Add task checkpoint..."
                                     type="text"
                                     className="flex-1 bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-700 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all dark:text-white"
                                 />
-                                <button 
+                                <button
                                     onClick={addCheck}
                                     className="bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 px-4 py-1.5 rounded-lg font-bold text-sm hover:bg-slate-200 dark:hover:bg-slate-750 transition-all active:scale-95 border border-slate-200 dark:border-slate-700"
                                 >
@@ -445,7 +445,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
 
                     {/* Right Column: Aside Meta & Actions */}
                     <aside className="w-full md:w-80 p-6 bg-slate-50/50 dark:bg-slate-900/40 border-l border-slate-200 dark:border-slate-700/60 space-y-8 overflow-y-auto custom-scrollbar">
-                        
+
                         {/* Due Date */}
                         <section className="space-y-2">
                             <div className="flex items-center gap-2">
@@ -453,11 +453,11 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                 <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 uppercase">Due Date</span>
                             </div>
                             <div className="relative">
-                                <input 
-                                    type="date" 
-                                    value={dueDate} 
+                                <input
+                                    type="date"
+                                    value={dueDate}
                                     onChange={e => setDueDate(e.target.value)}
-                                    className="w-full bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-on-surface dark:text-white outline-none cursor-pointer" 
+                                    className="w-full bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-on-surface dark:text-white outline-none cursor-pointer"
                                 />
                             </div>
                         </section>
@@ -487,7 +487,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                                 <div className="bg-white dark:bg-slate-800 p-2 rounded-lg border border-slate-150 dark:border-slate-700/60 text-xs text-on-surface dark:text-slate-200 break-words leading-relaxed">
                                                     <ReactMarkdown>{c.text}</ReactMarkdown>
                                                 </div>
-                                                
+
                                                 {/* Reactions */}
                                                 <div className="flex flex-wrap items-center gap-1 mt-1">
                                                     {c.reactions && c.reactions.map((react, rIdx) => {
@@ -498,11 +498,10 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                                                 key={rIdx}
                                                                 onClick={() => handleToggleReaction(c._id, react.emoji)}
                                                                 title={tooltipText}
-                                                                className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold transition-all border cursor-pointer ${
-                                                                    hasReacted
+                                                                className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold transition-all border cursor-pointer ${hasReacted
                                                                         ? 'bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-950/40 dark:border-indigo-900/60 dark:text-indigo-400'
                                                                         : 'bg-slate-50 dark:bg-slate-850 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-slate-350 dark:hover:border-slate-600'
-                                                                }`}
+                                                                    }`}
                                                             >
                                                                 <span>{react.emoji}</span>
                                                                 <span>{react.users?.length || 0}</span>
@@ -521,10 +520,10 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
 
                             {/* Comment Input */}
                             <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-850">
-                                <textarea 
+                                <textarea
                                     value={commentText}
                                     onChange={e => setCommentText(e.target.value)}
-                                    placeholder="Add a comment... (Markdown supported)" 
+                                    placeholder="Add a comment... (Markdown supported)"
                                     className="w-full bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-700 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all resize-none min-h-[60px] dark:text-white"
                                 />
                                 <div className="flex items-center justify-between">
@@ -532,7 +531,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                         <span className="material-symbols-outlined text-[12px]">info</span>
                                         <span>Markdown supported</span>
                                     </div>
-                                    <button 
+                                    <button
                                         onClick={handleAddComment}
                                         disabled={!commentText.trim()}
                                         className="bg-indigo-600 hover:bg-indigo-750 text-white px-3 py-1.5 rounded-lg font-bold text-xs hover:opacity-90 active:scale-95 transition-all cursor-pointer disabled:opacity-40"
@@ -557,14 +556,13 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                         const id = member._id;
                                         const checked = assignees.includes(id);
                                         return (
-                                            <button 
-                                                key={id} 
+                                            <button
+                                                key={id}
                                                 onClick={() => toggleAssignee(id)}
-                                                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition-all border ${
-                                                    checked 
-                                                        ? 'bg-secondary text-white border-transparent' 
+                                                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition-all border ${checked
+                                                        ? 'bg-secondary text-white border-transparent'
                                                         : 'hover:bg-slate-100 dark:hover:bg-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
-                                                }`}
+                                                    }`}
                                             >
                                                 <Avatar name={member.username || '?'} avatar={member.avatar} size={22} />
                                                 <span className="flex-1 text-left truncate">{member.username}</span>
@@ -578,7 +576,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
 
                         {/* Action Buttons */}
                         <section className="pt-6 space-y-2.5 border-t border-slate-200 dark:border-slate-700/60">
-                            <button 
+                            <button
                                 onClick={handleSave}
                                 disabled={saving || !canEdit}
                                 className="w-full bg-secondary dark:bg-indigo-600 text-white py-2.5 rounded-xl font-bold text-sm shadow-md hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
@@ -589,7 +587,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                             </button>
 
                             {canEdit && (
-                                <button 
+                                <button
                                     onClick={handleSaveTemplate}
                                     disabled={savingTemplate}
                                     className="w-full bg-slate-100 dark:bg-slate-750 text-slate-800 dark:text-slate-200 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-[0.98] transition-all border border-slate-200 dark:border-slate-700/60"
@@ -600,7 +598,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                             )}
 
                             {canDelete && (
-                                <button 
+                                <button
                                     onClick={handleDelete}
                                     className="w-full bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center hover:bg-rose-600 hover:text-white transition-all border border-rose-200 dark:border-rose-900/50"
                                 >
