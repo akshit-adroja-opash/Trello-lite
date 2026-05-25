@@ -12,6 +12,7 @@ import {
     FiTrash2,
     FiUserPlus
 } from 'react-icons/fi';
+import Avatar from '../../UI/Avatar';
 
 const BoardMembersModal = ({
     board,
@@ -220,16 +221,16 @@ const BoardMembersModal = ({
                                                 className="border dark:border-zinc-700 rounded-2xl p-4 flex items-center justify-between"
                                             >
 
-                                                <div>
-
-                                                    <p className="font-semibold">
-                                                        {member.user.username}
-                                                    </p>
-
-                                                    <p className="text-sm text-gray-500">
-                                                        {member.user.email}
-                                                    </p>
-
+                                                <div className="flex items-center gap-3">
+                                                    <Avatar name={member.user.username} avatar={member.user.avatar} size={36} />
+                                                    <div>
+                                                        <p className="font-semibold">
+                                                            {member.user.username}
+                                                        </p>
+                                                        <p className="text-sm text-gray-500">
+                                                            {member.user.email}
+                                                        </p>
+                                                    </div>
                                                 </div>
 
                                                 <div className="flex items-center gap-3">

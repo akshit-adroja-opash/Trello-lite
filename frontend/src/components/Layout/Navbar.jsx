@@ -4,6 +4,7 @@ import useAuthStore from '../../store/authstore';
 import useSidebarStore from '../../store/sidebarStore';
 import ThemeToggle from '../ThemeToggle';
 import NotificationBell from '../Notifications/NotificationBell';
+import Avatar from '../../UI/Avatar';
 
 const Navbar = ({ searchQuery, setSearchQuery }) => {
   const user = useAuthStore((s) => s.user);
@@ -51,10 +52,8 @@ const Navbar = ({ searchQuery, setSearchQuery }) => {
           </div>
           <div className="h-8 w-px bg-outline-variant dark:bg-slate-700 mx-1"></div>
           <div className="flex items-center gap-4">
-            <Link to="/profile" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-secondary-fixed text-on-secondary-fixed dark:text-slate-800 font-bold text-xs border border-outline-variant dark:border-slate-700 flex items-center justify-center">
-                {user?.username?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || '?'}
-              </div>
+            <Link to="/profile" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
+              <Avatar name={user?.username} avatar={user?.avatar} size={32} />
               <span className="font-body-md font-semibold text-on-surface dark:text-white hidden sm:inline">{user?.username}</span>
             </Link>
             <button

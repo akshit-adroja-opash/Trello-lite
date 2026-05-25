@@ -303,9 +303,7 @@ const DashboardPage = () => {
                         <span className="font-label-caps text-label-caps text-outline dark:text-slate-400 mr-2">MEMBERS:</span>
                         {ws.members.map(member => (
                           <div key={member._id} className="flex items-center gap-1 bg-surface-container-low dark:bg-slate-700 border border-outline-variant dark:border-slate-600 px-2 py-1 rounded-full shadow-sm">
-                            <div className="w-6 h-6 rounded-full bg-secondary-fixed text-on-secondary-fixed dark:text-slate-800 flex items-center justify-center text-[10px] font-bold">
-                              {(member.user?.username || member.user?.email || '?').charAt(0).toUpperCase()}
-                            </div>
+                            <Avatar name={member.user?.username} avatar={member.user?.avatar} size={24} />
                             <span className="font-body-sm font-semibold text-on-surface dark:text-slate-200">{member.user?.username || member.user?.email}</span>
                             <span className="font-label-caps text-[10px] bg-secondary-fixed-dim text-on-secondary-fixed-variant dark:text-slate-900 px-1.5 py-0.5 rounded-full uppercase ml-1">
                               {getRoleDisplayName(member.role)}

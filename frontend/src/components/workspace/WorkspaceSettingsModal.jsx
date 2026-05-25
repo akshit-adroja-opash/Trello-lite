@@ -104,96 +104,135 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm px-4 py-6 transition-all overflow-y-auto" onClick={onClose}>
-      <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-700 w-full max-w-2xl overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-2xl border border-slate-100 dark:border-slate-700 w-full max-w-[682px] overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
         
         {/* Header */}
-        <div className="px-8 py-5 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/40 flex justify-between items-center">
-          <div>
-            <h2 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
-              <span className="material-symbols-outlined text-indigo-600 dark:text-indigo-400">settings</span>
-              Workspace Settings
-            </h2>
-            <p className="text-xs text-slate-400 mt-1 dark:text-slate-500">Configure parameters and membership for {workspace.name}</p>
+        <header className="p-6 pb-4 flex justify-between items-start">
+          <div className="flex gap-3">
+            {/* Settings Icon Container */}
+            <div className="mt-1 text-[#8b8cf1] dark:text-[#a5a6ff]">
+              <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.72V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-slate-900 dark:text-white leading-tight">Workspace Settings</h1>
+              <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">Configure parameters and membership for {workspace.name}</p>
+            </div>
           </div>
-          <button onClick={onClose} className="w-9 h-9 flex items-center justify-center rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
-            <span className="material-symbols-outlined text-lg">close</span>
+          {/* Close Button */}
+          <button aria-label="Close modal" onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 transition-colors">
+            <svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg">
+              <line x1="18" x2="6" y1="6" y2="18"></line>
+              <line x1="6" x2="18" y1="6" y2="18"></line>
+            </svg>
           </button>
-        </div>
+        </header>
 
         {/* Navigation Tabs */}
-        <div className="flex border-b border-slate-100 dark:border-slate-700 px-8 bg-white dark:bg-slate-800">
-          <button
-            onClick={() => setActiveTab('general')}
-            className={`py-3.5 px-4 text-sm font-semibold border-b-2 transition-all flex items-center gap-2 ${activeTab === 'general' ? 'border-indigo-650 text-indigo-600 dark:text-indigo-400 dark:border-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`}
-          >
-            <span className="material-symbols-outlined text-[18px]">info</span>
-            General Details
-          </button>
-          <button
-            onClick={() => setActiveTab('members')}
-            className={`py-3.5 px-4 text-sm font-semibold border-b-2 transition-all flex items-center gap-2 ${activeTab === 'members' ? 'border-indigo-650 text-indigo-600 dark:text-indigo-400 dark:border-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`}
-          >
-            <span className="material-symbols-outlined text-[18px]">group</span>
-            Members ({workspace.members?.length || 0})
-          </button>
-        </div>
+        <nav className="border-b border-slate-100 dark:border-slate-700 px-6">
+          <div className="flex gap-8">
+            <button
+              onClick={() => setActiveTab('general')}
+              className={`py-3 text-sm font-semibold flex items-center gap-2 transition-all ${
+                activeTab === 'general'
+                  ? 'border-b-2 border-[#8b8cf1] text-[#8b8cf1] dark:border-[#a5a6ff] dark:text-[#a5a6ff]'
+                  : 'border-b-2 border-transparent text-slate-650 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
+              }`}
+            >
+              <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" x2="12" y1="16" y2="12"></line>
+                <line x1="12" x2="12.01" y1="8" y2="8"></line>
+              </svg>
+              General Details
+            </button>
+            <button
+              onClick={() => setActiveTab('members')}
+              className={`py-3 text-sm font-semibold flex items-center gap-2 transition-all ${
+                activeTab === 'members'
+                  ? 'border-b-2 border-[#8b8cf1] text-[#8b8cf1] dark:border-[#a5a6ff] dark:text-[#a5a6ff]'
+                  : 'border-b-2 border-transparent text-slate-650 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
+              }`}
+            >
+              <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+              Members ({workspace.members?.length || 0})
+            </button>
+          </div>
+        </nav>
 
-        {/* Content */}
-        <div className="p-8 max-h-[60vh] overflow-y-auto custom-scrollbar">
+        {/* Content Section */}
+        <div className="p-6 max-h-[60vh] overflow-y-auto custom-scrollbar bg-white dark:bg-slate-800">
           
-          {/* General Settings Tab */}
+          {/* General Tab */}
           {activeTab === 'general' && (
             <form onSubmit={handleSaveInfo} className="space-y-6">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Workspace Name</label>
+                <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3" htmlFor="workspace-name">
+                  Workspace Name
+                </label>
                 <input
+                  id="workspace-name"
                   type="text"
                   value={name}
                   onChange={e => setName(e.target.value)}
                   placeholder="e.g. Operations Hub"
                   required
-                  className="w-full h-12 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all"
+                  className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 text-slate-900 dark:text-white bg-white dark:bg-slate-900 focus:ring-1 focus:ring-[#8b8cf1] focus:border-[#8b8cf1] transition-colors outline-none h-[56px] text-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Description</label>
+                <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3" htmlFor="description">
+                  Description
+                </label>
                 <textarea
+                  id="description"
                   value={description}
                   onChange={e => setDescription(e.target.value)}
                   placeholder="Summarize the core operational workflows managed in this workspace..."
-                  rows={4}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 resize-none transition-all"
+                  rows={5}
+                  className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 text-slate-900 dark:text-white bg-white dark:bg-slate-900 focus:ring-1 focus:ring-[#8b8cf1] focus:border-[#8b8cf1] transition-colors outline-none resize-none min-h-[140px] text-sm"
                 />
               </div>
 
-              <div className="pt-4 border-t border-slate-100 dark:border-slate-700/60 flex justify-end gap-3">
+              {/* Bottom Divider */}
+              <div className="border-t border-slate-100 dark:border-slate-700 pt-6"></div>
+
+              {/* Footer Actions */}
+              <footer className="flex justify-end gap-3">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="h-11 px-6 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-semibold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"
+                  className="px-8 py-2.5 text-slate-650 dark:text-slate-350 font-bold text-sm border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={savingInfo || !name.trim() || (name.trim() === workspace.name && description.trim() === (workspace.description || ''))}
-                  className="h-11 px-6 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
+                  className="px-8 py-2.5 bg-[#8b8cf1] hover:bg-[#7a7be0] text-white font-bold text-sm rounded-lg shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {savingInfo ? (
                     <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   ) : 'Save Changes'}
                 </button>
-              </div>
+              </footer>
             </form>
           )}
 
-          {/* Members Settings Tab */}
+          {/* Members Tab */}
           {activeTab === 'members' && (
-            <div className="space-y-4">
+            <div className="space-y-6">
               {loadingMembers ? (
                 <div className="flex items-center justify-center py-12">
-                  <div className="w-8 h-8 rounded-full border-4 border-indigo-100 dark:border-indigo-950 border-t-indigo-600 animate-spin" />
+                  <div className="w-8 h-8 rounded-full border-4 border-slate-100 dark:border-slate-950 border-t-[#8b8cf1] animate-spin" />
                 </div>
               ) : members.length === 0 ? (
                 <p className="text-center py-12 text-sm text-slate-400 dark:text-slate-500 font-semibold">No members in this workspace</p>
@@ -213,16 +252,16 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
                             <p className="text-sm font-semibold text-slate-800 dark:text-white flex items-center gap-2">
                               {memberUser.username}
                               {isOwner && (
-                                <span className="bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/40 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide">
+                                <span className="bg-indigo-50 dark:bg-indigo-950/40 text-indigo-650 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/40 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide">
                                   Owner
                                 </span>
                               )}
                             </p>
-                            <p className="text-xs text-slate-450 dark:text-slate-400 mt-0.5">{memberUser.email}</p>
+                            <p className="text-xs text-slate-450 dark:text-slate-500 mt-0.5">{memberUser.email}</p>
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-3.5 self-end sm:self-auto">
+                        <div className="flex items-center gap-3 self-end sm:self-auto">
                           {isOwner ? (
                             <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest px-3">
                               Full Access
@@ -233,7 +272,7 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
                                 value={m.role}
                                 onChange={e => handleRoleChange(memberUser._id, e.target.value)}
                                 disabled={isUpdating}
-                                className="h-9 px-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white rounded-lg text-xs font-semibold focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 cursor-pointer disabled:opacity-50"
+                                className="h-9 px-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white rounded-lg text-xs font-semibold focus:outline-none focus:border-[#8b8cf1] focus:ring-1 focus:ring-[#8b8cf1] cursor-pointer disabled:opacity-50"
                               >
                                 <option value="client">Client</option>
                                 <option value="developer">Developer</option>
@@ -244,10 +283,15 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
                               <button
                                 onClick={() => handleRemoveMember(memberUser._id)}
                                 disabled={isUpdating}
-                                className="w-9 h-9 flex items-center justify-center border border-rose-200 dark:border-rose-900/60 rounded-xl text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/20 hover:border-transparent transition-all disabled:opacity-50"
+                                className="w-9 h-9 flex items-center justify-center border border-rose-200 dark:border-rose-900/60 rounded-lg text-rose-600 dark:text-rose-450 hover:bg-rose-50 dark:hover:bg-rose-950/20 hover:border-transparent transition-all disabled:opacity-50"
                                 title="Remove member"
                               >
-                                <span className="material-symbols-outlined text-base">delete</span>
+                                <svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg">
+                                  <polyline points="3 6 5 6 21 6"></polyline>
+                                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                  <line x1="10" x2="10" y1="11" y2="17"></line>
+                                  <line x1="14" x2="14" y1="11" y2="17"></line>
+                                </svg>
                               </button>
                             </>
                           )}
@@ -257,6 +301,20 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
                   })}
                 </div>
               )}
+
+              {/* Bottom Divider */}
+              <div className="border-t border-slate-100 dark:border-slate-700 pt-6"></div>
+
+              {/* Footer Actions */}
+              <footer className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-8 py-2.5 bg-[#8b8cf1] hover:bg-[#7a7be0] text-white font-bold text-sm rounded-lg shadow-sm transition-colors"
+                >
+                  Close
+                </button>
+              </footer>
             </div>
           )}
 
