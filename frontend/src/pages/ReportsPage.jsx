@@ -181,7 +181,7 @@ const ReportsPage = () => {
                   <h3 className="font-label-caps text-label-caps text-outline dark:text-slate-400">
                     REPORT GENERATOR ACTIONS
                   </h3>
-                  
+
                   {generating ? (
                     <div className="flex items-center gap-3 py-4 text-secondary dark:text-indigo-400 text-body-md font-semibold animate-pulse">
                       <span className="w-6 h-6 border-2 border-secondary/35 border-t-secondary rounded-full animate-spin" />
