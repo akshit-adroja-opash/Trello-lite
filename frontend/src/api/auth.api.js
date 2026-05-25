@@ -26,3 +26,8 @@ export const updateProfile = async (formData) => {
     });
     return response.data;
 };
+
+export const getDevelopers = async () => {
+    const response = await API.get('/auth/developers');
+    return response.data;
+};

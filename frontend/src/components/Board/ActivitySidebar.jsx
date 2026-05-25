@@ -155,3 +155,5 @@ const ActivitySidebar = ({ boardId }) => {
 };
 
 export default ActivitySidebar;
+
+

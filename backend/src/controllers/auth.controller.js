@@ -100,3 +100,18 @@ export const logout = async (req, res, next) => {
   }
 };
 
+export const getDevelopers = async (req, res, next) => {
+  try {
+    if (req.user.role !== 'admin' && req.user.role !== 'project_manager') {
+      throw new ApiError(403, 'Only admins and project managers can view registered developers');
+    }
+    const developers = await User.find({ role: 'developer' }).select('username email avatar');
+    res.status(200).json({
+      status: 'success',
+      data: { developers }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+

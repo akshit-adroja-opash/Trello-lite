@@ -5,6 +5,7 @@ import useAuthStore from '../store/authstore';
 import useSidebarStore from '../store/sidebarStore';
 import { createWorkspace, deleteWorkspace, getWorkspaces, inviteMember, getOverdueCount } from '../api/workspace.api';
 import { createBoard, getBoardsByWorkspace, deleteBoard } from '../api/board.api';
+import { getDevelopers } from '../api/auth.api';
 import Avatar from '../UI/Avatar';
 import { getRoleDisplayName } from '../utils/roleDisplay';
 import WorkspaceSettingsModal from '../components/workspace/WorkspaceSettingsModal';
@@ -69,6 +70,26 @@ const DashboardPage = () => {
   const isSidebarOpen = useSidebarStore(s => s.isOpen);
   const toggleSidebar = useSidebarStore(s => s.toggle);
   const closeSidebar = useSidebarStore(s => s.close);
+
+  const [developers, setDevelopers] = useState([]);
+
+  useEffect(() => {
+    if (showInvite) {
+      const fetchDevs = async () => {
+        try {
+          const res = await getDevelopers();
+          setDevelopers(res.data?.developers || []);
+        } catch (err) {
+          console.error('Failed to load registered developers', err);
+        }
+      };
+      if (user?.role === 'admin' || user?.role === 'project_manager') {
+        fetchDevs();
+      }
+    } else {
+      setDevelopers([]);
+    }
+  }, [showInvite, user]);
 
   useEffect(() => {
     const load = async () => {
@@ -436,6 +457,31 @@ const DashboardPage = () => {
       {showInvite && (
         <Modal title="Invite Member to Workspace" onClose={() => setShowInvite(null)}>
           <div className="space-y-4">
+            {developers.length > 0 && (
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Registered Developers</label>
+                <div className="flex flex-wrap gap-2 max-h-28 overflow-y-auto p-1">
+                  {developers.map(dev => (
+                    <button
+                      key={dev._id}
+                      type="button"
+                      onClick={() => {
+                        setInviteEmail(dev.email);
+                        setInviteRole('developer');
+                      }}
+                      className={`flex items-center gap-2 px-2.5 py-1.5 rounded-full text-xs border transition-all ${
+                        inviteEmail === dev.email
+                          ? 'bg-indigo-50 border-indigo-300 text-indigo-700 dark:bg-indigo-950/40 dark:border-indigo-800 dark:text-indigo-300 font-semibold'
+                          : 'bg-white border-slate-200 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 hover:border-indigo-400'
+                      }`}
+                    >
+                      <Avatar name={dev.username} avatar={dev.avatar} size={20} />
+                      <span>{dev.username}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Email Address</label>
               <input value={inviteEmail} onChange={e => setInviteEmail(e.target.value)}
