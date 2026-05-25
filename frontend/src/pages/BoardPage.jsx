@@ -25,7 +25,8 @@ import KeyboardShortcutsModal from '../components/Board/KeyboardShortcutsModal';
 import NotificationBell from '../components/Notifications/NotificationBell';
 import ThemeToggle from '../components/ThemeToggle';
 import BoardCalendarView from '../components/Board/BoardCalendarView';
-import FilterSortPanel from '../components/Board/FilterSortPanel';
+import { toggleStarBoard } from '../api/board.api';
+
 
 const BoardPage = () => {
     const { id: boardId } = useParams();
@@ -257,6 +258,17 @@ const BoardPage = () => {
         if (type === 'column') setActiveColumn(active.data.current.column);
     };
 
+    const handleToggleStar = async () => {
+        try {
+            const res = await toggleStarBoard(boardId);
+            if (res.status === 'success' || res.success) {
+                setBoard({ ...board, isStarred: res.data.board.isStarred });
+            }
+        } catch (err) {
+            toast.error(err.response?.data?.message || "Failed to star board");
+        }
+    };
+
     const handleDragEnd = useCallback(async ({ active, over }) => {
         setActiveCard(null); setActiveColumn(null);
         if (!over || active.id === over.id) return;
@@ -335,8 +347,8 @@ const BoardPage = () => {
         const date1 = new Date(d1);
         const date2 = new Date(d2);
         return date1.getFullYear() === date2.getFullYear() &&
-               date1.getMonth() === date2.getMonth() &&
-               date1.getDate() === date2.getDate();
+            date1.getMonth() === date2.getMonth() &&
+            date1.getDate() === date2.getDate();
     };
 
     const uniqueLabels = useMemo(() => {
@@ -379,30 +391,39 @@ const BoardPage = () => {
     const filteredCards = useMemo(() => {
         const result = {};
         const now = new Date();
-        
+
         Object.entries(cards).forEach(([colId, colCards]) => {
             let list = [...colCards];
-            
+
             if (searchQuery) {
-                list = list.filter(c => c.title.toLowerCase().includes(searchQuery.toLowerCase()));
+                const query = searchQuery.toLowerCase();
+
+                list = list.filter(c =>
+                    c.title?.toLowerCase().includes(query) ||
+                    c.description?.toLowerCase().includes(query) ||
+                    c.labels?.some(l => l.name?.toLowerCase().includes(query)) ||
+                    c.assignees?.some(a =>
+                        a.username?.toLowerCase().includes(query)
+                    )
+                );
             }
-            
+
             if (selectedLabels.length > 0) {
                 list = list.filter(c => c.labels?.some(l => selectedLabels.includes(l.name)));
             }
-            
+
             if (selectedAssignees.length > 0) {
                 list = list.filter(c => c.assignees?.some(a => selectedAssignees.includes(a._id)));
             }
-            
+
             if (dueDateFilter !== 'all') {
                 list = list.filter(c => {
                     if (!c.dueDate) return dueDateFilter === 'noDate';
                     if (dueDateFilter === 'noDate') return false;
-                    
+
                     const d = new Date(c.dueDate);
                     if (dueDateFilter === 'overdue') {
-                         return d < now;
+                        return d < now;
                     }
                     if (dueDateFilter === 'today') {
                         return isSameDay(d, now);
@@ -415,7 +436,7 @@ const BoardPage = () => {
                     return true;
                 });
             }
-            
+
             if (sortBy !== 'default') {
                 list.sort((a, b) => {
                     if (sortBy === 'dueDate') {
@@ -435,10 +456,10 @@ const BoardPage = () => {
                     return 0;
                 });
             }
-            
+
             result[colId] = list;
         });
-        
+
         return result;
     }, [cards, searchQuery, selectedLabels, selectedAssignees, dueDateFilter, sortBy]);
 
@@ -480,8 +501,33 @@ const BoardPage = () => {
                             <span className="text-sm font-medium">Dashboard</span>
                         </Link>
                         <span className="text-slate-300 dark:text-slate-600">/</span>
-                        <h1 className="text-slate-900 dark:text-white font-bold text-lg">{board?.name}</h1>
-                        {!connected && (
+                        <div className="flex items-center gap-3">
+                            <h1 className="text-slate-900 dark:text-white font-bold text-lg">
+                                {board?.name}
+                            </h1>
+
+                            <button
+                                onClick={handleToggleStar}
+                                className={`transition-all ${board?.isStarred
+                                        ? 'text-yellow-400'
+                                        : 'text-slate-400 hover:text-yellow-400'
+                                    }`}
+                            >
+                                <svg
+                                    className="w-5 h-5"
+                                    fill={board?.isStarred ? 'currentColor' : 'none'}
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l2.036 6.26a1 1 0 00.95.69h6.58c.969 0 1.371 1.24.588 1.81l-5.325 3.87a1 1 0 00-.364 1.118l2.036 6.26c.3.922-.755 1.688-1.54 1.118l-5.325-3.87a1 1 0 00-1.176 0l-5.325 3.87c-.784.57-1.838-.196-1.539-1.118l2.036-6.26a1 1 0 00-.364-1.118l-5.325-3.87c-.783-.57-.38-1.81.588-1.81h6.58a1 1 0 00.95-.69l2.036-6.26z"
+                                    />
+                                </svg>
+                            </button>
+                        </div>                        {!connected && (
                             <span className="shrink-0 flex items-center gap-1 bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-250 dark:border-amber-900/50 px-2 py-0.5 rounded text-[10px] font-bold animate-pulse ml-2">
                                 Syncing...
                             </span>
@@ -491,21 +537,19 @@ const BoardPage = () => {
                     <div className="flex bg-slate-100 dark:bg-slate-700/50 p-1 rounded-lg" data-purpose="view-toggles">
                         <button
                             onClick={() => setViewMode('kanban')}
-                            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${
-                                viewMode === 'kanban'
-                                    ? 'bg-white dark:bg-slate-800 shadow-sm text-slate-900 dark:text-white'
-                                    : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
-                            }`}
+                            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${viewMode === 'kanban'
+                                ? 'bg-white dark:bg-slate-800 shadow-sm text-slate-900 dark:text-white'
+                                : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                                }`}
                         >
                             Board
                         </button>
                         <button
                             onClick={() => setViewMode('calendar')}
-                            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${
-                                viewMode === 'calendar'
-                                    ? 'bg-white dark:bg-slate-800 shadow-sm text-slate-900 dark:text-white'
-                                    : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
-                            }`}
+                            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${viewMode === 'calendar'
+                                ? 'bg-white dark:bg-slate-800 shadow-sm text-slate-900 dark:text-white'
+                                : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                                }`}
                         >
                             Calendar
                         </button>
@@ -530,52 +574,46 @@ const BoardPage = () => {
                         />
                     </div>
 
-                    {/* Filters Toggle Button */}
                     <button
                         onClick={() => setShowFilters(!showFilters)}
-                        className={`flex items-center space-x-2 px-4 py-2 border rounded-lg text-sm font-medium transition-all ${
-                            showFilters
-                                ? 'bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-950/40 dark:border-indigo-900/60 dark:text-indigo-400'
-                                : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-350'
-                        }`}
+                        className={`flex items-center space-x-2 px-4 py-2 border rounded-lg text-sm font-medium transition-all ${showFilters
+                            ? 'bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-950/40 dark:border-indigo-900/60 dark:text-indigo-400'
+                            : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-350'
+                            }`}
                     >
                         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+                            <path
+                                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                            />
                         </svg>
+
                         <span>Filters</span>
-                        {(selectedLabels.length > 0 || selectedAssignees.length > 0 || dueDateFilter !== 'all' || sortBy !== 'default') && (
-                            <span className="w-5 h-5 rounded-full bg-indigo-650 text-white text-[10px] flex items-center justify-center font-bold">
-                                {
-                                    (selectedLabels.length > 0 ? 1 : 0) +
-                                    (selectedAssignees.length > 0 ? 1 : 0) +
-                                    (dueDateFilter !== 'all' ? 1 : 0) +
-                                    (sortBy !== 'default' ? 1 : 0)
-                                }
-                            </span>
-                        )}
+
+                        {/* Active Filter Count */}
+                        {(selectedLabels.length > 0 ||
+                            selectedAssignees.length > 0 ||
+                            dueDateFilter !== 'all' ||
+                            sortBy !== 'default') && (
+                                <span className="w-5 h-5 rounded-full bg-indigo-600 text-white text-[10px] flex items-center justify-center font-bold">
+                                    {
+                                        (selectedLabels.length > 0 ? 1 : 0) +
+                                        (selectedAssignees.length > 0 ? 1 : 0) +
+                                        (dueDateFilter !== 'all' ? 1 : 0) +
+                                        (sortBy !== 'default' ? 1 : 0)
+                                    }
+                                </span>
+                            )}
                     </button>
-
-                    {/* Members Presence */}
-                    <div className="flex -space-x-2">
-                        {presence.map(u => (
-                            <div key={u.userId} title={u.username} className="ring-2 ring-white dark:ring-slate-850 rounded-full shadow-sm">
-                                <Avatar name={u.username} avatar={u.avatar} size={28} />
-                            </div>
-                        ))}
-                        {presence.length > 0 && (
-                            <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center text-[10px] border-2 border-white dark:border-slate-800 font-medium">
-                                {presence.length} viewing
-                            </div>
-                        )}
-                    </div>
-
                     <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-2"></div>
 
                     {/* Tools and Action buttons */}
                     <div className="flex items-center space-x-2">
                         <ThemeToggle />
                         <NotificationBell />
-                        
+
                         {(boardRole === 'Owner' || boardRole === 'Admin' || board?.role === 'owner' || board?.role === 'admin') && (
                             <>
                                 <button
@@ -599,7 +637,7 @@ const BoardPage = () => {
                                 </button>
                             </>
                         )}
-                        
+
                         <button
                             onClick={() => setShowShortcuts(true)}
                             className="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 text-sm font-semibold flex items-center justify-center shadow-sm"
@@ -709,8 +747,35 @@ const BoardPage = () => {
                             <option value="newest">Newest Created</option>
                         </select>
                     </div>
+                    <div className="md:col-span-4 flex justify-end pt-4 border-t border-slate-200 dark:border-slate-700">
+                        <button
+                            onClick={handleClearAllFilters}
+                            className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-all"
+                        >
+                            Clear All Filters
+                        </button>
+                    </div>
                 </div>
             )}
+
+            <div className="px-6 py-2 bg-white dark:bg-slate-850 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                <div className="text-sm text-slate-600 dark:text-slate-400 font-medium">
+                    Showing{" "}
+                    <span className="font-bold text-indigo-600 dark:text-indigo-400">
+                        {Object.values(filteredCards).flat().length}
+                    </span>{" "}
+                    cards
+                </div>
+
+                {(searchQuery ||
+                    selectedLabels.length > 0 ||
+                    selectedAssignees.length > 0 ||
+                    dueDateFilter !== 'all') && (
+                        <div className="text-xs text-slate-500 dark:text-slate-400">
+                            Filters active
+                        </div>
+                    )}
+            </div>
 
             <main className="flex-1 flex overflow-hidden">
                 <div className="flex-1 overflow-x-auto overflow-y-hidden custom-scrollbar">
@@ -718,6 +783,34 @@ const BoardPage = () => {
                         {viewMode === 'kanban' ? (
                             <DndContext sensors={sensors} collisionDetection={closestCorners}
                                 onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+
+                                {Object.values(filteredCards).flat().length === 0 && (
+                                    <div className="flex flex-col items-center justify-center py-20 text-center">
+                                        <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
+                                            <svg
+                                                className="w-8 h-8 text-slate-400"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2"
+                                                    d="M9.172 9.172a4 4 0 015.656 5.656M15 15l6 6"
+                                                />
+                                            </svg>
+                                        </div>
+
+                                        <h3 className="text-lg font-semibold text-slate-700 dark:text-white">
+                                            No matching cards found
+                                        </h3>
+
+                                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                                            Try adjusting your filters or search query
+                                        </p>
+                                    </div>
+                                )}
 
                                 <ColumnList
                                     columns={columns} cards={filteredCards}

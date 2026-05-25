@@ -2,7 +2,6 @@ import API from "./axios";
 
 export const fetchNotifications = async () => {
   const res = await API.get("/notifications");
-  console.log(res);
   return res.data.data;
 };
 

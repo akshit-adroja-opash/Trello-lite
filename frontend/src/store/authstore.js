@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { devtools } from "zustand/middleware";
 import { loginUser, registerUser, getMe, logoutUser, updateProfile as apiUpdateProfile } from "../api/auth.api";
 
 const useAuthStore = create((set) => ({
@@ -48,7 +47,7 @@ const useAuthStore = create((set) => ({
       set({
         user: res.data.user,
       });
-    } catch (err) {
+    } catch {
       localStorage.removeItem("token");
 
       set({
@@ -61,7 +60,7 @@ const useAuthStore = create((set) => ({
   logout: async () => {
     try {
       await logoutUser();
-    } catch (err) {
+    } catch {
     }
 
     localStorage.removeItem("token");

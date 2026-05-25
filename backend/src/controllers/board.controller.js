@@ -168,3 +168,13 @@ export const removeBoardMember = async (req, res, next) => {
     } catch (error) { next(error); }
 };
 
+export const toggleStarBoard = async (req, res, next) => {
+    try {
+        const { boardId } = req.params;
+        const board = await Board.findById(boardId);
+        if (!board) return next(new ApiError(404, 'Board not found'));
+        board.isStarred = !board.isStarred;
+        await board.save();
+        res.status(200).json({ status: 'success', data: { board } });
+    } catch (error) { next(error); }
+};

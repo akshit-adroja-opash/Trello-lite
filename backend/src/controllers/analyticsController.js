@@ -6,6 +6,13 @@ import Board from "../models/Board.js";
 
 export const getWorkspaceAnalytics = async (req, res) => {
     try {
+        if (req.user.role !== "admin" && req.user.role !== "project_manager") {
+            return res.status(403).json({
+                success: false,
+                message: "Access denied: Only project managers and admins can view analytics"
+            });
+        }
+
         const { workspaceId } = req.params;
 
         if (!mongoose.Types.ObjectId.isValid(workspaceId)) {

@@ -31,9 +31,9 @@ const CardItem = ({ card, columnId, isDragging: externalDragging }) => {
 
     const isOverdue = card.dueDate && new Date(card.dueDate) < new Date();
     const isDueSoon = card.dueDate && !isOverdue && (new Date(card.dueDate) - new Date()) < 86400000 * 2;
-    const doneItems  = card.checklist?.filter(i => i.done).length || 0;
+    const doneItems = card.checklist?.filter(i => i.done).length || 0;
     const totalItems = card.checklist?.length || 0;
-    const progress   = totalItems > 0 ? Math.round((doneItems / totalItems) * 100) : 0;
+    const progress = totalItems > 0 ? Math.round((doneItems / totalItems) * 100) : 0;
     const firstColor = card.labels?.[0]?.color;
 
     const handleChecklistItemToggle = async (e, itemIdOrIdx) => {
@@ -70,10 +70,10 @@ const CardItem = ({ card, columnId, isDragging: externalDragging }) => {
 
     return (
         <>
-            <div 
-                ref={setNodeRef} 
-                style={style} 
-                {...attributes} 
+            <div
+                ref={setNodeRef}
+                style={style}
+                {...attributes}
                 {...listeners}
                 className="group/card relative outline-none"
             >
@@ -132,23 +132,22 @@ const CardItem = ({ card, columnId, isDragging: externalDragging }) => {
                                 </span>
                             </div>
                             <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                                <div 
-                                    className={`h-full rounded-full transition-all duration-300 ${
-                                        progress === 100 ? 'bg-emerald-500' : 'bg-indigo-500'
-                                    }`}
+                                <div
+                                    className={`h-full rounded-full transition-all duration-300 ${progress === 100 ? 'bg-emerald-500' : 'bg-indigo-500'
+                                        }`}
                                     style={{ width: `${progress}%` }}
                                 />
                             </div>
-                            
+
                             {showChecklistDropdown && (
                                 <div className="mt-2.5 p-2 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-100 dark:border-slate-800 flex flex-col gap-1.5 max-h-32 overflow-y-auto custom-scrollbar shadow-inner">
                                     {card.checklist.map((item, idx) => (
-                                        <label 
-                                            key={item._id || idx} 
+                                        <label
+                                            key={item._id || idx}
                                             onClick={(e) => e.stopPropagation()}
                                             className="flex items-start gap-2 cursor-pointer text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 select-none transition-colors"
                                         >
-                                            <input 
+                                            <input
                                                 type="checkbox"
                                                 checked={item.done}
                                                 onChange={(e) => handleChecklistItemToggle(e, item._id || idx)}
@@ -163,19 +162,17 @@ const CardItem = ({ card, columnId, isDragging: externalDragging }) => {
                             )}
                         </div>
                     )}
-
                     <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-700/50 flex items-center justify-between gap-2 text-slate-400">
                         <div className="flex items-center gap-2 flex-wrap">
-                            
+
                             {card.dueDate && (
-                                <div 
-                                    className={`flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-md border transition-colors ${
-                                        isOverdue
+                                <div
+                                    className={`flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-md border transition-colors ${isOverdue
                                             ? 'bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 border-rose-200/60 dark:border-rose-800/40'
                                             : isDueSoon
-                                            ? 'bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border-amber-200/60 dark:border-amber-800/40'
-                                            : 'bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 border-slate-200/80 dark:border-slate-800'
-                                    }`}
+                                                ? 'bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border-amber-200/60 dark:border-amber-800/40'
+                                                : 'bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 border-slate-200/80 dark:border-slate-800'
+                                        }`}
                                     title={isOverdue ? 'Overdue' : isDueSoon ? 'Due soon' : 'Due date'}
                                 >
                                     <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
@@ -213,6 +210,7 @@ const CardItem = ({ card, columnId, isDragging: externalDragging }) => {
                                 )}
                             </div>
                         )}
+
                     </div>
                 </div>
             </div>

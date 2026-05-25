@@ -44,3 +44,8 @@ export const removeBoardMember = async (boardId, memberId) => {
   const response = await API.delete(`/boards/${boardId}/members/${memberId}`);
   return response.data;
 };
+
+export const toggleStarBoard = async (boardId) => {
+  const response = await API.patch(`/boards/${boardId}/star`);
+  return response.data;
+};

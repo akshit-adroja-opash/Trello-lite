@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import useAuthStore from '../store/authstore';
 import DashboardSidebar from '../components/Layout/DashboardSidebar';
@@ -7,7 +7,6 @@ import Navbar from '../components/Layout/Navbar';
 import { getRoleDisplayName } from '../utils/roleDisplay';
 
 const ProfilePage = () => {
-  const navigate = useNavigate();
   const { user, updateProfile } = useAuthStore();
 
   const [username, setUsername] = useState(user?.username || '');

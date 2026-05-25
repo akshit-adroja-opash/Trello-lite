@@ -1,4 +1,3 @@
-import React from "react";
 
 const ReportActions = ({
     user,
@@ -8,7 +7,6 @@ const ReportActions = ({
     const role = user?.role;
     const canGenerateFull = role === "admin" || role === "project_manager";
     const canGenerateClient = role === "admin" || role === "project_manager" || role === "client";
-
     return (
         <div className="flex flex-col sm:flex-row gap-4">
             {canGenerateFull && (

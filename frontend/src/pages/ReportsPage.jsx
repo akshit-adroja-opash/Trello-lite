@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import useAuthStore from "../store/authstore";
@@ -13,9 +13,6 @@ const REPORT_THEME_COLORS = ['#26A69A', '#1E88E5', '#FB8C00', '#D81B60', '#8E24A
 const ReportsPage = () => {
   const backendBase = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:5000';
   const { boardId } = useParams();
-  const user = useAuthStore((s) => s.user);
-  const logout = useAuthStore((s) => s.logout);
-  const navigate = useNavigate();
 
   const [selectedBoard, setSelectedBoard] = useState(null);
   const [workspaces, setWorkspaces] = useState([]);

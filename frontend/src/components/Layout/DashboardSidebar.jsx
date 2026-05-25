@@ -1,7 +1,9 @@
-import React, { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import useAuthStore from '../../store/authstore';
 import useSidebarStore from '../../store/sidebarStore';
+import { getWorkspaces } from '../../api/workspace.api';
+import { getBoardsByWorkspace } from '../../api/board.api';
 
 const NavItem = ({ to, label, icon }) => {
   const location = useLocation();
@@ -30,11 +32,36 @@ const NavItem = ({ to, label, icon }) => {
   );
 };
 
-const DashboardSidebar = ({ currentWorkspace, openWorkspaceSettings }) => {
+const DashboardSidebar = ({ currentWorkspace, openWorkspaceSettings, boards: propBoards }) => {
   const user = useAuthStore((s) => s.user);
   const isOpen = useSidebarStore((s) => s.isOpen);
   const closeSidebar = useSidebarStore((s) => s.close);
   const location = useLocation();
+  const [localBoards, setLocalBoards] = useState([]);
+
+  useEffect(() => {
+    if (propBoards) return;
+    const fetchBoards = async () => {
+      try {
+        const wsRes = await getWorkspaces();
+        const wsList = wsRes.data?.workspaces || [];
+        const allBoards = [];
+        await Promise.all(
+          wsList.map(async (ws) => {
+            const bRes = await getBoardsByWorkspace(ws._id);
+            allBoards.push(...(bRes.data?.boards || []));
+          })
+        );
+        setLocalBoards(allBoards);
+      } catch (err) {
+        console.error('Failed to load boards for sidebar', err);
+      }
+    };
+    fetchBoards();
+  }, [propBoards]);
+
+  const boards = propBoards || localBoards;
+  const starredBoards = boards.filter((board) => board.isStarred);
 
   // Close sidebar on path changes
   useEffect(() => {
@@ -47,6 +74,7 @@ const DashboardSidebar = ({ currentWorkspace, openWorkspaceSettings }) => {
     role === 'developer';
 
   const canViewReports = showAdminOnly(user?.role);
+  const canViewAnalytics = user?.role === 'admin' || user?.role === 'project_manager';
 
   const canManageWorkspace =
     currentWorkspace &&
@@ -98,8 +126,9 @@ const DashboardSidebar = ({ currentWorkspace, openWorkspaceSettings }) => {
               <NavItem to="/reports" label="Reports" icon="bar_chart" />
             )}
             
-            <NavItem to="/profile" label="Profile" icon="person" />
-            <NavItem to="/analytics" label="Analytics" icon="analytics" />
+            {canViewAnalytics && (
+              <NavItem to="/analytics" label="Analytics" icon="analytics" />
+            )}
 
             {canManageWorkspace && (
               <button
@@ -116,28 +145,47 @@ const DashboardSidebar = ({ currentWorkspace, openWorkspaceSettings }) => {
           </nav>
         </div>
 
-        {/* Footer Actions */}
-        <div className="mt-auto flex flex-col gap-1 border-t border-outline-variant dark:border-slate-700 pt-6">
-          <Link
-            to="/profile"
-            onClick={closeSidebar}
-            className="flex items-center gap-4 px-4 py-2 text-on-surface-variant dark:text-slate-350 hover:bg-surface-container-high dark:hover:bg-slate-700 rounded-xl transition-colors"
-          >
-            <span className="material-symbols-outlined">settings</span>
-            <span className="font-body-md text-body-md">Account Settings</span>
-          </Link>
-          
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              closeSidebar();
-            }}
-            className="flex items-center gap-4 px-4 py-2 text-on-surface-variant dark:text-slate-350 hover:bg-surface-container-high dark:hover:bg-slate-700 rounded-xl transition-colors text-left w-full"
-          >
-            <span className="material-symbols-outlined">help</span>
-            <span className="font-body-md text-body-md">Help & Support</span>
-          </button>
-        </div>
+        {starredBoards.length > 0 && (
+          <div className="mt-8">
+            <div className="flex items-center gap-2 px-3 mb-3">
+              <svg
+                className="w-4 h-4 text-yellow-400"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.958a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.367 2.447a1 1 0 00-.364 1.118l1.287 3.958c.3.922-.755 1.688-1.54 1.118l-3.366-2.447a1 1 0 00-1.176 0l-3.366 2.447c-.785.57-1.84-.196-1.54-1.118l1.287-3.958a1 1 0 00-.364-1.118L2.98 9.385c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.958z" />
+              </svg>
+
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                Starred
+              </h3>
+            </div>
+
+            <div className="space-y-1">
+              {starredBoards.map((board) => (
+                <Link
+                  key={board._id}
+                  to={`/board/${board._id}`}
+                  className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-all group"
+                >
+                  <span className="text-sm text-slate-700 dark:text-slate-350 truncate">
+                    {board.name}
+                  </span>
+
+                  <svg
+                    className="w-4 h-4 text-yellow-400 opacity-70 group-hover:opacity-100"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.958a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.367 2.447a1 1 0 00-.364 1.118l1.287 3.958c.3.922-.755 1.688-1.54 1.118l-3.366-2.447a1 1 0 00-1.176 0l-3.366 2.447c-.785.57-1.84-.196-1.54-1.118l1.287-3.958a1 1 0 00-.364-1.118L2.98 9.385c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.958z" />
+                  </svg>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+       
       </aside>
     </>
   );

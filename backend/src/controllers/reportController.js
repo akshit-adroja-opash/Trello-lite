@@ -21,7 +21,10 @@ export const generateFullReport = async (req, res) => {
 
         const columns = await Column.find({ board: boardId }).sort("order").lean();
         for (const col of columns) {
-            col.cards = await Card.find({ column: col._id }).sort("order").lean();
+            col.cards = await Card.find({ column: col._id })
+                .populate("assignees", "username email avatar")
+                .sort("order")
+                .lean();
         }
 
         const pdfPath = await generatePDF(
@@ -69,7 +72,10 @@ export const generateClientReport = async (req, res) => {
 
         const columns = await Column.find({ board: boardId }).sort("order").lean();
         for (const col of columns) {
-            col.cards = await Card.find({ column: col._id }).sort("order").lean();
+            col.cards = await Card.find({ column: col._id })
+                .populate("assignees", "username email avatar")
+                .sort("order")
+                .lean();
         }
 
         const completedCards = [];

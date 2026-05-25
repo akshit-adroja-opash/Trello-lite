@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createBoard, deleteBoard, addBoardMember, getBoardMembers, getBoards, getSingleBoard, updateBoard, updateBoardMemberRole, removeBoardMember } from '../controllers/board.controller.js';
+import { createBoard, deleteBoard, addBoardMember, toggleStarBoard, getBoardMembers, getBoards, getSingleBoard, updateBoard, updateBoardMemberRole, removeBoardMember } from '../controllers/board.controller.js';
 import { verifyJWT } from '../middleware/auth.middleware.js';
 import { requireBoardRole } from '../middleware/role.middleware.js';
 
@@ -16,5 +16,7 @@ router.get('/:boardId/members', getBoardMembers);
 router.post('/:boardId/members', requireBoardRole('Owner'), addBoardMember);
 router.patch('/:boardId/members/:memberId', requireBoardRole('Owner'), updateBoardMemberRole);
 router.delete('/:boardId/members/:memberId', requireBoardRole('Owner'), removeBoardMember);
+
+router.patch('/:boardId/star', requireBoardRole('Owner'), toggleStarBoard);
 
 export default router;
