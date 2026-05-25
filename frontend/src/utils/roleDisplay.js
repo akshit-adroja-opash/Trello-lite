@@ -1,43 +1,18 @@
 /**
- * Central role display name mapping.
+ * Unified role display name mapping.
  *
- * Backend Role  →  Display Name
- * ─────────────────────────────
- * owner         →  Admin
- * admin         →  Project Manager
- * editor        →  Developer
- * viewer        →  Client
- *
- * Board roles (Board.js members[].role):
- * Owner  →  Admin
- * Admin  →  Project Manager
- * Editor →  Developer
- * Viewer →  Client
- *
- * User system roles (User.js role):
- * admin           →  Admin
- * project_manager →  Project Manager
- * developer       →  Developer
+ * Board roles now match workspace/system roles exactly:
+ *   admin           →  Admin
+ *   project_manager →  Project Manager
+ *   developer       →  Developer
+ *   client          →  Client
  */
 
 const ROLE_DISPLAY = {
-  // Board roles
-  Owner:  'Admin',
-  Admin:  'Project Manager',
-  Editor: 'Developer',
-  Viewer: 'Client',
-
-  // User system roles
   admin:           'Admin',
   project_manager: 'Project Manager',
   developer:       'Developer',
   client:          'Client',
-
-  // Workspace member roles
-  owner: 'Admin',
-  editor: 'Developer',
-  viewer: 'Client',
-  member: 'Client',
 };
 
 /**
@@ -46,4 +21,13 @@ const ROLE_DISPLAY = {
  * @param {string} role
  * @returns {string}
  */
-export const getRoleDisplayName = (role) => ROLE_DISPLAY[role] ?? role;
+export const getRoleDisplayName = (role) => {
+  if (!role) return '';
+  return ROLE_DISPLAY[role] || role;
+};
+
+// Named exports for convenience
+export const BOARD_ROLE_DISPLAY = ROLE_DISPLAY;
+export const SYSTEM_ROLE_DISPLAY = ROLE_DISPLAY;
+export const WORKSPACE_ROLE_DISPLAY = ROLE_DISPLAY;
+

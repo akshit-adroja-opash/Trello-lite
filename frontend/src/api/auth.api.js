@@ -31,3 +31,8 @@ export const getDevelopers = async () => {
     const response = await API.get('/auth/developers');
     return response.data;
 };
+
+export const deleteAccount = async () => {
+    const response = await API.delete('/auth/account');
+    return response.data;
+};

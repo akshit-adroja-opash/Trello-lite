@@ -13,11 +13,11 @@ import Navbar from '../components/Layout/Navbar';
 import DashboardSidebar from '../components/Layout/DashboardSidebar';
 
 const BOARD_COLORS = [
-  'linear-gradient(135deg, #005f73 0%, #0a9396 100%)', 
-  'linear-gradient(135deg, #4361ee 0%, #7209b7 100%)', 
-  'linear-gradient(135deg, #3f37c9 0%, #480ca8 100%)', 
-  'linear-gradient(180deg, #D44D4D 0%, #8C2222 100%)', 
-  'linear-gradient(180deg, #D69E2E 0%, #975A16 100%)', 
+  'linear-gradient(135deg, #005f73 0%, #0a9396 100%)',
+  'linear-gradient(135deg, #4361ee 0%, #7209b7 100%)',
+  'linear-gradient(135deg, #3f37c9 0%, #480ca8 100%)',
+  'linear-gradient(180deg, #D44D4D 0%, #8C2222 100%)',
+  'linear-gradient(180deg, #D69E2E 0%, #975A16 100%)',
   'linear-gradient(180deg, #38B2AC 0%, #234E52 100%)'
 ];
 
@@ -137,33 +137,33 @@ const DashboardPage = () => {
 
   const handleToggleStar = async (boardId, currentStarred) => {
     try {
-        await toggleStarBoard(boardId);
+      await toggleStarBoard(boardId);
 
-        // find which workspace contains this board
-        let foundWorkspaceId = null;
-        for (const [wsId, boardsList] of Object.entries(boardsByWorkspace)) {
-            if (boardsList.some(b => b._id === boardId)) {
-                foundWorkspaceId = wsId;
-                break;
-            }
+      // find which workspace contains this board
+      let foundWorkspaceId = null;
+      for (const [wsId, boardsList] of Object.entries(boardsByWorkspace)) {
+        if (boardsList.some(b => b._id === boardId)) {
+          foundWorkspaceId = wsId;
+          break;
         }
+      }
 
-        if (foundWorkspaceId) {
-            setBoardsByWorkspace(prev => ({
-                ...prev,
-                [foundWorkspaceId]: prev[foundWorkspaceId].map(b =>
-                    b._id === boardId
-                        ? { ...b, isStarred: !currentStarred }
-                        : b
-                )
-            }));
-        }
+      if (foundWorkspaceId) {
+        setBoardsByWorkspace(prev => ({
+          ...prev,
+          [foundWorkspaceId]: prev[foundWorkspaceId].map(b =>
+            b._id === boardId
+              ? { ...b, isStarred: !currentStarred }
+              : b
+          )
+        }));
+      }
 
-        toast.success(currentStarred ? "Board unfavorited" : "Board favorited");
+      toast.success(currentStarred ? "Board unfavorited" : "Board favorited");
 
     } catch (err) {
-        console.error(err);
-        toast.error("Failed to update favorite status");
+      console.error(err);
+      toast.error("Failed to update favorite status");
     }
   };
 
@@ -237,11 +237,11 @@ const DashboardPage = () => {
 
   return (
     <div className="min-h-screen bg-background text-on-surface antialiased overflow-x-hidden flex flex-col dark:bg-slate-900 dark:text-white transition-colors duration-200 selection:bg-secondary-fixed">
-      
+
       {/* Left Sidebar Layout */}
-      <DashboardSidebar 
-        currentWorkspace={selectedWorkspace} 
-        openWorkspaceSettings={openWorkspaceSettings} 
+      <DashboardSidebar
+        currentWorkspace={selectedWorkspace}
+        openWorkspaceSettings={openWorkspaceSettings}
         boards={boards}
       />
 
@@ -251,7 +251,7 @@ const DashboardPage = () => {
       {/* Main Content Canvas */}
       <main className="ml-0 lg:ml-[280px] pt-16 min-h-screen">
         <div className="max-w-[1400px] mx-auto p-6 lg:p-10">
-          
+
           {/* Page Header */}
           <div className="flex justify-between items-end mb-12">
             <div>
@@ -332,22 +332,22 @@ const DashboardPage = () => {
           <section className="space-y-8">
             {workspaces
               .filter(ws => {
-                const wsMatches = ws.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                                  (ws.description && ws.description.toLowerCase().includes(searchQuery.toLowerCase()));
+                const wsMatches = ws.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  (ws.description && ws.description.toLowerCase().includes(searchQuery.toLowerCase()));
                 const boards = boardsByWorkspace[ws._id] || [];
                 const boardMatches = boards.some(b => b.name.toLowerCase().includes(searchQuery.toLowerCase()));
                 return wsMatches || boardMatches;
               })
               .map(ws => {
-                const isWsOwner = ws.owner === user?._id || ws.owner?._id === user?._id;
-                const boards = (boardsByWorkspace[ws._id] || []).filter(b => 
+                const isWsAdmin = ws.Admin === user?._id || ws.Admin?._id === user?._id;
+                const boards = (boardsByWorkspace[ws._id] || []).filter(b =>
                   b.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                   ws.name.toLowerCase().includes(searchQuery.toLowerCase())
                 );
-                
+
                 return (
                   <div key={ws._id} className="tonal-card rounded-3xl p-8 border border-outline-variant dark:border-slate-700 dark:bg-slate-800/40 overflow-hidden mb-8">
-                    
+
                     {/* Workspace Meta Header */}
                     <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-8">
                       <div className="flex gap-4">
@@ -373,25 +373,25 @@ const DashboardPage = () => {
                       </div>
 
                       <div className="flex gap-2 flex-wrap w-full md:w-auto">
-                        {isWsOwner && (
+                        {isWsAdmin && (
                           <button onClick={() => openWorkspaceSettings(ws)} className="flex-1 md:flex-none flex items-center justify-center gap-1 px-4 py-2 bg-surface-container-low dark:bg-slate-700 text-on-surface-variant dark:text-slate-200 rounded-lg border border-outline-variant dark:border-slate-600 hover:bg-surface-container-high dark:hover:bg-slate-650 transition-colors font-body-sm font-semibold">
                             <span className="material-symbols-outlined text-[18px]">settings</span>
                             <span>Settings</span>
                           </button>
                         )}
-                        {isWsOwner && (
+                        {isWsAdmin && (
                           <button onClick={() => setShowInvite(ws._id)} className="flex-1 md:flex-none flex items-center justify-center gap-1 px-4 py-2 bg-surface-container-low dark:bg-slate-700 text-on-surface-variant dark:text-slate-200 rounded-lg border border-outline-variant dark:border-slate-600 hover:bg-surface-container-high dark:hover:bg-slate-650 transition-colors font-body-sm font-semibold">
                             <span className="material-symbols-outlined text-[18px]">person_add</span>
                             <span>Invite Members</span>
                           </button>
                         )}
-                        {isWsOwner && (
+                        {isWsAdmin && (
                           <button onClick={() => setShowCreateBoard(ws._id)} className="flex-1 md:flex-none flex items-center justify-center gap-1 px-4 py-2 bg-secondary text-white rounded-lg border border-secondary hover:opacity-90 transition-opacity font-body-sm font-semibold">
                             <span className="material-symbols-outlined text-[18px]">add</span>
                             <span>Add Board</span>
                           </button>
                         )}
-                        {isWsOwner && (
+                        {isWsAdmin && (
                           <button onClick={() => handleDeleteWorkspace(ws._id)} className="flex-1 md:flex-none flex items-center justify-center gap-1 px-4 py-2 text-error hover:bg-error-container hover:text-on-error-container rounded-lg transition-all font-body-sm font-semibold">
                             <span className="material-symbols-outlined text-[18px]">delete</span>
                             <span>Delete</span>
@@ -419,7 +419,7 @@ const DashboardPage = () => {
                     {/* Boards Grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                       {boards.map((board, index) => {
-                        const isBoardOwner = board.owner === user?._id || board.owner?._id === user?._id;
+                        const isBoardAdmin = board.Admin === user?._id || board.Admin?._id === user?._id;
                         return (
                           <Link key={board._id} to={`/board/${board._id}`}
                             className="relative h-44 rounded-xl overflow-hidden group cursor-pointer border border-outline-variant dark:border-slate-700 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md block"
@@ -432,8 +432,8 @@ const DashboardPage = () => {
                               />
                             )}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                            
-                            {isBoardOwner && (
+
+                            {isBoardAdmin && (
                               <button
                                 onClick={(e) => handleDeleteBoard(board._id, ws._id, e)}
                                 className="absolute top-3 right-3 z-20 w-8 h-8 rounded-full bg-black/35 hover:bg-rose-600 text-white flex items-center justify-center transition-all duration-200 opacity-0 group-hover:opacity-100 hover:scale-105"
@@ -450,9 +450,9 @@ const DashboardPage = () => {
                         );
                       })}
 
-                      {isWsOwner && (
-                        <button 
-                          onClick={() => setShowCreateBoard(ws._id)} 
+                      {isWsAdmin && (
+                        <button
+                          onClick={() => setShowCreateBoard(ws._id)}
                           className="h-44 rounded-xl border-2 border-dashed border-outline-variant dark:border-slate-700 flex flex-col items-center justify-center gap-sm text-outline dark:text-slate-400 hover:border-secondary hover:text-secondary dark:hover:text-indigo-400 hover:bg-secondary-fixed/20 dark:hover:bg-slate-750/30 transition-all cursor-pointer group"
                         >
                           <div className="w-12 h-12 rounded-full border-2 border-current flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -551,11 +551,10 @@ const DashboardPage = () => {
                         setInviteEmail(dev.email);
                         setInviteRole('developer');
                       }}
-                      className={`flex items-center gap-2 px-2.5 py-1.5 rounded-full text-xs border transition-all ${
-                        inviteEmail === dev.email
+                      className={`flex items-center gap-2 px-2.5 py-1.5 rounded-full text-xs border transition-all ${inviteEmail === dev.email
                           ? 'bg-indigo-50 border-indigo-300 text-indigo-700 dark:bg-indigo-950/40 dark:border-indigo-800 dark:text-indigo-300 font-semibold'
                           : 'bg-white border-slate-200 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 hover:border-indigo-400'
-                      }`}
+                        }`}
                     >
                       <Avatar name={dev.username} avatar={dev.avatar} size={20} />
                       <span>{dev.username}</span>
@@ -590,9 +589,9 @@ const DashboardPage = () => {
       )}
 
       {settingOpen && selectedWorkspace && (
-        <WorkspaceSettingsModal 
-          workspace={selectedWorkspace} 
-          onClose={() => { setSettingOpen(false); setSelectedWorkspace(null); }} 
+        <WorkspaceSettingsModal
+          workspace={selectedWorkspace}
+          onClose={() => { setSettingOpen(false); setSelectedWorkspace(null); }}
           onWorkspaceUpdated={(updatedWs) => {
             setWorkspaces(p => p.map(w => w._id === updatedWs._id ? { ...w, ...updatedWs } : w));
             if (selectedWorkspace._id === updatedWs._id) {

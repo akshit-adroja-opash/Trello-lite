@@ -28,29 +28,25 @@ export const requireBoardRole = (...allowedRoles) => async (req, res, next) => {
         const board = await Board.findById(boardId);
         if (!board) return next(new ApiError(404, 'Board not found'));
 
-        if (board.owner.toString() === req.user._id.toString()) {
+        if (board.Admin.toString() === req.user._id.toString()) {
             req.board = board;
-            req.boardRole = 'Owner';
+            req.boardRole = 'admin';
             return next();
         }
 
-        let member = board.members.find(m => m.user.toString() === req.user._id.toString());
+        let member = board.members.find(m => m.user?.toString() === req.user._id.toString());
 
         if (!member) {
             const workspace = await Workspace.findById(board.workspace);
             if (workspace) {
-                const wsMember = workspace.members.find(m => m.user.toString() === req.user._id.toString());
+                const wsMember = workspace.members.find(m => m.user?.toString() === req.user._id.toString());
                 if (wsMember) {
-                    // Map workspace role → board role (display names)
-                    // admin           → Owner  (Admin)
-                    // project_manager → Admin  (Project Manager)
-                    // developer       → Editor (Developer)
-                    // client          → Viewer (Client)
-                    let inheritedRole = 'Viewer';
-                    if (wsMember.role === 'admin') inheritedRole = 'Owner';
-                    else if (wsMember.role === 'project_manager') inheritedRole = 'Admin';
-                    else if (wsMember.role === 'developer') inheritedRole = 'Editor';
-                    member = { role: inheritedRole };
+                    // Workspace role → Board role (same naming, direct mapping)
+                    // admin           → admin           (Admin)
+                    // project_manager → project_manager (Project Manager)
+                    // developer       → developer       (Developer)
+                    // client          → client          (Client)
+                    member = { role: wsMember.role };
                 }
             }
         }

@@ -12,3 +12,8 @@ export const shareReportLink = async (reportId) => {
   const res = await API.post(`/reports/share/${reportId}`);
   return res.data;
 };
+
+export const downloadSharedReport = async (token) => {
+  const res = await API.get(`/reports/shared/${token}`, { responseType: 'blob' });
+  return res.data;
+};

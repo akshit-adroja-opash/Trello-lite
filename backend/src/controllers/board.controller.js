@@ -10,12 +10,12 @@ export const createBoard = async (req, res, next) => {
 
         const workspace = await Workspace.findById(workspaceId);
         if (!workspace) return next(new ApiError(404, 'Workspace not found'));
-        const isMember = workspace.members.some(m => m.user.toString() === req.user._id.toString());
+        const isMember = workspace.members.some(m => m.user?.toString() === req.user._id.toString());
         if (!isMember) return next(new ApiError(403, 'Not a workspace member'));
 
         const board = await Board.create({
-            name, workspace: workspaceId, owner: req.user._id, background,
-            members: [{ user: req.user._id, role: 'Owner' }]
+            name, workspace: workspaceId, Admin: req.user._id, background,
+            members: [{ user: req.user._id, role: 'Admin' }]
         });
 
         // Automatically populate new board with default columns
@@ -47,14 +47,14 @@ export const getSingleBoard = async (req, res, next) => {
         const { boardId } = req.params;
         const board = await Board.findById(boardId)
             .populate('workspace', 'name')
-            .populate('owner', 'username email avatar')
+            .populate('Admin', 'username email avatar')
             .populate('members.user', 'username email avatar');
         if (!board) return next(new ApiError(404, 'Board not found'));
 
-        const ownerId = board.owner?._id || board.owner;
-        const isOwner = ownerId.toString() === req.user._id.toString();
+        const AdminId = board.Admin?._id || board.Admin;
+        const isAdmin = AdminId?.toString() === req.user._id.toString();
 
-        let isMember = isOwner || board.members.some(m => {
+        let isMember = isAdmin || board.members.some(m => {
             const memberUserId = m.user?._id || m.user;
             return memberUserId && memberUserId.toString() === req.user._id.toString();
         });
@@ -86,8 +86,8 @@ export const updateBoard = async (req, res, next) => {
         const { name, background } = req.body;
         const board = await Board.findById(boardId);
         if (!board) return next(new ApiError(404, 'Board not found'));
-        if (board.owner.toString() !== req.user._id.toString())
-            return next(new ApiError(403, 'Only the owner can update this board'));
+        if (board.Admin?.toString() !== req.user._id.toString())
+            return next(new ApiError(403, 'Only the Admin can update this board'));
         if (name) board.name = name;
         if (background) board.background = background;
         await board.save();
@@ -100,8 +100,8 @@ export const deleteBoard = async (req, res, next) => {
         const { boardId } = req.params;
         const board = await Board.findById(boardId);
         if (!board) return next(new ApiError(404, 'Board not found'));
-        if (board.owner.toString() !== req.user._id.toString())
-            return next(new ApiError(403, 'Only the owner can delete this board'));
+        if (board.Admin?.toString() !== req.user._id.toString())
+            return next(new ApiError(403, 'Only the Admin can delete this board'));
         await board.deleteOne();
         res.status(200).json({ status: 'success', message: 'Board deleted' });
     } catch (error) { next(error); }
@@ -122,14 +122,14 @@ export const addBoardMember = async (req, res, next) => {
         const { email, role = 'Editor' } = req.body;
         const board = await Board.findById(boardId);
         if (!board) return next(new ApiError(404, 'Board not found'));
-        if (board.owner.toString() !== req.user._id.toString())
-            return next(new ApiError(403, 'Only the owner can add members'));
+        if (board.Admin?.toString() !== req.user._id.toString())
+            return next(new ApiError(403, 'Only the Admin can add members'));
 
         const { default: User } = await import('../models/User.js');
         const invitee = await User.findOne({ email });
         if (!invitee) return next(new ApiError(404, 'User not found'));
 
-        const already = board.members.some(m => m.user.toString() === invitee._id.toString());
+        const already = board.members.some(m => m.user?.toString() === invitee._id.toString());
         if (already) return next(new ApiError(400, 'Already a member'));
 
         board.members.push({ user: invitee._id, role });
@@ -144,9 +144,9 @@ export const updateBoardMemberRole = async (req, res, next) => {
         const { role } = req.body;
         const board = await Board.findById(boardId);
         if (!board) return next(new ApiError(404, 'Board not found'));
-        if (board.owner.toString() !== req.user._id.toString())
-            return next(new ApiError(403, 'Only the owner can change roles'));
-        const member = board.members.find(m => m.user.toString() === memberId);
+        if (board.Admin?.toString() !== req.user._id.toString())
+            return next(new ApiError(403, 'Only the Admin can change roles'));
+        const member = board.members.find(m => m.user?.toString() === memberId);
         if (!member) return next(new ApiError(404, 'Member not found'));
         member.role = role;
         await board.save();
@@ -159,10 +159,10 @@ export const removeBoardMember = async (req, res, next) => {
         const { boardId, memberId } = req.params;
         const board = await Board.findById(boardId);
         if (!board) return next(new ApiError(404, 'Board not found'));
-        if (board.owner.toString() !== req.user._id.toString())
-            return next(new ApiError(403, 'Only the owner can remove members'));
+        if (board.Admin?.toString() !== req.user._id.toString())
+            return next(new ApiError(403, 'Only the Admin can remove members'));
 
-        board.members = board.members.filter(m => m.user.toString() !== memberId);
+        board.members = board.members.filter(m => m.user?.toString() !== memberId);
         await board.save();
         res.status(200).json({ status: 'success', data: { board } });
     } catch (error) { next(error); }

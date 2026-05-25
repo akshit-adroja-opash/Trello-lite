@@ -6,7 +6,7 @@ import { getRoleDisplayName } from '../../utils/roleDisplay';
 
 const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
   const [activeTab, setActiveTab] = useState('general'); // 'general' | 'members'
-  
+
   // General Info States
   const [name, setName] = useState(workspace.name || '');
   const [description, setDescription] = useState(workspace.description || '');
@@ -62,10 +62,10 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
 
       const res = await updateMemberRole(workspace._id, memberObj._id, { role: newRole });
       toast.success('Member role updated');
-      
+
       // Update local members list
       setMembers(prev => prev.map(m => m._id === memberObj._id ? { ...m, role: newRole } : m));
-      
+
       // Notify parent to refresh workspace data
       const updatedMembers = workspace.members.map(m => m._id === memberObj._id ? { ...m, role: newRole } : m);
       onWorkspaceUpdated({ ...workspace, members: updatedMembers });
@@ -86,10 +86,10 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
     try {
       await removeMember(workspace._id, memberObj._id);
       toast.success('Member removed successfully');
-      
+
       // Update local members list
       setMembers(prev => prev.filter(m => m._id !== memberObj._id));
-      
+
       // Notify parent to refresh workspace data
       const updatedMembers = workspace.members.filter(m => m._id !== memberObj._id);
       onWorkspaceUpdated({ ...workspace, members: updatedMembers });
@@ -100,12 +100,12 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
     }
   };
 
-  const ownerId = workspace.owner?._id || workspace.owner;
+  const AdminId = workspace.Admin?._id || workspace.Admin;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm px-4 py-6 transition-all overflow-y-auto" onClick={onClose}>
       <div className="bg-white dark:bg-slate-800 rounded-lg shadow-2xl border border-slate-100 dark:border-slate-700 w-full max-w-[682px] overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
-        
+
         {/* Header */}
         <header className="p-6 pb-4 flex justify-between items-start">
           <div className="flex gap-3">
@@ -135,11 +135,10 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
           <div className="flex gap-8">
             <button
               onClick={() => setActiveTab('general')}
-              className={`py-3 text-sm font-semibold flex items-center gap-2 transition-all ${
-                activeTab === 'general'
+              className={`py-3 text-sm font-semibold flex items-center gap-2 transition-all ${activeTab === 'general'
                   ? 'border-b-2 border-[#8b8cf1] text-[#8b8cf1] dark:border-[#a5a6ff] dark:text-[#a5a6ff]'
                   : 'border-b-2 border-transparent text-slate-650 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
-              }`}
+                }`}
             >
               <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="12" cy="12" r="10"></circle>
@@ -150,11 +149,10 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
             </button>
             <button
               onClick={() => setActiveTab('members')}
-              className={`py-3 text-sm font-semibold flex items-center gap-2 transition-all ${
-                activeTab === 'members'
+              className={`py-3 text-sm font-semibold flex items-center gap-2 transition-all ${activeTab === 'members'
                   ? 'border-b-2 border-[#8b8cf1] text-[#8b8cf1] dark:border-[#a5a6ff] dark:text-[#a5a6ff]'
                   : 'border-b-2 border-transparent text-slate-650 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
-              }`}
+                }`}
             >
               <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -169,7 +167,7 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
 
         {/* Content Section */}
         <div className="p-6 max-h-[60vh] overflow-y-auto custom-scrollbar bg-white dark:bg-slate-800">
-          
+
           {/* General Tab */}
           {activeTab === 'general' && (
             <form onSubmit={handleSaveInfo} className="space-y-6">
@@ -241,7 +239,7 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
                   {members.map(m => {
                     const memberUser = m.user;
                     if (!memberUser) return null;
-                    const isOwner = memberUser._id === ownerId;
+                    const isAdmin = memberUser._id === AdminId;
                     const isUpdating = updatingMemberId === memberUser._id;
 
                     return (
@@ -251,9 +249,9 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
                           <div>
                             <p className="text-sm font-semibold text-slate-800 dark:text-white flex items-center gap-2">
                               {memberUser.username}
-                              {isOwner && (
+                              {isAdmin && (
                                 <span className="bg-indigo-50 dark:bg-indigo-950/40 text-indigo-650 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/40 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide">
-                                  Owner
+                                  Admin
                                 </span>
                               )}
                             </p>
@@ -262,7 +260,7 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
                         </div>
 
                         <div className="flex items-center gap-3 self-end sm:self-auto">
-                          {isOwner ? (
+                          {isAdmin ? (
                             <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest px-3">
                               Full Access
                             </span>

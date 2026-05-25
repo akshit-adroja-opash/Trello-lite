@@ -14,8 +14,8 @@ const isSameDay = (d1, d2) => {
     const date1 = new Date(d1);
     const date2 = new Date(d2);
     return date1.getFullYear() === date2.getFullYear() &&
-           date1.getMonth() === date2.getMonth() &&
-           date1.getDate() === date2.getDate();
+        date1.getMonth() === date2.getMonth() &&
+        date1.getDate() === date2.getDate();
 };
 
 const BoardCalendarView = ({ boardId, filteredCards }) => {
@@ -24,7 +24,7 @@ const BoardCalendarView = ({ boardId, filteredCards }) => {
 
     const { updateCard: storeUpdateCard, boardRole } = useBoardStore();
     const socket = useSocketStore(s => s.socket);
-    const canEdit = ['Owner', 'Admin', 'Editor'].includes(boardRole);
+    const canEdit = ['admin', 'project_manager', 'developer'].includes(boardRole);
 
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
@@ -181,7 +181,7 @@ const BoardCalendarView = ({ boardId, filteredCards }) => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[calc(100vh-12rem)] min-h-[500px]">
             {/* Left: Calendar Workspace */}
             <div className="lg:col-span-3 bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700/60 p-5 flex flex-col h-full shadow-sm overflow-hidden">
-                
+
                 {/* Calendar Header Controls */}
                 <div className="flex flex-wrap items-center justify-between gap-3 mb-4 shrink-0">
                     <h2 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
@@ -189,20 +189,20 @@ const BoardCalendarView = ({ boardId, filteredCards }) => {
                         {monthNames[month]} {year}
                     </h2>
                     <div className="flex items-center gap-2 bg-slate-100/80 dark:bg-slate-900/60 p-1.5 rounded-xl border border-slate-200/40 dark:border-slate-850">
-                        <button 
+                        <button
                             onClick={handlePrevMonth}
                             className="p-1.5 text-slate-600 dark:text-slate-350 hover:bg-white dark:hover:bg-slate-800 rounded-lg transition-colors flex items-center"
                             title="Previous Month"
                         >
                             <span className="material-symbols-outlined text-[18px]">chevron_left</span>
                         </button>
-                        <button 
+                        <button
                             onClick={handleToday}
                             className="px-3.5 py-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 rounded-lg hover:text-indigo-700 dark:hover:text-indigo-300 shadow-sm border border-slate-200/20 transition-all active:scale-[0.98]"
                         >
                             Today
                         </button>
-                        <button 
+                        <button
                             onClick={handleNextMonth}
                             className="p-1.5 text-slate-600 dark:text-slate-350 hover:bg-white dark:hover:bg-slate-800 rounded-lg transition-colors flex items-center"
                             title="Next Month"
@@ -231,15 +231,13 @@ const BoardCalendarView = ({ boardId, filteredCards }) => {
                                 key={idx}
                                 onDragOver={e => canEdit && e.preventDefault()}
                                 onDrop={e => handleDropOnDay(e, date)}
-                                className={`flex flex-col bg-white dark:bg-slate-800/80 p-2 border border-slate-100/60 dark:border-slate-800/20 min-h-[64px] max-h-[120px] overflow-y-auto hover:bg-slate-50/50 dark:hover:bg-slate-800 transition-colors duration-100 group relative rounded-xl ${
-                                    !isCurrentMonth ? 'opacity-40 bg-slate-50/30 dark:bg-slate-800/30' : ''
-                                } ${isToday ? 'ring-2 ring-indigo-500/80 dark:ring-indigo-400' : ''}`}
+                                className={`flex flex-col bg-white dark:bg-slate-800/80 p-2 border border-slate-100/60 dark:border-slate-800/20 min-h-[64px] max-h-[120px] overflow-y-auto hover:bg-slate-50/50 dark:hover:bg-slate-800 transition-colors duration-100 group relative rounded-xl ${!isCurrentMonth ? 'opacity-40 bg-slate-50/30 dark:bg-slate-800/30' : ''
+                                    } ${isToday ? 'ring-2 ring-indigo-500/80 dark:ring-indigo-400' : ''}`}
                             >
-                                <span className={`text-xs font-bold self-end rounded-full w-5 h-5 flex items-center justify-center mb-1 select-none ${
-                                    isToday 
-                                        ? 'bg-indigo-600 text-white shadow-sm' 
+                                <span className={`text-xs font-bold self-end rounded-full w-5 h-5 flex items-center justify-center mb-1 select-none ${isToday
+                                        ? 'bg-indigo-600 text-white shadow-sm'
                                         : 'text-slate-650 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200'
-                                }`}>
+                                    }`}>
                                     {date.getDate()}
                                 </span>
 
@@ -252,8 +250,8 @@ const BoardCalendarView = ({ boardId, filteredCards }) => {
                                             onClick={() => setSelectedCard(card)}
                                             className="px-2 py-1.5 text-[11px] font-bold text-slate-700 dark:text-slate-350 bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-700 rounded-lg hover:border-indigo-400 dark:hover:border-indigo-800 cursor-grab active:cursor-grabbing hover:shadow-sm truncate select-none transition-all flex flex-col gap-1 shrink-0"
                                             style={{
-                                                borderLeft: card.labels?.[0]?.color 
-                                                    ? `3px solid ${card.labels[0].color}` 
+                                                borderLeft: card.labels?.[0]?.color
+                                                    ? `3px solid ${card.labels[0].color}`
                                                     : '3px solid transparent'
                                             }}
                                             title={card.title}
@@ -278,7 +276,7 @@ const BoardCalendarView = ({ boardId, filteredCards }) => {
             </div>
 
             {/* Right: Unscheduled Drawer / Sidebar */}
-            <div 
+            <div
                 onDragOver={e => canEdit && e.preventDefault()}
                 onDrop={handleDropOnUnscheduled}
                 className="bg-slate-50/50 dark:bg-slate-900/20 rounded-3xl border border-slate-200 dark:border-slate-750/80 p-5 flex flex-col h-full overflow-hidden shadow-inner"
@@ -309,8 +307,8 @@ const BoardCalendarView = ({ boardId, filteredCards }) => {
                                 onClick={() => setSelectedCard(card)}
                                 className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-3.5 hover:shadow-md hover:border-slate-350 dark:hover:border-slate-600 transition cursor-grab active:cursor-grabbing select-none flex flex-col gap-2 relative overflow-hidden"
                                 style={{
-                                    borderTop: card.labels?.[0]?.color 
-                                        ? `3px solid ${card.labels[0].color}` 
+                                    borderTop: card.labels?.[0]?.color
+                                        ? `3px solid ${card.labels[0].color}`
                                         : undefined
                                 }}
                             >
@@ -322,8 +320,8 @@ const BoardCalendarView = ({ boardId, filteredCards }) => {
                                     {card.labels?.length > 0 ? (
                                         <div className="flex flex-wrap gap-1">
                                             {card.labels.slice(0, 2).map((l, i) => (
-                                                <span 
-                                                    key={i} 
+                                                <span
+                                                    key={i}
                                                     className="text-[9px] font-extrabold px-2 py-0.5 rounded-md border"
                                                     style={{ color: l.color, borderColor: `${l.color}25`, backgroundColor: `${l.color}12` }}
                                                 >
@@ -353,10 +351,10 @@ const BoardCalendarView = ({ boardId, filteredCards }) => {
 
             {/* Modal for viewing card details */}
             {selectedCard && (
-                <CardDetail 
+                <CardDetail
                     card={selectedCard}
                     columnId={selectedCard.column}
-                    onClose={() => setSelectedCard(null)} 
+                    onClose={() => setSelectedCard(null)}
                 />
             )}
         </div>

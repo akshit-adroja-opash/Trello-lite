@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import API from "../../api/axios";
+import { getBoardActivities } from "../../api/activity.api";
 
 const ActivitySidebar = ({ boardId }) => {
 
@@ -13,12 +13,10 @@ const ActivitySidebar = ({ boardId }) => {
 
             try {
 
-                const res = await API.get(
-                    `/activities/board/${boardId}`
-                );
+                const data = await getBoardActivities(boardId);
 
                 setActivities(
-                    res.data.activities || []
+                    data.activities || []
                 );
 
             } catch (error) {

@@ -31,13 +31,13 @@ export const getWorkspaceAnalytics = async (req, res) => {
             });
         }
 
-        // Check if the user is the owner or a member of the workspace
-        const isOwner = workspace.owner.toString() === req.user._id.toString();
+        // Check if the user is the Admin or a member of the workspace
+        const isAdmin = workspace.Admin?.toString() === req.user._id.toString();
         const isMember = workspace.members.some(
-            member => member.user && member.user.toString() === req.user._id.toString()
+            member => member.user?.toString() === req.user._id.toString()
         );
 
-        if (!isOwner && !isMember) {
+        if (!isAdmin && !isMember) {
             return res.status(403).json({
                 success: false,
                 message: "You do not have access to this workspace analytics"

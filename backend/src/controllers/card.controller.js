@@ -80,7 +80,7 @@ export const moveCard = async (req, res, next) => {
             return next(new ApiError(409, 'Conflict: card was modified by another user'));
         }
 
-        const fromColumn = card.column.toString();
+        const fromColumn = card.column?.toString();
         card.column = targetColumnId;
         card.order = targetOrder;
         card.version = (card.version || 0) + 1;
@@ -154,8 +154,8 @@ export const addComment = async (req, res, next) => {
                 const io = getIO();
                 const recipients = new Set();
 
-                if (boardObj.owner.toString() !== req.user._id.toString()) {
-                    recipients.add(boardObj.owner.toString());
+                if (boardObj.Admin?.toString() !== req.user._id.toString()) {
+                    recipients.add(boardObj.Admin?.toString());
                 }
                 for (const m of boardObj.members || []) {
                     if (m.user && m.user.toString() !== req.user._id.toString()) {

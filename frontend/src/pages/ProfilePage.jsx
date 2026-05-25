@@ -7,7 +7,7 @@ import Navbar from '../components/Layout/Navbar';
 import { getRoleDisplayName } from '../utils/roleDisplay';
 
 const ProfilePage = () => {
-  const { user, updateProfile } = useAuthStore();
+  const { user, updateProfile, deleteAccountAction } = useAuthStore();
 
   const [username, setUsername] = useState(user?.username || '');
   const [email, setEmail] = useState(user?.email || '');
@@ -56,6 +56,18 @@ const ProfilePage = () => {
       toast.error(err.response?.data?.message || 'Failed to update profile');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (window.confirm("Are you sure you want to delete your account? This action is permanent and cannot be undone.")) {
+      try {
+        await deleteAccountAction();
+        toast.success("Account deleted successfully");
+        // user will be redirected because token/user state is cleared
+      } catch (err) {
+        toast.error("Failed to delete account");
+      }
     }
   };
 
@@ -266,7 +278,7 @@ const ProfilePage = () => {
             </div>
 
             {/* Delete Account */}
-            <div className="glass-card p-6 bg-white/95 dark:bg-slate-800/95 backdrop-blur border border-outline-variant/30 dark:border-slate-750 rounded-2xl flex items-center gap-4 group cursor-pointer hover:bg-surface-container-lowest dark:hover:bg-slate-700 transition-colors shadow-sm">
+            <div onClick={handleDeleteAccount} className="glass-card p-6 bg-white/95 dark:bg-slate-800/95 backdrop-blur border border-outline-variant/30 dark:border-slate-750 rounded-2xl flex items-center gap-4 group cursor-pointer hover:bg-error-container/20 dark:hover:bg-rose-900/30 transition-colors shadow-sm">
               <div className="w-12 h-12 rounded-xl bg-error-container dark:bg-rose-950/40 flex items-center justify-center text-error group-hover:scale-110 transition-transform">
                 <span className="material-symbols-outlined text-rose-500">delete_forever</span>
               </div>

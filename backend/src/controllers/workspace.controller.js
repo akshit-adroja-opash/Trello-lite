@@ -12,7 +12,7 @@ export const createWorkspace = async (req, res, next) => {
         const { name, description } = req.body;
         const workspace = await Workspace.create({
             name, description,
-            owner: req.user._id,
+            Admin: req.user._id,
             members: [{ user: req.user._id, role: 'admin' }]
         });
         res.status(201).json({ status: 'success', data: { workspace } });
@@ -34,13 +34,13 @@ export const inviteMember = async (req, res, next) => {
 
         const workspace = await Workspace.findById(workspaceId);
         if (!workspace) return next(new ApiError(404, 'Workspace not found'));
-        if (workspace.owner.toString() !== req.user._id.toString())
-            return next(new ApiError(403, 'Only the owner can invite members'));
+        if (workspace.Admin?.toString() !== req.user._id.toString())
+            return next(new ApiError(403, 'Only the Admin can invite members'));
 
         const invitee = await User.findOne({ email });
         if (!invitee) return next(new ApiError(404, 'User with that email not found'));
 
-        const alreadyMember = workspace.members.some(m => m.user.toString() === invitee._id.toString());
+        const alreadyMember = workspace.members.some(m => m.user?.toString() === invitee._id.toString());
         if (alreadyMember) return next(new ApiError(400, 'User is already a member'));
 
         workspace.members.push({ user: invitee._id, role });
@@ -55,7 +55,7 @@ export const getMembers = async (req, res, next) => {
         const { workspaceId } = req.params;
         const workspace = await Workspace.findById(workspaceId).populate('members.user', 'username email avatar');
         if (!workspace) return next(new ApiError(404, 'Workspace not found'));
-        if (!workspace.members.some(m => m.user._id.toString() === req.user._id.toString()))
+        if (!workspace.members.some(m => m.user?._id?.toString() === req.user._id.toString()))
             return next(new ApiError(403, 'Not a member of this workspace'));
         res.status(200).json({ status: 'success', data: { members: workspace.members } });
     } catch (error) { next(error); }
@@ -67,8 +67,8 @@ export const updateMemberRole = async (req, res, next) => {
         const { role } = req.body;
         const workspace = await Workspace.findById(workspaceId);
         if (!workspace) return next(new ApiError(404, 'Workspace not found'));
-        if (workspace.owner.toString() !== req.user._id.toString())
-            return next(new ApiError(403, 'Only the owner can change roles'));
+        if (workspace.Admin?.toString() !== req.user._id.toString())
+            return next(new ApiError(403, 'Only the Admin can change roles'));
         const member = workspace.members.id(memberId);
         if (!member) return next(new ApiError(404, 'Member not found'));
         member.role = role;
@@ -82,8 +82,8 @@ export const removeMember = async (req, res, next) => {
         const { workspaceId, memberId } = req.params;
         const workspace = await Workspace.findById(workspaceId);
         if (!workspace) return next(new ApiError(404, 'Workspace not found'));
-        if (workspace.owner.toString() !== req.user._id.toString())
-            return next(new ApiError(403, 'Only the owner can remove members'));
+        if (workspace.Admin?.toString() !== req.user._id.toString())
+            return next(new ApiError(403, 'Only the Admin can remove members'));
         workspace.members.pull({ _id: memberId });
         await workspace.save();
         res.status(200).json({ status: 'success', message: 'Member removed' });
@@ -96,8 +96,8 @@ export const updateWorkspace = async (req, res, next) => {
         const { name, description } = req.body;
         const workspace = await Workspace.findById(workspaceId);
         if (!workspace) return next(new ApiError(404, 'Workspace not found'));
-        if (workspace.owner.toString() !== req.user._id.toString())
-            return next(new ApiError(403, 'Only the owner can update this workspace'));
+        if (workspace.Admin?.toString() !== req.user._id.toString())
+            return next(new ApiError(403, 'Only the Admin can update this workspace'));
         if (name) workspace.name = name;
         if (description !== undefined) workspace.description = description;
         await workspace.save();
@@ -106,36 +106,36 @@ export const updateWorkspace = async (req, res, next) => {
 };
 
 export const getOverdueCount = async (req, res, next) => {
-  try {
-    const { workspaceId } = req.params;
-    const workspace = await Workspace.findById(workspaceId);
-    if (!workspace) return next(new ApiError(404, 'Workspace not found'));
-    const isMember = workspace.members.some(m => m.user.toString() === req.user._id.toString());
-    if (!isMember) return next(new ApiError(403, 'Access denied'));
+    try {
+        const { workspaceId } = req.params;
+        const workspace = await Workspace.findById(workspaceId);
+        if (!workspace) return next(new ApiError(404, 'Workspace not found'));
+        const isMember = workspace.members.some(m => m.user?.toString() === req.user._id.toString());
+        if (!isMember) return next(new ApiError(403, 'Access denied'));
 
-    // Find boards in workspace
-    const Board = (await import('../models/Board.js')).default;
-    const boards = await Board.find({ workspace: workspaceId }).select('_id');
-    const boardIds = boards.map(b => b._id);
-    // Count overdue cards
-    const now = new Date();
-    const count = await Card.countDocuments({ board: { $in: boardIds }, dueDate: { $lt: now } });
-    res.status(200).json({ status: 'success', data: { overdueCount: count } });
-  } catch (err) {
-    next(err);
-  }
+        // Find boards in workspace
+        const Board = (await import('../models/Board.js')).default;
+        const boards = await Board.find({ workspace: workspaceId }).select('_id');
+        const boardIds = boards.map(b => b._id);
+        // Count overdue cards
+        const now = new Date();
+        const count = await Card.countDocuments({ board: { $in: boardIds }, dueDate: { $lt: now } });
+        res.status(200).json({ status: 'success', data: { overdueCount: count } });
+    } catch (err) {
+        next(err);
+    }
 };
 
 export const deleteWorkspace = async (req, res, next) => {
-  try {
-    const { workspaceId } = req.params;
-    const workspace = await Workspace.findById(workspaceId);
-    if (!workspace) return next(new ApiError(404, 'Workspace not found'));
-    if (workspace.owner.toString() !== req.user._id.toString())
-      return next(new ApiError(403, 'Only the owner can delete this workspace'));
-    await workspace.deleteOne();
-    res.status(200).json({ status: 'success', message: 'Workspace deleted' });
-  } catch (error) {
-    next(error);
-  }
+    try {
+        const { workspaceId } = req.params;
+        const workspace = await Workspace.findById(workspaceId);
+        if (!workspace) return next(new ApiError(404, 'Workspace not found'));
+        if (workspace.Admin?.toString() !== req.user._id.toString())
+            return next(new ApiError(403, 'Only the Admin can delete this workspace'));
+        await workspace.deleteOne();
+        res.status(200).json({ status: 'success', message: 'Workspace deleted' });
+    } catch (error) {
+        next(error);
+    }
 };

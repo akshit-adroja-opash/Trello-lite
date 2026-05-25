@@ -116,17 +116,17 @@ const BoardPage = () => {
 
     useEffect(() => {
         if (board && user) {
-            const ownerId = board.owner?._id || board.owner;
-            if (ownerId === user._id) {
-                setBoardRole('Owner');
+            const AdminId = board.Admin?._id || board.Admin;
+            if (AdminId === user._id) {
+                setBoardRole('admin');
             } else {
                 const member = board.members?.find(m =>
                     (m.user?._id || m.user) === user._id
                 );
-                setBoardRole(member?.role || 'Viewer');
+                setBoardRole(member?.role || 'client');
             }
         } else {
-            setBoardRole('Viewer');
+            setBoardRole('client');
         }
     }, [board, user, setBoardRole]);
 
@@ -272,7 +272,7 @@ const BoardPage = () => {
     const handleDragEnd = useCallback(async ({ active, over }) => {
         setActiveCard(null); setActiveColumn(null);
         if (!over || active.id === over.id) return;
-        if (boardRole === 'Viewer') return;
+        if (boardRole === 'client') return;
         const activeType = active.data.current?.type;
 
         if (activeType === 'card') {
@@ -363,8 +363,8 @@ const BoardPage = () => {
 
     const uniqueAssignees = useMemo(() => {
         const list = [];
-        if (board?.owner) {
-            list.push(board.owner);
+        if (board?.Admin) {
+            list.push(board.Admin);
         }
         if (board?.members) {
             board.members.forEach(m => {
@@ -509,8 +509,8 @@ const BoardPage = () => {
                             <button
                                 onClick={handleToggleStar}
                                 className={`transition-all ${board?.isStarred
-                                        ? 'text-yellow-400'
-                                        : 'text-slate-400 hover:text-yellow-400'
+                                    ? 'text-yellow-400'
+                                    : 'text-slate-400 hover:text-yellow-400'
                                     }`}
                             >
                                 <svg
@@ -614,7 +614,7 @@ const BoardPage = () => {
                         <ThemeToggle />
                         <NotificationBell />
 
-                        {(boardRole === 'Owner' || boardRole === 'Admin' || board?.role === 'owner' || board?.role === 'admin') && (
+                        {(boardRole === 'admin') && (
                             <>
                                 <button
                                     onClick={() => setMembersModalOpen(true)}

@@ -79,7 +79,7 @@ const DashboardSidebar = ({ currentWorkspace, openWorkspaceSettings, boards: pro
   const canManageWorkspace =
     currentWorkspace &&
     openWorkspaceSettings &&
-    (currentWorkspace.role === 'owner' || currentWorkspace.role === 'admin');
+    (currentWorkspace.role === 'Admin' || currentWorkspace.role === 'admin');
 
   return (
     <>
@@ -93,9 +93,8 @@ const DashboardSidebar = ({ currentWorkspace, openWorkspaceSettings, boards: pro
 
       {/* Sidebar Shell */}
       <aside
-        className={`fixed left-0 top-0 h-full w-[280px] bg-surface-container-lowest dark:bg-slate-800 border-r border-outline-variant dark:border-slate-700 flex flex-col p-6 gap-6 h-screen overflow-y-auto z-50 transition-transform duration-300 lg:translate-x-0 ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`fixed left-0 top-0 h-full w-[280px] bg-surface-container-lowest dark:bg-slate-800 border-r border-outline-variant dark:border-slate-700 flex flex-col p-6 gap-6 h-screen overflow-y-auto z-50 transition-transform duration-300 lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
         aria-label="Trellolite Sidebar"
       >
         {/* Brand Header */}
@@ -121,11 +120,11 @@ const DashboardSidebar = ({ currentWorkspace, openWorkspaceSettings, boards: pro
           <nav className="flex flex-col gap-1">
             <NavItem to="/dashboard" label="Dashboard" icon="dashboard" />
             <NavItem to="/my-tasks" label="My Tasks" icon="task_alt" />
-            
+
             {canViewReports && (
               <NavItem to="/reports" label="Reports" icon="bar_chart" />
             )}
-            
+
             {canViewAnalytics && (
               <NavItem to="/analytics" label="Analytics" icon="analytics" />
             )}
@@ -185,7 +184,7 @@ const DashboardSidebar = ({ currentWorkspace, openWorkspaceSettings, boards: pro
           </div>
         )}
 
-       
+
       </aside>
     </>
   );

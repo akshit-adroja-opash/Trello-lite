@@ -10,7 +10,7 @@ const workspaceSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
-    owner: {
+    Admin: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true

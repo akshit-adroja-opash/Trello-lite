@@ -15,7 +15,7 @@ const CardItem = ({ card, columnId, isDragging: externalDragging }) => {
     const { updateCard: storeUpdateCard, boardRole, board } = useBoardStore();
     const socket = useSocketStore(s => s.socket);
     const boardId = board?._id;
-    const canEdit = ['Owner', 'Admin', 'Editor'].includes(boardRole);
+    const canEdit = ['admin', 'project_manager', 'developer'].includes(boardRole);
 
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
         id: card._id,
@@ -168,10 +168,10 @@ const CardItem = ({ card, columnId, isDragging: externalDragging }) => {
                             {card.dueDate && (
                                 <div
                                     className={`flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-md border transition-colors ${isOverdue
-                                            ? 'bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 border-rose-200/60 dark:border-rose-800/40'
-                                            : isDueSoon
-                                                ? 'bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border-amber-200/60 dark:border-amber-800/40'
-                                                : 'bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 border-slate-200/80 dark:border-slate-800'
+                                        ? 'bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 border-rose-200/60 dark:border-rose-800/40'
+                                        : isDueSoon
+                                            ? 'bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border-amber-200/60 dark:border-amber-800/40'
+                                            : 'bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 border-slate-200/80 dark:border-slate-800'
                                         }`}
                                     title={isOverdue ? 'Overdue' : isDueSoon ? 'Due soon' : 'Due date'}
                                 >

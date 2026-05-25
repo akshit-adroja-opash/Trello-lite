@@ -14,15 +14,15 @@ This report lists the bugs found in the frontend and backend of the Trello-lite 
   * Frontend: `frontend/src/components/Board/BoardMembersModal.jsx` (Lines 248, 252, 256)
   * Backend: `backend/src/models/Board.js` (Line 12)
 * **What the Bug is:**
-  In `BoardMembersModal.jsx`, the `<select>` options for member roles send lowercase values: `"viewer"`, `"editor"`, or `"owner"`.
-  However, the backend `Board` schema defines the `role` enum with capitalized values: `['Owner', 'Admin', 'Editor', 'Viewer']`.
+  In `BoardMembersModal.jsx`, the `<select>` options for member roles send lowercase values: `"viewer"`, `"editor"`, or `"Admin"`.
+  However, the backend `Board` schema defines the `role` enum with capitalized values: `['Admin', 'Admin', 'Editor', 'Viewer']`.
   When the frontend calls the patch endpoint to update a member's role, the backend attempts to save the lowercase string to the database. This triggers a Mongoose enum validation error and fails.
 * **How to Fix it:**
   Capitalize the option values in the select element in `BoardMembersModal.jsx`:
   ```html
   <option value="Viewer">Viewer</option>
   <option value="Editor">Editor</option>
-  <option value="Owner">Owner</option>
+  <option value="Admin">Admin</option>
   ```
 
 ---

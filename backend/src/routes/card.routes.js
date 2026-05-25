@@ -7,17 +7,17 @@ const router = Router();
 router.use(verifyJWT);
 
 
-router.post('/', requireBoardRole('Owner', 'Admin'), createCard);
+router.post('/', requireBoardRole('admin', 'project_manager'), createCard);
 router.get('/column/:columnId', getCards);
 router.get('/my-tasks', getMyTasks);
 router.get('/:cardId', getSingleCard);
 router.get('/:cardId/activities', getCardActivities);
-router.post('/:cardId/comments', requireBoardRole('Owner', 'Admin', 'Editor'), addComment);
-router.post('/:cardId/comments/:commentId/react', requireBoardRole('Owner', 'Admin', 'Editor'), toggleCommentReaction);
-router.post('/:cardId/save-template', requireBoardRole('Owner', 'Admin', 'Editor'), saveCardAsTemplate);
+router.post('/:cardId/comments', requireBoardRole('admin', 'project_manager', 'developer'), addComment);
+router.post('/:cardId/comments/:commentId/react', requireBoardRole('admin', 'project_manager', 'developer'), toggleCommentReaction);
+router.post('/:cardId/save-template', requireBoardRole('admin', 'project_manager', 'developer'), saveCardAsTemplate);
 router.get('/board/:boardId/templates', getBoardTemplates);
-router.patch('/:cardId', requireBoardRole('Owner', 'Admin'), updateCard);
-router.delete('/:cardId', requireBoardRole('Owner', 'Admin'), deleteCard);
-router.patch('/:cardId/move', requireBoardRole('Owner', 'Admin', 'Editor'), moveCard);
+router.patch('/:cardId', requireBoardRole('admin', 'project_manager'), updateCard);
+router.delete('/:cardId', requireBoardRole('admin', 'project_manager'), deleteCard);
+router.patch('/:cardId/move', requireBoardRole('admin', 'project_manager', 'developer'), moveCard);
 
 export default router;

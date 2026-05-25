@@ -246,16 +246,20 @@ const BoardMembersModal = ({
                                                         className="border rounded-xl px-4 py-2 dark:bg-zinc-800"
                                                     >
 
-                                                        <option value="Viewer">
-                                                            Viewer
+                                                        <option value="client">
+                                                            Client
                                                         </option>
 
-                                                        <option value="Editor">
-                                                            Editor
+                                                        <option value="developer">
+                                                            Developer
                                                         </option>
 
-                                                        <option value="Owner">
-                                                            Owner
+                                                        <option value="project_manager">
+                                                            Project Manager
+                                                        </option>
+
+                                                        <option value="admin">
+                                                            Admin
                                                         </option>
 
                                                     </select>

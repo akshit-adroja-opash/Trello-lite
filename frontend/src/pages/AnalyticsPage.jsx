@@ -105,7 +105,7 @@ const AnalyticsPage = () => {
 
                 {/* Content Canvas */}
                 <main className="flex-1 ml-0 lg:ml-[280px] p-6 lg:p-10 overflow-y-auto w-full max-w-[1440px] mx-auto">
-                    
+
                     {/* Header Controls */}
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 border-b border-outline-variant/30 dark:border-slate-800 pb-6">
                         <div>
@@ -155,7 +155,7 @@ const AnalyticsPage = () => {
                         </div>
                     ) : (
                         <div className="space-y-8 animate-in fade-in duration-300">
-                            
+
                             {/* SUMMARY KPI CARDS */}
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                                 <KpiCard
@@ -191,7 +191,7 @@ const AnalyticsPage = () => {
 
                             {/* CHARTS GRID */}
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                
+
                                 {/* WORKLOAD */}
                                 <div className="glass-card p-6 rounded-xl border border-outline-variant/50 dark:border-slate-700 bg-white/90 dark:bg-slate-800/90 backdrop-blur shadow-sm flex flex-col min-h-[400px]">
                                     <div className="mb-6">

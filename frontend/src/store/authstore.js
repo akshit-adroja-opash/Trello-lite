@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { loginUser, registerUser, getMe, logoutUser, updateProfile as apiUpdateProfile } from "../api/auth.api";
+import { loginUser, registerUser, getMe, logoutUser, updateProfile as apiUpdateProfile, deleteAccount as apiDeleteAccount } from "../api/auth.api";
 
 const useAuthStore = create((set) => ({
   user: null,
@@ -74,6 +74,16 @@ const useAuthStore = create((set) => ({
   updateProfile: async (formData) => {
     const res = await apiUpdateProfile(formData);
     set({ user: res.data.user });
+  },
+
+  deleteAccountAction: async () => {
+    try {
+      await apiDeleteAccount();
+    } catch {
+      // ignore
+    }
+    localStorage.removeItem("token");
+    set({ user: null, token: null });
   },
 }));
 
