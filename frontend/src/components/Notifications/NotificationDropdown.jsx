@@ -1,13 +1,24 @@
 import { useNavigate } from 'react-router-dom';
 import useNotificationStore from '../../store/notificationStore';
+import { getSingleCard } from '../../api/card.api';
 
 const NotificationDropdown = ({ onClose }) => {
     const { notifications, loading, markAsRead, markAllAsRead } = useNotificationStore();
     const navigate = useNavigate();
 
-    const handleItemClick = (notif) => {
+    const handleItemClick = async (notif) => {
         if (!notif.isRead) markAsRead(notif._id);
         if (notif.entityModel === 'Card' && notif.relatedEntity) {
+            try {
+                const res = await getSingleCard(notif.relatedEntity);
+                const card = res.data?.card;
+                if (card && card.board) {
+                    navigate(`/board/${card.board}`);
+                }
+            } catch (err) {
+                console.error("Failed to find board for card notification", err);
+            }
+        } else if (notif.entityModel === 'Board' && notif.relatedEntity) {
             navigate(`/board/${notif.relatedEntity}`);
         }
         onClose();
