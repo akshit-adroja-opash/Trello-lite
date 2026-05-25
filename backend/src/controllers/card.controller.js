@@ -107,8 +107,8 @@ export const getCardActivities = async (req, res, next) => {
 export const getMyTasks = async (req, res, next) => {
     try {
         const cards = await Card.find({ assignees: req.user._id })
-            .populate('board', 'title')
-            .populate('column', 'title')
+            .populate('board', 'name')
+            .populate('column', 'name')
             .populate('assignees', 'username email avatar')
             .sort({ dueDate: 1 });
         res.status(200).json({ status: 'success', data: { cards } });

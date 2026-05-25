@@ -31,7 +31,7 @@ const ProfilePage = () => {
     if (!user?.avatar) return null;
     if (user.avatar.startsWith('http') || user.avatar.startsWith('data:')) return user.avatar;
     const backendBase = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:5000';
-    return `${backendBase}${user.avatar}`;
+    return `${backendBase}${user.avatar.startsWith('/') ? '' : '/'}${user.avatar}`;
   };
 
   const handleSubmit = async (e) => {

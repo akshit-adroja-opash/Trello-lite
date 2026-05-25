@@ -115,3 +115,17 @@ export const getDevelopers = async (req, res, next) => {
   }
 };
 
+export const deleteAccount = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    await User.findByIdAndDelete(userId);
+    res.clearCookie('token');
+    res.status(200).json({
+      status: 'success',
+      message: 'Account deleted successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
