@@ -96,6 +96,21 @@ const ProfilePage = () => {
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    // Validate type (must be image)
+    if (!file.type.startsWith('image/')) {
+      toast.error('Only image files are allowed for avatars.');
+      e.target.value = ''; // Reset input
+      return;
+    }
+
+    // Validate size (must be <= 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('Avatar image size cannot exceed 10MB.');
+      e.target.value = ''; // Reset input
+      return;
+    }
+
     setAvatarFile(file);
     setAvatarPreview(URL.createObjectURL(file));
   };

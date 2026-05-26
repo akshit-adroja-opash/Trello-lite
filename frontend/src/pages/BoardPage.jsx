@@ -52,6 +52,7 @@ const BoardPage = () => {
     const [settingsModalOpen, setSettingsModalOpen] = useState(false);
     const [viewMode, setViewMode] = useState('kanban');
     const [showFilters, setShowFilters] = useState(false);
+    const [showActivity, setShowActivity] = useState(false);
     const [selectedLabels, setSelectedLabels] = useState([]);
     const [selectedAssignees, setSelectedAssignees] = useState([]);
     const [dueDateFilter, setDueDateFilter] = useState('all');
@@ -122,7 +123,7 @@ const BoardPage = () => {
                 const member = board.members?.find(m =>
                     (m.user?._id || m.user) === user._id
                 );
-                setBoardRole(member?.role || 'client');
+                setBoardRole(member?.role || user.role || 'client');
             }
         } else {
             setBoardRole('client');
@@ -490,25 +491,25 @@ const BoardPage = () => {
                 </div>
             ))}
 
-            <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700/80 px-6 py-3 flex flex-col md:flex-row items-center justify-between sticky top-0 z-50 shrink-0 gap-4">
+            <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700/80 px-4 md:px-6 py-3 flex flex-wrap items-center justify-between sticky top-0 z-50 shrink-0 gap-3 md:gap-4">
                 {/* Left Section */}
-                <div className="flex items-center space-x-6 justify-start flex-1 min-w-0 w-full md:w-auto">
+                <div className="flex items-center gap-4 md:gap-6 justify-start min-w-0 shrink-0">
                     <div className="flex items-center space-x-2 text-slate-500 shrink-0">
                         <Link to="/dashboard" className="hover:text-primary dark:hover:text-indigo-400 transition-colors flex items-center space-x-1">
                             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
                             </svg>
-                            <span className="text-sm font-medium">Dashboard</span>
+                            <span className="text-sm font-medium hidden sm:inline">Dashboard</span>
                         </Link>
                         <span className="text-slate-300 dark:text-slate-600">/</span>
-                        <div className="flex items-center gap-3">
-                            <h1 className="text-slate-900 dark:text-white font-bold text-lg">
+                        <div className="flex items-center gap-2 md:gap-3">
+                            <h1 className="text-slate-900 dark:text-white font-bold text-base md:text-lg truncate max-w-[120px] sm:max-w-none">
                                 {board?.name}
                             </h1>
 
                             <button
                                 onClick={handleToggleStar}
-                                className={`transition-all ${board?.isStarred
+                                className={`transition-all shrink-0 ${board?.isStarred
                                     ? 'text-yellow-400'
                                     : 'text-slate-400 hover:text-yellow-400'
                                     }`}
@@ -538,7 +539,7 @@ const BoardPage = () => {
                     <div className="flex bg-slate-100 dark:bg-slate-700/50 p-1 rounded-lg shrink-0" data-purpose="view-toggles">
                         <button
                             onClick={() => setViewMode('kanban')}
-                            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${viewMode === 'kanban'
+                            className={`px-2.5 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded-md transition-all ${viewMode === 'kanban'
                                 ? 'bg-white dark:bg-slate-800 shadow-sm text-slate-900 dark:text-white'
                                 : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
                                 }`}
@@ -547,7 +548,7 @@ const BoardPage = () => {
                         </button>
                         <button
                             onClick={() => setViewMode('calendar')}
-                            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${viewMode === 'calendar'
+                            className={`px-2.5 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded-md transition-all ${viewMode === 'calendar'
                                 ? 'bg-white dark:bg-slate-800 shadow-sm text-slate-900 dark:text-white'
                                 : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
                                 }`}
@@ -558,7 +559,7 @@ const BoardPage = () => {
                 </div>
 
                 {/* Center Section (Search Bar & Filters) */}
-                <div className="flex items-center justify-center flex-1 max-w-lg w-full gap-3 my-2 md:my-0">
+                <div className="order-3 lg:order-none w-full lg:w-auto lg:flex-1 lg:max-w-md xl:max-w-lg flex items-center gap-3">
                     <div className="relative flex-1">
                         <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
                             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -569,15 +570,25 @@ const BoardPage = () => {
                             ref={searchRef}
                             value={searchQuery}
                             onChange={e => setSearchQuery(e.target.value)}
-                            className="pl-10 pr-4 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-205 dark:border-slate-700 rounded-lg text-sm w-full focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-slate-800 dark:text-white outline-none transition-all"
+                            className="pl-10 pr-9 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm w-full focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-slate-800 dark:text-white outline-none transition-all"
                             placeholder="Filter board cards..."
                             type="text"
                         />
+                        {searchQuery && (
+                            <button
+                                onClick={() => setSearchQuery('')}
+                                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-500 hover:text-slate-650 dark:hover:text-slate-350 transition-all flex items-center justify-center"
+                            >
+                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        )}
                     </div>
 
                     <button
                         onClick={() => setShowFilters(!showFilters)}
-                        className={`flex items-center space-x-2 px-4 py-1.5 border rounded-lg text-sm font-medium transition-all shrink-0 ${showFilters
+                        className={`flex items-center space-x-2 px-3 sm:px-4 py-1.5 border rounded-lg text-sm font-medium transition-all shrink-0 ${showFilters
                             ? 'bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-950/40 dark:border-indigo-900/60 dark:text-indigo-400'
                             : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-350'
                             }`}
@@ -611,7 +622,7 @@ const BoardPage = () => {
                 </div>
 
                 {/* Right Section */}
-                <div className="flex items-center justify-end space-x-4 flex-1 w-full md:w-auto">
+                <div className="flex items-center justify-end space-x-2 md:space-x-4 shrink-0">
 
                     {/* Tools and Action buttons */}
                     <div className="flex items-center space-x-2 shrink-0">
@@ -620,14 +631,27 @@ const BoardPage = () => {
                         {(boardRole === 'admin') && (
                             <button
                                 onClick={() => setMembersModalOpen(true)}
-                                className="flex items-center space-x-2 px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300"
+                                className="flex items-center space-x-2 px-2.5 sm:px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300"
                             >
                                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
                                 </svg>
-                                <span>Members</span>
+                                <span className="hidden sm:inline">Members</span>
                             </button>
                         )}
+
+                        <button
+                            onClick={() => setShowActivity(!showActivity)}
+                            className={`p-1.5 rounded-lg border transition-all ${showActivity
+                                ? 'bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-950/40 dark:border-indigo-900/60 dark:text-indigo-400'
+                                : 'border-slate-200 dark:border-slate-700 hover:bg-slate-105 dark:hover:bg-slate-750 text-slate-500 dark:text-slate-400'
+                                }`}
+                            title="Activity Feed"
+                        >
+                            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </button>
 
                         <button
                             onClick={() => setShowShortcuts(true)}
@@ -827,7 +851,7 @@ const BoardPage = () => {
                     </div>
                 </div>
 
-                <ActivitySidebar boardId={boardId} />
+                <ActivitySidebar boardId={boardId} isOpen={showActivity} onClose={() => setShowActivity(false)} />
             </main>
 
             {showShortcuts && <KeyboardShortcutsModal onClose={() => setShowShortcuts(false)} />}

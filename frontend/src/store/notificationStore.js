@@ -26,6 +26,10 @@ const useNotificationStore = create(devtools((set, get) => ({
   // Add a notification received via socket
   addNotification: (notification) => {
     set((state) => {
+      // Prevent duplicate notification addition
+      const exists = state.notifications.some((n) => n._id === notification._id);
+      if (exists) return {};
+
       const newList = [notification, ...state.notifications];
       const newUnread = state.unreadCount + (notification.isRead ? 0 : 1);
       return { notifications: newList, unreadCount: newUnread };
@@ -63,6 +67,9 @@ const useNotificationStore = create(devtools((set, get) => ({
     if (auth.user && auth.user._id) {
       socket.emit('register_user', auth.user._id);
     }
+
+    // Clean up existing listener to prevent duplicate registration on page navigation/strict mode
+    socket.off('new_notification');
 
     socket.on('new_notification', (payload) => {
       get().addNotification(payload);

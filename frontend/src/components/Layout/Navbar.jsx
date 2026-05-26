@@ -41,25 +41,33 @@ const Navbar = ({ searchQuery, setSearchQuery }) => {
       <div className="flex justify-between items-center px-6 lg:px-10 h-full">
         
         {/* Search Bar / Mobile Menu trigger */}
-        <div className="flex items-center flex-1 max-w-md relative">
+        <div className="flex items-center flex-1 max-w-md">
           <button
             onClick={toggleSidebar}
-            className="lg:hidden p-2 text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-slate-700 rounded-lg mr-2 transition-colors"
+            className="lg:hidden p-2 text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-slate-700 rounded-lg mr-2 transition-colors shrink-0"
           >
             <span className="material-symbols-outlined">menu</span>
           </button>
           
           {setSearchQuery && (
-            <>
-              <span className="material-symbols-outlined absolute left-12 lg:left-3 top-1/2 -translate-y-1/2 text-outline dark:text-slate-400">search</span>
+            <div className="relative w-full flex-1">
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-[20px] pointer-events-none">search</span>
               <input 
                 value={searchQuery || ''}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="w-full pl-20 lg:pl-10 pr-4 py-2 bg-surface-container-low dark:bg-slate-900 border border-outline-variant dark:border-slate-750 rounded-lg focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none font-body-md text-on-surface dark:text-white" 
+                className="w-full pl-10 pr-9 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none font-body-md text-slate-800 dark:text-white transition-all text-sm" 
                 placeholder="Search workspaces, boards..." 
                 type="text"
               />
-            </>
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-500 hover:text-slate-650 dark:hover:text-slate-300 transition-all flex items-center justify-center"
+                >
+                  <span className="material-symbols-outlined text-[16px]">close</span>
+                </button>
+              )}
+            </div>
           )}
         </div>
 

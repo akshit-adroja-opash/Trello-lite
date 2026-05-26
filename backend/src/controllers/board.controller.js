@@ -15,7 +15,7 @@ export const createBoard = async (req, res, next) => {
 
         const board = await Board.create({
             name, workspace: workspaceId, Admin: req.user._id, background,
-            members: [{ user: req.user._id, role: 'Admin' }]
+            members: [{ user: req.user._id, role: 'admin' }]
         });
 
         // Automatically populate new board with default columns
@@ -119,7 +119,7 @@ export const getBoardMembers = async (req, res, next) => {
 export const addBoardMember = async (req, res, next) => {
     try {
         const { boardId } = req.params;
-        const { email, role = 'Editor' } = req.body;
+        const { email, role = 'developer' } = req.body;
         const board = await Board.findById(boardId);
         if (!board) return next(new ApiError(404, 'Board not found'));
 

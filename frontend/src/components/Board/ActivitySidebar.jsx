@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getBoardActivities } from "../../api/activity.api";
 
-const ActivitySidebar = ({ boardId }) => {
+const ActivitySidebar = ({ boardId, isOpen, onClose }) => {
 
     const [activities, setActivities] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -66,89 +66,120 @@ const ActivitySidebar = ({ boardId }) => {
     };
 
     return (
-        <div className="w-[320px] h-full bg-white dark:bg-slate-800 border-l border-slate-200 dark:border-slate-700/50 flex flex-col transition-colors duration-200">
+        <>
+            {/* Backdrop for mobile/tablet when open */}
+            {isOpen && (
+                <div 
+                    className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300"
+                    onClick={onClose}
+                />
+            )}
 
-            {/* HEADER */}
+            <div 
+                className={`
+                    fixed top-0 right-0 h-full z-50 bg-white dark:bg-slate-800 flex flex-col transition-all duration-300 ease-in-out
+                    lg:static lg:h-full lg:z-auto
+                    ${isOpen 
+                        ? 'translate-x-0 w-[320px] shadow-2xl lg:shadow-none border-l border-slate-200 dark:border-slate-700/50' 
+                        : 'translate-x-full lg:translate-x-0 w-[320px] lg:w-0 lg:overflow-hidden lg:border-l-0'
+                    }
+                `}
+            >
 
-            <div className="p-4 border-b border-slate-200 dark:border-slate-700">
+                {/* HEADER */}
 
-                <h2 className="text-lg font-bold text-slate-800 dark:text-white">
-                    Activity Feed
-                </h2>
+                <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
 
-                <p className="text-sm text-slate-550 dark:text-slate-400 mt-1">
-                    Live board activity
-                </p>
+                    <div>
+                        <h2 className="text-lg font-bold text-slate-800 dark:text-white">
+                            Activity Feed
+                        </h2>
 
-            </div>
+                        <p className="text-sm text-slate-550 dark:text-slate-400 mt-1">
+                            Live board activity
+                        </p>
+                    </div>
 
-            {/* BODY */}
+                    <button
+                        onClick={onClose}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-slate-650 dark:hover:text-slate-250 hover:bg-slate-100 dark:hover:bg-slate-750 transition-colors"
+                        title="Close Activity Feed"
+                    >
+                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                </div>
 
-                {loading && (
-                    <p className="text-sm text-slate-500 dark:text-slate-400">
-                        Loading activities...
-                    </p>
-                )}
+                {/* BODY */}
 
-                {!loading &&
-                    activities.length === 0 && (
+                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+
+                    {loading && (
                         <p className="text-sm text-slate-500 dark:text-slate-400">
-                            No activities yet
+                            Loading activities...
                         </p>
                     )}
 
-                {activities.map((activity) => (
+                    {!loading &&
+                        activities.length === 0 && (
+                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                                No activities yet
+                            </p>
+                        )}
 
-                    <div
-                        key={activity._id}
-                        className="bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-xl p-3"
-                    >
+                    {activities.map((activity) => (
 
-                        {/* USER */}
+                        <div
+                            key={activity._id}
+                            className="bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-xl p-3"
+                        >
 
-                        <div className="flex items-center gap-2 mb-2">
+                            {/* USER */}
 
-                            <div className="w-8 h-8 rounded-full bg-indigo-500 text-white flex items-center justify-center text-sm font-bold">
+                            <div className="flex items-center gap-2 mb-2">
 
-                                {activity.user?.username?.[0] || "U"}
+                                <div className="w-8 h-8 rounded-full bg-indigo-500 text-white flex items-center justify-center text-sm font-bold">
+
+                                    {activity.user?.username?.[0] || "U"}
+
+                                </div>
+
+                                <div>
+
+                                    <p className="text-sm font-semibold text-slate-800 dark:text-white">
+
+                                        {activity.user?.username || "User"}
+
+                                    </p>
+
+                                    <p className="text-xs text-slate-400 dark:text-slate-450">
+
+                                        {formatTime(
+                                            activity.createdAt
+                                        )}
+
+                                    </p>
+
+                                </div>
 
                             </div>
 
-                            <div>
+                            {/* ACTION */}
 
-                                <p className="text-sm font-semibold text-slate-800 dark:text-white">
+                            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
 
-                                    {activity.user?.username || "User"}
+                                {activity.details}
 
-                                </p>
-
-                                <p className="text-xs text-slate-400 dark:text-slate-450">
-
-                                    {formatTime(
-                                        activity.createdAt
-                                    )}
-
-                                </p>
-
-                            </div>
+                            </p>
 
                         </div>
+                    ))}
 
-                        {/* ACTION */}
-
-                        <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-
-                            {activity.details}
-
-                        </p>
-
-                    </div>
-                ))}
-
+                </div>
             </div>
-        </div>
+        </>
     );
 };
 

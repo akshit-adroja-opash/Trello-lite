@@ -25,10 +25,15 @@ const storage = multer.diskStorage({
 
 export const avatarUpload = multer({
   storage,
-  limits: { fileSize: 2 * 1024 * 1024 }, 
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
   fileFilter: (req, file, cb) => {
-    const allowed = /jpeg|jpg|png/.test(file.mimetype);
-    cb(null, allowed);
+    const allowedMimetype = /jpeg|jpg|png|gif/i.test(file.mimetype);
+    const allowedExt = /jpeg|jpg|png|gif/i.test(path.extname(file.originalname).toLowerCase());
+    if (allowedMimetype && allowedExt) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only JPG, JPEG, PNG, and GIF images are allowed for avatars.'), false);
+    }
   },
 });
 

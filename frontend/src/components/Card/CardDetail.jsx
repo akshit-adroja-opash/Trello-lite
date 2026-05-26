@@ -72,15 +72,15 @@ const SortableChecklistItem = ({ item, index, onToggleCheck, onRemoveCheck, canE
     };
 
     return (
-        <div 
-            ref={setNodeRef} 
-            style={style} 
+        <div
+            ref={setNodeRef}
+            style={style}
             className="flex items-center gap-3 group bg-slate-50/40 dark:bg-slate-900/20 hover:bg-slate-50 dark:hover:bg-slate-900/50 px-4 py-2.5 rounded-lg border border-slate-100 dark:border-slate-800 transition-all"
         >
             {canEdit && (
-                <div 
-                    {...attributes} 
-                    {...listeners} 
+                <div
+                    {...attributes}
+                    {...listeners}
                     className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600 dark:hover:text-slate-350 p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-850/80 transition-colors shrink-0 flex items-center"
                     title="Drag to reorder"
                 >
@@ -355,10 +355,10 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
 
     const toggleCheck = (idx) => setChecklist(p => p.map((item, i) => i === idx ? { ...item, done: !item.done } : item));
     const removeCheck = (idx) => setChecklist(p => p.filter((_, i) => i !== idx));
-    const addCheck = () => { 
-        if (!newCheckItem.trim()) return; 
-        setChecklist(p => [...p, { _id: 'temp-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9), text: newCheckItem.trim(), done: false }]); 
-        setNewCheckItem(''); 
+    const addCheck = () => {
+        if (!newCheckItem.trim()) return;
+        setChecklist(p => [...p, { _id: 'temp-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9), text: newCheckItem.trim(), done: false }]);
+        setNewCheckItem('');
     };
     const addLabel = () => { if (!newLabel.name.trim()) return; setLabels(p => [...p, { name: newLabel.name.trim(), color: newLabel.color }]); setNewLabel({ name: '', color: LABEL_COLORS[0] }); };
 
@@ -621,7 +621,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                     card.attachments.map((att) => {
                                         const isImage = att.mimeType?.startsWith('image/');
                                         const sizeInKB = att.size ? Math.round(att.size / 1024) : 0;
-                                        
+
                                         const getAttachmentUrl = (path) => {
                                             if (!path) return '';
                                             if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
@@ -653,8 +653,8 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                                     ) : (
                                                         <span className="material-symbols-outlined text-slate-400 dark:text-slate-500 text-2xl">
                                                             {att.filename.endsWith('.pdf') ? 'picture_as_pdf' :
-                                                             (att.filename.endsWith('.zip') || att.filename.endsWith('.rar')) ? 'folder_zip' :
-                                                             'description'}
+                                                                (att.filename.endsWith('.zip') || att.filename.endsWith('.rar')) ? 'folder_zip' :
+                                                                    'description'}
                                                         </span>
                                                     )}
                                                 </div>
@@ -669,7 +669,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                                             {sizeInKB} KB
                                                         </p>
                                                     </div>
-                                                    
+
                                                     <div className="flex gap-3 mt-1">
                                                         <a
                                                             href={fileUrl}
@@ -681,7 +681,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                                             <span className="material-symbols-outlined text-[12px]">download</span>
                                                             Download
                                                         </a>
-                                                        
+
                                                         {canEdit && (
                                                             <button
                                                                 onClick={() => handleDeleteFile(att._id)}
@@ -762,8 +762,8 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                                                 onClick={() => handleToggleReaction(c._id, react.emoji)}
                                                                 title={tooltipText}
                                                                 className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold transition-all border cursor-pointer ${hasReacted
-                                                                        ? 'bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-950/40 dark:border-indigo-900/60 dark:text-indigo-400'
-                                                                        : 'bg-slate-50 dark:bg-slate-850 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-slate-350 dark:hover:border-slate-600'
+                                                                    ? 'bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-950/40 dark:border-indigo-900/60 dark:text-indigo-400'
+                                                                    : 'bg-slate-50 dark:bg-slate-850 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-slate-350 dark:hover:border-slate-600'
                                                                     }`}
                                                             >
                                                                 <span>{react.emoji}</span>
@@ -817,7 +817,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                 <span className="material-symbols-outlined text-sm text-secondary dark:text-indigo-400">group</span>
                                 <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 uppercase">Assign Developer</span>
                             </div>
-                            
+
                             <select
                                 onChange={e => {
                                     const val = e.target.value;
