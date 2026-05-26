@@ -50,4 +50,24 @@ export const updateUserRole = async (userId, role) => {
 export const deleteUser = async (userId) => {
     const response = await API.delete(`/auth/users/${userId}`);
     return response.data;
+};
+
+export const get2FAStatus = async () => {
+    const response = await API.get('/auth/2fa');
+    return response.data;
+};
+
+export const toggle2FA = async (enabled) => {
+    const response = await API.post('/auth/2fa', { enabled });
+    return response.data;
+};
+
+export const getSessions = async () => {
+    const response = await API.get('/auth/sessions');
+    return response.data;
+};
+
+export const revokeSession = async (sessionId) => {
+    const response = await API.delete(`/auth/sessions/${sessionId}`);
+    return response.data;
 };

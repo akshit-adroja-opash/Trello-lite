@@ -399,13 +399,15 @@ const AnalyticsPage = () => {
                                                                 <select
                                                                     value={u.role || 'developer'}
                                                                     onChange={(e) => handleRoleChange(u._id, e.target.value)}
-                                                                    disabled={u._id === user._id}
-                                                                    className="bg-transparent border border-outline-variant dark:border-slate-600 rounded px-2 py-1 text-sm text-on-surface dark:text-white outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
+                                                                    disabled={u._id === user._id || u.role === 'admin'}
+                                                                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer disabled:opacity-50 transition-all min-w-[155px] shadow-sm"
                                                                 >
-                                                                    <option value="developer">Developer</option>
-                                                                    <option value="project_manager">Project Manager</option>
-                                                                    <option value="client">Client</option>
-                                                                    <option value="admin">Admin</option>
+                                                                    <option value="developer" className="bg-white dark:bg-slate-800 text-slate-800 dark:text-white">Developer</option>
+                                                                    <option value="project_manager" className="bg-white dark:bg-slate-800 text-slate-800 dark:text-white">Project Manager</option>
+                                                                    <option value="client" className="bg-white dark:bg-slate-800 text-slate-800 dark:text-white">Client</option>
+                                                                    {u.role === 'admin' && (
+                                                                        <option value="admin" className="bg-white dark:bg-slate-800 text-slate-800 dark:text-white">Admin</option>
+                                                                    )}
                                                                 </select>
                                                             </td>
                                                             <td className="py-3 px-4 text-right">

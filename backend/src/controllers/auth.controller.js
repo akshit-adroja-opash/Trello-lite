@@ -1,4 +1,5 @@
 import User from "../models/User.js";
+import Session from "../models/Session.js";
 import { generateToken } from "../utils/generateToken.js";
 import { ApiError } from "../utils/apiError.js";
 
@@ -17,6 +18,14 @@ export const register = async (req, res, next) => {
 
     const user = await User.create({ username, email, password, role });
     const token = generateToken(user._id);
+
+    await Session.create({
+      userId: user._id,
+      token,
+      userAgent: req.headers['user-agent'] || 'Unknown Device',
+      ipAddress: req.ip || req.connection.remoteAddress || 'Unknown IP',
+      lastActive: new Date()
+    });
 
     res.status(201).json({
       status: "success",
@@ -42,6 +51,14 @@ export const login = async (req, res, next) => {
 
     const token = generateToken(user._id);
     res.cookie("token", token);
+
+    await Session.create({
+      userId: user._id,
+      token,
+      userAgent: req.headers['user-agent'] || 'Unknown Device',
+      ipAddress: req.ip || req.connection.remoteAddress || 'Unknown IP',
+      lastActive: new Date()
+    });
 
     res.status(200).json({
       status: "success",
@@ -90,6 +107,10 @@ export const updateProfile = async (req, res, next) => {
 
 export const logout = async (req, res, next) => {
   try {
+    const token = req.cookies?.token || req.header('Authorization')?.replace('Bearer ', '');
+    if (token) {
+      await Session.findOneAndDelete({ token });
+    }
     res.clearCookie('token');
     res.status(200).json({
       status: 'success',
@@ -179,6 +200,69 @@ export const deleteUser = async (req, res, next) => {
     res.status(200).json({
       status: 'success',
       message: 'User deleted successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const get2FAStatus = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+    res.status(200).json({
+      status: "success",
+      data: { twoFactorEnabled: !!user.twoFactorEnabled }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const toggle2FA = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+    const { enabled } = req.body;
+    user.twoFactorEnabled = enabled !== undefined ? enabled : !user.twoFactorEnabled;
+    await user.save();
+    
+    res.status(200).json({
+      status: "success",
+      message: `Two-factor authentication has been ${user.twoFactorEnabled ? 'enabled' : 'disabled'}`,
+      data: { twoFactorEnabled: user.twoFactorEnabled }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getSessions = async (req, res, next) => {
+  try {
+    const sessions = await Session.find({ userId: req.user._id }).sort({ lastActive: -1 });
+    res.status(200).json({
+      status: "success",
+      data: { sessions }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const revokeSession = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const session = await Session.findOneAndDelete({ _id: id, userId: req.user._id });
+    if (!session) {
+      throw new ApiError(404, "Session not found");
+    }
+    res.status(200).json({
+      status: "success",
+      message: "Session revoked successfully"
     });
   } catch (error) {
     next(error);

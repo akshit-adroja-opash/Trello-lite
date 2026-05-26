@@ -266,17 +266,9 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
                             </span>
                           ) : (
                             <>
-                              <select
-                                value={m.role}
-                                onChange={e => handleRoleChange(memberUser._id, e.target.value)}
-                                disabled={isUpdating}
-                                className="h-9 px-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white rounded-lg text-xs font-semibold focus:outline-none focus:border-[#8b8cf1] focus:ring-1 focus:ring-[#8b8cf1] cursor-pointer disabled:opacity-50"
-                              >
-                                <option value="client">Client</option>
-                                <option value="developer">Developer</option>
-                                <option value="project_manager">Project Manager</option>
-                                <option value="admin">Project Manager (Admin)</option>
-                              </select>
+                              <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest px-3">
+                                {getRoleDisplayName(m.role)}
+                              </span>
 
                               <button
                                 onClick={() => handleRemoveMember(memberUser._id)}

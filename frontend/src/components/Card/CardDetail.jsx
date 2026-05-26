@@ -7,6 +7,7 @@ import useSocketStore from '../../store/socketStore';
 import useAuthStore from '../../store/authstore';
 import Avatar from '../../UI/Avatar';
 import { canEditCard, canDeleteCard } from '../../utils/rolePermissions';
+import { getMembers } from '../../api/workspace.api';
 
 const LABEL_COLORS = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6'];
 
@@ -72,9 +73,6 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
     const [activities, setActivities] = useState([]);
     const [saving, setSaving] = useState(false);
     const [typingUser, setTypingUser] = useState(null);
-    const typingTimerRef = useRef(null);
-    const titleInputRef = useRef(null);
-
     const { updateCard: storeUpdate, removeCard, board, boardRole } = useBoardStore();
     const socket = useSocketStore(s => s.socket);
     const boardId = useBoardStore(s => s.board?._id);
@@ -83,6 +81,23 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
     const canDelete = canDeleteCard(boardRole);
 
     const boardMembers = board?.members || [];
+
+    const [workspaceMembers, setWorkspaceMembers] = useState([]);
+    const typingTimerRef = useRef(null);
+
+    useEffect(() => {
+        const workspaceId = board?.workspace?._id || board?.workspace;
+        if (!workspaceId) return;
+
+        getMembers(workspaceId)
+            .then(res => {
+                setWorkspaceMembers(res.data?.members || res.members || []);
+            })
+            .catch(err => {
+                console.error("Failed to fetch workspace members", err);
+            });
+    }, [board]);
+    const titleInputRef = useRef(null);
 
     useEffect(() => {
         getCardActivities(card._id).then(res => setActivities(res.data?.activities || [])).catch(() => { });
@@ -542,34 +557,105 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                             </div>
                         </section>
 
-                        {/* Assignees */}
-                        {boardMembers.length > 0 && (
+                        {/* Assign Developer Dropdown */}
+                        <section className="space-y-2.5">
+                            <div className="flex items-center gap-2">
+                                <span className="material-symbols-outlined text-sm text-secondary dark:text-indigo-400">group</span>
+                                <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 uppercase">Assign Developer</span>
+                            </div>
+                            
+                            <select
+                                onChange={e => {
+                                    const val = e.target.value;
+                                    if (val) {
+                                        toggleAssignee(val);
+                                        e.target.value = ""; // Reset select dropdown
+                                    }
+                                }}
+                                className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-700 text-slate-800 dark:text-white rounded-lg text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary cursor-pointer transition-all shadow-sm disabled:opacity-50"
+                                defaultValue=""
+                                disabled={workspaceMembers.filter(m => m.role === 'developer' && m.user).length === 0}
+                            >
+                                {workspaceMembers.filter(m => m.role === 'developer' && m.user).length === 0 ? (
+                                    <option value="" disabled>No invited developers in workspace</option>
+                                ) : (
+                                    <>
+                                        <option value="" disabled>-- Select Developer to Assign --</option>
+                                        {workspaceMembers
+                                            .filter(m => m.role === 'developer' && m.user)
+                                            .map(m => {
+                                                const isAssigned = assignees.includes(m.user._id);
+                                                return (
+                                                    <option key={m.user._id} value={m.user._id} className="bg-white dark:bg-slate-800 text-slate-800 dark:text-white">
+                                                        {m.user.username} {isAssigned ? '(Assigned) ✓' : ''}
+                                                    </option>
+                                                );
+                                            })
+                                        }
+                                    </>
+                                )}
+                            </select>
+                        </section>
+
+                        {/* Current Assignees */}
+                        {assignees.length > 0 && (
                             <section className="space-y-2.5">
                                 <div className="flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-sm text-secondary dark:text-indigo-400">group</span>
-                                    <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 uppercase">Assignees</span>
+                                    <span className="material-symbols-outlined text-sm text-secondary dark:text-indigo-400">assignment_ind</span>
+                                    <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 uppercase">Current Assignees</span>
                                 </div>
                                 <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
-                                    {boardMembers.map(m => {
-                                        const member = m.user;
-                                        if (!member) return null;
-                                        const id = member._id;
-                                        const checked = assignees.includes(id);
-                                        return (
-                                            <button
-                                                key={id}
-                                                onClick={() => toggleAssignee(id)}
-                                                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition-all border ${checked
-                                                        ? 'bg-secondary text-white border-transparent'
-                                                        : 'hover:bg-slate-100 dark:hover:bg-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
-                                                    }`}
-                                            >
-                                                <Avatar name={member.username || '?'} avatar={member.avatar} size={22} />
-                                                <span className="flex-1 text-left truncate">{member.username}</span>
-                                                {checked && <span className="text-sm font-bold">✓</span>}
-                                            </button>
-                                        );
-                                    })}
+                                    {workspaceMembers
+                                        .filter(m => m.user && assignees.includes(m.user._id))
+                                        .map(m => {
+                                            const member = m.user;
+                                            return (
+                                                <div
+                                                    key={member._id}
+                                                    className="flex items-center justify-between gap-3 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs font-semibold text-slate-850 dark:text-white border border-slate-200 dark:border-slate-700"
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        <Avatar name={member.username || '?'} avatar={member.avatar} size={22} />
+                                                        <span className="truncate">{member.username}</span>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => toggleAssignee(member._id)}
+                                                        className="text-rose-500 hover:text-rose-700 font-bold px-1 transition-colors text-xs cursor-pointer"
+                                                        title="Remove assignee"
+                                                    >
+                                                        ✕
+                                                    </button>
+                                                </div>
+                                            );
+                                        })
+                                    }
+                                    {assignees
+                                        .filter(id => !workspaceMembers.some(m => m.user?._id === id))
+                                        .map(id => {
+                                            const bm = boardMembers.find(m => m.user?._id === id);
+                                            const username = bm?.user?.username || card.assignees?.find(a => (a._id || a) === id)?.username || "Assigned User";
+                                            return (
+                                                <div
+                                                    key={id}
+                                                    className="flex items-center justify-between gap-3 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs font-semibold text-slate-850 dark:text-white border border-slate-200 dark:border-slate-700"
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        <Avatar name={username} size={22} />
+                                                        <span className="truncate">{username}</span>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => toggleAssignee(id)}
+                                                        className="text-rose-500 hover:text-rose-700 font-bold px-1 transition-colors text-xs cursor-pointer"
+                                                        title="Remove assignee"
+                                                    >
+                                                        ✕
+                                                    </button>
+                                                </div>
+                                            );
+                                        })
+                                    }
                                 </div>
                             </section>
                         )}

@@ -1,10 +1,11 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import useAuthStore from '../store/authstore';
 import DashboardSidebar from '../components/Layout/DashboardSidebar';
 import Navbar from '../components/Layout/Navbar';
 import { getRoleDisplayName } from '../utils/roleDisplay';
+import { get2FAStatus, toggle2FA, getSessions, revokeSession } from '../api/auth.api';
 
 const ProfilePage = () => {
   const { user, updateProfile, deleteAccountAction } = useAuthStore();
@@ -17,6 +18,80 @@ const ProfilePage = () => {
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [saving, setSaving] = useState(false);
   const fileRef = useRef(null);
+
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+  const [sessions, setSessions] = useState([]);
+  const [showSessionsModal, setShowSessionsModal] = useState(false);
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const [faRes, sessionsRes] = await Promise.all([
+          get2FAStatus(),
+          getSessions()
+        ]);
+        setTwoFactorEnabled(faRes.data.twoFactorEnabled);
+        setSessions(sessionsRes.data.sessions || []);
+      } catch (err) {
+        console.error('Failed to load profile settings data:', err);
+      }
+    };
+    loadSettings();
+  }, []);
+
+  const handleToggle2FA = async () => {
+    try {
+      const targetStatus = !twoFactorEnabled;
+      const confirmMsg = targetStatus 
+        ? "Are you sure you want to enable Two-Factor Authentication for your account?"
+        : "Are you sure you want to disable Two-Factor Authentication? Your account will be less secure.";
+      if (window.confirm(confirmMsg)) {
+        const res = await toggle2FA(targetStatus);
+        setTwoFactorEnabled(res.data.twoFactorEnabled);
+        toast.success(res.message || `Two-Factor Auth ${targetStatus ? 'enabled' : 'disabled'}`);
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to update Two-Factor Authentication settings');
+    }
+  };
+
+  const handleRevokeSession = async (sessionId) => {
+    if (window.confirm("Are you sure you want to log this device out?")) {
+      try {
+        await revokeSession(sessionId);
+        toast.success("Device logged out successfully");
+        setSessions(prev => prev.filter(s => s._id !== sessionId));
+      } catch (err) {
+        toast.error("Failed to revoke session");
+      }
+    }
+  };
+
+  const getDeviceIcon = (userAgent = '') => {
+    const ua = userAgent.toLowerCase();
+    if (ua.includes('mobi') || ua.includes('android') || ua.includes('iphone')) return 'smartphone';
+    if (ua.includes('tablet') || ua.includes('ipad')) return 'tablet';
+    return 'desktop_windows';
+  };
+
+  const getDeviceName = (userAgent = '') => {
+    const ua = userAgent.toLowerCase();
+    if (ua.includes('chrome')) return 'Google Chrome';
+    if (ua.includes('firefox')) return 'Mozilla Firefox';
+    if (ua.includes('safari') && !ua.includes('chrome')) return 'Apple Safari';
+    if (ua.includes('edge')) return 'Microsoft Edge';
+    return userAgent || 'Unknown Device';
+  };
+
+  const getOSName = (userAgent = '') => {
+    const ua = userAgent.toLowerCase();
+    if (ua.includes('windows')) return 'Windows';
+    if (ua.includes('macintosh') || ua.includes('mac os')) return 'macOS';
+    if (ua.includes('linux')) return 'Linux';
+    if (ua.includes('iphone') || ua.includes('ipad')) return 'iOS';
+    if (ua.includes('android')) return 'Android';
+    return 'Unknown OS';
+  };
 
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
@@ -256,24 +331,34 @@ const ProfilePage = () => {
           {/* Additional Settings Grid */}
           <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
             {/* Two-Factor Auth */}
-            <div className="glass-card p-6 bg-white/95 dark:bg-slate-800/95 backdrop-blur border border-outline-variant/30 dark:border-slate-750 rounded-2xl flex items-center gap-4 group cursor-pointer hover:bg-surface-container-lowest dark:hover:bg-slate-700 transition-colors shadow-sm">
-              <div className="w-12 h-12 rounded-xl bg-primary-container dark:bg-slate-900 flex items-center justify-center text-secondary dark:text-indigo-400 group-hover:scale-110 transition-transform">
-                <span className="material-symbols-outlined">security</span>
+            <div 
+              onClick={handleToggle2FA}
+              className="glass-card p-6 bg-white/95 dark:bg-slate-800/95 backdrop-blur border border-outline-variant/30 dark:border-slate-750 rounded-2xl flex items-center gap-4 group cursor-pointer hover:bg-surface-container-lowest dark:hover:bg-slate-700 transition-colors shadow-sm"
+            >
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform ${twoFactorEnabled ? 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400' : 'bg-primary-container dark:bg-slate-900 text-secondary dark:text-indigo-400'}`}>
+                <span className="material-symbols-outlined">{twoFactorEnabled ? 'shield_with_heart' : 'security'}</span>
               </div>
               <div>
                 <h4 className="font-title-md text-sm text-primary dark:text-white">Two-Factor Auth</h4>
-                <p className="text-xs text-on-surface-variant dark:text-slate-400">Enhanced security</p>
+                <p className={`text-xs font-semibold ${twoFactorEnabled ? 'text-emerald-600 dark:text-emerald-400' : 'text-on-surface-variant dark:text-slate-400'}`}>
+                  {twoFactorEnabled ? 'Enabled' : 'Disabled'}
+                </p>
               </div>
             </div>
 
             {/* Connected Devices */}
-            <div className="glass-card p-6 bg-white/95 dark:bg-slate-800/95 backdrop-blur border border-outline-variant/30 dark:border-slate-750 rounded-2xl flex items-center gap-4 group cursor-pointer hover:bg-surface-container-lowest dark:hover:bg-slate-700 transition-colors shadow-sm">
+            <div 
+              onClick={() => setShowSessionsModal(true)}
+              className="glass-card p-6 bg-white/95 dark:bg-slate-800/95 backdrop-blur border border-outline-variant/30 dark:border-slate-750 rounded-2xl flex items-center gap-4 group cursor-pointer hover:bg-surface-container-lowest dark:hover:bg-slate-700 transition-colors shadow-sm"
+            >
               <div className="w-12 h-12 rounded-xl bg-surface-container dark:bg-slate-700 flex items-center justify-center text-on-surface-variant dark:text-slate-350 group-hover:scale-110 transition-transform">
                 <span className="material-symbols-outlined">devices</span>
               </div>
               <div>
                 <h4 className="font-title-md text-sm text-primary dark:text-white">Connected Devices</h4>
-                <p className="text-xs text-on-surface-variant dark:text-slate-400">3 active sessions</p>
+                <p className="text-xs text-on-surface-variant dark:text-slate-400">
+                  {sessions.length} active session{sessions.length === 1 ? '' : 's'}
+                </p>
               </div>
             </div>
 
@@ -291,6 +376,99 @@ const ProfilePage = () => {
 
         </main>
       </div>
+
+      {/* Connected Devices Modal */}
+      {showSessionsModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-lg border border-outline-variant/50 dark:border-slate-700 shadow-2xl overflow-hidden transform scale-100 transition-all duration-300">
+            
+            {/* Modal Header */}
+            <div className="px-6 py-4 border-b border-outline-variant/30 dark:border-slate-700 flex justify-between items-center">
+              <div>
+                <h3 className="font-bold text-lg text-primary dark:text-white">Active Sessions</h3>
+                <p className="text-xs text-on-surface-variant dark:text-slate-400">Manage devices currently logged into your account</p>
+              </div>
+              <button 
+                onClick={() => setShowSessionsModal(false)}
+                className="text-on-surface-variant dark:text-slate-400 hover:text-primary dark:hover:text-white p-1 rounded-full hover:bg-surface-container dark:hover:bg-slate-700 transition-colors"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 max-h-[400px] overflow-y-auto space-y-4">
+              {sessions.map((session) => {
+                const isCurrent = session.token === localStorage.getItem('token');
+                return (
+                  <div 
+                    key={session._id} 
+                    className={`p-4 rounded-xl border flex items-center justify-between gap-4 transition-colors ${
+                      isCurrent 
+                        ? 'bg-indigo-50/50 dark:bg-indigo-950/20 border-indigo-200 dark:border-indigo-900/60' 
+                        : 'bg-surface-container-lowest dark:bg-slate-900 border-outline-variant/35 dark:border-slate-800'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                        isCurrent 
+                          ? 'bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400' 
+                          : 'bg-surface-container dark:bg-slate-800 text-on-surface-variant dark:text-slate-400'
+                      }`}>
+                        <span className="material-symbols-outlined">{getDeviceIcon(session.userAgent)}</span>
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-sm text-primary dark:text-white">
+                            {getDeviceName(session.userAgent)}
+                          </span>
+                          {isCurrent && (
+                            <span className="bg-indigo-100 dark:bg-indigo-950/80 text-indigo-750 dark:text-indigo-300 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                              Current
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-xs text-on-surface-variant dark:text-slate-400 mt-0.5 space-y-0.5">
+                          <p>{getOSName(session.userAgent)} • IP: {session.ipAddress}</p>
+                          <p className="text-[11px] opacity-80">
+                            Last active: {new Date(session.lastActive).toLocaleString(undefined, {
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {!isCurrent && (
+                      <button 
+                        onClick={() => handleRevokeSession(session._id)}
+                        className="text-xs text-rose-500 hover:text-rose-600 font-bold px-3 py-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all border border-transparent hover:border-rose-200 dark:hover:border-rose-900/40"
+                      >
+                        Revoke
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-4 bg-surface-container/30 dark:bg-slate-850 border-t border-outline-variant/30 dark:border-slate-700 flex justify-end">
+              <button 
+                onClick={() => setShowSessionsModal(false)}
+                className="bg-secondary text-white font-bold px-5 py-2.5 rounded-xl hover:brightness-110 active:scale-95 transition-all text-sm"
+              >
+                Done
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

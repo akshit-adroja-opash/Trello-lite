@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Navbar from "../components/Layout/Navbar";
 import DashboardSidebar from "../components/Layout/DashboardSidebar";
-import { getWorkspaces } from "../api/workspace.api";
+import { getWorkspaces, getMembers } from "../api/workspace.api";
 import { getBoardsByWorkspace, getBoardMembers } from "../api/board.api";
 import { getColumnsByBoard } from "../api/column.api";
 import { getCardsByColumn, updateCard } from "../api/card.api";
@@ -74,9 +74,9 @@ const AssignTaskPage = () => {
         }
         const fetchBoardData = async () => {
             try {
-                // Fetch members
-                const memRes = await getBoardMembers(selectedBoardId);
-                const members = memRes.data?.members || [];
+                // Fetch workspace members instead of board members to include all invited users
+                const memRes = await getMembers(selectedWorkspaceId);
+                const members = memRes.data?.members || memRes.members || [];
                 // Format members to only extract user object and role
                 const membersList = members.map(m => ({
                     _id: m.user?._id || m.user,

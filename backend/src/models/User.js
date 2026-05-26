@@ -28,6 +28,10 @@ const userSchema = new mongoose.Schema({
     },
     avatar: {
         type: String
+    },
+    twoFactorEnabled: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: true });
 
