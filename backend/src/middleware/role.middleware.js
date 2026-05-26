@@ -28,7 +28,7 @@ export const requireBoardRole = (...allowedRoles) => async (req, res, next) => {
         const board = await Board.findById(boardId);
         if (!board) return next(new ApiError(404, 'Board not found'));
 
-        if (board.Admin?.toString() === req.user?._id?.toString() || req.user?.role === 'admin' || req.user?.role === 'project_manager') {
+        if (board.Admin?.toString() === req.user?._id?.toString() || req.user?.role === 'admin') {
             req.board = board;
             req.boardRole = 'admin';
             return next();

@@ -18,17 +18,17 @@ const ROLE_HIERARCHY = {
   client:          1,  // Client
 };
 
-/** Workspace / Board settings — only Admin */
-export const canCreateWorkspace    = (role) => ROLE_HIERARCHY[role] === ROLE_HIERARCHY.admin;
+/** Workspace / Board settings */
+export const canCreateWorkspace    = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.project_manager;
 export const canDeleteWorkspace    = (role) => ROLE_HIERARCHY[role] === ROLE_HIERARCHY.admin;
-export const canManageRoles        = (role) => ROLE_HIERARCHY[role] === ROLE_HIERARCHY.admin;
-export const canInviteRemoveUsers  = (role) => ROLE_HIERARCHY[role] === ROLE_HIERARCHY.admin;
+export const canManageRoles        = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.project_manager;
+export const canInviteRemoveUsers  = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.project_manager;
 
-/** Board level — only Admin */
-export const canCreateBoard        = (role) => ROLE_HIERARCHY[role] === ROLE_HIERARCHY.admin;
-export const canDeleteBoard        = (role) => ROLE_HIERARCHY[role] === ROLE_HIERARCHY.admin;
-export const canArchiveBoard       = (role) => ROLE_HIERARCHY[role] === ROLE_HIERARCHY.admin;
-export const canEditBoardSettings  = (role) => ROLE_HIERARCHY[role] === ROLE_HIERARCHY.admin;
+/** Board level */
+export const canCreateBoard        = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.project_manager;
+export const canDeleteBoard        = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.project_manager;
+export const canArchiveBoard       = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.project_manager;
+export const canEditBoardSettings  = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.project_manager;
 
 /** Column level — Admin + Project Manager */
 export const canCreateColumn       = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.project_manager;
@@ -38,14 +38,20 @@ export const canReorderColumns     = (role) => ROLE_HIERARCHY[role] >= ROLE_HIER
 
 /** Card level — Admin + Project Manager */
 export const canCreateCard         = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.project_manager;
-export const canEditCard           = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.project_manager;
+export const canEditCard           = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.developer;
 export const canDeleteCard         = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.project_manager;
-export const canAssignMembers      = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.project_manager;
-export const canAddLabels          = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.project_manager;
-export const canChangeDueDate      = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.project_manager;
+export const canAssignMembers      = (role) => ROLE_HIERARCHY[role] === ROLE_HIERARCHY.admin;
+export const canAddLabels          = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.developer;
+export const canChangeDueDate      = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.developer;
 
 /** Move card — Developer and above */
 export const canMoveCard           = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.developer;
+
+/** Comments & reactions — Developer and above */
+export const canComment            = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.developer;
+
+/** Save as template — Developer and above */
+export const canSaveTemplate       = (role) => ROLE_HIERARCHY[role] >= ROLE_HIERARCHY.developer;
 
 /** Helper to get current role from auth store */
 export const getCurrentRole = () => {

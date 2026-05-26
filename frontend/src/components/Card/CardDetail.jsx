@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import ReactMarkdown from 'react-markdown';
-import { updateCard, deleteCard, getCardActivities, addComment, saveCardAsTemplate, toggleCommentReaction } from '../../api/card.api';
+import { updateCard, deleteCard, getCardActivities, addComment, saveCardAsTemplate, toggleCommentReaction, uploadAttachment, deleteAttachment } from '../../api/card.api';
 import useBoardStore from '../../store/boardStore';
 import useSocketStore from '../../store/socketStore';
 import useAuthStore from '../../store/authstore';
 import Avatar from '../../UI/Avatar';
-import { canEditCard, canDeleteCard } from '../../utils/rolePermissions';
+import { canEditCard, canDeleteCard, canAssignMembers, canComment, canSaveTemplate } from '../../utils/rolePermissions';
 import { getMembers } from '../../api/workspace.api';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from '@dnd-kit/sortable';
@@ -297,6 +297,59 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
         }
     };
 
+    const [uploading, setUploading] = useState(false);
+
+    const handleUploadFile = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Prevent video upload
+        if (file.type.startsWith('video/') || /\.(mp4|webm|mkv|avi|mov|flv|wmv)$/i.test(file.name)) {
+            toast.error('Video uploads are not allowed!');
+            return;
+        }
+
+        // Limit size: 10MB
+        if (file.size > 10 * 1024 * 1024) {
+            toast.error('File size cannot exceed 10MB');
+            return;
+        }
+
+        setUploading(true);
+        try {
+            const res = await uploadAttachment(card._id, file);
+            const updated = res.data?.card;
+            if (updated) {
+                setCard(updated);
+                storeUpdate(updated);
+                socket?.emit('card:update', { boardId, card: updated });
+                toast.success('File uploaded successfully');
+            }
+        } catch (err) {
+            const errorMsg = err.response?.data?.message || 'Failed to upload attachment';
+            toast.error(errorMsg);
+        } finally {
+            setUploading(false);
+            e.target.value = ''; // Reset input
+        }
+    };
+
+    const handleDeleteFile = async (attachmentId) => {
+        if (!confirm('Are you sure you want to delete this attachment?')) return;
+        try {
+            const res = await deleteAttachment(card._id, attachmentId);
+            const updated = res.data?.card;
+            if (updated) {
+                setCard(updated);
+                storeUpdate(updated);
+                socket?.emit('card:update', { boardId, card: updated });
+                toast.success('Attachment deleted');
+            }
+        } catch (err) {
+            toast.error('Failed to delete attachment');
+        }
+    };
+
     const toggleAssignee = (userId) =>
         setAssignees(p => p.includes(userId) ? p.filter(id => id !== userId) : [...p, userId]);
 
@@ -393,32 +446,36 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                             </div>
 
                             <div className="space-y-4">
-                                <div className="flex gap-2">
-                                    <input
-                                        value={newLabel.name}
-                                        onChange={e => setNewLabel(p => ({ ...p, name: e.target.value }))}
-                                        placeholder="Create custom tag..."
-                                        type="text"
-                                        className="flex-1 bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-700 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all dark:text-white"
-                                    />
-                                    <button
-                                        onClick={addLabel}
-                                        className="bg-secondary dark:bg-indigo-600 text-on-secondary px-4 py-1.5 rounded-lg font-bold text-sm hover:opacity-90 active:scale-95 transition-all"
-                                    >
-                                        Add
-                                    </button>
-                                </div>
+                                {canEdit && (
+                                    <>
+                                        <div className="flex gap-2">
+                                            <input
+                                                value={newLabel.name}
+                                                onChange={e => setNewLabel(p => ({ ...p, name: e.target.value }))}
+                                                placeholder="Create custom tag..."
+                                                type="text"
+                                                className="flex-1 bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-700 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all dark:text-white"
+                                            />
+                                            <button
+                                                onClick={addLabel}
+                                                className="bg-secondary dark:bg-indigo-600 text-on-secondary px-4 py-1.5 rounded-lg font-bold text-sm hover:opacity-90 active:scale-95 transition-all"
+                                            >
+                                                Add
+                                            </button>
+                                        </div>
 
-                                <div className="flex flex-wrap gap-1.5 items-center justify-start py-1">
-                                    {LABEL_COLORS.map(c => (
-                                        <button
-                                            key={c}
-                                            onClick={() => setNewLabel(p => ({ ...p, color: c }))}
-                                            className={`w-7 h-7 rounded-full transition-transform hover:scale-110 ${newLabel.color === c ? 'ring-2 ring-offset-2 ring-indigo-500 scale-105' : ''}`}
-                                            style={{ backgroundColor: c }}
-                                        />
-                                    ))}
-                                </div>
+                                        <div className="flex flex-wrap gap-1.5 items-center justify-start py-1">
+                                            {LABEL_COLORS.map(c => (
+                                                <button
+                                                    key={c}
+                                                    onClick={() => setNewLabel(p => ({ ...p, color: c }))}
+                                                    className={`w-7 h-7 rounded-full transition-transform hover:scale-110 ${newLabel.color === c ? 'ring-2 ring-offset-2 ring-indigo-500 scale-105' : ''}`}
+                                                    style={{ backgroundColor: c }}
+                                                />
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
 
                                 <div className="flex flex-wrap gap-2 pt-2">
                                     {labels.map((l, i) => (
@@ -428,12 +485,14 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                             style={{ backgroundColor: l.color }}
                                         >
                                             {l.name}
-                                            <button
-                                                onClick={() => setLabels(p => p.filter((_, j) => j !== i))}
-                                                className="hover:bg-black/15 rounded-full w-4 h-4 flex items-center justify-center transition-colors text-[9px]"
-                                            >
-                                                ✕
-                                            </button>
+                                            {canEdit && (
+                                                <button
+                                                    onClick={() => setLabels(p => p.filter((_, j) => j !== i))}
+                                                    className="hover:bg-black/15 rounded-full w-4 h-4 flex items-center justify-center transition-colors text-[9px]"
+                                                >
+                                                    ✕
+                                                </button>
+                                            )}
                                         </span>
                                     ))}
                                 </div>
@@ -529,6 +588,121 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                 </button>
                             </div>
                         </section>
+
+                        {/* Attachments Section */}
+                        <section className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-700/50">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-sm text-secondary dark:text-indigo-400">attach_file</span>
+                                    <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 uppercase">Attachments</span>
+                                </div>
+                                {canEdit && (
+                                    <label className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-650 hover:opacity-90 text-white rounded-lg transition-all text-xs font-bold cursor-pointer active:scale-95 shadow-sm border border-indigo-600/20">
+                                        <span className="material-symbols-outlined text-[16px]">upload</span>
+                                        <span>Attach File</span>
+                                        <input
+                                            type="file"
+                                            className="hidden"
+                                            onChange={handleUploadFile}
+                                        />
+                                    </label>
+                                )}
+                            </div>
+
+                            {uploading && (
+                                <div className="flex items-center gap-2 text-xs text-indigo-500 font-semibold animate-pulse pl-2 py-1">
+                                    <span className="w-3.5 h-3.5 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
+                                    <span>Uploading attachment...</span>
+                                </div>
+                            )}
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {card.attachments && card.attachments.length > 0 ? (
+                                    card.attachments.map((att) => {
+                                        const isImage = att.mimeType?.startsWith('image/');
+                                        const sizeInKB = att.size ? Math.round(att.size / 1024) : 0;
+                                        
+                                        const getAttachmentUrl = (path) => {
+                                            if (!path) return '';
+                                            if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
+                                                return path;
+                                            }
+                                            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+                                            const host = apiUrl.split('/api')[0];
+                                            return `${host}${path.startsWith('/') ? '' : '/'}${path}`;
+                                        };
+                                        const fileUrl = getAttachmentUrl(att.url);
+
+                                        return (
+                                            <div
+                                                key={att._id}
+                                                className="group relative flex gap-3 p-3 bg-slate-50/50 dark:bg-slate-900/30 border border-slate-200 dark:border-slate-800 rounded-xl hover:shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-all overflow-hidden"
+                                            >
+                                                {/* Left Thumbnail/Icon */}
+                                                <div className="w-14 h-14 rounded-lg bg-slate-100 dark:bg-slate-850 flex items-center justify-center overflow-hidden shrink-0 border border-slate-200/50 dark:border-slate-800">
+                                                    {isImage ? (
+                                                        <img
+                                                            src={fileUrl}
+                                                            alt={att.filename}
+                                                            className="w-full h-full object-cover"
+                                                            onError={(e) => {
+                                                                e.target.onerror = null;
+                                                                e.target.src = 'https://placehold.co/100?text=File';
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        <span className="material-symbols-outlined text-slate-400 dark:text-slate-500 text-2xl">
+                                                            {att.filename.endsWith('.pdf') ? 'picture_as_pdf' :
+                                                             (att.filename.endsWith('.zip') || att.filename.endsWith('.rar')) ? 'folder_zip' :
+                                                             'description'}
+                                                        </span>
+                                                    )}
+                                                </div>
+
+                                                {/* Info */}
+                                                <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                                                    <div className="space-y-0.5">
+                                                        <p className="text-xs font-bold text-slate-700 dark:text-slate-200 truncate" title={att.filename}>
+                                                            {att.filename}
+                                                        </p>
+                                                        <p className="text-[10px] text-slate-450 dark:text-slate-500 font-medium">
+                                                            {sizeInKB} KB
+                                                        </p>
+                                                    </div>
+                                                    
+                                                    <div className="flex gap-3 mt-1">
+                                                        <a
+                                                            href={fileUrl}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            download={att.filename}
+                                                            className="text-[10px] font-bold text-indigo-650 hover:text-indigo-850 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors flex items-center gap-0.5 cursor-pointer"
+                                                        >
+                                                            <span className="material-symbols-outlined text-[12px]">download</span>
+                                                            Download
+                                                        </a>
+                                                        
+                                                        {canEdit && (
+                                                            <button
+                                                                onClick={() => handleDeleteFile(att._id)}
+                                                                className="text-[10px] font-bold text-rose-500 hover:text-rose-750 transition-colors flex items-center gap-0.5 cursor-pointer"
+                                                            >
+                                                                <span className="material-symbols-outlined text-[12px]">delete</span>
+                                                                Remove
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })
+                                ) : (
+                                    <div className="col-span-full py-4 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-xl text-slate-400 dark:text-slate-500 text-xs font-medium bg-slate-50/20 dark:bg-slate-900/10">
+                                        No attachments yet.
+                                    </div>
+                                )}
+                            </div>
+                        </section>
                     </div>
 
                     {/* Right Column: Aside Meta & Actions */}
@@ -545,7 +719,8 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                     type="date"
                                     value={dueDate}
                                     onChange={e => setDueDate(e.target.value)}
-                                    className="w-full bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-on-surface dark:text-white outline-none cursor-pointer"
+                                    disabled={!canEdit}
+                                    className="w-full bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-on-surface dark:text-white outline-none cursor-pointer disabled:opacity-50"
                                 />
                             </div>
                         </section>
@@ -606,28 +781,34 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                 )}
                             </div>
 
-                            {/* Comment Input */}
-                            <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-850">
-                                <textarea
-                                    value={commentText}
-                                    onChange={e => setCommentText(e.target.value)}
-                                    placeholder="Add a comment... (Markdown supported)"
-                                    className="w-full bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-700 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all resize-none min-h-[60px] dark:text-white"
-                                />
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-1 text-[9px] text-slate-450 dark:text-slate-500 font-semibold">
-                                        <span className="material-symbols-outlined text-[12px]">info</span>
-                                        <span>Markdown supported</span>
+                            {/* Comment Input — hidden for Clients */}
+                            {canComment(boardRole) ? (
+                                <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-850">
+                                    <textarea
+                                        value={commentText}
+                                        onChange={e => setCommentText(e.target.value)}
+                                        placeholder="Add a comment... (Markdown supported)"
+                                        className="w-full bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-700 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all resize-none min-h-[60px] dark:text-white"
+                                    />
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-1 text-[9px] text-slate-450 dark:text-slate-500 font-semibold">
+                                            <span className="material-symbols-outlined text-[12px]">info</span>
+                                            <span>Markdown supported</span>
+                                        </div>
+                                        <button
+                                            onClick={handleAddComment}
+                                            disabled={!commentText.trim()}
+                                            className="bg-indigo-600 hover:bg-indigo-750 text-white px-3 py-1.5 rounded-lg font-bold text-xs hover:opacity-90 active:scale-95 transition-all cursor-pointer disabled:opacity-40"
+                                        >
+                                            Post
+                                        </button>
                                     </div>
-                                    <button
-                                        onClick={handleAddComment}
-                                        disabled={!commentText.trim()}
-                                        className="bg-indigo-600 hover:bg-indigo-750 text-white px-3 py-1.5 rounded-lg font-bold text-xs hover:opacity-90 active:scale-95 transition-all cursor-pointer disabled:opacity-40"
-                                    >
-                                        Post
-                                    </button>
                                 </div>
-                            </div>
+                            ) : (
+                                <p className="text-[11px] text-slate-400 dark:text-slate-500 italic pt-2 border-t border-slate-100 dark:border-slate-850">
+                                    Clients cannot post comments.
+                                </p>
+                            )}
                         </section>
 
                         {/* Assign Developer Dropdown */}
@@ -647,9 +828,11 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                 }}
                                 className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-700 text-slate-800 dark:text-white rounded-lg text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary cursor-pointer transition-all shadow-sm disabled:opacity-50"
                                 defaultValue=""
-                                disabled={workspaceMembers.filter(m => m.role === 'developer' && m.user).length === 0}
+                                disabled={!canAssignMembers(boardRole) || workspaceMembers.filter(m => m.role === 'developer' && m.user).length === 0}
                             >
-                                {workspaceMembers.filter(m => m.role === 'developer' && m.user).length === 0 ? (
+                                {!canAssignMembers(boardRole) ? (
+                                    <option value="" disabled>Task assignment is restricted to Admins only</option>
+                                ) : workspaceMembers.filter(m => m.role === 'developer' && m.user).length === 0 ? (
                                     <option value="" disabled>No invited developers in workspace</option>
                                 ) : (
                                     <>
@@ -691,14 +874,16 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                                         <Avatar name={member.username || '?'} avatar={member.avatar} size={22} />
                                                         <span className="truncate">{member.username}</span>
                                                     </div>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => toggleAssignee(member._id)}
-                                                        className="text-rose-500 hover:text-rose-700 font-bold px-1 transition-colors text-xs cursor-pointer"
-                                                        title="Remove assignee"
-                                                    >
-                                                        ✕
-                                                    </button>
+                                                    {canAssignMembers(boardRole) && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => toggleAssignee(member._id)}
+                                                            className="text-rose-500 hover:text-rose-700 font-bold px-1 transition-colors text-xs cursor-pointer"
+                                                            title="Remove assignee"
+                                                        >
+                                                            ✕
+                                                        </button>
+                                                    )}
                                                 </div>
                                             );
                                         })
@@ -717,14 +902,16 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                                         <Avatar name={username} size={22} />
                                                         <span className="truncate">{username}</span>
                                                     </div>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => toggleAssignee(id)}
-                                                        className="text-rose-500 hover:text-rose-700 font-bold px-1 transition-colors text-xs cursor-pointer"
-                                                        title="Remove assignee"
-                                                    >
-                                                        ✕
-                                                    </button>
+                                                    {canAssignMembers(boardRole) && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => toggleAssignee(id)}
+                                                            className="text-rose-500 hover:text-rose-700 font-bold px-1 transition-colors text-xs cursor-pointer"
+                                                            title="Remove assignee"
+                                                        >
+                                                            ✕
+                                                        </button>
+                                                    )}
                                                 </div>
                                             );
                                         })
@@ -745,7 +932,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                 ) : 'Save changes'}
                             </button>
 
-                            {canEdit && (
+                            {canSaveTemplate(boardRole) && (
                                 <button
                                     onClick={handleSaveTemplate}
                                     disabled={savingTemplate}

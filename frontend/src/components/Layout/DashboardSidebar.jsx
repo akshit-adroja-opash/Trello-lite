@@ -68,12 +68,7 @@ const DashboardSidebar = ({ currentWorkspace, openWorkspaceSettings, boards: pro
     closeSidebar();
   }, [location.pathname, closeSidebar]);
 
-  const showAdminOnly = (role) =>
-    role === 'admin' ||
-    role === 'project_manager' ||
-    role === 'developer';
-
-  const canViewReports = showAdminOnly(user?.role);
+  const canViewReports = user?.role === 'admin' || user?.role === 'project_manager' || user?.role === 'client';
   const canViewAnalytics = user?.role === 'admin' || user?.role === 'project_manager';
 
   const canManageWorkspace =
@@ -119,7 +114,7 @@ const DashboardSidebar = ({ currentWorkspace, openWorkspaceSettings, boards: pro
 
           <nav className="flex flex-col gap-1">
             <NavItem to="/dashboard" label="Dashboard" icon="dashboard" />
-            {user?.role !== 'admin' && user?.role !== 'project_manager' && (
+            {user?.role === 'developer' && (
               <NavItem to="/my-tasks" label="My Tasks" icon="task_alt" />
             )}
 

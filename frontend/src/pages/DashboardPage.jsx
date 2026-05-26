@@ -340,6 +340,7 @@ const DashboardPage = () => {
               })
               .map(ws => {
                 const isWsAdmin = ws.Admin === user?._id || ws.Admin?._id === user?._id || user?.role === 'admin' || user?.role === 'project_manager';
+                const isActualAdmin = ws.Admin === user?._id || ws.Admin?._id === user?._id || user?.role === 'admin';
                 const boards = (boardsByWorkspace[ws._id] || []).filter(b =>
                   b.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                   ws.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -390,7 +391,7 @@ const DashboardPage = () => {
                             <span className="material-symbols-outlined text-[18px]">settings</span>
                           </button>
                         )}
-                        {isWsAdmin && (
+                        {isActualAdmin && (
                           <button onClick={() => handleDeleteWorkspace(ws._id)} className="flex-1 md:flex-none flex items-center justify-center p-2 text-error hover:bg-error-container hover:text-on-error-container rounded-lg transition-all" title="Delete Workspace">
                             <span className="material-symbols-outlined text-[18px]">delete</span>
                           </button>

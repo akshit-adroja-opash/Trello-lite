@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import Avatar from '../../UI/Avatar';
 import { getMembers, updateMemberRole, removeMember, updateWorkspace } from '../../api/workspace.api';
 import { getRoleDisplayName } from '../../utils/roleDisplay';
+import useAuthStore from '../../store/authstore';
 
 const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
   const [activeTab, setActiveTab] = useState('general'); // 'general' | 'members'
@@ -11,6 +12,9 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
   const [name, setName] = useState(workspace.name || '');
   const [description, setDescription] = useState(workspace.description || '');
   const [savingInfo, setSavingInfo] = useState(false);
+
+  const currentUser = useAuthStore(s => s.user);
+  const isActualAdmin = workspace.Admin === currentUser?._id || workspace.Admin?._id === currentUser?._id || currentUser?.role === 'admin';
 
   // Members States
   const [members, setMembers] = useState([]);
@@ -182,7 +186,8 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
                   onChange={e => setName(e.target.value)}
                   placeholder="e.g. Operations Hub"
                   required
-                  className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 text-slate-900 dark:text-white bg-white dark:bg-slate-900 focus:ring-1 focus:ring-[#8b8cf1] focus:border-[#8b8cf1] transition-colors outline-none h-[56px] text-sm"
+                  disabled={!isActualAdmin}
+                  className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 text-slate-900 dark:text-white bg-white dark:bg-slate-900 focus:ring-1 focus:ring-[#8b8cf1] focus:border-[#8b8cf1] transition-colors outline-none h-[56px] text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                 />
               </div>
 
@@ -196,7 +201,8 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
                   onChange={e => setDescription(e.target.value)}
                   placeholder="Summarize the core operational workflows managed in this workspace..."
                   rows={5}
-                  className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 text-slate-900 dark:text-white bg-white dark:bg-slate-900 focus:ring-1 focus:ring-[#8b8cf1] focus:border-[#8b8cf1] transition-colors outline-none resize-none min-h-[140px] text-sm"
+                  disabled={!isActualAdmin}
+                  className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 text-slate-900 dark:text-white bg-white dark:bg-slate-900 focus:ring-1 focus:ring-[#8b8cf1] focus:border-[#8b8cf1] transition-colors outline-none resize-none min-h-[140px] text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                 />
               </div>
 
@@ -210,17 +216,19 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
                   onClick={onClose}
                   className="px-8 py-2.5 text-slate-650 dark:text-slate-350 font-bold text-sm border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors"
                 >
-                  Cancel
+                  {isActualAdmin ? 'Cancel' : 'Close'}
                 </button>
-                <button
-                  type="submit"
-                  disabled={savingInfo || !name.trim() || (name.trim() === workspace.name && description.trim() === (workspace.description || ''))}
-                  className="px-8 py-2.5 bg-[#8b8cf1] hover:bg-[#7a7be0] text-white font-bold text-sm rounded-lg shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  {savingInfo ? (
-                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : 'Save Changes'}
-                </button>
+                {isActualAdmin && (
+                  <button
+                    type="submit"
+                    disabled={savingInfo || !name.trim() || (name.trim() === workspace.name && description.trim() === (workspace.description || ''))}
+                    className="px-8 py-2.5 bg-[#8b8cf1] hover:bg-[#7a7be0] text-white font-bold text-sm rounded-lg shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {savingInfo ? (
+                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : 'Save Changes'}
+                  </button>
+                )}
               </footer>
             </form>
           )}
@@ -270,19 +278,21 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
                                 {getRoleDisplayName(m.role)}
                               </span>
 
-                              <button
-                                onClick={() => handleRemoveMember(memberUser._id)}
-                                disabled={isUpdating}
-                                className="w-9 h-9 flex items-center justify-center border border-rose-200 dark:border-rose-900/60 rounded-lg text-rose-600 dark:text-rose-450 hover:bg-rose-50 dark:hover:bg-rose-950/20 hover:border-transparent transition-all disabled:opacity-50"
-                                title="Remove member"
-                              >
-                                <svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg">
-                                  <polyline points="3 6 5 6 21 6"></polyline>
-                                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                  <line x1="10" x2="10" y1="11" y2="17"></line>
-                                  <line x1="14" x2="14" y1="11" y2="17"></line>
-                                </svg>
-                              </button>
+                              {isActualAdmin && (
+                                <button
+                                  onClick={() => handleRemoveMember(memberUser._id)}
+                                  disabled={isUpdating}
+                                  className="w-9 h-9 flex items-center justify-center border border-rose-200 dark:border-rose-900/60 rounded-lg text-rose-600 dark:text-rose-450 hover:bg-rose-50 dark:hover:bg-rose-950/20 hover:border-transparent transition-all disabled:opacity-50"
+                                  title="Remove member"
+                                >
+                                  <svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    <line x1="10" x2="10" y1="11" y2="17"></line>
+                                    <line x1="14" x2="14" y1="11" y2="17"></line>
+                                  </svg>
+                                </button>
+                              )}
                             </>
                           )}
                         </div>

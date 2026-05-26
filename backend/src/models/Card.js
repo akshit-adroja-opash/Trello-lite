@@ -24,6 +24,14 @@ const cardSchema = new mongoose.Schema({
         createdAt: { type: Date, default: Date.now }
     }],
     checklist: [checklistItemSchema],
+    attachments: [{
+        filename: { type: String, required: true },
+        url: { type: String, required: true },
+        mimeType: { type: String },
+        size: { type: Number },
+        uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        uploadedAt: { type: Date, default: Date.now }
+    }],
     isTemplate: { type: Boolean, default: false },
     version: { type: Number, default: 0 }
 }, { timestamps: true });

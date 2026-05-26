@@ -43,7 +43,7 @@ const App = () => {
         <Route
           path="/reports"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["admin", "project_manager", "client"]}>
               <ReportsPage />
             </ProtectedRoute>
           }
@@ -51,7 +51,7 @@ const App = () => {
         <Route
           path="/reports/:boardId"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["admin", "project_manager", "client"]}>
               <ReportsPage />
             </ProtectedRoute>
           }
@@ -75,7 +75,7 @@ const App = () => {
         <Route
           path="/my-tasks"
           element={
-            <ProtectedRoute allowedRoles={["developer", "client"]}>
+            <ProtectedRoute allowedRoles={["developer"]}>
               <MyTasksPage />
             </ProtectedRoute>
           }

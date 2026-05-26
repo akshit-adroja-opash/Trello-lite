@@ -1,6 +1,10 @@
 import Card from '../models/Card.js';
 import Activity from '../models/Activity.js';
 import { ApiError } from '../utils/apiError.js';
+import fs from 'fs';
+import path from 'path';
+import Board from '../models/Board.js';
+import Workspace from '../models/Workspace.js';
 
 const logActivity = (userId, boardId, cardId, action, details) =>
     Activity.create({ user: userId, board: boardId, card: cardId, action, details }).catch(() => { });
@@ -82,6 +86,22 @@ export const updateCard = async (req, res, next) => {
         if (updates.assignees) {
             const existingAssignees = (card.assignees || []).map(id => id.toString());
             const newAssignees = updates.assignees.map(id => id.toString());
+            const isDifferent = existingAssignees.length !== newAssignees.length || existingAssignees.some(id => !newAssignees.includes(id));
+
+            if (isDifferent) {
+                const board = await Board.findById(card.board);
+                if (!board) return next(new ApiError(404, 'Board not found'));
+
+                const isSystemAdmin = req.user.role === 'admin';
+                const workspace = await Workspace.findById(board.workspace);
+                const wsMember = workspace?.members.find(m => m.user?.toString() === req.user._id.toString());
+                const isWorkspaceAdmin = wsMember?.role === 'admin';
+
+                if (!isSystemAdmin && !isWorkspaceAdmin) {
+                    return next(new ApiError(403, 'Task assignment is an Admin-only privilege'));
+                }
+            }
+
             newlyAssigned = newAssignees.filter(id => !existingAssignees.includes(id));
         }
 
@@ -343,6 +363,101 @@ export const toggleCommentReaction = async (req, res, next) => {
             .populate('comments.reactions.users', 'username');
 
         logActivity(req.user._id, card.board, card._id, 'updated', `Reacted ${emoji} to a comment on card "${card.title}"`);
+
+        res.status(200).json({ status: 'success', data: { card: populatedCard } });
+    } catch (error) { next(error); }
+};
+
+export const addCardAttachment = async (req, res, next) => {
+    try {
+        const { cardId } = req.params;
+        if (!req.file) {
+            return next(new ApiError(400, 'No file uploaded'));
+        }
+
+        const card = await Card.findById(cardId);
+        if (!card) {
+            // Cleanup the file if card doesn't exist
+            fs.unlink(req.file.path, () => {});
+            return next(new ApiError(404, 'Card not found'));
+        }
+
+        const attachment = {
+            filename: req.file.originalname,
+            url: `/uploads/cards/${req.file.filename}`,
+            mimeType: req.file.mimetype,
+            size: req.file.size,
+            uploadedBy: req.user._id,
+            uploadedAt: new Date()
+        };
+
+        card.attachments = card.attachments || [];
+        card.attachments.push(attachment);
+        card.version = (card.version || 0) + 1;
+        await card.save();
+
+        const populatedCard = await Card.findById(cardId)
+            .populate('assignees', 'username email avatar')
+            .populate('comments.user', 'username email avatar')
+            .populate('comments.reactions.users', 'username');
+
+        logActivity(req.user._id, card.board, card._id, 'updated', `Attached file "${req.file.originalname}" to card "${card.title}"`);
+
+        // Send Socket update
+        try {
+            const { getIO } = await import('../config/socket.js');
+            const io = getIO();
+            io.to(card.board.toString()).emit('card:update', { boardId: card.board, card: populatedCard });
+        } catch (socketErr) {
+            console.error('Socket notification error (attachment):', socketErr.message);
+        }
+
+        res.status(200).json({ status: 'success', data: { card: populatedCard } });
+    } catch (error) {
+        if (req.file) {
+            fs.unlink(req.file.path, () => {});
+        }
+        next(error);
+    }
+};
+
+export const deleteCardAttachment = async (req, res, next) => {
+    try {
+        const { cardId, attachmentId } = req.params;
+
+        const card = await Card.findById(cardId);
+        if (!card) return next(new ApiError(404, 'Card not found'));
+
+        const attachment = card.attachments.id(attachmentId);
+        if (!attachment) return next(new ApiError(404, 'Attachment not found'));
+
+        // Delete file from disk
+        const filename = path.basename(attachment.url);
+        const filePath = path.join(path.resolve('uploads', 'cards'), filename);
+        fs.unlink(filePath, (err) => {
+            if (err) console.error('Failed to delete physical file:', err.message);
+        });
+
+        // Remove from DB
+        card.attachments.pull(attachmentId);
+        card.version = (card.version || 0) + 1;
+        await card.save();
+
+        const populatedCard = await Card.findById(cardId)
+            .populate('assignees', 'username email avatar')
+            .populate('comments.user', 'username email avatar')
+            .populate('comments.reactions.users', 'username');
+
+        logActivity(req.user._id, card.board, card._id, 'updated', `Removed attachment "${attachment.filename}" from card "${card.title}"`);
+
+        // Send Socket update
+        try {
+            const { getIO } = await import('../config/socket.js');
+            const io = getIO();
+            io.to(card.board.toString()).emit('card:update', { boardId: card.board, card: populatedCard });
+        } catch (socketErr) {
+            console.error('Socket notification error (delete attachment):', socketErr.message);
+        }
 
         res.status(200).json({ status: 'success', data: { card: populatedCard } });
     } catch (error) { next(error); }

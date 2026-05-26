@@ -9,8 +9,8 @@ router.use(verifyJWT);
 router.post('/', createBoard);
 router.get('/workspace/:workspaceId', getBoards);
 router.get('/:boardId', getSingleBoard);
-router.patch('/:boardId', requireBoardRole('admin'), updateBoard);
-router.delete('/:boardId', requireBoardRole('admin'), deleteBoard);
+router.patch('/:boardId', requireBoardRole('admin', 'project_manager'), updateBoard);
+router.delete('/:boardId', requireBoardRole('admin', 'project_manager'), deleteBoard);
 
 router.get('/:boardId/members', getBoardMembers);
 router.post('/:boardId/members', requireBoardRole('admin'), addBoardMember);

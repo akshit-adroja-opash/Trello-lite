@@ -13,6 +13,11 @@ const REPORT_THEME_COLORS = ['#26A69A', '#1E88E5', '#FB8C00', '#D81B60', '#8E24A
 const ReportsPage = () => {
   const backendBase = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:5000';
   const { boardId } = useParams();
+  const user = useAuthStore((s) => s.user);
+
+  // Role-based report access
+  const canFullReport   = user?.role === 'admin' || user?.role === 'project_manager';
+  const canClientReport = user?.role === 'admin' || user?.role === 'project_manager' || user?.role === 'client';
 
   const [selectedBoard, setSelectedBoard] = useState(null);
   const [workspaces, setWorkspaces] = useState([]);
@@ -189,41 +194,45 @@ const ReportsPage = () => {
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                      {/* Full Report Option */}
-                      <button
-                        onClick={handleFullReport}
-                        className="group flex flex-col justify-between p-6 bg-surface dark:bg-slate-700/40 border border-outline-variant/50 hover:border-secondary/40 hover:shadow-md rounded-xl text-left transition-all"
-                      >
-                        <div>
-                          <div className="w-12 h-12 rounded-xl bg-surface-container-low dark:bg-slate-750 flex items-center justify-center mb-4 text-on-surface-variant group-hover:text-secondary border border-outline-variant/35 transition-colors">
-                            <span className="material-symbols-outlined">description</span>
+                      {/* Full Report Option — Admin & PM only */}
+                      {canFullReport && (
+                        <button
+                          onClick={handleFullReport}
+                          className="group flex flex-col justify-between p-6 bg-surface dark:bg-slate-700/40 border border-outline-variant/50 hover:border-secondary/40 hover:shadow-md rounded-xl text-left transition-all"
+                        >
+                          <div>
+                            <div className="w-12 h-12 rounded-xl bg-surface-container-low dark:bg-slate-750 flex items-center justify-center mb-4 text-on-surface-variant group-hover:text-secondary border border-outline-variant/35 transition-colors">
+                              <span className="material-symbols-outlined">description</span>
+                            </div>
+                            <h4 className="font-title-md text-on-surface dark:text-white mb-1">Full Report</h4>
+                            <p className="text-body-sm text-on-surface-variant dark:text-slate-400 mb-4">Complete project audit, includes list cards, details, and metrics summary.</p>
                           </div>
-                          <h4 className="font-title-md text-on-surface dark:text-white mb-1">Full Report</h4>
-                          <p className="text-body-sm text-on-surface-variant dark:text-slate-400 mb-4">Complete project audit, includes list cards, details, and metrics summary.</p>
-                        </div>
-                        <div className="flex items-center justify-between w-full text-secondary font-semibold text-body-sm pt-2 border-t border-outline-variant/10">
-                          <span>Generate Full PDF</span>
-                          <span className="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
-                        </div>
-                      </button>
+                          <div className="flex items-center justify-between w-full text-secondary font-semibold text-body-sm pt-2 border-t border-outline-variant/10">
+                            <span>Generate Full PDF</span>
+                            <span className="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                          </div>
+                        </button>
+                      )}
 
-                      {/* Client Report Option */}
-                      <button
-                        onClick={handleClientReport}
-                        className="group flex flex-col justify-between p-6 bg-surface dark:bg-slate-700/40 border border-outline-variant/50 hover:border-secondary/40 hover:shadow-md rounded-xl text-left transition-all"
-                      >
-                        <div>
-                          <div className="w-12 h-12 rounded-xl bg-surface-container-low dark:bg-slate-750 flex items-center justify-center mb-4 text-on-surface-variant group-hover:text-secondary border border-outline-variant/35 transition-colors">
-                            <span className="material-symbols-outlined">assignment_ind</span>
+                      {/* Client Report Option — Admin, PM & Client */}
+                      {canClientReport && (
+                        <button
+                          onClick={handleClientReport}
+                          className="group flex flex-col justify-between p-6 bg-surface dark:bg-slate-700/40 border border-outline-variant/50 hover:border-secondary/40 hover:shadow-md rounded-xl text-left transition-all"
+                        >
+                          <div>
+                            <div className="w-12 h-12 rounded-xl bg-surface-container-low dark:bg-slate-750 flex items-center justify-center mb-4 text-on-surface-variant group-hover:text-secondary border border-outline-variant/35 transition-colors">
+                              <span className="material-symbols-outlined">assignment_ind</span>
+                            </div>
+                            <h4 className="font-title-md text-on-surface dark:text-white mb-1">Client Report</h4>
+                            <p className="text-body-sm text-on-surface-variant dark:text-slate-400 mb-4">Clean summary tailored for external review. Hides developer metrics.</p>
                           </div>
-                          <h4 className="font-title-md text-on-surface dark:text-white mb-1">Client Report</h4>
-                          <p className="text-body-sm text-on-surface-variant dark:text-slate-400 mb-4">Clean summary tailored for external review. Hides developer metrics.</p>
-                        </div>
-                        <div className="flex items-center justify-between w-full text-secondary font-semibold text-body-sm pt-2 border-t border-outline-variant/10">
-                          <span>Generate Client PDF</span>
-                          <span className="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
-                        </div>
-                      </button>
+                          <div className="flex items-center justify-between w-full text-secondary font-semibold text-body-sm pt-2 border-t border-outline-variant/10">
+                            <span>Generate Client PDF</span>
+                            <span className="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                          </div>
+                        </button>
+                      )}
                     </div>
                   )}
 

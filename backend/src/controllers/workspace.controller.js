@@ -87,10 +87,29 @@ export const updateMemberRole = async (req, res, next) => {
         const { role } = req.body;
         const workspace = await Workspace.findById(workspaceId);
         if (!workspace) return next(new ApiError(404, 'Workspace not found'));
-        if (workspace.Admin?.toString() !== req.user._id.toString() && req.user.role !== 'admin' && req.user.role !== 'project_manager')
-            return next(new ApiError(403, 'Only the Admin or System Admin can change roles'));
+
+        const userMember = workspace.members.find(m => m.user?.toString() === req.user._id.toString());
+        const isWorkspaceAdmin = userMember && userMember.role === 'admin';
+        const isSystemAdmin = req.user.role === 'admin';
+        const isPM = req.user.role === 'project_manager' || (userMember && userMember.role === 'project_manager');
+
+        if (!isWorkspaceAdmin && !isSystemAdmin && !isPM) {
+            return next(new ApiError(403, 'Unauthorized to update member roles'));
+        }
+
         const member = workspace.members.id(memberId);
         if (!member) return next(new ApiError(404, 'Member not found'));
+
+        // PM restriction: cannot assign admin role, and cannot modify existing admin members
+        if (!isWorkspaceAdmin && !isSystemAdmin && isPM) {
+            if (role === 'admin') {
+                return next(new ApiError(403, 'Project Managers cannot assign Admin privileges'));
+            }
+            if (member.role === 'admin') {
+                return next(new ApiError(403, 'Project Managers cannot modify Admin member roles'));
+            }
+        }
+
         member.role = role;
         await workspace.save();
         res.status(200).json({ status: 'success', data: { member } });
@@ -102,8 +121,14 @@ export const removeMember = async (req, res, next) => {
         const { workspaceId, memberId } = req.params;
         const workspace = await Workspace.findById(workspaceId);
         if (!workspace) return next(new ApiError(404, 'Workspace not found'));
-        if (workspace.Admin?.toString() !== req.user._id.toString() && req.user.role !== 'admin' && req.user.role !== 'project_manager')
-            return next(new ApiError(403, 'Only the Admin or System Admin can remove members'));
+        
+        const userMember = workspace.members.find(m => m.user?.toString() === req.user._id.toString());
+        const isWorkspaceAdmin = userMember && userMember.role === 'admin';
+        const isSystemAdmin = req.user.role === 'admin';
+
+        if (!isWorkspaceAdmin && !isSystemAdmin) {
+            return next(new ApiError(403, 'Only Workspace Admins or System Admins can remove members'));
+        }
         
         // Find the user ID of the member being removed before pulling from array
         const memberSub = workspace.members.id(memberId);
@@ -140,8 +165,15 @@ export const updateWorkspace = async (req, res, next) => {
         const { name, description } = req.body;
         const workspace = await Workspace.findById(workspaceId);
         if (!workspace) return next(new ApiError(404, 'Workspace not found'));
-        if (workspace.Admin?.toString() !== req.user._id.toString() && req.user.role !== 'admin' && req.user.role !== 'project_manager')
-            return next(new ApiError(403, 'Only the Admin or System Admin can update this workspace'));
+        
+        const userMember = workspace.members.find(m => m.user?.toString() === req.user._id.toString());
+        const isWorkspaceAdmin = userMember && userMember.role === 'admin';
+        const isSystemAdmin = req.user.role === 'admin';
+
+        if (!isWorkspaceAdmin && !isSystemAdmin) {
+            return next(new ApiError(403, 'Only Workspace Admins or System Admins can update this workspace'));
+        }
+
         if (name) workspace.name = name;
         if (description !== undefined) workspace.description = description;
         await workspace.save();
@@ -175,8 +207,15 @@ export const deleteWorkspace = async (req, res, next) => {
         const { workspaceId } = req.params;
         const workspace = await Workspace.findById(workspaceId);
         if (!workspace) return next(new ApiError(404, 'Workspace not found'));
-        if (workspace.Admin?.toString() !== req.user._id.toString() && req.user.role !== 'admin' && req.user.role !== 'project_manager')
-            return next(new ApiError(403, 'Only the Admin or System Admin can delete this workspace'));
+        
+        const userMember = workspace.members.find(m => m.user?.toString() === req.user._id.toString());
+        const isWorkspaceAdmin = userMember && userMember.role === 'admin';
+        const isSystemAdmin = req.user.role === 'admin';
+
+        if (!isWorkspaceAdmin && !isSystemAdmin) {
+            return next(new ApiError(403, 'Only Workspace Admins or System Admins can delete this workspace'));
+        }
+
         await workspace.deleteOne();
         res.status(200).json({ status: 'success', message: 'Workspace deleted' });
     } catch (error) {

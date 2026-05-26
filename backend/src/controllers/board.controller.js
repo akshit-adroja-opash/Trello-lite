@@ -122,8 +122,15 @@ export const addBoardMember = async (req, res, next) => {
         const { email, role = 'Editor' } = req.body;
         const board = await Board.findById(boardId);
         if (!board) return next(new ApiError(404, 'Board not found'));
-        if (board.Admin?.toString() !== req.user._id.toString() && req.user.role !== 'admin' && req.user.role !== 'project_manager')
-            return next(new ApiError(403, 'Only the Admin or System Admin can add members'));
+
+        const isSystemAdmin = req.user.role === 'admin';
+        const workspace = await Workspace.findById(board.workspace);
+        const wsMember = workspace?.members.find(m => m.user?.toString() === req.user._id.toString());
+        const isWorkspaceAdmin = wsMember?.role === 'admin';
+
+        if (!isSystemAdmin && !isWorkspaceAdmin) {
+            return next(new ApiError(403, 'Only Workspace Admins or System Admins can add members'));
+        }
 
         const { default: User } = await import('../models/User.js');
         const invitee = await User.findOne({ email });
@@ -144,8 +151,15 @@ export const updateBoardMemberRole = async (req, res, next) => {
         const { role } = req.body;
         const board = await Board.findById(boardId);
         if (!board) return next(new ApiError(404, 'Board not found'));
-        if (board.Admin?.toString() !== req.user._id.toString() && req.user.role !== 'admin' && req.user.role !== 'project_manager')
-            return next(new ApiError(403, 'Only the Admin or System Admin can change roles'));
+
+        const isSystemAdmin = req.user.role === 'admin';
+        const workspace = await Workspace.findById(board.workspace);
+        const wsMember = workspace?.members.find(m => m.user?.toString() === req.user._id.toString());
+        const isWorkspaceAdmin = wsMember?.role === 'admin';
+
+        if (!isSystemAdmin && !isWorkspaceAdmin) {
+            return next(new ApiError(403, 'Only Workspace Admins or System Admins can change roles'));
+        }
         const member = board.members.find(m => m.user?.toString() === memberId);
         if (!member) return next(new ApiError(404, 'Member not found'));
         member.role = role;
@@ -159,8 +173,15 @@ export const removeBoardMember = async (req, res, next) => {
         const { boardId, memberId } = req.params;
         const board = await Board.findById(boardId);
         if (!board) return next(new ApiError(404, 'Board not found'));
-        if (board.Admin?.toString() !== req.user._id.toString() && req.user.role !== 'admin' && req.user.role !== 'project_manager')
-            return next(new ApiError(403, 'Only the Admin or System Admin can remove members'));
+
+        const isSystemAdmin = req.user.role === 'admin';
+        const workspace = await Workspace.findById(board.workspace);
+        const wsMember = workspace?.members.find(m => m.user?.toString() === req.user._id.toString());
+        const isWorkspaceAdmin = wsMember?.role === 'admin';
+
+        if (!isSystemAdmin && !isWorkspaceAdmin) {
+            return next(new ApiError(403, 'Only Workspace Admins or System Admins can remove members'));
+        }
 
         board.members = board.members.filter(m => m.user?.toString() !== memberId);
         await board.save();
