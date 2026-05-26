@@ -23,7 +23,6 @@ import Avatar from '../UI/Avatar';
 import ActivitySidebar from '../components/Board/ActivitySidebar';
 import KeyboardShortcutsModal from '../components/Board/KeyboardShortcutsModal';
 import NotificationBell from '../components/Notifications/NotificationBell';
-import ThemeToggle from '../components/ThemeToggle';
 import BoardCalendarView from '../components/Board/BoardCalendarView';
 import { toggleStarBoard } from '../api/board.api';
 
@@ -492,8 +491,9 @@ const BoardPage = () => {
             ))}
 
             <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700/80 px-6 py-3 flex flex-col md:flex-row items-center justify-between sticky top-0 z-50 shrink-0 gap-4">
-                <div className="flex items-center space-x-6 w-full md:w-auto">
-                    <div className="flex items-center space-x-2 text-slate-500">
+                {/* Left Section */}
+                <div className="flex items-center space-x-6 justify-start flex-1 min-w-0 w-full md:w-auto">
+                    <div className="flex items-center space-x-2 text-slate-500 shrink-0">
                         <Link to="/dashboard" className="hover:text-primary dark:hover:text-indigo-400 transition-colors flex items-center space-x-1">
                             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
@@ -527,14 +527,15 @@ const BoardPage = () => {
                                     />
                                 </svg>
                             </button>
-                        </div>                        {!connected && (
+                        </div>
+                        {!connected && (
                             <span className="shrink-0 flex items-center gap-1 bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-250 dark:border-amber-900/50 px-2 py-0.5 rounded text-[10px] font-bold animate-pulse ml-2">
                                 Syncing...
                             </span>
                         )}
                     </div>
 
-                    <div className="flex bg-slate-100 dark:bg-slate-700/50 p-1 rounded-lg" data-purpose="view-toggles">
+                    <div className="flex bg-slate-100 dark:bg-slate-700/50 p-1 rounded-lg shrink-0" data-purpose="view-toggles">
                         <button
                             onClick={() => setViewMode('kanban')}
                             className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${viewMode === 'kanban'
@@ -556,9 +557,9 @@ const BoardPage = () => {
                     </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
-                    {/* Search */}
-                    <div className="relative flex-1 md:flex-initial">
+                {/* Center Section (Search Bar & Filters) */}
+                <div className="flex items-center justify-center flex-1 max-w-lg w-full gap-3 my-2 md:my-0">
+                    <div className="relative flex-1">
                         <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
                             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
@@ -568,7 +569,7 @@ const BoardPage = () => {
                             ref={searchRef}
                             value={searchQuery}
                             onChange={e => setSearchQuery(e.target.value)}
-                            className="pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm w-full md:w-64 focus:ring-primary focus:border-primary text-slate-800 dark:text-white outline-none"
+                            className="pl-10 pr-4 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-205 dark:border-slate-700 rounded-lg text-sm w-full focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-slate-800 dark:text-white outline-none transition-all"
                             placeholder="Filter board cards..."
                             type="text"
                         />
@@ -576,7 +577,7 @@ const BoardPage = () => {
 
                     <button
                         onClick={() => setShowFilters(!showFilters)}
-                        className={`flex items-center space-x-2 px-4 py-2 border rounded-lg text-sm font-medium transition-all ${showFilters
+                        className={`flex items-center space-x-2 px-4 py-1.5 border rounded-lg text-sm font-medium transition-all shrink-0 ${showFilters
                             ? 'bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-950/40 dark:border-indigo-900/60 dark:text-indigo-400'
                             : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-350'
                             }`}
@@ -607,35 +608,25 @@ const BoardPage = () => {
                                 </span>
                             )}
                     </button>
-                    <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-2"></div>
+                </div>
+
+                {/* Right Section */}
+                <div className="flex items-center justify-end space-x-4 flex-1 w-full md:w-auto">
 
                     {/* Tools and Action buttons */}
-                    <div className="flex items-center space-x-2">
-                        <ThemeToggle />
+                    <div className="flex items-center space-x-2 shrink-0">
                         <NotificationBell />
 
                         {(boardRole === 'admin') && (
-                            <>
-                                <button
-                                    onClick={() => setMembersModalOpen(true)}
-                                    className="flex items-center space-x-2 px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300"
-                                >
-                                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
-                                    </svg>
-                                    <span>Members</span>
-                                </button>
-                                <button
-                                    onClick={() => setSettingsModalOpen(true)}
-                                    className="flex items-center space-x-2 px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300"
-                                >
-                                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
-                                        <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
-                                    </svg>
-                                    <span>Settings</span>
-                                </button>
-                            </>
+                            <button
+                                onClick={() => setMembersModalOpen(true)}
+                                className="flex items-center space-x-2 px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300"
+                            >
+                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+                                </svg>
+                                <span>Members</span>
+                            </button>
                         )}
 
                         <button

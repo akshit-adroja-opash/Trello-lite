@@ -2,6 +2,9 @@ import Card from '../models/Card.js';
 import User from '../models/User.js';
 import Workspace from '../models/Workspace.js';
 import { ApiError } from '../utils/apiError.js';
+import Notification from '../models/Notification.js';
+import { getIO } from '../config/socket.js';
+import { sendNotificationToUser } from '../sockets/user.socket.js';
 
 export const createWorkspace = async (req, res, next) => {
     try {
@@ -46,6 +49,23 @@ export const inviteMember = async (req, res, next) => {
         workspace.members.push({ user: invitee._id, role });
         await workspace.save();
 
+        // Create and send notification to invitee
+        try {
+            const notif = await Notification.create({
+                recipient: invitee._id,
+                sender: req.user._id,
+                type: 'WORKSPACE_INVITE',
+                message: `You have been invited to workspace "${workspace.name}" by ${req.user.username || 'Admin'}`,
+                relatedEntity: workspace._id,
+                entityModel: 'Workspace'
+            });
+
+            const io = getIO();
+            sendNotificationToUser(io, invitee._id, notif);
+        } catch (err) {
+            console.error('Failed to create/send invite notification:', err.message);
+        }
+
         res.status(200).json({ status: 'success', data: { workspace } });
     } catch (error) { next(error); }
 };
@@ -84,8 +104,32 @@ export const removeMember = async (req, res, next) => {
         if (!workspace) return next(new ApiError(404, 'Workspace not found'));
         if (workspace.Admin?.toString() !== req.user._id.toString() && req.user.role !== 'admin' && req.user.role !== 'project_manager')
             return next(new ApiError(403, 'Only the Admin or System Admin can remove members'));
+        
+        // Find the user ID of the member being removed before pulling from array
+        const memberSub = workspace.members.id(memberId);
+        if (!memberSub) return next(new ApiError(404, 'Member not found'));
+        const removedUserId = memberSub.user;
+
         workspace.members.pull({ _id: memberId });
         await workspace.save();
+
+        // Create and send notification to removed member
+        try {
+            const notif = await Notification.create({
+                recipient: removedUserId,
+                sender: req.user._id,
+                type: 'WORKSPACE_REMOVE',
+                message: `You have been removed from workspace "${workspace.name}" by ${req.user.username || 'Admin'}`,
+                relatedEntity: workspace._id,
+                entityModel: 'Workspace'
+            });
+
+            const io = getIO();
+            sendNotificationToUser(io, removedUserId, notif);
+        } catch (err) {
+            console.error('Failed to create/send remove notification:', err.message);
+        }
+
         res.status(200).json({ status: 'success', message: 'Member removed' });
     } catch (error) { next(error); }
 };

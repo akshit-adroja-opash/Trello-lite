@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import useAuthStore from '../store/authstore';
 import { getMyTasks } from '../api/card.api';
-import ThemeToggle from '../components/ThemeToggle';
 
 const MyTasksPage = () => {
     const user = useAuthStore(s => s.user);
@@ -38,7 +37,6 @@ const MyTasksPage = () => {
                     <h1 className="font-extrabold text-slate-900 dark:text-white text-base tracking-tight">My Tasks</h1>
                 </div>
                 <div>
-                    <ThemeToggle />
                 </div>
             </header>
 

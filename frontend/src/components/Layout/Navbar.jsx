@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import useAuthStore from '../../store/authstore';
 import useSidebarStore from '../../store/sidebarStore';
 import ThemeToggle from '../ThemeToggle';
@@ -11,6 +11,8 @@ const Navbar = ({ searchQuery, setSearchQuery }) => {
   const logout = useAuthStore((s) => s.logout);
   const toggleSidebar = useSidebarStore((s) => s.toggle);
   const navigate = useNavigate();
+  const location = useLocation();
+  const isDashboard = location.pathname === '/dashboard';
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -64,7 +66,7 @@ const Navbar = ({ searchQuery, setSearchQuery }) => {
         {/* Global Toolbar items */}
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-4">
-            <ThemeToggle />
+            {isDashboard && <ThemeToggle />}
             <NotificationBell />
           </div>
           <div className="h-8 w-px bg-outline-variant dark:bg-slate-700 mx-1"></div>

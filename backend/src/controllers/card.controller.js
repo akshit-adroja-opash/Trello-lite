@@ -9,6 +9,34 @@ export const createCard = async (req, res, next) => {
     try {
         const { title, columnId, boardId, order, assignees, labels, dueDate } = req.body;
         const card = await Card.create({ title, column: columnId, board: boardId, order, assignees, labels, dueDate });
+        
+        // Notify assignees about the new task assignment
+        if (assignees && assignees.length > 0) {
+            try {
+                const { getIO } = await import('../config/socket.js');
+                const { sendNotificationToUser } = await import('../sockets/user.socket.js');
+                const Notification = (await import('../models/Notification.js')).default;
+                
+                const io = getIO();
+                for (const assigneeId of assignees) {
+                    if (assigneeId === req.user._id.toString()) continue;
+
+                    const notif = await Notification.create({
+                        recipient: assigneeId,
+                        sender: req.user._id,
+                        type: 'TASK_ASSIGN',
+                        message: `You have been assigned to task "${title}" by ${req.user.username || 'Admin'}`,
+                        relatedEntity: card._id,
+                        entityModel: 'Card'
+                    });
+
+                    sendNotificationToUser(io, assigneeId, notif);
+                }
+            } catch (err) {
+                console.error('Failed to send task assignment notifications:', err.message);
+            }
+        }
+
         logActivity(req.user._id, boardId, card._id, 'created', `Created card "${title}"`);
         res.status(201).json({ status: 'success', data: { card } });
     } catch (error) { next(error); }
@@ -49,9 +77,44 @@ export const updateCard = async (req, res, next) => {
             return next(new ApiError(409, 'Conflict: card was modified by another user'));
         }
 
+        // Compare assignees to detect new assignments
+        let newlyAssigned = [];
+        if (updates.assignees) {
+            const existingAssignees = (card.assignees || []).map(id => id.toString());
+            const newAssignees = updates.assignees.map(id => id.toString());
+            newlyAssigned = newAssignees.filter(id => !existingAssignees.includes(id));
+        }
+
         Object.assign(card, updates);
         card.version = (card.version || 0) + 1;
         await card.save();
+
+        // Send task assignment notifications
+        if (newlyAssigned.length > 0) {
+            try {
+                const { getIO } = await import('../config/socket.js');
+                const { sendNotificationToUser } = await import('../sockets/user.socket.js');
+                const Notification = (await import('../models/Notification.js')).default;
+                
+                const io = getIO();
+                for (const assigneeId of newlyAssigned) {
+                    if (assigneeId === req.user._id.toString()) continue;
+
+                    const notif = await Notification.create({
+                        recipient: assigneeId,
+                        sender: req.user._id,
+                        type: 'TASK_ASSIGN',
+                        message: `You have been assigned to task "${card.title}" by ${req.user.username || 'Admin'}`,
+                        relatedEntity: card._id,
+                        entityModel: 'Card'
+                    });
+
+                    sendNotificationToUser(io, assigneeId, notif);
+                }
+            } catch (err) {
+                console.error('Failed to send task assignment notifications:', err.message);
+            }
+        }
 
         logActivity(req.user._id, card.board, card._id, 'updated', `Updated card "${card.title}"`);
         res.status(200).json({ status: 'success', data: { card } });

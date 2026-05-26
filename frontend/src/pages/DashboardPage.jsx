@@ -372,13 +372,7 @@ const DashboardPage = () => {
                         </div>
                       </div>
 
-                      <div className="flex gap-2 flex-wrap w-full md:w-auto">
-                        {isWsAdmin && (
-                          <button onClick={() => openWorkspaceSettings(ws)} className="flex-1 md:flex-none flex items-center justify-center gap-1 px-4 py-2 bg-surface-container-low dark:bg-slate-700 text-on-surface-variant dark:text-slate-200 rounded-lg border border-outline-variant dark:border-slate-600 hover:bg-surface-container-high dark:hover:bg-slate-650 transition-colors font-body-sm font-semibold">
-                            <span className="material-symbols-outlined text-[18px]">settings</span>
-                            <span>Settings</span>
-                          </button>
-                        )}
+                      <div className="flex gap-2 flex-wrap w-full md:w-auto items-center">
                         {isWsAdmin && (
                           <button onClick={() => setShowInvite(ws._id)} className="flex-1 md:flex-none flex items-center justify-center gap-1 px-4 py-2 bg-surface-container-low dark:bg-slate-700 text-on-surface-variant dark:text-slate-200 rounded-lg border border-outline-variant dark:border-slate-600 hover:bg-surface-container-high dark:hover:bg-slate-650 transition-colors font-body-sm font-semibold">
                             <span className="material-symbols-outlined text-[18px]">person_add</span>
@@ -392,9 +386,13 @@ const DashboardPage = () => {
                           </button>
                         )}
                         {isWsAdmin && (
-                          <button onClick={() => handleDeleteWorkspace(ws._id)} className="flex-1 md:flex-none flex items-center justify-center gap-1 px-4 py-2 text-error hover:bg-error-container hover:text-on-error-container rounded-lg transition-all font-body-sm font-semibold">
+                          <button onClick={() => openWorkspaceSettings(ws)} className="flex-1 md:flex-none flex items-center justify-center p-2 bg-surface-container-low dark:bg-slate-700 text-on-surface-variant dark:text-slate-200 rounded-lg border border-outline-variant dark:border-slate-600 hover:bg-surface-container-high dark:hover:bg-slate-650 transition-colors" title="Workspace Settings">
+                            <span className="material-symbols-outlined text-[18px]">settings</span>
+                          </button>
+                        )}
+                        {isWsAdmin && (
+                          <button onClick={() => handleDeleteWorkspace(ws._id)} className="flex-1 md:flex-none flex items-center justify-center p-2 text-error hover:bg-error-container hover:text-on-error-container rounded-lg transition-all" title="Delete Workspace">
                             <span className="material-symbols-outlined text-[18px]">delete</span>
-                            <span>Delete</span>
                           </button>
                         )}
                       </div>
@@ -552,8 +550,8 @@ const DashboardPage = () => {
                         setInviteRole('developer');
                       }}
                       className={`flex items-center gap-2 px-2.5 py-1.5 rounded-full text-xs border transition-all ${inviteEmail === dev.email
-                          ? 'bg-indigo-50 border-indigo-300 text-indigo-700 dark:bg-indigo-950/40 dark:border-indigo-800 dark:text-indigo-300 font-semibold'
-                          : 'bg-white border-slate-200 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 hover:border-indigo-400'
+                        ? 'bg-indigo-50 border-indigo-300 text-indigo-700 dark:bg-indigo-950/40 dark:border-indigo-800 dark:text-indigo-300 font-semibold'
+                        : 'bg-white border-slate-200 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 hover:border-indigo-400'
                         }`}
                     >
                       <Avatar name={dev.username} avatar={dev.avatar} size={20} />

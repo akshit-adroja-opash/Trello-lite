@@ -13,7 +13,7 @@ const notificationSchema = new mongoose.Schema(
         },
         type: {
             type: String,
-            enum: ['CARD_UPDATE', 'BOARD_COMMENT', 'TASK_ACTION', 'MENTION'],
+            enum: ['CARD_UPDATE', 'BOARD_COMMENT', 'TASK_ACTION', 'MENTION', 'WORKSPACE_INVITE', 'WORKSPACE_REMOVE', 'TASK_ASSIGN'],
             required: true,
         },
         message: {

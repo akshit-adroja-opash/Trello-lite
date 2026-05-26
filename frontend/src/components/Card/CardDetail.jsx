@@ -8,6 +8,9 @@ import useAuthStore from '../../store/authstore';
 import Avatar from '../../UI/Avatar';
 import { canEditCard, canDeleteCard } from '../../utils/rolePermissions';
 import { getMembers } from '../../api/workspace.api';
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 const LABEL_COLORS = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6'];
 
@@ -51,6 +54,56 @@ const EmojiPickerPopover = ({ onSelect }) => {
                         </button>
                     ))}
                 </div>
+            )}
+        </div>
+    );
+};
+
+const SortableChecklistItem = ({ item, index, onToggleCheck, onRemoveCheck, canEdit }) => {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+        id: item._id || item.text || index.toString()
+    });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+        zIndex: isDragging ? 10 : 'auto'
+    };
+
+    return (
+        <div 
+            ref={setNodeRef} 
+            style={style} 
+            className="flex items-center gap-3 group bg-slate-50/40 dark:bg-slate-900/20 hover:bg-slate-50 dark:hover:bg-slate-900/50 px-4 py-2.5 rounded-lg border border-slate-100 dark:border-slate-800 transition-all"
+        >
+            {canEdit && (
+                <div 
+                    {...attributes} 
+                    {...listeners} 
+                    className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600 dark:hover:text-slate-350 p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-850/80 transition-colors shrink-0 flex items-center"
+                    title="Drag to reorder"
+                >
+                    <span className="material-symbols-outlined text-sm select-none">drag_indicator</span>
+                </div>
+            )}
+            <input
+                type="checkbox"
+                checked={item.done}
+                onChange={() => onToggleCheck(index)}
+                disabled={!canEdit}
+                className="w-4.5 h-4.5 accent-indigo-600 bg-white dark:bg-slate-800 border-slate-350 dark:border-slate-700 rounded cursor-pointer shrink-0"
+            />
+            <span className={`flex-1 text-sm ${item.done ? 'line-through text-slate-400 dark:text-slate-500 font-medium' : 'text-slate-750 dark:text-slate-300'}`}>
+                {item.text}
+            </span>
+            {canEdit && (
+                <button
+                    onClick={() => onRemoveCheck(index)}
+                    className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-650 p-1 rounded-md hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all text-xs cursor-pointer"
+                >
+                    ✕
+                </button>
             )}
         </div>
     );
@@ -249,8 +302,33 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
 
     const toggleCheck = (idx) => setChecklist(p => p.map((item, i) => i === idx ? { ...item, done: !item.done } : item));
     const removeCheck = (idx) => setChecklist(p => p.filter((_, i) => i !== idx));
-    const addCheck = () => { if (!newCheckItem.trim()) return; setChecklist(p => [...p, { text: newCheckItem.trim(), done: false }]); setNewCheckItem(''); };
+    const addCheck = () => { 
+        if (!newCheckItem.trim()) return; 
+        setChecklist(p => [...p, { _id: 'temp-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9), text: newCheckItem.trim(), done: false }]); 
+        setNewCheckItem(''); 
+    };
     const addLabel = () => { if (!newLabel.name.trim()) return; setLabels(p => [...p, { name: newLabel.name.trim(), color: newLabel.color }]); setNewLabel({ name: '', color: LABEL_COLORS[0] }); };
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 5,
+            },
+        })
+    );
+
+    const handleDragEndChecklist = (event) => {
+        if (!canEdit) return;
+        const { active, over } = event;
+        if (!over || active.id === over.id) return;
+
+        setChecklist((items) => {
+            const oldIndex = items.findIndex((item) => (item._id || item.text) === active.id);
+            const newIndex = items.findIndex((item) => (item._id || item.text) === over.id);
+            if (oldIndex === -1 || newIndex === -1) return items;
+            return arrayMove(items, oldIndex, newIndex);
+        });
+    };
 
     const doneCount = checklist.filter(i => i.done).length;
     const progressPercent = checklist.length > 0 ? Math.round((doneCount / checklist.length) * 100) : 0;
@@ -418,25 +496,20 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                             )}
 
                             <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
-                                {checklist.map((item, i) => (
-                                    <div key={i} className="flex items-center gap-3 group bg-slate-50/40 dark:bg-slate-900/20 hover:bg-slate-50 dark:hover:bg-slate-900/50 px-4 py-2.5 rounded-lg border border-slate-100 dark:border-slate-800 transition-all">
-                                        <input
-                                            type="checkbox"
-                                            checked={item.done}
-                                            onChange={() => toggleCheck(i)}
-                                            className="w-4.5 h-4.5 accent-indigo-600 bg-white dark:bg-slate-800 border-slate-350 dark:border-slate-700 rounded cursor-pointer shrink-0"
-                                        />
-                                        <span className={`flex-1 text-sm ${item.done ? 'line-through text-slate-400 dark:text-slate-500 font-medium' : 'text-slate-750 dark:text-slate-300'}`}>
-                                            {item.text}
-                                        </span>
-                                        <button
-                                            onClick={() => removeCheck(i)}
-                                            className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-600 p-1 rounded-md hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all text-xs"
-                                        >
-                                            ✕
-                                        </button>
-                                    </div>
-                                ))}
+                                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndChecklist}>
+                                    <SortableContext items={checklist.map((item, idx) => item._id || item.text || idx.toString())} strategy={verticalListSortingStrategy}>
+                                        {checklist.map((item, i) => (
+                                            <SortableChecklistItem
+                                                key={item._id || item.text || i}
+                                                item={item}
+                                                index={i}
+                                                onToggleCheck={toggleCheck}
+                                                onRemoveCheck={removeCheck}
+                                                canEdit={canEdit}
+                                            />
+                                        ))}
+                                    </SortableContext>
+                                </DndContext>
                             </div>
 
                             <div className="flex gap-2">
