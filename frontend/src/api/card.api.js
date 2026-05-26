@@ -40,8 +40,8 @@ export const addComment = async (cardId, data) => {
     return response.data;
 };
 
-export const getMyTasks = async () => {
-    const response = await API.get('/cards/my-tasks');
+export const getMyTasks = async (params) => {
+    const response = await API.get('/cards/my-tasks', { params });
     return response.data;
 };
 

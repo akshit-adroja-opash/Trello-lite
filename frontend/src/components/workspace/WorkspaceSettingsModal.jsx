@@ -259,7 +259,7 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
                               {memberUser.username}
                               {isAdmin && (
                                 <span className="bg-indigo-50 dark:bg-indigo-950/40 text-indigo-650 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/40 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide">
-                                  Admin
+                                  {getRoleDisplayName(memberUser.role || m.role)}
                                 </span>
                               )}
                             </p>
@@ -275,7 +275,7 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
                           ) : (
                             <>
                               <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest px-3">
-                                {getRoleDisplayName(m.role)}
+                                {getRoleDisplayName(memberUser.role || m.role)}
                               </span>
 
                               {isActualAdmin && (

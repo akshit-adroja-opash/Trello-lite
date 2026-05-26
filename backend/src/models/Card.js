@@ -33,6 +33,11 @@ const cardSchema = new mongoose.Schema({
         uploadedAt: { type: Date, default: Date.now }
     }],
     isTemplate: { type: Boolean, default: false },
+    priority: { type: String, enum: ['low', 'medium', 'high', 'urgent'], default: 'medium' },
+    blocked: { type: Boolean, default: false },
+    blockedReason: { type: String, default: "" },
+    estimatedHours: { type: Number, default: 0 },
+    reviewRequested: { type: Boolean, default: false },
     version: { type: Number, default: 0 }
 }, { timestamps: true });
 

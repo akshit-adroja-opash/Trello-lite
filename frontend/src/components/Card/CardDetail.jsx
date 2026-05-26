@@ -123,6 +123,11 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
     const [assignees, setAssignees] = useState(
         (initialCard.assignees || []).map(a => (typeof a === 'object' ? a._id : a))
     );
+    const [priority, setPriority] = useState(initialCard.priority || 'medium');
+    const [blocked, setBlocked] = useState(!!initialCard.blocked);
+    const [blockedReason, setBlockedReason] = useState(initialCard.blockedReason || '');
+    const [estimatedHours, setEstimatedHours] = useState(initialCard.estimatedHours || 0);
+    const [reviewRequested, setReviewRequested] = useState(!!initialCard.reviewRequested);
     const [activities, setActivities] = useState([]);
     const [saving, setSaving] = useState(false);
     const [typingUser, setTypingUser] = useState(null);
@@ -224,7 +229,8 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
         try {
             const res = await updateCard(card._id, {
                 title, description, dueDate: dueDate || null,
-                labels, checklist, assignees, version: card.version
+                labels, checklist, assignees, version: card.version,
+                priority, blocked, blockedReason, estimatedHours, reviewRequested
             });
             const updated = res.data?.card;
             setCard(updated);
@@ -707,6 +713,89 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
 
                     {/* Right Column: Aside Meta & Actions */}
                     <aside className="w-full md:w-80 p-6 bg-slate-50/50 dark:bg-slate-900/40 border-l border-slate-200 dark:border-slate-700/60 space-y-8 overflow-y-auto custom-scrollbar">
+
+                        {/* Task Priority & Status */}
+                        <section className="space-y-4 bg-slate-100/50 dark:bg-slate-800/40 p-4 rounded-xl border border-slate-200/50 dark:border-slate-700/50">
+                            <div className="flex items-center gap-2 pb-1 border-b border-slate-200/50 dark:border-slate-700/50">
+                                <span className="material-symbols-outlined text-sm text-secondary dark:text-indigo-400 font-bold">task_alt</span>
+                                <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 uppercase font-bold text-xs">Work Details</span>
+                            </div>
+
+                            {/* Priority */}
+                            <div className="space-y-1.5">
+                                <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Priority</label>
+                                <select
+                                    value={priority}
+                                    onChange={e => setPriority(e.target.value)}
+                                    disabled={!canEdit}
+                                    className="w-full bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-700 rounded-lg px-3 py-2 text-xs font-semibold text-slate-800 dark:text-white outline-none cursor-pointer disabled:opacity-50 transition-all"
+                                >
+                                    <option value="low">🟢 Low</option>
+                                    <option value="medium">🟡 Medium</option>
+                                    <option value="high">🟠 High</option>
+                                    <option value="urgent">🔴 Urgent</option>
+                                </select>
+                            </div>
+
+                            {/* Estimated Hours */}
+                            <div className="space-y-1.5">
+                                <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Estimated Hours</label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    value={estimatedHours}
+                                    onChange={e => setEstimatedHours(Math.max(0, parseInt(e.target.value) || 0))}
+                                    disabled={!canEdit}
+                                    className="w-full bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-700 rounded-lg px-3 py-2 text-xs font-semibold text-slate-800 dark:text-white outline-none disabled:opacity-50 transition-all"
+                                    placeholder="e.g. 8"
+                                />
+                            </div>
+
+                            {/* Blocked Status */}
+                            <div className="space-y-2">
+                                <div className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        id="blocked-checkbox"
+                                        checked={blocked}
+                                        onChange={e => {
+                                            setBlocked(e.target.checked);
+                                            if (!e.target.checked) setBlockedReason('');
+                                        }}
+                                        disabled={!canEdit}
+                                        className="w-4 h-4 rounded text-rose-600 focus:ring-rose-500 border-slate-350 dark:border-slate-700 cursor-pointer"
+                                    />
+                                    <label htmlFor="blocked-checkbox" className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase cursor-pointer select-none">
+                                        Blocked / Waiting
+                                    </label>
+                                </div>
+                                {blocked && (
+                                    <textarea
+                                        value={blockedReason}
+                                        onChange={e => setBlockedReason(e.target.value)}
+                                        disabled={!canEdit}
+                                        placeholder="Reason for blockage..."
+                                        rows="2"
+                                        className="w-full bg-white dark:bg-slate-900 border border-rose-300 dark:border-rose-900/60 rounded-lg p-2 text-xs text-slate-850 dark:text-white focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none transition-all resize-none shadow-sm"
+                                    />
+                                )}
+                            </div>
+
+                            {/* Review Requested */}
+                            <div className="flex items-center gap-2 cursor-pointer pt-1">
+                                <input
+                                    type="checkbox"
+                                    id="review-requested-checkbox"
+                                    checked={reviewRequested}
+                                    onChange={e => setReviewRequested(e.target.checked)}
+                                    disabled={!canEdit}
+                                    className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-355 dark:border-slate-700 cursor-pointer"
+                                />
+                                <label htmlFor="review-requested-checkbox" className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase cursor-pointer select-none">
+                                    Review Requested
+                                </label>
+                            </div>
+                        </section>
 
                         {/* Due Date */}
                         <section className="space-y-2">

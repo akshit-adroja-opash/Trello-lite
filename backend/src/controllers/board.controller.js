@@ -4,6 +4,19 @@ import Column from '../models/Column.js';
 import { generateIndexBetween } from '../utils/fractionalIndex.js';
 import { ApiError } from '../utils/apiError.js';
 
+const formatBoard = (board, userId) => {
+    if (!board) return null;
+    const boardObj = board.toObject ? board.toObject() : board;
+    const starredBy = boardObj.starredBy || [];
+    boardObj.isStarred = starredBy.some(id => id?.toString() === userId?.toString());
+    return boardObj;
+};
+
+const formatBoards = (boards, userId) => {
+    if (!boards) return [];
+    return boards.map(b => formatBoard(b, userId));
+};
+
 export const createBoard = async (req, res, next) => {
     try {
         const { name, workspaceId, background } = req.body;
@@ -15,7 +28,7 @@ export const createBoard = async (req, res, next) => {
 
         const board = await Board.create({
             name, workspace: workspaceId, Admin: req.user._id, background,
-            members: [{ user: req.user._id, role: 'admin' }]
+            members: [{ user: req.user._id, role: req.user.role }]
         });
 
         // Automatically populate new board with default columns
@@ -30,15 +43,21 @@ export const createBoard = async (req, res, next) => {
             });
         }
 
-        res.status(201).json({ status: 'success', data: { board } });
+        await board.populate([
+            { path: 'Admin', select: 'username email avatar role' },
+            { path: 'members.user', select: 'username email avatar role' }
+        ]);
+        res.status(201).json({ status: 'success', data: { board: formatBoard(board, req.user._id) } });
     } catch (error) { next(error); }
 };
 
 export const getBoards = async (req, res, next) => {
     try {
         const { workspaceId } = req.params;
-        const boards = await Board.find({ workspace: workspaceId });
-        res.status(200).json({ status: 'success', data: { boards } });
+        const boards = await Board.find({ workspace: workspaceId })
+            .populate('Admin', 'username email avatar role')
+            .populate('members.user', 'username email avatar role');
+        res.status(200).json({ status: 'success', data: { boards: formatBoards(boards, req.user._id) } });
     } catch (error) { next(error); }
 };
 
@@ -47,8 +66,8 @@ export const getSingleBoard = async (req, res, next) => {
         const { boardId } = req.params;
         const board = await Board.findById(boardId)
             .populate('workspace', 'name')
-            .populate('Admin', 'username email avatar')
-            .populate('members.user', 'username email avatar');
+            .populate('Admin', 'username email avatar role')
+            .populate('members.user', 'username email avatar role');
         if (!board) return next(new ApiError(404, 'Board not found'));
 
         const AdminId = board.Admin?._id || board.Admin;
@@ -76,7 +95,7 @@ export const getSingleBoard = async (req, res, next) => {
             return next(new ApiError(403, 'Access denied'));
         }
 
-        res.status(200).json({ status: 'success', data: { board } });
+        res.status(200).json({ status: 'success', data: { board: formatBoard(board, req.user._id) } });
     } catch (error) { next(error); }
 };
 
@@ -91,7 +110,7 @@ export const updateBoard = async (req, res, next) => {
         if (name) board.name = name;
         if (background) board.background = background;
         await board.save();
-        res.status(200).json({ status: 'success', data: { board } });
+        res.status(200).json({ status: 'success', data: { board: formatBoard(board, req.user._id) } });
     } catch (error) { next(error); }
 };
 
@@ -126,7 +145,8 @@ export const addBoardMember = async (req, res, next) => {
         const isSystemAdmin = req.user.role === 'admin';
         const workspace = await Workspace.findById(board.workspace);
         const wsMember = workspace?.members.find(m => m.user?.toString() === req.user._id.toString());
-        const isWorkspaceAdmin = wsMember?.role === 'admin';
+        const isWorkspaceOwner = workspace?.Admin?.toString() === req.user._id.toString();
+        const isWorkspaceAdmin = wsMember?.role === 'admin' || isWorkspaceOwner || req.user.role === 'project_manager';
 
         if (!isSystemAdmin && !isWorkspaceAdmin) {
             return next(new ApiError(403, 'Only Workspace Admins or System Admins can add members'));
@@ -141,7 +161,11 @@ export const addBoardMember = async (req, res, next) => {
 
         board.members.push({ user: invitee._id, role });
         await board.save();
-        res.status(200).json({ status: 'success', data: { board } });
+        const populated = await Board.findById(board._id).populate([
+            { path: 'Admin', select: 'username email avatar role' },
+            { path: 'members.user', select: 'username email avatar role' }
+        ]);
+        res.status(200).json({ status: 'success', data: { board: formatBoard(populated, req.user._id) } });
     } catch (error) { next(error); }
 };
 
@@ -155,7 +179,8 @@ export const updateBoardMemberRole = async (req, res, next) => {
         const isSystemAdmin = req.user.role === 'admin';
         const workspace = await Workspace.findById(board.workspace);
         const wsMember = workspace?.members.find(m => m.user?.toString() === req.user._id.toString());
-        const isWorkspaceAdmin = wsMember?.role === 'admin';
+        const isWorkspaceOwner = workspace?.Admin?.toString() === req.user._id.toString();
+        const isWorkspaceAdmin = wsMember?.role === 'admin' || isWorkspaceOwner || req.user.role === 'project_manager';
 
         if (!isSystemAdmin && !isWorkspaceAdmin) {
             return next(new ApiError(403, 'Only Workspace Admins or System Admins can change roles'));
@@ -177,7 +202,8 @@ export const removeBoardMember = async (req, res, next) => {
         const isSystemAdmin = req.user.role === 'admin';
         const workspace = await Workspace.findById(board.workspace);
         const wsMember = workspace?.members.find(m => m.user?.toString() === req.user._id.toString());
-        const isWorkspaceAdmin = wsMember?.role === 'admin';
+        const isWorkspaceOwner = workspace?.Admin?.toString() === req.user._id.toString();
+        const isWorkspaceAdmin = wsMember?.role === 'admin' || isWorkspaceOwner || req.user.role === 'project_manager';
 
         if (!isSystemAdmin && !isWorkspaceAdmin) {
             return next(new ApiError(403, 'Only Workspace Admins or System Admins can remove members'));
@@ -185,7 +211,11 @@ export const removeBoardMember = async (req, res, next) => {
 
         board.members = board.members.filter(m => m.user?.toString() !== memberId);
         await board.save();
-        res.status(200).json({ status: 'success', data: { board } });
+        const populated = await Board.findById(board._id).populate([
+            { path: 'Admin', select: 'username email avatar role' },
+            { path: 'members.user', select: 'username email avatar role' }
+        ]);
+        res.status(200).json({ status: 'success', data: { board: formatBoard(populated, req.user._id) } });
     } catch (error) { next(error); }
 };
 
@@ -194,8 +224,19 @@ export const toggleStarBoard = async (req, res, next) => {
         const { boardId } = req.params;
         const board = await Board.findById(boardId);
         if (!board) return next(new ApiError(404, 'Board not found'));
-        board.isStarred = !board.isStarred;
+
+        if (!board.starredBy) {
+            board.starredBy = [];
+        }
+
+        const userIdStr = req.user._id.toString();
+        const index = board.starredBy.findIndex(id => id?.toString() === userIdStr);
+        if (index > -1) {
+            board.starredBy.splice(index, 1);
+        } else {
+            board.starredBy.push(req.user._id);
+        }
         await board.save();
-        res.status(200).json({ status: 'success', data: { board } });
+        res.status(200).json({ status: 'success', data: { board: formatBoard(board, req.user._id) } });
     } catch (error) { next(error); }
 };

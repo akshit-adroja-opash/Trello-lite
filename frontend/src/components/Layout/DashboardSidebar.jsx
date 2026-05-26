@@ -118,7 +118,7 @@ const DashboardSidebar = ({ currentWorkspace, openWorkspaceSettings, boards: pro
               <NavItem to="/my-tasks" label="My Tasks" icon="task_alt" />
             )}
 
-            {(user?.role === 'admin' || user?.role === 'developer') && (
+            {(user?.role === 'admin' || user?.role === 'project_manager') && (
               <NavItem to="/assign-task" label="Assign Task" icon="assignment_turned_in" />
             )}
 

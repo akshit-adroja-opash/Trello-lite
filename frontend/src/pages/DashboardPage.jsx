@@ -408,7 +408,7 @@ const DashboardPage = () => {
                             <Avatar name={member.user?.username} avatar={member.user?.avatar} size={24} />
                             <span className="font-body-sm font-semibold text-on-surface dark:text-slate-200">{member.user?.username || member.user?.email}</span>
                             <span className="font-label-caps text-[10px] bg-secondary-fixed-dim text-on-secondary-fixed-variant dark:text-slate-900 px-1.5 py-0.5 rounded-full uppercase ml-1">
-                              {getRoleDisplayName(member.role)}
+                              {getRoleDisplayName(member.user?.role || member.role)}
                             </span>
                           </div>
                         ))}

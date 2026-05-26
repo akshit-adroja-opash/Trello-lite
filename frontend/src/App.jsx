@@ -99,7 +99,7 @@ const App = () => {
         <Route
           path="/assign-task"
           element={
-            <ProtectedRoute allowedRoles={["admin", "developer"]}>
+            <ProtectedRoute allowedRoles={["admin", "project_manager"]}>
               <AssignTaskPage />
             </ProtectedRoute>
           }

@@ -6,6 +6,7 @@ const boardSchema = new mongoose.Schema({
     Admin: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     background: { type: String, default: '#0079bf' },
     isStarred: { type: Boolean, default: false },
+    starredBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: [] }],
     members: [{
         user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
         // admin = Admin, project_manager = Project Manager, developer = Developer, client = Client

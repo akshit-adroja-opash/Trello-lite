@@ -95,7 +95,8 @@ export const updateCard = async (req, res, next) => {
                 const isSystemAdmin = req.user.role === 'admin';
                 const workspace = await Workspace.findById(board.workspace);
                 const wsMember = workspace?.members.find(m => m.user?.toString() === req.user._id.toString());
-                const isWorkspaceAdmin = wsMember?.role === 'admin';
+                const isWorkspaceOwner = workspace?.Admin?.toString() === req.user._id.toString();
+                const isWorkspaceAdmin = wsMember?.role === 'admin' || isWorkspaceOwner || req.user.role === 'project_manager';
 
                 if (!isSystemAdmin && !isWorkspaceAdmin) {
                     return next(new ApiError(403, 'Task assignment is an Admin-only privilege'));
@@ -189,10 +190,32 @@ export const getCardActivities = async (req, res, next) => {
 
 export const getMyTasks = async (req, res, next) => {
     try {
-        const cards = await Card.find({ assignees: req.user._id })
+        const { priority, blocked, overdue, dueSoon, reviewRequested } = req.query;
+        const query = { assignees: req.user._id };
+
+        if (priority) {
+            query.priority = priority;
+        }
+        if (blocked !== undefined) {
+            query.blocked = blocked === 'true';
+        }
+        if (reviewRequested !== undefined) {
+            query.reviewRequested = reviewRequested === 'true';
+        }
+
+        const now = new Date();
+        if (overdue === 'true') {
+            query.dueDate = { $lt: now };
+        } else if (dueSoon === 'true') {
+            const twoDaysFromNow = new Date(now.getTime() + 86400000 * 2);
+            query.dueDate = { $gte: now, $lte: twoDaysFromNow };
+        }
+
+        const cards = await Card.find(query)
             .populate('board', 'name')
             .populate('column', 'name')
             .populate('assignees', 'username email avatar')
+            .populate('comments.user', 'username email avatar')
             .sort({ dueDate: 1 });
         res.status(200).json({ status: 'success', data: { cards } });
     } catch (error) { next(error); }
