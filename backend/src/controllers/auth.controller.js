@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 import Session from "../models/Session.js";
+import Workspace from "../models/Workspace.js";
 import { generateToken } from "../utils/generateToken.js";
 import { ApiError } from "../utils/apiError.js";
 
@@ -155,10 +156,26 @@ export const getAllUsers = async (req, res, next) => {
     if (req.user.role !== 'admin') {
       throw new ApiError(403, 'Only admins can view all users');
     }
-    const users = await User.find().select('-password');
+    const users = await User.find().select('-password').lean();
+    const workspaces = await Workspace.find().lean();
+    
+    const usersWithWorkspaceCount = users.map(user => {
+      const userIdStr = user._id.toString();
+      const count = workspaces.filter(ws => {
+        const isAdmin = ws.Admin && ws.Admin.toString() === userIdStr;
+        const isMember = ws.members && ws.members.some(m => m.user && m.user.toString() === userIdStr);
+        return isAdmin || isMember;
+      }).length;
+      
+      return {
+        ...user,
+        workspaceCount: count
+      };
+    });
+
     res.status(200).json({
       status: 'success',
-      data: { users }
+      data: { users: usersWithWorkspaceCount }
     });
   } catch (error) {
     next(error);
@@ -180,6 +197,29 @@ export const updateUserRole = async (req, res, next) => {
     await user.save();
     
     res.status(200).json({
+      status: 'success',
+      data: { user }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const createUserByAdmin = async (req, res, next) => {
+  try {
+    if (req.user.role !== 'admin') {
+      throw new ApiError(403, 'Only admins can create users');
+    }
+    const { username, email, password, role = 'developer' } = req.body;
+    if (!username || !email || !password) {
+      throw new ApiError(400, 'Username, email and password are required');
+    }
+    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+    if (existingUser) {
+      throw new ApiError(400, 'User with this username or email already exists');
+    }
+    const user = await User.create({ username, email, password, role });
+    res.status(201).json({
       status: 'success',
       data: { user }
     });

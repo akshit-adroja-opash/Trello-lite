@@ -130,6 +130,10 @@ const DashboardSidebar = ({ currentWorkspace, openWorkspaceSettings, boards: pro
               <NavItem to="/analytics" label="Analytics" icon="analytics" />
             )}
 
+            {user?.role === 'admin' && (
+              <NavItem to="/user-management" label="User Management" icon="group" />
+            )}
+
             {canManageWorkspace && (
               <button
                 onClick={() => {

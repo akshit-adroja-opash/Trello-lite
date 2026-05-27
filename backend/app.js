@@ -14,6 +14,7 @@ import activityRoutes from "./src/routes/activity.routes.js";
 import notificationRoutes from "./src/routes/notification.routes.js";
 import reportRoutes from "./src/routes/report.routes.js";
 import analyticsRoutes from "./src/routes/analytics.routes.js";
+import dashboardRoutes from "./src/routes/dashboard.routes.js";
 
 
 const app = express();
@@ -46,6 +47,7 @@ app.use("/api/v1/activities", activityRoutes);
 app.use("/api/v1/notifications", notificationRoutes);
 app.use("/api/v1/reports", reportRoutes);
 app.use("/api/v1/analytics", analyticsRoutes);
+app.use("/api/v1/dashboard", dashboardRoutes);
 
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok" });

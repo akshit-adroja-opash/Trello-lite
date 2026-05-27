@@ -13,6 +13,7 @@ import ProfilePage from "./pages/ProfilePage";
 import ReportsPage from "./pages/ReportsPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import AssignTaskPage from "./pages/AssignTaskPage";
+import UserManagementPage from "./pages/UserManagementPage";
 
 
 const App = () => {
@@ -101,6 +102,14 @@ const App = () => {
           element={
             <ProtectedRoute allowedRoles={["admin", "project_manager"]}>
               <AssignTaskPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/user-management"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <UserManagementPage />
             </ProtectedRoute>
           }
         />

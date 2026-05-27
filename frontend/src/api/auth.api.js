@@ -52,6 +52,11 @@ export const deleteUser = async (userId) => {
     return response.data;
 };
 
+export const createUserByAdmin = async (userData) => {
+    const response = await API.post('/auth/users', userData);
+    return response.data;
+};
+
 export const get2FAStatus = async () => {
     const response = await API.get('/auth/2fa');
     return response.data;

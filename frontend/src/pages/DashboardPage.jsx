@@ -11,6 +11,10 @@ import { getRoleDisplayName } from '../utils/roleDisplay';
 import WorkspaceSettingsModal from '../components/workspace/WorkspaceSettingsModal';
 import Navbar from '../components/Layout/Navbar';
 import DashboardSidebar from '../components/Layout/DashboardSidebar';
+import AdminDashboardPanel from '../components/Dashboard/AdminDashboardPanel';
+import ProjectManagerDashboardPanel from '../components/Dashboard/ProjectManagerDashboardPanel';
+import DeveloperDashboardPanel from '../components/Dashboard/DeveloperDashboardPanel';
+import ClientDashboardPanel from '../components/Dashboard/ClientDashboardPanel';
 
 const BOARD_COLORS = [
   'linear-gradient(135deg, #005f73 0%, #0a9396 100%)',
@@ -252,16 +256,20 @@ const DashboardPage = () => {
       <main className="ml-0 lg:ml-[280px] pt-16 min-h-screen">
         <div className="max-w-[1400px] mx-auto p-6 lg:p-10">
 
-          {/* Page Header */}
-          <div className="flex justify-between items-end mb-12">
-            <div>
-              <h2 className="font-headline-lg text-3xl font-bold text-primary dark:text-white mb-1">My Workspaces</h2>
-              <p className="font-body-md text-on-primary-container dark:text-slate-400 max-w-2xl">Collaborate, manage workflows, and track pipeline metrics across teams.</p>
-            </div>
-            {user?.role !== 'developer' && (
-              <button onClick={() => setShowCreateWs(true)} className="bg-secondary text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-secondary/10">
-                <span className="material-symbols-outlined">add</span>
-                Create Workspace
+          {/* Role-Aware Dashboard Panel */}
+          {user?.role === 'admin' && <div className="mb-xl"><AdminDashboardPanel /></div>}
+          {user?.role === 'project_manager' && <div className="mb-xl"><ProjectManagerDashboardPanel /></div>}
+          {user?.role === 'developer' && <div className="mb-xl"><DeveloperDashboardPanel /></div>}
+          {user?.role === 'client' && <div className="mb-xl"><ClientDashboardPanel /></div>}
+
+          {/* Workspaces Section */}
+          <div className="flex justify-between items-center mb-md">
+            <h3 className="font-title-md text-title-md text-primary dark:text-white">My Workspaces</h3>
+            {user?.role !== 'developer' && user?.role !== 'client' && (
+              <button onClick={() => setShowCreateWs(true)}
+                className="bg-secondary text-on-secondary px-lg py-sm rounded-lg font-body-sm font-medium hover:opacity-90 transition-opacity shadow-sm flex items-center gap-xs">
+                <span className="material-symbols-outlined text-[18px]">add</span>
+                New Workspace
               </button>
             )}
           </div>

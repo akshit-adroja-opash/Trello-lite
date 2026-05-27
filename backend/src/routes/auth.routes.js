@@ -13,7 +13,8 @@ import {
   get2FAStatus,
   toggle2FA,
   getSessions,
-  revokeSession
+  revokeSession,
+  createUserByAdmin
 } from '../controllers/auth.controller.js';
 import { verifyJWT } from '../middleware/auth.middleware.js';
 import { avatarUpload } from '../middleware/upload.middleware.js';
@@ -38,6 +39,7 @@ router.delete('/sessions/:id', verifyJWT, revokeSession);
 
 // Admin User Management routes
 router.get('/users', verifyJWT, getAllUsers);
+router.post('/users', verifyJWT, createUserByAdmin);
 router.patch('/users/:id/role', verifyJWT, updateUserRole);
 router.delete('/users/:id', verifyJWT, deleteUser);
 
