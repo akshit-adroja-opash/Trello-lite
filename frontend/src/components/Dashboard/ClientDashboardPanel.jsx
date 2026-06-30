@@ -2,12 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getClientDashboardData } from '../../api/dashboard.api';
 
-const PRIORITY_CHIP = {
-  urgent: 'bg-error/10 text-error border border-error/20',
-  high: 'bg-[#ff6d00]/10 text-[#bf360c] dark:text-orange-400 border border-orange-200/50',
-  medium: 'bg-[#f9a825]/10 text-[#e65100] dark:text-amber-400 border border-amber-200/50',
-  low: 'bg-surface-container text-on-surface-variant dark:bg-slate-700 dark:text-slate-300 border border-outline-variant',
-};
+import { PRIORITY_CHIP_STYLES } from '../../utils/constants';
+import MetricCard from '../common/MetricCard';
 
 const BOARD_COLORS = [
   'linear-gradient(135deg, #005f73 0%, #0a9396 100%)',
@@ -16,21 +12,6 @@ const BOARD_COLORS = [
   'linear-gradient(180deg, #D44D4D 0%, #8C2222 100%)',
   'linear-gradient(180deg, #D69E2E 0%, #975A16 100%)',
 ];
-
-function MetricCard({ label, icon, value, sub }) {
-  return (
-    <div className="bg-surface-container-lowest dark:bg-slate-800 rounded-xl p-lg shadow-sm border border-outline-variant dark:border-slate-700 flex flex-col justify-between gap-md">
-      <div className="flex justify-between items-start">
-        <span className="font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant dark:text-slate-400">{label}</span>
-        <span className="material-symbols-outlined p-xs rounded-md text-[20px] text-secondary dark:text-indigo-400 bg-secondary/10 dark:bg-indigo-900/30">{icon}</span>
-      </div>
-      <div className="flex items-end gap-sm">
-        <span className="font-headline-lg text-headline-lg leading-none text-primary dark:text-white">{value ?? '—'}</span>
-        {sub && <span className="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400 mb-xs">{sub}</span>}
-      </div>
-    </div>
-  );
-}
 
 export default function ClientDashboardPanel() {
   const [data, setData] = useState(null);
@@ -131,7 +112,7 @@ export default function ClientDashboardPanel() {
           ) : (
             <div className="space-y-xs flex-1">
               {data.pendingApprovals.map(card => {
-                const cfg = PRIORITY_CHIP[card.priority] || PRIORITY_CHIP.medium;
+                const cfg = PRIORITY_CHIP_STYLES[card.priority] || PRIORITY_CHIP_STYLES.medium;
                 return (
                   <div key={card._id} className="flex items-start gap-sm px-md py-sm rounded-lg bg-surface-container-low dark:bg-slate-700/50 border border-outline-variant/50 dark:border-slate-700">
                     <span className="material-symbols-outlined text-[16px] text-[#f9a825] mt-0.5 shrink-0">pending_actions</span>

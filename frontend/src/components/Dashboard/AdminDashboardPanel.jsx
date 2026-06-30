@@ -10,35 +10,7 @@ const ROLE_CONFIG = {
   client:          { color: '#ba1a1a', label: 'Client',    chip: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300' },
 };
 
-/* ─── Metric Card ──────────────────────────────────── */
-function MetricCard({ label, icon, value, sub, subCls, danger }) {
-  return (
-    <div className={`bg-surface-container-lowest dark:bg-slate-800 rounded-xl p-lg shadow-sm border flex flex-col justify-between gap-md
-      ${danger ? 'border-error/30 bg-error-container/10 dark:border-red-900/40' : 'border-outline-variant dark:border-slate-700'}`}>
-      <div className="flex justify-between items-start">
-        <span className={`font-label-caps text-label-caps uppercase tracking-wider
-          ${danger ? 'text-error' : 'text-on-surface-variant dark:text-slate-400'}`}>
-          {label}
-        </span>
-        <span className={`material-symbols-outlined p-xs rounded-md text-[20px]
-          ${danger ? 'text-error bg-error/10' : 'text-secondary dark:text-indigo-400 bg-secondary/10 dark:bg-indigo-900/30'}`}>
-          {icon}
-        </span>
-      </div>
-      <div className="flex items-end gap-sm">
-        <span className={`font-headline-lg text-headline-lg leading-none
-          ${danger ? 'text-error' : 'text-primary dark:text-white'}`}>
-          {value ?? '—'}
-        </span>
-        {sub && (
-          <span className={`font-body-sm text-body-sm mb-xs px-xs py-xs rounded ${subCls || 'text-on-surface-variant dark:text-slate-400'}`}>
-            {sub}
-          </span>
-        )}
-      </div>
-    </div>
-  );
-}
+import MetricCard from '../common/MetricCard';
 
 /* ─── Donut Chart (real API data via conic-gradient) ─ */
 function DonutChart({ segments }) {
@@ -345,27 +317,6 @@ export default function AdminDashboardPanel() {
         </div>
       )}
 
-      {/* ── Recent Workspaces (real data with members) ───── */}
-      <div>
-        <div className="flex justify-between items-center mb-md">
-          <h3 className="font-title-md text-title-md text-primary dark:text-white">Recent Workspaces</h3>
-          <span className="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400">
-            {data?.recentWorkspaces?.length ? `Showing ${data.recentWorkspaces.length} newest` : ''}
-          </span>
-        </div>
-        {loading
-          ? <div className="space-y-md">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-24 rounded-xl bg-surface-container dark:bg-slate-800 animate-pulse border border-outline-variant dark:border-slate-700" />
-            ))}
-          </div>
-          : !data?.recentWorkspaces?.length
-            ? <div className="text-center py-xl text-on-surface-variant dark:text-slate-400 font-body-sm">No workspaces yet</div>
-            : <div className="space-y-md">
-              {data.recentWorkspaces.map(ws => <WorkspaceRow key={ws._id} ws={ws} />)}
-            </div>
-        }
-      </div>
 
       {/* ── Quick Action Links ───────────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-md">

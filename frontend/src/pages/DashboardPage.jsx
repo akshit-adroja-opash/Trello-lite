@@ -31,19 +31,7 @@ const BOARD_WALLPAPERS = [
   'https://lh3.googleusercontent.com/aida-public/AB6AXuBaOFw_CKRYhyArL6ifoMbG-KasP1zmdS6FC475IVA38Uf90O-D6VRbgknHd_IJ3zatzdCjrtuVVMWn_PRPQR4s0R44VjAw3TP5S0FrBphhLltfkVCEoAvBskP8PB9SIQRH6LjniJjNb5BdF5mAyJWyOZ3PSfJP3x0p9GEclbbUOgN0JJ4nIU0MxGhbfy-rwkiJr9NvLJj_jUeSeu9zPLcNeVZVqNbGDhJcxqo2mX59pgbZEH2XTK9nC1bBsQamvQ7iMtVh8i1_he8'
 ];
 
-const Modal = ({ title, onClose, children }) => (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm px-4 transition-all" onClick={onClose}>
-    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 w-full max-w-md overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
-      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50">
-        <h2 className="text-lg font-bold text-slate-800 dark:text-white">{title}</h2>
-        <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-350 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
-          <span className="material-symbols-outlined text-sm">close</span>
-        </button>
-      </div>
-      <div className="p-6">{children}</div>
-    </div>
-  </div>
-);
+import Modal from '../components/common/Modal';
 
 const DashboardPage = () => {
   const {
@@ -433,8 +421,7 @@ const DashboardPage = () => {
       </main>
 
       {/* MODALS */}
-      {showCreateWs && (
-        <Modal title="Create Workspace" onClose={() => setShowCreateWs(false)}>
+      <Modal isOpen={showCreateWs} title="Create Workspace" onClose={() => setShowCreateWs(false)} maxWidth="max-w-md">
           <div className="space-y-4">
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Workspace Name</label>
@@ -455,11 +442,9 @@ const DashboardPage = () => {
                 className="flex-1 h-11 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-semibold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">Cancel</button>
             </div>
           </div>
-        </Modal>
-      )}
+      </Modal>
 
-      {showCreateBoard && (
-        <Modal title="Create Board" onClose={() => setShowCreateBoard(null)}>
+      <Modal isOpen={!!showCreateBoard} title="Create Board" onClose={() => setShowCreateBoard(null)} maxWidth="max-w-md">
           <div className="space-y-4">
             <div className="h-20 rounded-xl flex items-end p-4 relative overflow-hidden transition-all shadow-inner" style={{ background: boardColor }}>
               <div className="absolute inset-0 bg-black/20" />
@@ -494,11 +479,9 @@ const DashboardPage = () => {
                 className="flex-1 h-11 border border-slate-200 dark:border-slate-700 text-slate-650 dark:text-slate-350 text-sm font-semibold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">Cancel</button>
             </div>
           </div>
-        </Modal>
-      )}
+      </Modal>
 
-      {showInvite && (
-        <Modal title="Invite Member to Workspace" onClose={() => setShowInvite(null)}>
+      <Modal isOpen={!!showInvite} title="Invite Member to Workspace" onClose={() => setShowInvite(null)} maxWidth="max-w-md">
           <div className="space-y-4">
             {developers.length > 0 && (
               <div>
@@ -546,8 +529,7 @@ const DashboardPage = () => {
                 className="flex-1 h-11 border border-slate-200 dark:border-slate-700 text-slate-650 dark:text-slate-350 text-sm font-semibold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">Cancel</button>
             </div>
           </div>
-        </Modal>
-      )}
+      </Modal>
 
       {settingOpen && selectedWorkspace && (
         <WorkspaceSettingsModal

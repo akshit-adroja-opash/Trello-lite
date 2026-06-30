@@ -2,31 +2,11 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getProjectManagerDashboardData } from '../../api/dashboard.api';
 
-const PRIORITY_CHIP = {
-  urgent: 'bg-error/10 text-error border border-error/20',
-  high: 'bg-[#ff6d00]/10 text-[#bf360c] dark:text-orange-400 border border-orange-200/50 dark:border-orange-800/40',
-  medium: 'bg-[#f9a825]/10 text-[#e65100] dark:text-amber-400 border border-amber-200/50 dark:border-amber-800/40',
-  low: 'bg-surface-container text-on-surface-variant dark:bg-slate-700 dark:text-slate-300 border border-outline-variant dark:border-slate-600',
-};
-
-function MetricCard({ label, icon, value, sub, danger }) {
-  return (
-    <div className={`bg-surface-container-lowest dark:bg-slate-800 rounded-xl p-lg shadow-sm border flex flex-col justify-between gap-md
-      ${danger ? 'border-error/30' : 'border-outline-variant dark:border-slate-700'}`}>
-      <div className="flex justify-between items-start">
-        <span className={`font-label-caps text-label-caps uppercase tracking-wider ${danger ? 'text-error' : 'text-on-surface-variant dark:text-slate-400'}`}>{label}</span>
-        <span className={`material-symbols-outlined p-xs rounded-md text-[20px] ${danger ? 'text-error bg-error/10' : 'text-secondary dark:text-indigo-400 bg-secondary/10 dark:bg-indigo-900/30'}`}>{icon}</span>
-      </div>
-      <div className="flex items-end gap-sm">
-        <span className={`font-headline-lg text-headline-lg leading-none ${danger ? 'text-error' : 'text-primary dark:text-white'}`}>{value ?? '—'}</span>
-        {sub && <span className="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400 mb-xs">{sub}</span>}
-      </div>
-    </div>
-  );
-}
+import { PRIORITY_CHIP_STYLES } from '../../utils/constants';
+import MetricCard from '../common/MetricCard';
 
 function CardRow({ card, showReason }) {
-  const cfg = PRIORITY_CHIP[card.priority] || PRIORITY_CHIP.medium;
+  const cfg = PRIORITY_CHIP_STYLES[card.priority] || PRIORITY_CHIP_STYLES.medium;
   return (
     <div className="flex items-start gap-sm px-md py-sm rounded-lg bg-surface-container-low dark:bg-slate-700/50 hover:bg-surface-container dark:hover:bg-slate-700 transition-colors">
       <span className={`shrink-0 mt-0.5 font-label-caps text-label-caps uppercase text-[10px] px-xs py-xs rounded ${cfg}`}>
