@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import useAuthStore from '../../store/authstore';
 import useSidebarStore from '../../store/sidebarStore';
-import { getWorkspaces } from '../../api/workspace.api';
-import { getBoardsByWorkspace } from '../../api/board.api';
+import useWorkspaceStore from '../../store/workspaceStore';
 
 const NavItem = ({ to, label, icon }) => {
   const location = useLocation();
@@ -37,30 +36,14 @@ const DashboardSidebar = ({ currentWorkspace, openWorkspaceSettings, boards: pro
   const isOpen = useSidebarStore((s) => s.isOpen);
   const closeSidebar = useSidebarStore((s) => s.close);
   const location = useLocation();
-  const [localBoards, setLocalBoards] = useState([]);
+  const { fetchWorkspacesAndBoards, boardsByWorkspace } = useWorkspaceStore();
 
   useEffect(() => {
     if (propBoards) return;
-    const fetchBoards = async () => {
-      try {
-        const wsRes = await getWorkspaces();
-        const wsList = wsRes.data?.workspaces || [];
-        const allBoards = [];
-        await Promise.all(
-          wsList.map(async (ws) => {
-            const bRes = await getBoardsByWorkspace(ws._id);
-            allBoards.push(...(bRes.data?.boards || []));
-          })
-        );
-        setLocalBoards(allBoards);
-      } catch (err) {
-        console.error('Failed to load boards for sidebar', err);
-      }
-    };
-    fetchBoards();
-  }, [propBoards]);
+    fetchWorkspacesAndBoards();
+  }, [propBoards, fetchWorkspacesAndBoards]);
 
-  const boards = propBoards || localBoards;
+  const boards = propBoards || Object.values(boardsByWorkspace).flat();
   const starredBoards = boards.filter((board) => board.isStarred);
 
   // Close sidebar on path changes

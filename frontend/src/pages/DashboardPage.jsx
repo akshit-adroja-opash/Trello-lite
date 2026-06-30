@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import useAuthStore from '../store/authstore';
-import { createWorkspace, deleteWorkspace, getWorkspaces, inviteMember, getOverdueCount } from '../api/workspace.api';
-import { createBoard, getBoardsByWorkspace, deleteBoard } from '../api/board.api';
+import useWorkspaceStore from '../store/workspaceStore';
+import { createWorkspace, deleteWorkspace, inviteMember, getOverdueCount } from '../api/workspace.api';
+import { createBoard, deleteBoard } from '../api/board.api';
 import { getDevelopers } from '../api/auth.api';
 import Avatar from '../UI/Avatar';
 import { getRoleDisplayName } from '../utils/roleDisplay';
@@ -45,9 +46,16 @@ const Modal = ({ title, onClose, children }) => (
 );
 
 const DashboardPage = () => {
-  const [workspaces, setWorkspaces] = useState([]);
-  const [boardsByWorkspace, setBoardsByWorkspace] = useState({});
-  const [loading, setLoading] = useState(true);
+  const {
+    workspaces,
+    boardsByWorkspace,
+    loading,
+    fetchWorkspacesAndBoards,
+    addWorkspace,
+    removeWorkspace,
+    addBoard,
+    removeBoard
+  } = useWorkspaceStore();
 
   const [showCreateWs, setShowCreateWs] = useState(false);
   const [wsName, setWsName] = useState('');
@@ -91,40 +99,36 @@ const DashboardPage = () => {
   }, [showInvite, user]);
 
   useEffect(() => {
-    const load = async () => {
-      setLoading(true);
+    const loadOverdueCounts = async () => {
       try {
-        const wsRes = await getWorkspaces();
-        const wsList = wsRes.data?.workspaces || [];
-        setWorkspaces(wsList);
-        const map = {};
+        await fetchWorkspacesAndBoards();
+        const wsList = useWorkspaceStore.getState().workspaces;
         const overdueMap = {};
-        await Promise.all(wsList.map(async ws => {
-          const bRes = await getBoardsByWorkspace(ws._id);
-          map[ws._id] = bRes.data?.boards || [];
-          try {
-            const countRes = await getOverdueCount(ws._id);
-            overdueMap[ws._id] = countRes.data?.overdueCount || 0;
-          } catch (err) {
-            console.error('Failed to load overdue count for workspace', ws._id, err);
-            overdueMap[ws._id] = 0;
-          }
-        }));
-        setBoardsByWorkspace(map);
+        await Promise.all(
+          wsList.map(async (ws) => {
+            try {
+              const countRes = await getOverdueCount(ws._id);
+              overdueMap[ws._id] = countRes.data?.overdueCount || 0;
+            } catch (err) {
+              console.error('Failed to load overdue count for workspace', ws._id, err);
+              overdueMap[ws._id] = 0;
+            }
+          })
+        );
         setOverdueCounts(overdueMap);
-      } catch { toast.error('Failed to load dashboard'); }
-      finally { setLoading(false); }
+      } catch (err) {
+        toast.error('Failed to load dashboard data');
+      }
     };
-    load();
-  }, []);
+    loadOverdueCounts();
+  }, [fetchWorkspacesAndBoards]);
 
   const handleCreateWorkspace = async () => {
     if (!wsName.trim()) return;
     try {
       const res = await createWorkspace({ name: wsName.trim(), description: wsDesc });
       const ws = res.data?.workspace;
-      setWorkspaces(p => [ws, ...p]);
-      setBoardsByWorkspace(p => ({ ...p, [ws._id]: [] }));
+      addWorkspace(ws);
       setOverdueCounts(p => ({ ...p, [ws._id]: 0 }));
       setWsName(''); setWsDesc(''); setShowCreateWs(false);
       toast.success('Workspace created successfully');
@@ -136,7 +140,7 @@ const DashboardPage = () => {
     try {
       const res = await createBoard({ name: boardName.trim(), workspaceId: showCreateBoard, background: boardColor });
       const board = res.data?.board;
-      setBoardsByWorkspace(p => ({ ...p, [showCreateBoard]: [...(p[showCreateBoard] || []), board] }));
+      addBoard(showCreateBoard, board);
       setBoardName(''); setBoardColor(BOARD_COLORS[0]); setShowCreateBoard(null);
       toast.success('Board created successfully');
     } catch (err) { toast.error(err.response?.data?.message || 'Failed to create board'); }
@@ -155,12 +159,7 @@ const DashboardPage = () => {
     if (!confirm('Are you sure you want to delete this workspace? This action cannot be undone.')) return;
     try {
       await deleteWorkspace(workspaceId);
-      setWorkspaces(p => p.filter(ws => ws._id !== workspaceId));
-      setBoardsByWorkspace(p => {
-        const next = { ...p };
-        delete next[workspaceId];
-        return next;
-      });
+      removeWorkspace(workspaceId);
       toast.success('Workspace deleted successfully');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to delete workspace');
@@ -173,10 +172,7 @@ const DashboardPage = () => {
     if (!confirm('Are you sure you want to delete this board? All lists and cards within it will be permanently deleted.')) return;
     try {
       await deleteBoard(boardId);
-      setBoardsByWorkspace(p => ({
-        ...p,
-        [workspaceId]: (p[workspaceId] || []).filter(b => b._id !== boardId)
-      }));
+      removeBoard(workspaceId, boardId);
       toast.success('Board deleted successfully');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to delete board');

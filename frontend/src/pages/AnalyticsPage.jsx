@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
 import { getWorkspaceAnalytics } from "../api/analytics.api";
-import { getWorkspaces } from "../api/workspace.api";
 import Navbar from "../components/Layout/Navbar";
 import DashboardSidebar from "../components/Layout/DashboardSidebar";
 import toast from "react-hot-toast";
 import useThemeStore from "../store/themeStore";
 import CountUp from "react-countup";
 import CustomSelect from "../components/common/CustomSelect";
+import useWorkspaceStore from "../store/workspaceStore";
 
 const CountUpComponent = typeof CountUp === 'function' ? CountUp : (CountUp.default || CountUp);
 
 const AnalyticsPage = () => {
-    const [workspaces, setWorkspaces] = useState([]);
+    const { workspaces, fetchWorkspacesAndBoards } = useWorkspaceStore();
     const [selectedWorkspaceId, setSelectedWorkspaceId] = useState("");
     const [analytics, setAnalytics] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -20,23 +20,17 @@ const AnalyticsPage = () => {
 
     // Load workspaces on mount
     useEffect(() => {
-        const loadWorkspaces = async () => {
-            try {
-                const res = await getWorkspaces();
-                const wsList = res.data?.workspaces || [];
-                setWorkspaces(wsList);
-                if (wsList.length > 0) {
-                    setSelectedWorkspaceId(wsList[0]._id);
-                } else {
-                    setLoading(false);
-                }
-            } catch {
-                toast.error("Failed to load workspaces");
+        const init = async () => {
+            await fetchWorkspacesAndBoards();
+            const wsList = useWorkspaceStore.getState().workspaces;
+            if (wsList.length > 0 && !selectedWorkspaceId) {
+                setSelectedWorkspaceId(wsList[0]._id);
+            } else if (wsList.length === 0) {
                 setLoading(false);
             }
         };
-        loadWorkspaces();
-    }, []);
+        init();
+    }, [fetchWorkspacesAndBoards, selectedWorkspaceId]);
 
     // Load analytics when selected workspace changes
     useEffect(() => {

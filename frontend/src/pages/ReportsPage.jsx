@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import useAuthStore from "../store/authstore";
-import { getWorkspaces } from "../api/workspace.api";
-import { getBoardsByWorkspace, getSingleBoard } from "../api/board.api";
+import { getSingleBoard } from "../api/board.api";
 import { generateClientReport, generateFullReport, shareReportLink, getRecentReports } from "../api/reportService";
 import DashboardSidebar from "../components/Layout/DashboardSidebar";
+import useWorkspaceStore from "../store/workspaceStore";
 import Navbar from "../components/Layout/Navbar";
 import CustomSelect from "../components/common/CustomSelect";
 
@@ -19,8 +19,7 @@ const ReportsPage = () => {
   const canClientReport = user?.role === 'admin' || user?.role === 'project_manager' || user?.role === 'client';
 
   const [selectedBoard, setSelectedBoard] = useState(null);
-  const [workspaces, setWorkspaces] = useState([]);
-  const [boardsByWorkspace, setBoardsByWorkspace] = useState({});
+  const { workspaces, boardsByWorkspace, fetchWorkspacesAndBoards } = useWorkspaceStore();
   const [selectedWorkspaceId, setSelectedWorkspaceId] = useState("");
   const [selectedBoardId, setSelectedBoardId] = useState("");
   const [recentReports, setRecentReports] = useState([]);
@@ -39,22 +38,12 @@ const ReportsPage = () => {
     const initData = async () => {
       setLoading(true);
       try {
-        const wsRes = await getWorkspaces();
-        const wsList = wsRes.data?.workspaces || [];
-        setWorkspaces(wsList);
+        await fetchWorkspacesAndBoards();
+        const wsList = useWorkspaceStore.getState().workspaces;
+        const boardMap = useWorkspaceStore.getState().boardsByWorkspace;
 
-        const boardMap = {};
         let initialWorkspaceId = "";
         let initialBoardId = "";
-
-        await Promise.all(
-          wsList.map(async (ws) => {
-            const bRes = await getBoardsByWorkspace(ws._id);
-            const boards = bRes.data?.boards || [];
-            boardMap[ws._id] = boards;
-          })
-        );
-        setBoardsByWorkspace(boardMap);
 
         if (boardId) {
           const boardRes = await getSingleBoard(boardId);
@@ -94,7 +83,7 @@ const ReportsPage = () => {
     };
 
     initData();
-  }, [boardId]);
+  }, [boardId, fetchWorkspacesAndBoards]);
 
   // Fetch recent reports whenever selected board changes
   useEffect(() => {

@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { getWorkspaces, getMembers } from "../api/workspace.api";
-import { getBoardsByWorkspace } from "../api/board.api";
+import { getMembers } from "../api/workspace.api";
 import { getColumnsByBoard } from "../api/column.api";
 import { getCardsByColumn, updateCard, getBoardTemplates } from "../api/card.api";
 import Navbar from "../components/Layout/Navbar";
 import DashboardSidebar from "../components/Layout/DashboardSidebar";
+import useWorkspaceStore from "../store/workspaceStore";
 
 const AssignTaskPage = () => {
 
-    const [workspaces, setWorkspaces] = useState([]);
+    const { workspaces, boardsByWorkspace, fetchWorkspacesAndBoards } = useWorkspaceStore();
     const [selectedWorkspaceId, setSelectedWorkspaceId] = useState("");
-    const [boards, setBoards] = useState([]);
+    const boards = selectedWorkspaceId ? (boardsByWorkspace[selectedWorkspaceId] || []) : [];
     const [selectedBoardId, setSelectedBoardId] = useState("");
     const [boardMembers, setBoardMembers] = useState([]);
     const [cards, setCards] = useState([]);
@@ -28,42 +28,19 @@ const AssignTaskPage = () => {
 
     // Fetch workspaces on mount
     useEffect(() => {
-        const fetchWorkspaces = async () => {
-            try {
-                const res = await getWorkspaces();
-                const wsList = res.data?.workspaces || [];
-                setWorkspaces(wsList);
-                if (wsList.length > 0) {
-                    setSelectedWorkspaceId(wsList[0]._id);
-                }
-            } catch {
-                toast.error("Failed to load workspaces");
-            } finally {
-                setLoading(false);
-            }
+        const init = async () => {
+            setLoading(true);
+            await fetchWorkspacesAndBoards();
+            setLoading(false);
         };
-        fetchWorkspaces();
-    }, []);
+        init();
+    }, [fetchWorkspacesAndBoards]);
 
-    // Fetch boards when workspace changes
     useEffect(() => {
-        if (!selectedWorkspaceId) {
-            setBoards([]);
-            setSelectedBoardId("");
-            return;
+        if (workspaces.length > 0 && !selectedWorkspaceId) {
+            setSelectedWorkspaceId(workspaces[0]._id);
         }
-        const fetchBoards = async () => {
-            try {
-                const res = await getBoardsByWorkspace(selectedWorkspaceId);
-                const boardsList = res.data?.boards || [];
-                setBoards(boardsList);
-                setSelectedBoardId("");
-            } catch {
-                toast.error("Failed to load boards");
-            }
-        };
-        fetchBoards();
-    }, [selectedWorkspaceId]);
+    }, [workspaces, selectedWorkspaceId]);
 
     // Fetch members and cards when board changes
     useEffect(() => {
