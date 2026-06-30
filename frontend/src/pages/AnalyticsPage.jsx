@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import useAuthStore from "../store/authstore";
 import useThemeStore from "../store/themeStore";
 import CountUp from "react-countup";
+import CustomSelect from "../components/common/CustomSelect";
 
 const CountUpComponent = typeof CountUp === 'function' ? CountUp : (CountUp.default || CountUp);
 
@@ -141,25 +142,16 @@ const AnalyticsPage = () => {
                         </div>
                         <div className="flex items-center gap-4">
                             {workspaces.length > 0 && (
-                                <div className="relative">
-                                    <select
-                                        value={selectedWorkspaceId}
-                                        onChange={e => setSelectedWorkspaceId(e.target.value)}
-                                        className="appearance-none bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 text-body-sm font-medium text-on-surface dark:text-white rounded-lg pl-4 pr-10 py-2 focus:border-secondary focus:ring-2 focus:ring-secondary/20 shadow-sm cursor-pointer outline-none transition-all"
-                                    >
-                                        {workspaces.map(ws => (
-                                            <option key={ws._id} value={ws._id}>
-                                                {ws.name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant dark:text-slate-400">
-                                        arrow_drop_down
-                                    </span>
-                                </div>
+                                <CustomSelect
+                                    value={selectedWorkspaceId}
+                                    onChange={setSelectedWorkspaceId}
+                                    options={workspaces.map(ws => ({ value: ws._id, label: ws.name }))}
+                                    icon="workspaces"
+                                    placeholder="Select Workspace"
+                                />
                             )}
-                            <button className="flex items-center gap-2 px-4 py-2 bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 text-body-sm font-medium text-on-surface dark:text-white rounded-lg hover:bg-surface-container dark:hover:bg-slate-700 transition-colors shadow-sm">
-                                <span className="material-symbols-outlined text-[18px]">calendar_month</span>
+                            <button className="flex items-center gap-2 px-4 py-2.5 bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 text-body-sm font-medium text-on-surface dark:text-white rounded-lg hover:border-secondary hover:ring-1 hover:ring-secondary/50 transition-all shadow-sm">
+                                <span className="material-symbols-outlined text-[18px] text-on-surface-variant dark:text-slate-400">calendar_month</span>
                                 Last 30 Days
                             </button>
                         </div>

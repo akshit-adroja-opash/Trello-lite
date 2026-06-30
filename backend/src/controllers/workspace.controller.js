@@ -124,7 +124,7 @@ export const removeMember = async (req, res, next) => {
         const { workspaceId, memberId } = req.params;
         const workspace = await Workspace.findById(workspaceId);
         if (!workspace) return next(new ApiError(404, 'Workspace not found'));
-        
+
         const userMember = workspace.members.find(m => m.user?.toString() === req.user._id.toString());
         const isWorkspaceOwner = workspace.Admin?.toString() === req.user._id.toString();
         const isWorkspaceAdmin = (userMember && userMember.role === 'admin') || isWorkspaceOwner;
@@ -133,7 +133,7 @@ export const removeMember = async (req, res, next) => {
         if (!isWorkspaceAdmin && !isSystemAdmin) {
             return next(new ApiError(403, 'Only Workspace Admins or System Admins can remove members'));
         }
-        
+
         // Find the user ID of the member being removed before pulling from array
         const memberSub = workspace.members.id(memberId);
         if (!memberSub) return next(new ApiError(404, 'Member not found'));
@@ -169,7 +169,7 @@ export const updateWorkspace = async (req, res, next) => {
         const { name, description } = req.body;
         const workspace = await Workspace.findById(workspaceId);
         if (!workspace) return next(new ApiError(404, 'Workspace not found'));
-        
+
         const userMember = workspace.members.find(m => m.user?.toString() === req.user._id.toString());
         const isWorkspaceOwner = workspace.Admin?.toString() === req.user._id.toString();
         const isWorkspaceAdmin = (userMember && userMember.role === 'admin') || isWorkspaceOwner;
@@ -213,7 +213,7 @@ export const deleteWorkspace = async (req, res, next) => {
         const { workspaceId } = req.params;
         const workspace = await Workspace.findById(workspaceId);
         if (!workspace) return next(new ApiError(404, 'Workspace not found'));
-        
+
         const userMember = workspace.members.find(m => m.user?.toString() === req.user._id.toString());
         const isWorkspaceOwner = workspace.Admin?.toString() === req.user._id.toString();
         const isWorkspaceAdmin = (userMember && userMember.role === 'admin') || isWorkspaceOwner;

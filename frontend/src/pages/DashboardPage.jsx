@@ -87,7 +87,7 @@ const DashboardPage = () => {
           const res = await getDevelopers();
           setDevelopers(res.data?.developers || []);
         } catch (err) {
-          console.error('Failed to load registered developers', err);
+          console.error('Failed to load registered users', err);
         }
       };
       if (user?.role === 'admin' || user?.role === 'project_manager') {
@@ -282,7 +282,7 @@ const DashboardPage = () => {
               </div>
               <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">No workspaces found</h3>
               <p className="text-slate-500 dark:text-slate-400 text-sm max-w-xs mx-auto mb-6">Get started by building a fresh workspace hub to separate your operational workflows.</p>
-              {user?.role !== 'developer' && (
+              {user?.role !== 'developer' && user?.role !== 'client' && (
                 <button onClick={() => setShowCreateWs(true)} className="inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition-all shadow-sm">
                   Create your first Workspace
                 </button>
@@ -347,8 +347,8 @@ const DashboardPage = () => {
                 return wsMatches || boardMatches;
               })
               .map(ws => {
-                const isWsAdmin = ws.Admin === user?._id || ws.Admin?._id === user?._id || user?.role === 'admin' || user?.role === 'project_manager';
-                const isActualAdmin = ws.Admin === user?._id || ws.Admin?._id === user?._id || user?.role === 'admin';
+                const isWsAdmin = user?.role !== 'client' && (ws.Admin === user?._id || ws.Admin?._id === user?._id || user?.role === 'admin' || user?.role === 'project_manager');
+                const isActualAdmin = user?.role !== 'client' && (ws.Admin === user?._id || ws.Admin?._id === user?._id || user?.role === 'admin');
                 const boards = (boardsByWorkspace[ws._id] || []).filter(b =>
                   b.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                   ws.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -548,7 +548,7 @@ const DashboardPage = () => {
           <div className="space-y-4">
             {developers.length > 0 && (
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Registered Developers</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Available Users</label>
                 <div className="flex flex-wrap gap-2 max-h-28 overflow-y-auto p-1">
                   {developers.map(dev => (
                     <button
@@ -556,7 +556,7 @@ const DashboardPage = () => {
                       type="button"
                       onClick={() => {
                         setInviteEmail(dev.email);
-                        setInviteRole('developer');
+                        setInviteRole(dev.role || 'client');
                       }}
                       className={`flex items-center gap-2 px-2.5 py-1.5 rounded-full text-xs border transition-all ${inviteEmail === dev.email
                         ? 'bg-indigo-50 border-indigo-300 text-indigo-700 dark:bg-indigo-950/40 dark:border-indigo-800 dark:text-indigo-300 font-semibold'

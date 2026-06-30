@@ -20,8 +20,10 @@ const AdminPanelLayout = ({
           boards={boards}
         />
 
-        <main className={`flex-1 ml-0 lg:ml-[280px] p-6 lg:p-10 overflow-y-auto w-full mx-auto ${mainClassName}`}>
-          {children}
+        <main className="flex-1 ml-0 lg:ml-[280px] p-6 lg:p-10 overflow-y-auto w-full flex flex-col justify-center items-center">
+          <div className={`w-full ${mainClassName}`}>
+            {children}
+          </div>
         </main>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import useAuthStore from "../store/authstore";
@@ -7,6 +7,7 @@ import { getBoardsByWorkspace, getSingleBoard } from "../api/board.api";
 import { generateClientReport, generateFullReport, shareReportLink, getRecentReports } from "../api/reportService";
 import DashboardSidebar from "../components/Layout/DashboardSidebar";
 import Navbar from "../components/Layout/Navbar";
+import CustomSelect from "../components/common/CustomSelect";
 
 const ReportsPage = () => {
   const backendBase = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:5000';
@@ -302,41 +303,23 @@ const ReportsPage = () => {
               {workspaces.length > 0 && (
                 <div className="flex items-center gap-3">
                   {/* Workspace selector */}
-                  <div className="relative">
-                    <select
-                      value={selectedWorkspaceId}
-                      onChange={e => handleWorkspaceChange(e.target.value)}
-                      className="appearance-none bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 text-body-sm font-medium text-on-surface dark:text-white rounded-lg pl-4 pr-10 py-2 focus:border-secondary focus:ring-2 focus:ring-secondary/20 shadow-sm cursor-pointer outline-none transition-all"
-                    >
-                      {workspaces.map(ws => (
-                        <option key={ws._id} value={ws._id}>
-                          {ws.name}
-                        </option>
-                      ))}
-                    </select>
-                    <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant dark:text-slate-400">
-                      arrow_drop_down
-                    </span>
-                  </div>
+                  <CustomSelect
+                    value={selectedWorkspaceId}
+                    onChange={handleWorkspaceChange}
+                    options={workspaces.map(ws => ({ value: ws._id, label: ws.name }))}
+                    icon="workspaces"
+                    placeholder="Select Workspace"
+                  />
 
                   {/* Board selector */}
                   {selectedWorkspaceId && (
-                    <div className="relative">
-                      <select
-                        value={selectedBoardId}
-                        onChange={e => handleBoardChange(e.target.value)}
-                        className="appearance-none bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 text-body-sm font-medium text-on-surface dark:text-white rounded-lg pl-4 pr-10 py-2 focus:border-secondary focus:ring-2 focus:ring-secondary/20 shadow-sm cursor-pointer outline-none transition-all"
-                      >
-                        {(boardsByWorkspace[selectedWorkspaceId] || []).map(b => (
-                          <option key={b._id} value={b._id}>
-                            {b.name}
-                          </option>
-                        ))}
-                      </select>
-                      <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant dark:text-slate-400">
-                        arrow_drop_down
-                      </span>
-                    </div>
+                    <CustomSelect
+                      value={selectedBoardId}
+                      onChange={handleBoardChange}
+                      options={(boardsByWorkspace[selectedWorkspaceId] || []).map(b => ({ value: b._id, label: b.name }))}
+                      icon="dashboard"
+                      placeholder="Select Board"
+                    />
                   )}
                 </div>
               )}
@@ -358,6 +341,7 @@ const ReportsPage = () => {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 
                 {/* Card A: Full Performance Audit Report */}
+                {canFullReport && (
                 <div className="bg-surface-container-lowest dark:bg-slate-800 rounded-xl p-6 border border-outline dark:border-slate-700 shadow-soft flex flex-col justify-between">
                   <div>
                     <div className="flex justify-between items-start mb-6">
@@ -426,6 +410,7 @@ const ReportsPage = () => {
                     </button>
                   </div>
                 </div>
+                )}
 
                 {/* Card B: Client-Safe Progress Report */}
                 <div className="bg-surface-container-lowest dark:bg-slate-800 rounded-xl p-6 border border-outline dark:border-slate-700 shadow-soft flex flex-col justify-between">

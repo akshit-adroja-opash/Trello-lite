@@ -2,18 +2,18 @@ import { Router } from 'express';
 import { verifyJWT } from '../middleware/auth.middleware.js';
 import { requireBoardRole } from '../middleware/role.middleware.js';
 import { cardAttachmentUpload } from '../middleware/upload.middleware.js';
-import { 
-  createCard, 
-  deleteCard, 
-  getCards, 
-  getSingleCard, 
-  moveCard, 
-  updateCard, 
-  getCardActivities, 
-  getMyTasks, 
-  addComment, 
-  saveCardAsTemplate, 
-  getBoardTemplates, 
+import {
+  createCard,
+  deleteCard,
+  getCards,
+  getSingleCard,
+  moveCard,
+  updateCard,
+  getCardActivities,
+  getMyTasks,
+  addComment,
+  saveCardAsTemplate,
+  getBoardTemplates,
   toggleCommentReaction,
   addCardAttachment,
   deleteCardAttachment

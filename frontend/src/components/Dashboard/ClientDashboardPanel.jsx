@@ -39,7 +39,7 @@ export default function ClientDashboardPanel() {
   useEffect(() => {
     getClientDashboardData()
       .then(res => res.success && setData(res.data))
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setLoading(false));
   }, []);
 

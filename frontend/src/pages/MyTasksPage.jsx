@@ -170,7 +170,7 @@ const MyTasksPage = () => {
     };
 
     return (
-        <AdminPanelLayout mainClassName="max-w-[1200px] w-full mx-auto px-margin-mobile md:px-margin-desktop py-lg flex flex-col gap-lg">
+        <AdminPanelLayout mainClassName="max-w-[1600px] w-full h-full min-h-[calc(100vh-120px)] mx-auto px-margin-mobile md:px-margin-desktop py-lg flex flex-col gap-lg">
             
             {/* Page Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
