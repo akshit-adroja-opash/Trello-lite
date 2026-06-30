@@ -107,22 +107,16 @@ const RegisterPage = () => {
             {/* Role Dropdown */}
             <div className="flex flex-col gap-1">
               <label className="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-350 font-medium" htmlFor="role">Role</label>
-              <div className="relative">
-                <select
-                  id="role"
-                  value={role}
-                  onChange={e => setRole(e.target.value)}
-                  required
-                  className="w-full appearance-none px-4 py-2 bg-surface-container-low dark:bg-slate-900 border border-outline-variant dark:border-slate-705 rounded-lg font-body-md text-on-surface dark:text-white cursor-pointer transition-all focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none"
-                >
-                  <option value="developer">Developer</option>
-                  <option value="project_manager">Project Manager</option>
-                  <option value="admin">Admin</option>
-                </select>
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant dark:text-slate-400">
-                  <span className="material-symbols-outlined">expand_more</span>
-                </div>
-              </div>
+              <select
+                id="role"
+                value={role}
+                onChange={e => setRole(e.target.value)}
+                required
+                className="w-full px-4 py-2 bg-surface-container-low dark:bg-slate-900 border border-outline-variant dark:border-slate-705 rounded-lg font-body-md text-on-surface dark:text-white cursor-pointer transition-all focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none"
+              >
+                <option value="developer">Developer</option>
+                <option value="client">Client</option>
+              </select>
             </div>
 
             {/* Submit Action */}

@@ -573,7 +573,7 @@ const DashboardPage = () => {
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Email Address</label>
               <input value={inviteEmail} onChange={e => setInviteEmail(e.target.value)}
-                type="email" placeholder="colleague@company.com" autoFocus
+                type="email" placeholder="Trellolite@gmail.com" autoFocus
                 className="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all" />
             </div>
             <div>

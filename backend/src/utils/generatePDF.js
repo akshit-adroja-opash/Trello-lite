@@ -64,23 +64,31 @@ const drawInternalReportBadge = (doc, x, y) => {
 // Draw footer on the current page
 const drawFooter = (doc, boardName) => {
     doc.save();
+    const oldBottom = doc.page.margins.bottom;
+    doc.page.margins.bottom = 0;
+
     const footerY = doc.page.height - 35;
     doc.rect(0, footerY, doc.page.width, 35).fillColor('#F8FAFC').fill();
     doc.moveTo(0, footerY).lineTo(doc.page.width, footerY).lineWidth(0.5).strokeColor('#E2E8F0').stroke();
 
     doc.fontSize(6.5).font("Helvetica-Bold").fillColor('#94A3B8');
-    const cleanBoardName = boardName.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const cleanBoardName = (boardName || "BOARD").toUpperCase().replace(/[^A-Z0-9]/g, '');
     const reportIdText = `REPORT ID: TR-2026-${cleanBoardName}-001`;
     doc.text(reportIdText, 40, footerY + 12);
 
     doc.fontSize(8).font("Helvetica-Bold").fillColor('#CBD5E1');
     doc.text("Trellolite", 40, footerY + 10, { align: 'right', width: doc.page.width - 80 });
+
+    doc.page.margins.bottom = oldBottom;
     doc.restore();
 };
 
 // Draw header on continuation pages
 const drawContinuationHeader = (doc, boardName) => {
     doc.save();
+    const oldBottom = doc.page.margins.bottom;
+    doc.page.margins.bottom = 0;
+
     doc.strokeColor(COLOR_BORDER).lineWidth(0.5);
     doc.moveTo(40, 30).lineTo(doc.page.width - 40, 30).stroke();
 
@@ -90,7 +98,9 @@ const drawContinuationHeader = (doc, boardName) => {
        .text("TRELLO-LITE BOARD STATUS", 40, 18);
 
     doc.font("Helvetica")
-       .text(`BOARD: ${boardName.toUpperCase()}`, 40, 18, { align: "right", width: doc.page.width - 80 });
+       .text(`BOARD: ${(boardName || "BOARD").toUpperCase()}`, 40, 18, { align: "right", width: doc.page.width - 80 });
+
+    doc.page.margins.bottom = oldBottom;
     doc.restore();
 };
 
@@ -147,6 +157,7 @@ export const generatePDF = async (data, fileName) => {
 
                 col.cards?.forEach((card) => {
                     card.assignees?.forEach((asn) => {
+                        if (!asn) return;
                         const identifier = asn.username || asn.email || (typeof asn === "string" ? asn : null);
                         if (identifier) uniqueAssignees.add(identifier);
                     });
@@ -313,7 +324,7 @@ export const generatePDF = async (data, fileName) => {
                         doc.roundedRect(x + 8, taskY, w - 16, 22, 4).fillColor('#FFFFFF').fill();
                         doc.roundedRect(x + 8, taskY, w - 16, 22, 4).lineWidth(0.5).strokeColor('#E2E8F0').stroke();
 
-                        doc.fontSize(8).font("Helvetica-Bold").fillColor('#1E293B').text(card.title, x + 14, taskY + 7, { width: w - 80 });
+                        doc.fontSize(8).font("Helvetica-Bold").fillColor('#1E293B').text(card.title || "Untitled Task", x + 14, taskY + 7, { width: w - 80 });
 
                         let prioText = "";
                         let prioColor = '#94A3B8';

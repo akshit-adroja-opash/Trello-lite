@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import useAuthStore from '../store/authstore';
 import { getMyTasks, updateCard } from '../api/card.api';
-import TaskQueueFilters from '../components/Tasks/TaskQueueFilters';
 import FocusTaskPanel from '../components/Tasks/FocusTaskPanel';
 import CardDetail from '../components/Card/CardDetail';
+import AdminPanelLayout from '../components/Layout/AdminPanelLayout';
 import toast from 'react-hot-toast';
 
 const MyTasksPage = () => {
@@ -77,166 +76,93 @@ const MyTasksPage = () => {
         }
     };
 
+    const toggleFilter = (key) => {
+        setFilters(prev => {
+            if (key === 'priority') {
+                return { ...prev, priority: prev.priority ? null : 'all' }; // Or whatever logic for priority
+            }
+            return { ...prev, [key]: !prev[key] };
+        });
+    };
+
     // Partition tasks
-    const getBlockedTasks = () => cards.filter(c => c.blocked);
-    
-    const getOverdueTasks = () => cards.filter(c => {
-        if (c.blocked) return false;
-        if (!c.dueDate) return false;
-        const d = new Date(c.dueDate);
-        const today = new Date();
-        today.setHours(23, 59, 59, 999);
-        return d <= today;
-    });
-
-    const getHighPriorityTasks = () => cards.filter(c => {
-        if (c.blocked) return false;
-        // Check if overdue
-        const d = c.dueDate ? new Date(c.dueDate) : null;
-        const today = new Date();
-        today.setHours(23, 59, 59, 999);
-        const isOverdue = d && d <= today;
-        if (isOverdue) return false;
-
-        return c.priority === 'high' || c.priority === 'urgent';
-    });
-
-    const getWaitingReviewTasks = () => cards.filter(c => {
-        if (c.blocked) return false;
-        // Check if overdue
-        const d = c.dueDate ? new Date(c.dueDate) : null;
-        const today = new Date();
-        today.setHours(23, 59, 59, 999);
-        const isOverdue = d && d <= today;
-        if (isOverdue) return false;
-
-        if (c.priority === 'high' || c.priority === 'urgent') return false;
-
-        return c.reviewRequested;
-    });
-
-    const getUpcomingTasks = () => cards.filter(c => {
-        if (c.blocked) return false;
-        // Check if overdue
-        const d = c.dueDate ? new Date(c.dueDate) : null;
-        const today = new Date();
-        today.setHours(23, 59, 59, 999);
-        const isOverdue = d && d <= today;
-        if (isOverdue) return false;
-
-        if (c.priority === 'high' || c.priority === 'urgent') return false;
-        if (c.reviewRequested) return false;
-
-        return true;
-    });
+    const highUrgentTasks = cards.filter(c => c.priority === 'high' || c.priority === 'urgent');
+    const upcomingTasks = cards.filter(c => c.priority !== 'high' && c.priority !== 'urgent');
 
     const renderPriorityBadge = (prio) => {
         switch (prio) {
             case 'urgent':
-                return <span className="bg-rose-50 border border-rose-100 text-rose-600 dark:bg-rose-950/20 dark:border-rose-900/60 dark:text-rose-400 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase">Urgent</span>;
+                return <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold tracking-wide bg-error-container dark:bg-error-container/20 text-on-error-container dark:text-red-400 uppercase">Urgent</span>;
             case 'high':
-                return <span className="bg-amber-50 border border-amber-100 text-amber-600 dark:bg-amber-950/20 dark:border-amber-900/60 dark:text-amber-400 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase">High</span>;
+                return <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold tracking-wide bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-400 uppercase">High</span>;
             case 'medium':
-                return <span className="bg-yellow-50 border border-yellow-100 text-yellow-600 dark:bg-yellow-950/20 dark:border-yellow-900/60 dark:text-yellow-400 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase">Medium</span>;
+                return <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold tracking-wide bg-secondary-fixed dark:bg-secondary-fixed/20 text-on-secondary-fixed dark:text-blue-400 uppercase">Medium</span>;
             default:
-                return <span className="bg-emerald-50 border border-emerald-100 text-emerald-600 dark:bg-emerald-950/20 dark:border-emerald-900/60 dark:text-emerald-400 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase">Low</span>;
+                return <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold tracking-wide bg-tertiary-fixed dark:bg-tertiary-fixed/20 text-on-tertiary-fixed dark:text-emerald-400 uppercase">Low</span>;
         }
     };
 
     const renderCardRow = (card) => {
         const isOverdue = card.dueDate && new Date(card.dueDate) < new Date();
+        
         return (
-            <div
-                key={card._id}
-                className="group flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-4 shadow-sm hover:shadow-md hover:border-indigo-100 dark:hover:border-indigo-900 transition-all duration-200"
-            >
-                <div className="flex-1 min-w-0 space-y-1.5">
-                    {/* Pipeline Info */}
-                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+            <div key={card._id} className="bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 rounded-lg p-md shadow-[0_4px_6px_-1px_rgba(15,23,42,0.05)] dark:shadow-none flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-surface-container-low dark:hover:bg-slate-750 transition-colors duration-200">
+                <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2 font-label-caps text-[12px] text-on-surface-variant dark:text-slate-400">
                         <span>{card.board?.name || 'Board'}</span>
-                        <span className="material-symbols-outlined text-[10px]">chevron_right</span>
-                        <span className="text-indigo-650 dark:text-indigo-400">{card.column?.name || 'Column'}</span>
+                        <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+                        <span className="text-secondary dark:text-blue-400 font-semibold uppercase">{card.column?.name || 'Column'}</span>
                     </div>
-
-                    {/* Title */}
-                    <button
-                        onClick={() => setSelectedCard(card)}
-                        className="text-left text-sm font-extrabold text-slate-850 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight block w-full truncate cursor-pointer"
-                    >
+                    <h3 onClick={() => setSelectedCard(card)} className="font-title-md text-[20px] text-primary dark:text-white cursor-pointer hover:text-secondary transition-colors">
                         {card.title}
-                    </button>
-
-                    {/* Metadata strip */}
-                    <div className="flex flex-wrap items-center gap-2.5 pt-0.5">
+                    </h3>
+                    <div className="flex flex-wrap items-center gap-2 mt-1">
                         {renderPriorityBadge(card.priority)}
-
+                        
                         {card.dueDate && (
-                            <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md border ${
-                                isOverdue
-                                    ? 'bg-rose-50 border-rose-100 text-rose-600 dark:bg-rose-950/20 dark:border-rose-900/60'
-                                    : 'bg-slate-50 border-slate-200 text-slate-500 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-400'
-                            }`}>
-                                <span className="material-symbols-outlined text-[12px]">calendar_today</span>
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold tracking-wide uppercase ${isOverdue ? 'bg-error-container dark:bg-error-container/20 text-on-error-container dark:text-red-400' : 'bg-surface-container-high dark:bg-slate-700 text-on-surface dark:text-slate-300'}`}>
+                                <span className="material-symbols-outlined text-[12px] mr-1">calendar_today</span>
                                 {new Date(card.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                             </span>
                         )}
-
-                        {card.estimatedHours > 0 && (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-550 dark:text-slate-400">
-                                <span className="material-symbols-outlined text-[12px]">schedule</span>
-                                {card.estimatedHours}h estimated
+                        
+                        {card.blocked && card.blockedReason && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold tracking-wide uppercase bg-error-container dark:bg-error-container/20 text-on-error-container dark:text-red-400">
+                                <span className="material-symbols-outlined text-[12px] mr-1">block</span>
+                                Blocked
                             </span>
                         )}
                         
-                        {card.checklist && card.checklist.length > 0 && (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-55 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-550 dark:text-slate-450">
-                                <span className="material-symbols-outlined text-[12px]">playlist_add_check</span>
-                                {card.checklist.filter(i => i.done).length}/{card.checklist.length}
+                        {card.reviewRequested && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold tracking-wide uppercase bg-secondary-fixed dark:bg-secondary-fixed/20 text-on-secondary-fixed dark:text-blue-400">
+                                <span className="material-symbols-outlined text-[12px] mr-1">rate_review</span>
+                                In Review
                             </span>
                         )}
                     </div>
-
-                    {/* Blocked Reason details */}
-                    {card.blocked && card.blockedReason && (
-                        <div className="mt-2 bg-rose-50/50 dark:bg-rose-950/10 border border-rose-100 dark:border-rose-900/50 rounded-xl p-3 text-xs text-rose-700 dark:text-rose-400">
-                            <strong className="font-bold">Reason:</strong> {card.blockedReason}
-                        </div>
-                    )}
                 </div>
-
-                {/* Inline Quick Action Buttons */}
-                <div className="flex flex-wrap items-center gap-2 shrink-0">
-                    <button
+                
+                <div className="flex items-center gap-2 self-start sm:self-center shrink-0">
+                    <button 
                         onClick={() => handleToggleBlocked(card)}
-                        className={`flex items-center justify-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold border transition-colors cursor-pointer ${
-                            card.blocked
-                                ? 'bg-rose-600 border-rose-600 text-white hover:bg-rose-750'
-                                : 'bg-white border-slate-200 text-slate-650 hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-350 dark:hover:bg-slate-750'
-                        }`}
-                        title={card.blocked ? 'Unblock task' : 'Block task'}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 border ${card.blocked ? 'bg-error text-on-error border-error dark:bg-red-600 dark:text-white dark:border-red-600' : 'bg-transparent border-outline-variant text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white'} rounded transition-colors font-body-sm text-[14px]`}
                     >
-                        <span className="material-symbols-outlined text-sm">block</span>
+                        <span className="material-symbols-outlined text-[18px]">block</span>
                         {card.blocked ? 'Blocked' : 'Block'}
                     </button>
-
-                    <button
+                    <button 
                         onClick={() => handleToggleReview(card)}
-                        className={`flex items-center justify-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold border transition-colors cursor-pointer ${
-                            card.reviewRequested
-                                ? 'bg-indigo-650 border-indigo-650 text-white hover:bg-indigo-750'
-                                : 'bg-white border-slate-200 text-slate-650 hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-350 dark:hover:bg-slate-750'
-                        }`}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 border ${card.reviewRequested ? 'bg-secondary text-on-secondary border-secondary dark:bg-blue-600 dark:text-white dark:border-blue-600' : 'bg-transparent border-outline-variant text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white'} rounded transition-colors font-body-sm text-[14px]`}
                     >
-                        <span className="material-symbols-outlined text-sm">rate_review</span>
+                        <span className="material-symbols-outlined text-[18px]">rate_review</span>
                         {card.reviewRequested ? 'Under Review' : 'Request Review'}
                     </button>
-
-                    <button
+                    <button 
                         onClick={() => setSelectedCard(card)}
-                        className="flex items-center justify-center p-2 border border-slate-200 hover:bg-slate-50 text-slate-500 rounded-xl dark:border-slate-700 dark:hover:bg-slate-750 cursor-pointer"
-                        title="View Full Details"
+                        className="p-1.5 border border-outline-variant text-on-surface-variant rounded hover:bg-surface-container-high hover:text-on-surface dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white transition-colors flex items-center justify-center bg-transparent" 
+                        title="Open Detail"
                     >
-                        <span className="material-symbols-outlined text-sm">open_in_new</span>
+                        <span className="material-symbols-outlined text-[18px]">open_in_new</span>
                     </button>
                 </div>
             </div>
@@ -244,126 +170,118 @@ const MyTasksPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50/50 dark:bg-slate-900 text-slate-605 dark:text-slate-300 antialiased font-sans transition-colors duration-200">
-            <header className="h-16 bg-white dark:bg-slate-800 border-b border-slate-200/80 dark:border-slate-700/50 sticky top-0 z-40 flex items-center justify-between px-6 sm:px-8 shadow-sm transition-all duration-200">
-                <div className="flex items-center gap-4">
-                    <Link to="/dashboard"
-                        className="flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white text-sm font-semibold transition-all group bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 px-3.5 py-2 rounded-xl shadow-sm">
-                        <svg className="w-4 h-4 transform group-hover:-translate-x-0.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                            <path d="M19 12H5M12 5l-7 7 7 7"/>
-                        </svg>
-                        <span className="hidden sm:inline">Dashboard</span>
-                    </Link>
-                    <span className="text-slate-300 dark:text-slate-600 text-lg font-light">/</span>
-                    <h1 className="font-extrabold text-slate-900 dark:text-white text-base tracking-tight">Work Queue</h1>
+        <AdminPanelLayout mainClassName="max-w-[1200px] w-full mx-auto px-margin-mobile md:px-margin-desktop py-lg flex flex-col gap-lg">
+            
+            {/* Page Header */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h1 className="font-headline-lg text-[32px] font-bold text-primary dark:text-white tracking-tight mb-1">Work Queue</h1>
+                    <p className="font-body-md text-[16px] text-on-surface-variant dark:text-slate-400">Track assigned cards, blockers, reviews, and upcoming work.</p>
                 </div>
-                
                 {cards.length > 0 && !loading && (
-                    <button
+                    <button 
                         onClick={() => setFocusMode(true)}
-                        className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-750 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md hover:brightness-110 active:scale-98 transition-all cursor-pointer"
+                        className="flex items-center gap-2 bg-secondary-container dark:bg-blue-600 text-on-secondary-container dark:text-white font-title-md text-[20px] font-semibold px-6 py-3 rounded-lg hover:bg-secondary-container/90 dark:hover:bg-blue-700 transition-colors shadow-sm self-start md:self-auto"
                     >
-                        <span className="material-symbols-outlined text-sm font-bold">bolt</span>
+                        <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
                         Start Focus Mode
                     </button>
                 )}
-            </header>
+            </div>
 
-            <main className="max-w-5xl mx-auto px-6 py-8 space-y-6">
+            {/* Filter Bar */}
+            <div className="bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 rounded-lg p-sm shadow-sm flex flex-wrap items-center gap-sm">
+                <span className="font-label-caps text-[12px] font-medium text-on-surface-variant dark:text-slate-400 px-2 flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[16px]">filter_list</span>
+                    FILTER BY
+                </span>
+                <div className="w-px h-4 bg-outline-variant dark:bg-slate-700 mx-1 hidden sm:block"></div>
                 
-                {/* Search / Filters */}
-                <TaskQueueFilters filters={filters} onChange={setFilters} />
+                <button 
+                    onClick={() => setFilters(prev => ({...prev, priority: prev.priority ? null : 'all'}))}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 font-body-sm text-[14px] rounded-full transition-colors ${filters.priority ? 'bg-secondary-fixed/50 dark:bg-blue-900/40 border border-secondary text-on-secondary-fixed dark:text-blue-400' : 'bg-transparent border border-outline-variant text-on-surface-variant hover:bg-surface-container-low dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-700'}`}
+                >
+                    <span className="material-symbols-outlined text-[16px]">bolt</span>
+                    All Priorities
+                </button>
+                
+                <button 
+                    onClick={() => toggleFilter('blocked')}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 font-body-sm text-[14px] rounded-full transition-colors ${filters.blocked ? 'bg-error-container dark:bg-red-900/40 border border-error text-on-error-container dark:text-red-400' : 'bg-transparent border border-outline-variant text-on-surface-variant hover:bg-surface-container-low dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-700'}`}
+                >
+                    <span className="material-symbols-outlined text-[16px]">block</span>
+                    Blocked
+                </button>
+                
+                <button 
+                    onClick={() => toggleFilter('overdue')}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 font-body-sm text-[14px] rounded-full transition-colors ${filters.overdue ? 'bg-amber-100 dark:bg-amber-900/40 border border-amber-600 text-amber-800 dark:text-amber-400' : 'bg-transparent border border-outline-variant text-on-surface-variant hover:bg-surface-container-low dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-700'}`}
+                >
+                    <span className="material-symbols-outlined text-[16px]">alarm</span>
+                    Overdue
+                </button>
+                
+                <button 
+                    onClick={() => toggleFilter('dueSoon')}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 font-body-sm text-[14px] rounded-full transition-colors ${filters.dueSoon ? 'bg-emerald-100 dark:bg-emerald-900/40 border border-emerald-600 text-emerald-800 dark:text-emerald-400' : 'bg-transparent border border-outline-variant text-on-surface-variant hover:bg-surface-container-low dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-700'}`}
+                >
+                    <span className="material-symbols-outlined text-[16px]">schedule</span>
+                    Due Soon
+                </button>
+                
+                <button 
+                    onClick={() => toggleFilter('reviewRequested')}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 font-body-sm text-[14px] rounded-full transition-colors ${filters.reviewRequested ? 'bg-secondary-fixed dark:bg-blue-900/40 border border-secondary text-on-secondary-fixed dark:text-blue-400' : 'bg-transparent border border-outline-variant text-on-surface-variant hover:bg-surface-container-low dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-700'}`}
+                >
+                    <span className="material-symbols-outlined text-[16px]">rate_review</span>
+                    Review Requested
+                </button>
+            </div>
 
-                {loading ? (
-                    <div className="flex items-center justify-center py-20">
-                        <div className="w-10 h-10 rounded-full border-4 border-indigo-100 dark:border-indigo-950 border-t-indigo-600 animate-spin" />
-                    </div>
-                ) : cards.length === 0 ? (
-                    <div className="text-center py-20 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                        <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 flex items-center justify-center mx-auto mb-4 text-indigo-400">
-                            <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                            </svg>
-                        </div>
-                        <p className="text-slate-800 dark:text-white font-bold text-lg mb-1">No tasks in queue</p>
-                        <p className="text-slate-400 dark:text-slate-500 text-sm">Modify filters or wait for cards to be assigned.</p>
-                    </div>
-                ) : (
-                    <div className="space-y-8">
-                        
-                        {/* 1. Blocked Queue */}
-                        {getBlockedTasks().length > 0 && (
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
-                                    <span className="material-symbols-outlined text-rose-500 font-bold text-lg">block</span>
-                                    <h3 className="font-extrabold text-sm uppercase text-slate-800 dark:text-white tracking-wider">Blocked / Waiting ({getBlockedTasks().length})</h3>
-                                </div>
-                                <div className="space-y-3">
-                                    {getBlockedTasks().map(renderCardRow)}
-                                </div>
+            {loading ? (
+                <div className="flex items-center justify-center py-20">
+                    <div className="w-10 h-10 rounded-full border-4 border-indigo-100 dark:border-indigo-950 border-t-indigo-600 animate-spin" />
+                </div>
+            ) : cards.length === 0 ? (
+                <div className="text-center py-20 bg-surface-container-lowest dark:bg-slate-800 rounded-lg border border-outline-variant dark:border-slate-700 shadow-sm">
+                    <span className="material-symbols-outlined text-on-surface-variant/50 dark:text-slate-600 text-[48px] mb-4">
+                        inbox
+                    </span>
+                    <h3 className="text-lg font-bold text-primary dark:text-white mb-1">No tasks in queue</h3>
+                    <p className="text-on-surface-variant dark:text-slate-400 text-sm">Modify filters or wait for cards to be assigned.</p>
+                </div>
+            ) : (
+                <>
+                    {/* High & Urgent Priority Section */}
+                    {highUrgentTasks.length > 0 && (
+                        <section className="flex flex-col gap-md mt-md">
+                            <div className="flex items-center gap-2 border-b border-outline-variant dark:border-slate-700 pb-2">
+                                <span className="material-symbols-outlined text-error dark:text-red-400 text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>error</span>
+                                <h2 className="font-label-caps text-[12px] text-primary dark:text-white uppercase tracking-wider font-bold">High & Urgent Priority ({highUrgentTasks.length})</h2>
                             </div>
-                        )}
+                            
+                            {highUrgentTasks.map(renderCardRow)}
+                        </section>
+                    )}
 
-                        {/* 2. Overdue / Due Today Queue */}
-                        {getOverdueTasks().length > 0 && (
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
-                                    <span className="material-symbols-outlined text-amber-500 font-bold text-lg">alarm_on</span>
-                                    <h3 className="font-extrabold text-sm uppercase text-slate-800 dark:text-white tracking-wider">Due Today / Overdue ({getOverdueTasks().length})</h3>
-                                </div>
-                                <div className="space-y-3">
-                                    {getOverdueTasks().map(renderCardRow)}
-                                </div>
+                    {/* Upcoming & Other Tasks Section */}
+                    {upcomingTasks.length > 0 && (
+                        <section className="flex flex-col gap-md mt-lg">
+                            <div className="flex items-center gap-2 border-b border-outline-variant dark:border-slate-700 pb-2">
+                                <span className="material-symbols-outlined text-secondary dark:text-blue-400 text-[20px]">schedule</span>
+                                <h2 className="font-label-caps text-[12px] text-primary dark:text-white uppercase tracking-wider font-bold">Upcoming & Other Tasks ({upcomingTasks.length})</h2>
                             </div>
-                        )}
-
-                        {/* 3. High & Urgent Priority Queue */}
-                        {getHighPriorityTasks().length > 0 && (
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
-                                    <span className="material-symbols-outlined text-red-500 font-bold text-lg">priority_high</span>
-                                    <h3 className="font-extrabold text-sm uppercase text-slate-800 dark:text-white tracking-wider">High & Urgent Priority ({getHighPriorityTasks().length})</h3>
-                                </div>
-                                <div className="space-y-3">
-                                    {getHighPriorityTasks().map(renderCardRow)}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* 4. Waiting Review Queue */}
-                        {getWaitingReviewTasks().length > 0 && (
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
-                                    <span className="material-symbols-outlined text-blue-500 font-bold text-lg">rate_review</span>
-                                    <h3 className="font-extrabold text-sm uppercase text-slate-800 dark:text-white tracking-wider">Waiting Review ({getWaitingReviewTasks().length})</h3>
-                                </div>
-                                <div className="space-y-3">
-                                    {getWaitingReviewTasks().map(renderCardRow)}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* 5. Upcoming & Other Queue */}
-                        {getUpcomingTasks().length > 0 && (
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
-                                    <span className="material-symbols-outlined text-indigo-500 font-bold text-lg">schedule</span>
-                                    <h3 className="font-extrabold text-sm uppercase text-slate-800 dark:text-white tracking-wider">Upcoming & Other Tasks ({getUpcomingTasks().length})</h3>
-                                </div>
-                                <div className="space-y-3">
-                                    {getUpcomingTasks().map(renderCardRow)}
-                                </div>
-                            </div>
-                        )}
-
-                    </div>
-                )}
-            </main>
+                            
+                            {upcomingTasks.map(renderCardRow)}
+                        </section>
+                    )}
+                </>
+            )}
 
             {/* Standard Modal Detail */}
             {selectedCard && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="w-full max-w-4xl max-h-[90vh] bg-white dark:bg-slate-850 rounded-2xl overflow-hidden shadow-2xl flex flex-col">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="w-full max-w-4xl max-h-[90vh] bg-surface-container-lowest dark:bg-slate-850 rounded-2xl overflow-hidden shadow-2xl flex flex-col">
                         <CardDetail
                             card={selectedCard}
                             onClose={() => {
@@ -387,7 +305,7 @@ const MyTasksPage = () => {
                     onCardUpdated={fetchTasks}
                 />
             )}
-        </div>
+        </AdminPanelLayout>
     );
 };
 

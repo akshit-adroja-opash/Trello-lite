@@ -1,28 +1,36 @@
 import { useEffect, useState } from "react";
-import Navbar from "../components/Layout/Navbar";
-import DashboardSidebar from "../components/Layout/DashboardSidebar";
+import { Link, useNavigate } from "react-router-dom";
 import { getWorkspaces, getMembers } from "../api/workspace.api";
-import { getBoardsByWorkspace, getBoardMembers } from "../api/board.api";
+import { getBoardsByWorkspace } from "../api/board.api";
 import { getColumnsByBoard } from "../api/column.api";
-import { getCardsByColumn, updateCard } from "../api/card.api";
+import { getCardsByColumn, updateCard, getBoardTemplates } from "../api/card.api";
 import toast from "react-hot-toast";
 import useAuthStore from "../store/authstore";
+import useThemeStore from "../store/themeStore";
+import Navbar from "../components/Layout/Navbar";
+import DashboardSidebar from "../components/Layout/DashboardSidebar";
 
 const AssignTaskPage = () => {
+    const navigate = useNavigate();
     const user = useAuthStore(s => s.user);
+    const darkMode = useThemeStore(s => s.darkMode);
+
     const [workspaces, setWorkspaces] = useState([]);
     const [selectedWorkspaceId, setSelectedWorkspaceId] = useState("");
     const [boards, setBoards] = useState([]);
     const [selectedBoardId, setSelectedBoardId] = useState("");
     const [boardMembers, setBoardMembers] = useState([]);
     const [cards, setCards] = useState([]);
+    const [selectedCardId, setSelectedCardId] = useState("");
+    
+    // Form fields
+    const [selectedAssignees, setSelectedAssignees] = useState([]);
+    const [dueDate, setDueDate] = useState("");
+    const [priority, setPriority] = useState("medium");
+    const [searchTerm, setSearchTerm] = useState("");
+
     const [loading, setLoading] = useState(true);
     const [updating, setUpdating] = useState(false);
-
-    // Modal state
-    const [editingCard, setEditingCard] = useState(null);
-    const [tempAssignees, setTempAssignees] = useState([]);
-    const [onlyShowAssigned, setOnlyShowAssigned] = useState(true);
 
     // Fetch workspaces on mount
     useEffect(() => {
@@ -55,11 +63,7 @@ const AssignTaskPage = () => {
                 const res = await getBoardsByWorkspace(selectedWorkspaceId);
                 const boardsList = res.data?.boards || [];
                 setBoards(boardsList);
-                if (boardsList.length > 0) {
-                    setSelectedBoardId(boardsList[0]._id);
-                } else {
-                    setSelectedBoardId("");
-                }
+                setSelectedBoardId("");
             } catch (err) {
                 toast.error("Failed to load boards");
             }
@@ -67,28 +71,29 @@ const AssignTaskPage = () => {
         fetchBoards();
     }, [selectedWorkspaceId]);
 
-    // Fetch board members and cards when board changes
+    // Fetch members and cards when board changes
     useEffect(() => {
         if (!selectedBoardId) {
             setBoardMembers([]);
             setCards([]);
+            setSelectedCardId("");
+            setSelectedAssignees([]);
+            setDueDate("");
+            setPriority("medium");
             return;
         }
         const fetchBoardData = async () => {
             try {
-                // Fetch workspace members instead of board members to include all invited users
+                // Fetch workspace members to include all invited users
                 const memRes = await getMembers(selectedWorkspaceId);
                 const members = memRes.data?.members || memRes.members || [];
-                // Format members to only extract user object and role, excluding admins
-                const membersList = members
-                    .map(m => ({
-                        _id: m.user?._id || m.user,
-                        username: m.user?.username || "Unknown",
-                        email: m.user?.email || "",
-                        avatar: m.user?.avatar || "",
-                        role: m.role
-                    }))
-                    .filter(m => m.role !== 'admin');
+                const membersList = members.map(m => ({
+                    _id: m.user?._id || m.user,
+                    username: m.user?.username || "Unknown",
+                    email: m.user?.email || "",
+                    avatar: m.user?.avatar || "",
+                    role: m.role
+                }));
                 setBoardMembers(membersList);
 
                 // Fetch columns and cards
@@ -102,64 +107,106 @@ const AssignTaskPage = () => {
                     colCards.forEach(c => {
                         allCards.push({
                             ...c,
-                            columnName: col.name
+                            columnName: col.name,
+                            isTemplate: false
                         });
                     });
                 }));
-                setCards(allCards);
+
+                // Fetch templates
+                let templates = [];
+                try {
+                    const templateRes = await getBoardTemplates(selectedBoardId);
+                    templates = templateRes.data?.templates || templateRes.templates || [];
+                    templates = templates.map(t => ({
+                        ...t,
+                        isTemplate: true
+                    }));
+                } catch (tErr) {
+                    console.error("Failed to fetch templates", tErr);
+                }
+
+                setCards([...templates, ...allCards]);
+                setSelectedCardId("");
+                setSelectedAssignees([]);
+                setDueDate("");
+                setPriority("medium");
             } catch (err) {
                 toast.error("Failed to load board tasks or members");
             }
         };
         fetchBoardData();
-    }, [selectedBoardId]);
+    }, [selectedBoardId, selectedWorkspaceId]);
 
-    const handleOpenEditModal = (card) => {
-        setEditingCard(card);
-        const currentAssignees = (card.assignees || []).map(a => a._id || a);
-        setTempAssignees(currentAssignees);
-    };
-
-    const handleCloseEditModal = () => {
-        setEditingCard(null);
-        setTempAssignees([]);
-    };
-
-    const handleTempAssigneeToggle = (memberId) => {
-        setTempAssignees(prev => {
-            if (prev.includes(memberId)) {
-                return prev.filter(id => id !== memberId);
+    const handleCardChange = (cardId) => {
+        setSelectedCardId(cardId);
+        if (!cardId) {
+            setSelectedAssignees([]);
+            setDueDate("");
+            setPriority("medium");
+            return;
+        }
+        const card = cards.find(c => c._id === cardId);
+        if (card) {
+            setSelectedAssignees((card.assignees || []).map(a => a._id || a));
+            if (card.dueDate) {
+                const d = new Date(card.dueDate);
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                setDueDate(`${year}-${month}-${day}`);
             } else {
-                return [...prev, memberId];
+                setDueDate("");
             }
-        });
+            setPriority(card.priority || "medium");
+        }
     };
 
-    const handleSaveEditAssignment = async () => {
-        if (!editingCard) return;
+    const handleAddAssignee = (memberId) => {
+        if (!selectedAssignees.includes(memberId)) {
+            setSelectedAssignees(prev => [...prev, memberId]);
+        }
+    };
+
+    const handleRemoveAssignee = (memberId) => {
+        setSelectedAssignees(prev => prev.filter(id => id !== memberId));
+    };
+
+    const handleAssignTask = async (e) => {
+        e.preventDefault();
+        if (!selectedCardId) {
+            toast.error("Please select a card/task first");
+            return;
+        }
+
+        const card = cards.find(c => c._id === selectedCardId);
+        if (!card) return;
 
         setUpdating(true);
         try {
-            const res = await updateCard(editingCard._id, {
-                assignees: tempAssignees,
-                version: editingCard.version
+            const res = await updateCard(selectedCardId, {
+                assignees: selectedAssignees,
+                dueDate: dueDate || null,
+                priority,
+                version: card.version
             });
-            if (res.status === "success") {
-                toast.success("Task assignees updated successfully");
+            if (res.status === "success" || res.data) {
+                toast.success("Task assigned successfully");
                 
-                // Update local cards state
+                // Update local state
                 setCards(prev => prev.map(c => {
-                    if (c._id === editingCard._id) {
+                    if (c._id === selectedCardId) {
+                        const updatedCard = res.data?.card || res.card || c;
                         return {
                             ...c,
-                            assignees: boardMembers.filter(m => tempAssignees.includes(m._id)),
-                            version: (c.version || 0) + 1
+                            assignees: boardMembers.filter(m => selectedAssignees.includes(m._id)),
+                            dueDate: updatedCard.dueDate,
+                            priority: updatedCard.priority,
+                            version: updatedCard.version
                         };
                     }
                     return c;
                 }));
-                
-                handleCloseEditModal();
             }
         } catch (err) {
             toast.error(err.response?.data?.message || "Failed to update assignment");
@@ -168,7 +215,89 @@ const AssignTaskPage = () => {
         }
     };
 
-    const activeWorkspace = workspaces.find(w => w._id === selectedWorkspaceId);
+    const handleCancel = () => {
+        setSelectedCardId("");
+        setSelectedAssignees([]);
+        setDueDate("");
+        setPriority("medium");
+        setSearchTerm("");
+    };
+
+    const getRoleDetails = (role) => {
+        switch (role?.toLowerCase()) {
+            case 'admin':
+                return {
+                    bgClass: 'bg-red-50 dark:bg-red-950/20',
+                    borderClass: 'border-red-200 dark:border-red-900/40',
+                    textClass: 'text-red-900 dark:text-red-400',
+                    badgeTextClass: 'text-red-600 font-bold',
+                    avatarBg: 'bg-red-500',
+                    avatarText: 'text-white',
+                    roleLabel: 'Admin',
+                    abbr: 'A'
+                };
+            case 'project_manager':
+            case 'pm':
+                return {
+                    bgClass: 'bg-purple-50 dark:bg-purple-950/20',
+                    borderClass: 'border-purple-200 dark:border-purple-900/40',
+                    textClass: 'text-purple-900 dark:text-purple-400',
+                    badgeTextClass: 'text-purple-600 font-bold',
+                    avatarBg: 'bg-purple-100 border border-purple-200 text-purple-700',
+                    avatarText: 'text-purple-700',
+                    roleLabel: 'Project Manager',
+                    abbr: 'PM'
+                };
+            case 'developer':
+            case 'dev':
+                return {
+                    bgClass: 'bg-blue-50 dark:bg-blue-950/20',
+                    borderClass: 'border-blue-200 dark:border-blue-900/40',
+                    textClass: 'text-blue-900 dark:text-blue-400',
+                    badgeTextClass: 'text-secondary dark:text-secondary-fixed font-bold',
+                    avatarBg: 'bg-secondary/10 border border-secondary/20 text-secondary',
+                    avatarText: 'text-secondary',
+                    roleLabel: 'Developer',
+                    abbr: 'DEV'
+                };
+            case 'client':
+                return {
+                    bgClass: 'bg-green-50 dark:bg-green-950/20',
+                    borderClass: 'border-green-200 dark:border-green-900/40',
+                    textClass: 'text-green-900 dark:text-green-400',
+                    badgeTextClass: 'text-green-600 font-bold',
+                    avatarBg: 'bg-green-500',
+                    avatarText: 'text-white',
+                    roleLabel: 'Client',
+                    abbr: 'C'
+                };
+            default:
+                return {
+                    bgClass: 'bg-slate-50 dark:bg-slate-800',
+                    borderClass: 'border-slate-200 dark:border-slate-700',
+                    textClass: 'text-slate-900 dark:text-slate-350',
+                    badgeTextClass: 'text-slate-500 font-bold',
+                    avatarBg: 'bg-slate-100 border border-slate-200 text-slate-700',
+                    avatarText: 'text-slate-700',
+                    roleLabel: role || 'Member',
+                    abbr: (role || 'M').substring(0, 2).toUpperCase()
+                };
+        }
+    };
+
+    const selectStyle = {
+        appearance: "none",
+        backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "right 1rem center",
+        backgroundSize: "1em",
+    };
+
+    // Filter available assignees based on search input
+    const filteredMembers = boardMembers.filter(m => 
+        !selectedAssignees.includes(m._id) &&
+        m.username?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     if (loading) {
         return (
@@ -181,8 +310,7 @@ const AssignTaskPage = () => {
         );
     }
 
-    const assignedCards = cards.filter(c => c.assignees && c.assignees.length > 0);
-    const filteredCards = onlyShowAssigned ? assignedCards : cards;
+    const activeWorkspace = workspaces.find(w => w._id === selectedWorkspaceId);
 
     return (
         <div className="min-h-screen bg-background text-on-surface antialiased overflow-x-hidden flex flex-col dark:bg-slate-900 dark:text-white transition-colors duration-200">
@@ -192,230 +320,269 @@ const AssignTaskPage = () => {
                 <DashboardSidebar currentWorkspace={activeWorkspace} />
 
                 <main className="flex-1 ml-0 lg:ml-[280px] p-6 lg:p-10 overflow-y-auto w-full max-w-[1440px] mx-auto">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 border-b border-outline-variant/30 dark:border-slate-800 pb-6">
-                        <div>
-                            <h2 className="font-headline-lg text-headline-lg text-on-surface dark:text-white mb-1">
-                                Assign Task
-                            </h2>
-                            <p className="font-body-md text-body-md text-on-surface-variant dark:text-slate-400">
-                                Assign boards' tasks to members and contributors
-                            </p>
-                        </div>
+                    {/* Header Section */}
+                    <div className="mb-xl">
+                        <h2 className="font-headline-lg text-headline-lg text-on-surface dark:text-white mb-xs">Command Center</h2>
+                        <p className="font-body-md text-body-md text-on-surface-variant dark:text-slate-400">Dispatch items and assign responsibilities across workspaces.</p>
                     </div>
 
-                    <div className="space-y-6">
-                        {/* Selector Area */}
-                        <div className="glass-card p-6 rounded-xl border border-outline-variant/50 dark:border-slate-700 bg-white/90 dark:bg-slate-800/90 backdrop-blur shadow-sm">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {/* Workspace dropdown */}
-                                <div>
-                                    <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">
-                                        Select Workspace
-                                    </label>
-                                    <select
-                                        value={selectedWorkspaceId}
-                                        onChange={e => setSelectedWorkspaceId(e.target.value)}
-                                        className="w-full pl-3 pr-10 py-2.5 bg-white dark:bg-slate-850 border border-slate-205 dark:border-slate-700 rounded-lg text-on-surface dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm cursor-pointer"
-                                    >
-                                        <option value="">-- Choose Workspace --</option>
-                                        {workspaces.map(ws => (
-                                            <option key={ws._id} value={ws._id}>
-                                                {ws.name}
-                                            </option>
-                                        ))}
-                                    </select>
+                    {/* Form Layout */}
+                    <form onSubmit={handleAssignTask} className="bg-surface-container-lowest dark:bg-slate-800 rounded-xl shadow-sm border border-outline-variant dark:border-slate-700 p-lg lg:p-xl space-y-xl">
+                        {/* Section 1: Location */}
+                        <div className="space-y-md">
+                            <h3 className="font-title-md text-title-md text-on-surface dark:text-white border-b border-surface-container dark:border-slate-800 pb-sm">Task Destination</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+                                {/* Select Workspace */}
+                                <div className="space-y-sm">
+                                    <label className="block font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400" htmlFor="workspace">SELECT WORKSPACE</label>
+                                    <div className="relative input-focus-ring rounded-lg transition-all duration-200">
+                                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline dark:text-slate-500 text-[20px]">domain</span>
+                                        <select 
+                                            className="w-full bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg py-[10px] pl-10 pr-10 font-body-md text-body-md text-on-surface dark:text-white focus:outline-none focus:border-transparent cursor-pointer" 
+                                            id="workspace"
+                                            value={selectedWorkspaceId}
+                                            onChange={e => setSelectedWorkspaceId(e.target.value)}
+                                            style={selectStyle}
+                                        >
+                                            <option disabled value="">Choose a workspace</option>
+                                            {workspaces.map(ws => (
+                                                <option key={ws._id} value={ws._id}>{ws.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
 
-                                {/* Board dropdown */}
-                                <div>
-                                    <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">
-                                        Select Board
-                                    </label>
-                                    <select
-                                        value={selectedBoardId}
-                                        onChange={e => setSelectedBoardId(e.target.value)}
-                                        disabled={!selectedWorkspaceId}
-                                        className="w-full pl-3 pr-10 py-2.5 bg-white dark:bg-slate-850 border border-slate-205 dark:border-slate-700 rounded-lg text-on-surface dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all disabled:opacity-50 text-sm cursor-pointer"
-                                    >
-                                        <option value="">-- Choose Board --</option>
-                                        {boards.map(b => (
-                                            <option key={b._id} value={b._id}>
-                                                {b.name}
-                                            </option>
-                                        ))}
-                                    </select>
+                                {/* Select Board */}
+                                <div className="space-y-sm">
+                                    <label className="block font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400" htmlFor="board">SELECT BOARD</label>
+                                    <div className="relative input-focus-ring rounded-lg transition-all duration-200">
+                                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline dark:text-slate-500 text-[20px]">view_kanban</span>
+                                        <select 
+                                            className="w-full bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg py-[10px] pl-10 pr-10 font-body-md text-body-md text-on-surface dark:text-white focus:outline-none focus:border-transparent cursor-pointer disabled:opacity-50" 
+                                            id="board"
+                                            value={selectedBoardId}
+                                            onChange={e => setSelectedBoardId(e.target.value)}
+                                            disabled={!selectedWorkspaceId}
+                                            style={selectStyle}
+                                        >
+                                            <option value="">Choose a board</option>
+                                            {boards.map(b => (
+                                                <option key={b._id} value={b._id}>{b.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                {/* Select Task */}
+                                <div className="space-y-sm md:col-span-2 lg:col-span-1">
+                                    <label className="block font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400" htmlFor="task">SELECT CARD/TASK</label>
+                                    <div className="relative input-focus-ring rounded-lg transition-all duration-200">
+                                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline dark:text-slate-500 text-[20px]">task</span>
+                                        <select 
+                                            className="w-full bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg py-[10px] pl-10 pr-10 font-body-md text-body-md text-on-surface dark:text-white focus:outline-none focus:border-transparent cursor-pointer disabled:opacity-50" 
+                                            id="task"
+                                            value={selectedCardId}
+                                            onChange={e => handleCardChange(e.target.value)}
+                                            disabled={!selectedBoardId}
+                                            style={selectStyle}
+                                        >
+                                            <option value="">Choose a template or enter task name...</option>
+                                            {cards.map(card => (
+                                                <option key={card._id} value={card._id}>
+                                                    {card.isTemplate ? `[Template] ${card.title}` : card.title}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Tasks Table Area */}
-                        {selectedBoardId && (
-                            <div className="glass-card p-6 rounded-xl border border-outline-variant/50 dark:border-slate-700 bg-white/90 dark:bg-slate-800/90 backdrop-blur shadow-sm">
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                                    <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
-                                        <span className="material-symbols-outlined text-indigo-500">assignment</span>
-                                        Tasks List ({filteredCards.length})
-                                    </h3>
-                                    
-                                    <label className="flex items-center gap-2 text-xs font-semibold text-slate-550 dark:text-slate-400 cursor-pointer">
-                                        <input 
-                                            type="checkbox" 
-                                            checked={onlyShowAssigned} 
-                                            onChange={(e) => setOnlyShowAssigned(e.target.checked)}
-                                            className="w-4 h-4 accent-indigo-600 bg-white dark:bg-slate-800 border-slate-350 dark:border-slate-700 rounded cursor-pointer"
-                                        />
-                                        Show only assigned tasks
-                                    </label>
-                                </div>
-
-                                {filteredCards.length === 0 ? (
-                                    <div className="text-center py-16 border border-dashed border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-900/50">
-                                        <span className="material-symbols-outlined text-slate-400 text-4xl mb-2">assignment_late</span>
-                                        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">No tasks found matching current filters.</p>
-                                    </div>
-                                ) : (
-                                    <div className="overflow-x-auto">
-                                        <table className="w-full text-left border-collapse">
-                                            <thead>
-                                                <tr className="border-b border-slate-100 dark:border-slate-700/80 text-[10px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest">
-                                                    <th className="pb-3 pl-4">Task Title</th>
-                                                    <th className="pb-3">Column</th>
-                                                    <th className="pb-3">Assigned Members</th>
-                                                    <th className="pb-3 pr-4 text-right">Actions</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
-                                                {filteredCards.map((card) => (
-                                                    <tr key={card._id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/40 transition-colors">
-                                                        <td className="py-4 pl-4 font-semibold text-sm text-slate-800 dark:text-slate-200 max-w-xs truncate">
-                                                            {card.title}
-                                                        </td>
-                                                        <td className="py-4">
-                                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-950/40 text-indigo-650 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/60">
-                                                                {card.columnName}
-                                                            </span>
-                                                        </td>
-                                                        <td className="py-4">
-                                                            {card.assignees?.length === 0 ? (
-                                                                <span className="text-xs text-slate-400 italic">Unassigned</span>
-                                                            ) : (
-                                                                <div className="flex -space-x-1.5 overflow-hidden">
-                                                                    {card.assignees?.map((a) => (
-                                                                        <div 
-                                                                            key={a._id} 
-                                                                            className="inline-block ring-2 ring-white dark:ring-slate-800 rounded-full"
-                                                                            title={a.username}
-                                                                        >
-                                                                            <div className="w-7 h-7 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-extrabold text-[10px]">
-                                                                                {a.username?.[0]?.toUpperCase()}
-                                                                            </div>
-                                                                        </div>
-                                                                    ))}
-                                                                </div>
-                                                            )}
-                                                        </td>
-                                                        <td className="py-4 pr-4 text-right">
-                                                            <button
-                                                                onClick={() => handleOpenEditModal(card)}
-                                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-slate-50 hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-lg transition-all cursor-pointer"
+                        {/* Section 2: Assignment & Details */}
+                        <div className="space-y-md pt-md">
+                            <h3 className="font-title-md text-title-md text-on-surface dark:text-white border-b border-surface-container dark:border-slate-800 pb-sm">Assignment Details</h3>
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-lg">
+                                {/* Assignees (Simulated Multi-select) */}
+                                <div className="space-y-sm">
+                                    <label className="block font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400">ASSIGNEES</label>
+                                    <div className="bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg p-sm input-focus-ring min-h-[160px] flex flex-col">
+                                        {/* Search input */}
+                                        <div className="relative mb-sm">
+                                            <span className="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-outline dark:text-slate-500 text-[18px]">search</span>
+                                            <input 
+                                                className="w-full bg-surface-container-lowest dark:bg-slate-900 border border-outline-variant dark:border-slate-800 rounded py-1 pl-8 pr-2 text-sm focus:outline-none dark:text-white" 
+                                                placeholder="Search team members..." 
+                                                type="text"
+                                                value={searchTerm}
+                                                onChange={e => setSearchTerm(e.target.value)}
+                                            />
+                                        </div>
+                                        {/* Selected Chips Area */}
+                                        <div className="flex flex-wrap gap-xs mb-sm">
+                                            {selectedAssignees.length === 0 ? (
+                                                <span className="text-xs text-on-surface-variant dark:text-slate-500 italic p-1">No assignees selected yet.</span>
+                                            ) : (
+                                                selectedAssignees.map(id => {
+                                                    const member = boardMembers.find(m => m._id === id);
+                                                    if (!member) return null;
+                                                    const roleDetails = getRoleDetails(member.role);
+                                                    return (
+                                                        <div key={id} className={`inline-flex items-center gap-xs border rounded-full px-2 py-1 ${roleDetails.bgClass} ${roleDetails.borderClass}`}>
+                                                            <div className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${roleDetails.avatarBg} ${roleDetails.avatarText}`}>
+                                                                {roleDetails.abbr}
+                                                            </div>
+                                                            <span className={`text-xs font-medium ${roleDetails.textClass}`}>{member.username}</span>
+                                                            <button 
+                                                                className={`hover:opacity-100 ml-1 transition-opacity ${roleDetails.textClass} opacity-60`} 
+                                                                type="button"
+                                                                onClick={() => handleRemoveAssignee(id)}
                                                             >
-                                                                <span className="material-symbols-outlined text-xs">edit</span>
-                                                                Edit Assignees
+                                                                <span className="material-symbols-outlined text-[14px]">close</span>
                                                             </button>
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                </main>
-            </div>
-
-            {/* Edit Assignees Modal */}
-            {editingCard && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm px-4 py-6" onClick={handleCloseEditModal}>
-                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-100 dark:border-slate-700 w-full max-w-lg overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-150" onClick={e => e.stopPropagation()}>
-                        <header className="p-6 pb-4 flex justify-between items-start border-b border-slate-100 dark:border-slate-700/80">
-                            <div>
-                                <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-tight">Edit Task Assignees</h3>
-                                <p className="text-xs text-slate-450 dark:text-slate-400 mt-1 truncate max-w-sm">For task: "{editingCard.title}"</p>
-                            </div>
-                            <button onClick={handleCloseEditModal} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 transition-colors cursor-pointer">
-                                <span className="material-symbols-outlined">close</span>
-                            </button>
-                        </header>
-                        
-                        <div className="p-6 space-y-4 max-h-[50vh] overflow-y-auto">
-                            <label className="block text-[10px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest">
-                                Select Assignees
-                            </label>
-                            {boardMembers.length === 0 ? (
-                                <p className="text-sm text-slate-400 italic">No board members found.</p>
-                            ) : (
-                                <div className="grid grid-cols-1 gap-2">
-                                    {boardMembers.map(member => {
-                                        const isChecked = tempAssignees.includes(member._id);
-                                        return (
-                                            <label
-                                                key={member._id}
-                                                className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-750 transition-all ${isChecked
-                                                        ? "border-indigo-500 bg-indigo-500/5 dark:border-indigo-550 dark:bg-indigo-950/20"
-                                                        : "border-slate-200 dark:border-slate-700"
-                                                    }`}
-                                            >
-                                                <input
-                                                    type="checkbox"
-                                                    checked={isChecked}
-                                                    onChange={() => handleTempAssigneeToggle(member._id)}
-                                                    className="rounded border-slate-350 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500 w-4 h-4 cursor-pointer"
-                                                />
-                                                <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-750 dark:text-indigo-300 font-bold shrink-0 text-sm">
-                                                    {member.username?.[0]?.toUpperCase()}
+                                                        </div>
+                                                    );
+                                                })
+                                            )}
+                                        </div>
+                                        {/* List of options */}
+                                        <div className="flex-1 overflow-y-auto max-h-[140px] space-y-xs pt-xs border-t border-surface-container dark:border-slate-850">
+                                            {filteredMembers.length === 0 ? (
+                                                <div className="text-center text-xs text-on-surface-variant dark:text-slate-500 py-4">
+                                                    {!selectedBoardId ? "Choose a board first to see members" : "No other members available"}
                                                 </div>
-                                                <div className="min-w-0 flex-1">
-                                                    <p className="text-sm font-semibold truncate text-slate-850 dark:text-white">
-                                                        {member.username}
-                                                    </p>
-                                                    <p className="text-xs text-slate-400 dark:text-slate-500 truncate">
-                                                        {member.role || "Member"}
-                                                    </p>
+                                            ) : (
+                                                filteredMembers.map(member => {
+                                                    const roleDetails = getRoleDetails(member.role);
+                                                    return (
+                                                        <div 
+                                                            key={member._id} 
+                                                            onClick={() => handleAddAssignee(member._id)}
+                                                            className="flex items-center justify-between p-xs hover:bg-surface-container dark:hover:bg-slate-850 rounded cursor-pointer transition-colors"
+                                                        >
+                                                            <div className="flex items-center gap-sm">
+                                                                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${roleDetails.avatarBg} ${roleDetails.avatarText}`}>
+                                                                    {roleDetails.abbr}
+                                                                </div>
+                                                                <div className="flex flex-col">
+                                                                    <span className="text-sm text-on-surface dark:text-white">{member.username}</span>
+                                                                    <span className={`text-[10px] uppercase font-bold ${roleDetails.badgeTextClass}`}>{roleDetails.roleLabel}</span>
+                                                                </div>
+                                                            </div>
+                                                            <span className="material-symbols-outlined text-outline dark:text-slate-500 text-[16px]">add</span>
+                                                        </div>
+                                                    );
+                                                })
+                                            )}
+                                        </div>
+                                    </div>
+                                    <p className="text-xs text-on-surface-variant dark:text-slate-400 mt-1">Roles: <span className="text-red-600 dark:text-red-400 font-bold">Admin</span>, <span className="text-purple-600 dark:text-purple-400 font-bold">PM</span>, <span className="text-secondary dark:text-secondary-fixed font-bold">Developer</span>, <span className="text-green-600 dark:text-green-400 font-bold">Client</span></p>
+                                </div>
+
+                                {/* Date & Priority */}
+                                <div className="space-y-lg">
+                                    {/* Date Picker */}
+                                    <div className="space-y-sm">
+                                        <label className="block font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400" htmlFor="due-date">DUE DATE</label>
+                                        <div className="relative input-focus-ring rounded-lg transition-all duration-200">
+                                            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline dark:text-slate-500 text-[20px]">calendar_today</span>
+                                            <input 
+                                                className="w-full bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg py-[10px] pl-10 pr-3 font-body-md text-body-md text-on-surface dark:text-white focus:outline-none focus:border-transparent cursor-pointer" 
+                                                id="due-date" 
+                                                type="date"
+                                                value={dueDate}
+                                                onChange={e => setDueDate(e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                    {/* Priority Level */}
+                                    <div className="space-y-sm">
+                                        <label className="block font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400">PRIORITY LEVEL</label>
+                                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-sm">
+                                            <label className="cursor-pointer group">
+                                                <input 
+                                                    className="peer sr-only" 
+                                                    name="priority" 
+                                                    type="radio" 
+                                                    value="low"
+                                                    checked={priority === "low"}
+                                                    onChange={e => setPriority(e.target.value)}
+                                                />
+                                                <div className="text-center py-2 px-3 border border-outline-variant dark:border-slate-700 rounded-lg peer-checked:bg-surface-container-high dark:peer-checked:bg-slate-800 peer-checked:border-on-surface-variant dark:peer-checked:border-slate-400 transition-colors hover:bg-surface dark:hover:bg-slate-850 text-sm font-medium text-on-surface dark:text-slate-300">
+                                                    <span className="material-symbols-outlined text-[16px] align-text-bottom mr-1 text-outline dark:text-slate-500">arrow_downward</span> Low
                                                 </div>
                                             </label>
-                                        );
-                                    })}
+                                            <label className="cursor-pointer group">
+                                                <input 
+                                                    className="peer sr-only" 
+                                                    name="priority" 
+                                                    type="radio" 
+                                                    value="medium"
+                                                    checked={priority === "medium"}
+                                                    onChange={e => setPriority(e.target.value)}
+                                                />
+                                                <div className="text-center py-2 px-3 border border-outline-variant dark:border-slate-700 rounded-lg peer-checked:bg-blue-50 dark:peer-checked:bg-blue-950/20 peer-checked:border-secondary dark:peer-checked:border-indigo-500 peer-checked:text-secondary dark:peer-checked:text-indigo-400 transition-colors hover:bg-surface dark:hover:bg-slate-850 text-sm font-medium text-on-surface dark:text-slate-300">
+                                                    <span className="material-symbols-outlined text-[16px] align-text-bottom mr-1 text-secondary dark:text-indigo-550">remove</span> Medium
+                                                </div>
+                                            </label>
+                                            <label className="cursor-pointer group">
+                                                <input 
+                                                    className="peer sr-only" 
+                                                    name="priority" 
+                                                    type="radio" 
+                                                    value="high"
+                                                    checked={priority === "high"}
+                                                    onChange={e => setPriority(e.target.value)}
+                                                />
+                                                <div className="text-center py-2 px-3 border border-outline-variant dark:border-slate-700 rounded-lg peer-checked:bg-orange-50 dark:peer-checked:bg-orange-950/20 peer-checked:border-orange-500 dark:peer-checked:border-orange-600 peer-checked:text-orange-700 dark:peer-checked:text-orange-400 transition-colors hover:bg-surface dark:hover:bg-slate-850 text-sm font-medium text-on-surface dark:text-slate-300">
+                                                    <span className="material-symbols-outlined text-[16px] align-text-bottom mr-1 text-orange-500">arrow_upward</span> High
+                                                </div>
+                                            </label>
+                                            <label className="cursor-pointer group">
+                                                <input 
+                                                    className="peer sr-only" 
+                                                    name="priority" 
+                                                    type="radio" 
+                                                    value="urgent"
+                                                    checked={priority === "urgent" || priority === "critical"}
+                                                    onChange={e => setPriority(e.target.value)}
+                                                />
+                                                <div className="text-center py-2 px-3 border border-outline-variant dark:border-slate-700 rounded-lg peer-checked:bg-red-50 dark:peer-checked:bg-red-950/20 peer-checked:border-error dark:peer-checked:border-red-600 peer-checked:text-error dark:peer-checked:text-red-400 transition-colors hover:bg-surface dark:hover:bg-slate-850 text-sm font-medium text-on-surface dark:text-slate-300">
+                                                    <span className="material-symbols-outlined text-[16px] align-text-bottom mr-1 text-error dark:text-red-500">warning</span> Critical
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
-                            )}
+                            </div>
                         </div>
 
-                        <footer className="p-6 border-t border-slate-100 dark:border-slate-700/80 flex justify-end gap-3 bg-slate-50/40 dark:bg-slate-850/40">
-                            <button
-                                onClick={handleCloseEditModal}
-                                className="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium text-slate-750 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all cursor-pointer"
+                        {/* Form Actions */}
+                        <div className="pt-lg border-t border-outline-variant/50 dark:border-slate-800 flex items-center justify-end gap-md">
+                            <button 
+                                className="px-lg py-sm font-body-md text-body-md font-medium text-on-surface-variant dark:text-slate-400 hover:bg-surface-container dark:hover:bg-slate-800 rounded-lg transition-colors border border-transparent hover:border-outline-variant dark:hover:border-slate-750" 
+                                type="button"
+                                onClick={handleCancel}
                             >
                                 Cancel
                             </button>
-                            <button
-                                onClick={handleSaveEditAssignment}
+                            <button 
+                                className={`group relative px-xl py-sm bg-secondary hover:bg-secondary-container text-on-secondary font-body-md text-body-md font-medium rounded-lg shadow-sm transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-secondary flex items-center gap-sm overflow-hidden uppercase tracking-wider ${updating ? 'is-loading' : ''}`} 
+                                style={{ backgroundColor: "#0058be" }} 
+                                type="submit"
                                 disabled={updating}
-                                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold transition-all flex items-center gap-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
-                                {updating ? (
-                                    <>
-                                        <div className="w-4 h-4 rounded-full border-2 border-white/50 border-t-white animate-spin" />
-                                        <span>Saving...</span>
-                                    </>
-                                ) : (
-                                    <span>Save Changes</span>
+                                <span className="material-symbols-outlined text-[20px]">send</span>
+                                <span>Assign Task</span>
+                                {updating && (
+                                    <div className="absolute inset-0 bg-secondary flex items-center justify-center transition-opacity">
+                                        <span className="material-symbols-outlined animate-spin text-[20px]">progress_activity</span>
+                                    </div>
                                 )}
                             </button>
-                        </footer>
-                    </div>
-                </div>
-            )}
+                        </div>
+                    </form>
+                </main>
+            </div>
         </div>
     );
 };

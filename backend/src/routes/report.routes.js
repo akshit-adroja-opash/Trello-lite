@@ -5,6 +5,7 @@ import {
   generateClientReport,
   shareReportLink,
   downloadSharedReport,
+  getRecentReports,
 } from "../controllers/reportController.js";
 
 import {
@@ -36,6 +37,9 @@ router.post(
   canGenerateFullReport,
   shareReportLink,
 );
+
+router.get("/recent", verifyJWT, getRecentReports);
+router.get("/recent/:boardId", verifyJWT, getRecentReports);
 
 router.get("/shared/:token", downloadSharedReport);
 

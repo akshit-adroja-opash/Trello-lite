@@ -16,7 +16,7 @@ export default function UserManagementPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
-  
+
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
@@ -72,7 +72,7 @@ export default function UserManagementPage() {
     const matchesSearch =
       u.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       u.email?.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     const matchesRole = roleFilter === 'all' || u.role === roleFilter;
 
     return matchesSearch && matchesRole;
@@ -321,27 +321,31 @@ export default function UserManagementPage() {
                             </td>
                             <td className="py-sm px-lg text-right">
                               <div className="flex items-center justify-end gap-xs">
-                                <button
-                                  onClick={() => {
-                                    setSelectedUser(user);
-                                    setNewRole(user.role);
-                                    setShowRoleModal(true);
-                                  }}
-                                  className="text-on-surface-variant dark:text-slate-400 hover:text-secondary dark:hover:text-indigo-400 p-xs rounded hover:bg-surface-container dark:hover:bg-slate-700 transition-colors"
-                                  title="Change Role"
-                                >
-                                  <span className="material-symbols-outlined text-[20px]">published_with_changes</span>
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    setSelectedUser(user);
-                                    setShowDeleteModal(true);
-                                  }}
-                                  className="text-on-surface-variant dark:text-slate-400 hover:text-error p-xs rounded hover:bg-error-container/20 dark:hover:bg-red-950/20 transition-colors"
-                                  title="Delete User"
-                                >
-                                  <span className="material-symbols-outlined text-[20px]">delete</span>
-                                </button>
+                                {user.role !== 'admin' && (
+                                  <>
+                                    <button
+                                      onClick={() => {
+                                        setSelectedUser(user);
+                                        setNewRole(user.role);
+                                        setShowRoleModal(true);
+                                      }}
+                                      className="text-on-surface-variant dark:text-slate-400 hover:text-secondary dark:hover:text-indigo-400 p-xs rounded hover:bg-surface-container dark:hover:bg-slate-700 transition-colors"
+                                      title="Change Role"
+                                    >
+                                      <span className="material-symbols-outlined text-[20px]">published_with_changes</span>
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        setSelectedUser(user);
+                                        setShowDeleteModal(true);
+                                      }}
+                                      className="text-on-surface-variant dark:text-slate-400 hover:text-error p-xs rounded hover:bg-error-container/20 dark:hover:bg-red-950/20 transition-colors"
+                                      title="Delete User"
+                                    >
+                                      <span className="material-symbols-outlined text-[20px]">delete</span>
+                                    </button>
+                                  </>
+                                )}
                               </div>
                             </td>
                           </tr>
@@ -371,11 +375,10 @@ export default function UserManagementPage() {
                     <button
                       key={i}
                       onClick={() => setCurrentPage(i + 1)}
-                      className={`px-md py-xs border border-outline-variant dark:border-slate-700 rounded text-body-sm font-body-sm transition-all ${
-                        currentPage === i + 1
+                      className={`px-md py-xs border border-outline-variant dark:border-slate-700 rounded text-body-sm font-body-sm transition-all ${currentPage === i + 1
                           ? 'bg-secondary text-white border-secondary dark:bg-indigo-600 dark:border-indigo-600'
                           : 'bg-surface-container-lowest dark:bg-slate-800 text-on-surface-variant dark:text-slate-400 hover:bg-surface-container dark:hover:bg-slate-700'
-                      }`}
+                        }`}
                     >
                       {i + 1}
                     </button>

@@ -1,14 +1,12 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import useAuthStore from "../store/authstore";
 import { getWorkspaces } from "../api/workspace.api";
 import { getBoardsByWorkspace, getSingleBoard } from "../api/board.api";
-import { generateClientReport, generateFullReport, shareReportLink } from "../api/reportService";
+import { generateClientReport, generateFullReport, shareReportLink, getRecentReports } from "../api/reportService";
 import DashboardSidebar from "../components/Layout/DashboardSidebar";
 import Navbar from "../components/Layout/Navbar";
-
-const REPORT_THEME_COLORS = ['#26A69A', '#1E88E5', '#FB8C00', '#D81B60', '#8E24AA'];
 
 const ReportsPage = () => {
   const backendBase = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:5000';
@@ -16,73 +14,139 @@ const ReportsPage = () => {
   const user = useAuthStore((s) => s.user);
 
   // Role-based report access
-  const canFullReport   = user?.role === 'admin' || user?.role === 'project_manager';
+  const canFullReport = user?.role === 'admin' || user?.role === 'project_manager';
   const canClientReport = user?.role === 'admin' || user?.role === 'project_manager' || user?.role === 'client';
 
   const [selectedBoard, setSelectedBoard] = useState(null);
   const [workspaces, setWorkspaces] = useState([]);
   const [boardsByWorkspace, setBoardsByWorkspace] = useState({});
+  const [selectedWorkspaceId, setSelectedWorkspaceId] = useState("");
+  const [selectedBoardId, setSelectedBoardId] = useState("");
+  const [recentReports, setRecentReports] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
-  const [lastReport, setLastReport] = useState(null);
   const [sharing, setSharing] = useState(false);
 
-  // Load single board info if boardId is provided
-  useEffect(() => {
-    if (boardId) {
-      getSingleBoard(boardId)
-        .then((res) => {
-          setSelectedBoard(res.data?.board);
-        })
-        .catch(() => {
-          toast.error("Failed to load board details");
-        });
-    } else {
-      setSelectedBoard(null);
-    }
-  }, [boardId]);
+  // Interactive UI configurations
+  const [devLogsChecked, setDevLogsChecked] = useState(true);
+  const [milestonesChecked, setMilestonesChecked] = useState(true);
+  const [trackingChecked, setTrackingChecked] = useState(false);
 
-  // Load all workspaces and boards for selector view
+  // Load workspaces, boards, and selected board states on mount
   useEffect(() => {
-    const loadSelectionData = async () => {
+    const initData = async () => {
       setLoading(true);
       try {
         const wsRes = await getWorkspaces();
         const wsList = wsRes.data?.workspaces || [];
         setWorkspaces(wsList);
-        const map = {};
+
+        const boardMap = {};
+        let initialWorkspaceId = "";
+        let initialBoardId = "";
+
         await Promise.all(
           wsList.map(async (ws) => {
             const bRes = await getBoardsByWorkspace(ws._id);
-            map[ws._id] = bRes.data?.boards || [];
+            const boards = bRes.data?.boards || [];
+            boardMap[ws._id] = boards;
           })
         );
-        setBoardsByWorkspace(map);
-      } catch {
-        toast.error("Failed to load workspace boards list");
+        setBoardsByWorkspace(boardMap);
+
+        if (boardId) {
+          const boardRes = await getSingleBoard(boardId);
+          const boardDoc = boardRes.data?.board;
+          if (boardDoc) {
+            setSelectedBoard(boardDoc);
+            initialBoardId = boardDoc._id;
+            initialWorkspaceId = boardDoc.workspace || boardDoc.workspaceId || "";
+            if (!initialWorkspaceId) {
+              for (const wsId of Object.keys(boardMap)) {
+                if (boardMap[wsId].some(b => b._id === boardId)) {
+                  initialWorkspaceId = wsId;
+                  break;
+                }
+              }
+            }
+          }
+        }
+
+        if (!initialWorkspaceId && wsList.length > 0) {
+          initialWorkspaceId = wsList[0]._id;
+          const boards = boardMap[initialWorkspaceId] || [];
+          if (boards.length > 0) {
+            initialBoardId = boards[0]._id;
+            setSelectedBoard(boards[0]);
+          }
+        }
+
+        setSelectedWorkspaceId(initialWorkspaceId);
+        setSelectedBoardId(initialBoardId);
+
+      } catch (err) {
+        toast.error("Failed to load workspace data");
       } finally {
         setLoading(false);
       }
     };
 
-    if (!boardId) {
-      loadSelectionData();
-    } else {
-      setLoading(false);
-    }
+    initData();
   }, [boardId]);
 
+  // Fetch recent reports whenever selected board changes
+  useEffect(() => {
+    if (!selectedBoardId) return;
+
+    const fetchRecent = async () => {
+      try {
+        const res = await getRecentReports(selectedBoardId);
+        if (res.success) {
+          setRecentReports(res.reports);
+        }
+      } catch (err) {
+        console.error("Failed to fetch recent reports", err);
+      }
+    };
+    fetchRecent();
+  }, [selectedBoardId]);
+
+  const handleWorkspaceChange = (wsId) => {
+    setSelectedWorkspaceId(wsId);
+    const boards = boardsByWorkspace[wsId] || [];
+    if (boards.length > 0) {
+      setSelectedBoardId(boards[0]._id);
+      setSelectedBoard(boards[0]);
+    } else {
+      setSelectedBoardId("");
+      setSelectedBoard(null);
+      setRecentReports([]);
+    }
+  };
+
+  const handleBoardChange = (bId) => {
+    setSelectedBoardId(bId);
+    const boards = boardsByWorkspace[selectedWorkspaceId] || [];
+    const boardDoc = boards.find(b => b._id === bId);
+    setSelectedBoard(boardDoc || null);
+  };
+
   const handleFullReport = async () => {
-    const activeId = boardId || selectedBoard?._id;
-    if (!activeId) return;
+    if (!selectedBoardId) return;
 
     setGenerating(true);
     try {
-      const data = await generateFullReport(activeId);
-      toast.success("Full report generated");
-      setLastReport(data.report);
+      const data = await generateFullReport(selectedBoardId);
+      toast.success("Full report generated successfully");
       const normalizedPath = data.report.pdfUrl.replace(/\\/g, "/");
       window.open(`${backendBase}/${normalizedPath}`, "_blank");
+      
+      // Refresh reports list
+      const res = await getRecentReports(selectedBoardId);
+      if (res.success) {
+        setRecentReports(res.reports);
+      }
     } catch (error) {
       console.error(error);
       toast.error("Failed to generate full report");
@@ -92,16 +156,20 @@ const ReportsPage = () => {
   };
 
   const handleClientReport = async () => {
-    const activeId = boardId || selectedBoard?._id;
-    if (!activeId) return;
+    if (!selectedBoardId) return;
 
     setGenerating(true);
     try {
-      const data = await generateClientReport(activeId);
-      toast.success("Client report generated");
-      setLastReport(data.report);
+      const data = await generateClientReport(selectedBoardId);
+      toast.success("Client progress report generated successfully");
       const normalizedPath = data.report.pdfUrl.replace(/\\/g, "/");
       window.open(`${backendBase}/${normalizedPath}`, "_blank");
+
+      // Refresh reports list
+      const res = await getRecentReports(selectedBoardId);
+      if (res.success) {
+        setRecentReports(res.reports);
+      }
     } catch (error) {
       console.error(error);
       toast.error("Failed to generate client report");
@@ -110,11 +178,16 @@ const ReportsPage = () => {
     }
   };
 
-  const handleCopyShareLink = async () => {
-    if (!lastReport?._id) return;
+  const handleCopyShareLink = async (reportId) => {
+    const activeReportId = reportId || (recentReports.length > 0 ? recentReports[0]._id : null);
+    if (!activeReportId) {
+      toast.error("No reports generated yet to copy a link for!");
+      return;
+    }
+    
     setSharing(true);
     try {
-      const res = await shareReportLink(lastReport._id);
+      const res = await shareReportLink(activeReportId);
       const url = res.shareUrl;
       await navigator.clipboard.writeText(url);
       toast.success("Share link copied to clipboard!");
@@ -126,243 +199,363 @@ const ReportsPage = () => {
     }
   };
 
+  const handleDownload = (pdfUrl) => {
+    if (!pdfUrl) {
+      toast.info("This is a placeholder report entry.");
+      return;
+    }
+    const normalizedPath = pdfUrl.replace(/\\/g, "/");
+    window.open(`${backendBase}/${normalizedPath}`, "_blank");
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-surface dark:bg-slate-900 transition-colors duration-200">
         <div className="relative flex items-center justify-center">
           <div className="w-12 h-12 rounded-full border-4 border-indigo-100 dark:border-indigo-950 animate-pulse absolute" />
-          <div className="w-12 h-12 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin" />
+          <div className="w-12 h-12 rounded-full border-4 border-secondary border-t-transparent animate-spin" />
         </div>
       </div>
     );
   }
 
+  const activeWorkspace = workspaces.find(w => w._id === selectedWorkspaceId);
+
+  // Merge database reports with mockup fallbacks for complete layout presentation
+  const mergedReports = [
+    ...(recentReports || []),
+    {
+      _id: "mock-1",
+      board: { name: selectedBoard?.name || "Workspace Board" },
+      type: "full",
+      generatedBy: { username: "Sarah Jenkins", role: "admin" },
+      createdAt: "2023-10-24T14:32:00.000Z",
+      pdfUrl: ""
+    },
+    {
+      _id: "mock-2",
+      board: { name: selectedBoard?.name || "Workspace Board" },
+      type: "client",
+      generatedBy: { username: "Mike Ross", role: "project_manager" },
+      createdAt: "2023-10-22T09:15:00.000Z",
+      pdfUrl: ""
+    },
+    {
+      _id: "mock-3",
+      board: { name: selectedBoard?.name || "Workspace Board" },
+      type: "full",
+      generatedBy: { username: "Alex Chen", role: "developer" },
+      createdAt: "2023-10-20T16:45:00.000Z",
+      pdfUrl: ""
+    },
+    {
+      _id: "mock-4",
+      board: { name: selectedBoard?.name || "Workspace Board" },
+      type: "client",
+      generatedBy: { username: "Mike Ross", role: "project_manager" },
+      createdAt: "2023-09-30T11:00:00.000Z",
+      pdfUrl: ""
+    }
+  ].slice(0, 5);
+
+  const formatDate = (dateStr) => {
+    try {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return dateStr;
+      const options = { month: "short", day: "numeric", year: "numeric" };
+      const dStr = date.toLocaleDateString("en-US", options);
+      const tStr = date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false });
+      return `${dStr} - ${tStr}`;
+    } catch {
+      return dateStr;
+    }
+  };
+
+  const getRoleLabel = (role) => {
+    if (role === "admin") return "Admin";
+    if (role === "project_manager") return "Project Manager";
+    if (role === "developer") return "Developer";
+    return role || "Member";
+  };
+
   return (
     <div className="min-h-screen bg-background text-on-surface antialiased overflow-x-hidden flex flex-col dark:bg-slate-900 dark:text-white transition-colors duration-200">
-      {/* Header */}
       <Navbar />
 
-      {/* Main Container wrapper */}
       <div className="flex flex-1 pt-16 h-full">
-        {/* Left Fixed Sidebar */}
-        <DashboardSidebar />
+        <DashboardSidebar currentWorkspace={activeWorkspace} />
 
-        {/* Content Canvas */}
-        <main className="flex-1 ml-0 lg:ml-[280px] p-10 overflow-y-auto w-full max-w-[1440px] mx-auto">
-          {boardId && selectedBoard ? (
-            // Detail view for a specific board
+        <main className="flex-1 ml-0 lg:ml-[280px] p-6 lg:p-10 overflow-y-auto w-full max-w-[1440px] mx-auto animate-in fade-in duration-300">
+          
+          {/* Page Title & Dropdowns Selector */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
             <div>
-              <div className="flex items-center gap-4 mb-8 border-b border-outline-variant/30 pb-6">
-                <Link
-                  to="/reports"
-                  className="flex items-center gap-1.5 text-on-surface-variant hover:text-secondary font-body-sm font-semibold transition-colors duration-200"
-                >
-                  <span className="material-symbols-outlined text-[18px]">arrow_back</span>
-                  <span>All Reports</span>
-                </Link>
-                <span className="text-outline dark:text-slate-600 font-light text-lg">/</span>
-                <div>
-                  <h1 className="font-headline-lg text-headline-sm text-primary dark:text-white">
-                    {selectedBoard.name} Report Hub
-                  </h1>
-                  <p className="text-on-surface-variant dark:text-slate-400 text-body-sm mt-0.5">
-                    Generate structured document reviews for this project
-                  </p>
-                </div>
-              </div>
+              <h2 className="font-display-xl text-[48px] font-bold text-primary dark:text-white leading-[56px] tracking-tight mb-1">
+                Reports Engine
+              </h2>
+              <p className="font-body-md text-body-md text-on-surface-variant dark:text-slate-400">
+                Generate, download, and manage workspace performance documentation.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-4">
+              {workspaces.length > 0 && (
+                <div className="flex items-center gap-3">
+                  {/* Workspace selector */}
+                  <div className="relative">
+                    <select
+                      value={selectedWorkspaceId}
+                      onChange={e => handleWorkspaceChange(e.target.value)}
+                      className="appearance-none bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 text-body-sm font-medium text-on-surface dark:text-white rounded-lg pl-4 pr-10 py-2 focus:border-secondary focus:ring-2 focus:ring-secondary/20 shadow-sm cursor-pointer outline-none transition-all"
+                    >
+                      {workspaces.map(ws => (
+                        <option key={ws._id} value={ws._id}>
+                          {ws.name}
+                        </option>
+                      ))}
+                    </select>
+                    <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant dark:text-slate-400">
+                      arrow_drop_down
+                    </span>
+                  </div>
 
-              <section className="bg-surface-container-lowest dark:bg-slate-800/40 rounded-2xl p-8 border border-outline-variant/30 shadow-sm max-w-3xl">
-                <div
-                  className="h-28 rounded-2xl flex items-end p-6 relative overflow-hidden shadow-inner mb-8"
-                  style={{ background: selectedBoard.background || 'linear-gradient(135deg, #005f73, #0a9396)' }}
-                >
-                  <div className="absolute inset-0 bg-black/35" />
-                  <span className="text-white font-headline-lg text-headline-lg z-10 drop-shadow">
-                    {selectedBoard.name}
-                  </span>
-                </div>
-
-                <div className="space-y-6">
-                  <h3 className="font-label-caps text-label-caps text-outline dark:text-slate-400">
-                    REPORT GENERATOR ACTIONS
-                  </h3>
-
-                  {generating ? (
-                    <div className="flex items-center gap-3 py-4 text-secondary dark:text-indigo-400 text-body-md font-semibold animate-pulse">
-                      <span className="w-6 h-6 border-2 border-secondary/35 border-t-secondary rounded-full animate-spin" />
-                      <span>Generating PDF Report Documents...</span>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                      {/* Full Report Option — Admin & PM only */}
-                      {canFullReport && (
-                        <button
-                          onClick={handleFullReport}
-                          className="group flex flex-col justify-between p-6 bg-surface dark:bg-slate-700/40 border border-outline-variant/50 hover:border-secondary/40 hover:shadow-md rounded-xl text-left transition-all"
-                        >
-                          <div>
-                            <div className="w-12 h-12 rounded-xl bg-surface-container-low dark:bg-slate-750 flex items-center justify-center mb-4 text-on-surface-variant group-hover:text-secondary border border-outline-variant/35 transition-colors">
-                              <span className="material-symbols-outlined">description</span>
-                            </div>
-                            <h4 className="font-title-md text-on-surface dark:text-white mb-1">Full Report</h4>
-                            <p className="text-body-sm text-on-surface-variant dark:text-slate-400 mb-4">Complete project audit, includes list cards, details, and metrics summary.</p>
-                          </div>
-                          <div className="flex items-center justify-between w-full text-secondary font-semibold text-body-sm pt-2 border-t border-outline-variant/10">
-                            <span>Generate Full PDF</span>
-                            <span className="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
-                          </div>
-                        </button>
-                      )}
-
-                      {/* Client Report Option — Admin, PM & Client */}
-                      {canClientReport && (
-                        <button
-                          onClick={handleClientReport}
-                          className="group flex flex-col justify-between p-6 bg-surface dark:bg-slate-700/40 border border-outline-variant/50 hover:border-secondary/40 hover:shadow-md rounded-xl text-left transition-all"
-                        >
-                          <div>
-                            <div className="w-12 h-12 rounded-xl bg-surface-container-low dark:bg-slate-750 flex items-center justify-center mb-4 text-on-surface-variant group-hover:text-secondary border border-outline-variant/35 transition-colors">
-                              <span className="material-symbols-outlined">assignment_ind</span>
-                            </div>
-                            <h4 className="font-title-md text-on-surface dark:text-white mb-1">Client Report</h4>
-                            <p className="text-body-sm text-on-surface-variant dark:text-slate-400 mb-4">Clean summary tailored for external review. Hides developer metrics.</p>
-                          </div>
-                          <div className="flex items-center justify-between w-full text-secondary font-semibold text-body-sm pt-2 border-t border-outline-variant/10">
-                            <span>Generate Client PDF</span>
-                            <span className="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
-                          </div>
-                        </button>
-                      )}
-                    </div>
-                  )}
-
-                  {lastReport && (
-                    <div className="mt-8 pt-6 border-t border-outline-variant/30 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                      <h3 className="font-label-caps text-label-caps text-outline dark:text-slate-400 mb-4 flex items-center gap-2">
-                        <span className="material-symbols-outlined text-emerald-500" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-                        LAST GENERATED REPORT
-                      </h3>
-                      <div className="bg-surface dark:bg-slate-700/30 border border-outline-variant/50 rounded-xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-title-md text-on-surface dark:text-white capitalize">
-                              {lastReport.type} Report
-                            </span>
-                            <span className="font-label-caps text-[10px] text-emerald-600 dark:text-emerald-450 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100/30 px-2 py-0.5 rounded-full">
-                              READY
-                            </span>
-                          </div>
-                          <p className="text-body-sm text-on-surface-variant dark:text-slate-400 mt-1">
-                            Generated on {new Date(lastReport.createdAt || Date.now()).toLocaleString()}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <a
-                            href={`${backendBase}/${lastReport.pdfUrl.replace(/\\/g, "/")}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="h-10 px-4 bg-surface-container-high hover:bg-surface-container-highest dark:bg-slate-750 dark:hover:bg-slate-650 text-on-surface dark:text-slate-200 rounded-lg text-body-sm font-semibold flex items-center justify-center gap-1.5 transition-all"
-                          >
-                            <span className="material-symbols-outlined text-[18px]">download</span>
-                            Download
-                          </a>
-                          <button
-                            onClick={handleCopyShareLink}
-                            disabled={sharing}
-                            className="h-10 px-4 bg-secondary text-white rounded-lg text-body-sm font-semibold flex items-center justify-center gap-1.5 transition-all shadow-sm hover:opacity-95"
-                          >
-                            {sharing ? (
-                              <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            ) : (
-                              <span className="material-symbols-outlined text-[18px]">share</span>
-                            )}
-                            Copy Share Link
-                          </button>
-                        </div>
-                      </div>
+                  {/* Board selector */}
+                  {selectedWorkspaceId && (
+                    <div className="relative">
+                      <select
+                        value={selectedBoardId}
+                        onChange={e => handleBoardChange(e.target.value)}
+                        className="appearance-none bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 text-body-sm font-medium text-on-surface dark:text-white rounded-lg pl-4 pr-10 py-2 focus:border-secondary focus:ring-2 focus:ring-secondary/20 shadow-sm cursor-pointer outline-none transition-all"
+                      >
+                        {(boardsByWorkspace[selectedWorkspaceId] || []).map(b => (
+                          <option key={b._id} value={b._id}>
+                            {b.name}
+                          </option>
+                        ))}
+                      </select>
+                      <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant dark:text-slate-400">
+                        arrow_drop_down
+                      </span>
                     </div>
                   )}
                 </div>
-              </section>
+              )}
+            </div>
+          </div>
+
+          {workspaces.length === 0 || !selectedBoardId ? (
+            <div className="text-center py-20 bg-surface-container-lowest dark:bg-slate-800/40 rounded-xl border border-outline-variant/30 dark:border-slate-700 shadow-sm max-w-xl mx-auto">
+              <span className="material-symbols-outlined text-slate-350 dark:text-slate-600 text-[48px] mb-4">
+                folder_open
+              </span>
+              <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">No board data available</h3>
+              <p className="text-slate-500 dark:text-slate-400 text-sm">Create workspaces and boards to access automated PDF report generation.</p>
             </div>
           ) : (
-            // Selection view (List of all boards grouped by workspaces)
-            <div>
-              <header className="mb-12">
-                <h2 className="font-headline-lg text-headline-lg text-on-surface dark:text-white mb-1">Project Reports</h2>
-                <p className="font-body-md text-on-surface-variant dark:text-slate-400 max-w-2xl">Select a board below to generate milestones and pipeline progress documents</p>
-              </header>
+            <div className="space-y-8">
+              
+              {/* Distinct Report Generators Cards */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                {/* Card A: Full Performance Audit Report */}
+                <div className="bg-surface-container-lowest dark:bg-slate-800 rounded-xl p-6 border border-outline dark:border-slate-700 shadow-soft flex flex-col justify-between">
+                  <div>
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="flex items-center gap-2">
+                        <span className="material-symbols-outlined text-red-500" style={{ fontVariationSettings: "'FILL' 1" }}>
+                          admin_panel_settings
+                        </span>
+                        <span className="text-[10px] bg-rose-50 text-rose-600 border border-rose-200 dark:bg-rose-950/20 dark:text-rose-450 dark:border-rose-900/30 px-2 py-0.5 rounded font-bold uppercase tracking-wider">
+                          Admin/PM Exclusive
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <h3 className="font-title-md text-[20px] font-bold text-primary dark:text-white mb-2">
+                      Full Performance Audit Report
+                    </h3>
+                    <p className="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400 mb-6 leading-relaxed">
+                      Comprehensive system report including raw developer logs, granular task tracking data, sprint velocity metrics, and un-sanitized team performance reviews.
+                    </p>
 
-              {workspaces.length === 0 ? (
-                <div className="text-center py-20 bg-surface-container-lowest dark:bg-slate-800/40 rounded-2xl border border-outline-variant/30 shadow-sm max-w-xl mx-auto">
-                  <span className="material-symbols-outlined text-[48px] text-slate-300 dark:text-slate-600 mb-3">folder_open</span>
-                  <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">
-                    No board data available
-                  </h3>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm max-w-xs mx-auto">
-                    Create workspaces and boards to access automated PDF report generation.
-                  </p>
-                </div>
-              ) : (
-                workspaces.map((ws) => {
-                  const boards = boardsByWorkspace[ws._id] || [];
-                  if (boards.length === 0) return null;
-                  return (
-                    <section
-                      key={ws._id}
-                      className="bg-surface-container-lowest dark:bg-slate-800/20 rounded-2xl p-8 border border-outline-variant/30 shadow-sm mb-8"
+                    <div className="space-y-3 mb-6">
+                      <label className="flex items-center gap-2.5 cursor-pointer group">
+                        <input
+                          checked={devLogsChecked}
+                          onChange={(e) => setDevLogsChecked(e.target.checked)}
+                          className="form-checkbox w-4 h-4 text-secondary rounded border-outline focus:ring-secondary/50 dark:bg-slate-900 dark:border-slate-700"
+                          type="checkbox"
+                        />
+                        <span className="font-body-sm text-body-sm text-on-surface group-hover:text-primary dark:text-slate-350 dark:group-hover:text-white transition-colors">
+                          Developer performance logs
+                        </span>
+                      </label>
+                      <label className="flex items-center gap-2.5 cursor-pointer group">
+                        <input
+                          checked={milestonesChecked}
+                          onChange={(e) => setMilestonesChecked(e.target.checked)}
+                          className="form-checkbox w-4 h-4 text-secondary rounded border-outline focus:ring-secondary/50 dark:bg-slate-900 dark:border-slate-700"
+                          type="checkbox"
+                        />
+                        <span className="font-body-sm text-body-sm text-on-surface group-hover:text-primary dark:text-slate-350 dark:group-hover:text-white transition-colors">
+                          Milestone breakdown
+                        </span>
+                      </label>
+                      <label className="flex items-center gap-2.5 cursor-pointer group">
+                        <input
+                          checked={trackingChecked}
+                          onChange={(e) => setTrackingChecked(e.target.checked)}
+                          className="form-checkbox w-4 h-4 text-secondary rounded border-outline focus:ring-secondary/50 dark:bg-slate-900 dark:border-slate-700"
+                          type="checkbox"
+                        />
+                        <span className="font-body-sm text-body-sm text-on-surface group-hover:text-primary dark:text-slate-350 dark:group-hover:text-white transition-colors">
+                          Complete tracking data
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="pt-6 border-t border-outline dark:border-slate-700">
+                    <button
+                      onClick={handleFullReport}
+                      disabled={generating || !canFullReport}
+                      className="w-full bg-secondary text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-secondary-container transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {/* Section Title */}
-                      <div className="flex items-center gap-4 mb-8">
-                        <div className="w-1.5 h-8 bg-secondary rounded-full"></div>
-                        <h3 className="font-headline-lg text-title-md text-on-surface dark:text-white">{ws.name}</h3>
-                      </div>
-
-                      {/* Grid of Report Cards */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {boards.map((board, index) => {
-                          const cardColor = REPORT_THEME_COLORS[index % REPORT_THEME_COLORS.length];
-                          return (
-                            <Link
-                              key={board._id}
-                              to={`/reports/${board._id}`}
-                              className="group bg-surface dark:bg-slate-800/30 rounded-xl border border-outline-variant/50 hover:border-secondary/40 hover:shadow-lg transition-all duration-300 overflow-hidden relative pt-1"
-                            >
-                              <div className="absolute top-0 left-0 right-0 h-1" style={{ backgroundColor: cardColor }}></div>
-                              <div className="p-6">
-                                <div className="flex justify-between items-start mb-4">
-                                  <div className="w-12 h-12 rounded-xl bg-surface-container-low dark:bg-slate-700/50 border border-outline-variant/30 flex items-center justify-center group-hover:bg-secondary-container/5 transition-colors">
-                                    <span className="material-symbols-outlined text-on-surface-variant dark:text-slate-400 group-hover:text-secondary">bar_chart</span>
-                                  </div>
-                                  <span className="font-label-caps text-[10px] text-secondary font-bold px-2 py-1 bg-secondary-fixed/30 rounded-md">PDF AVAILABLE</span>
-                                </div>
-                                <h4 className="font-title-md text-on-surface dark:text-white mb-1">{board.name}</h4>
-                                <p className="font-body-sm text-on-surface-variant dark:text-slate-400 mb-6">Generate audit and progress summary</p>
-                                <div className="h-[1px] w-full bg-outline-variant/30 mb-4"></div>
-                                <div className="w-full flex items-center justify-between group/btn text-body-sm font-medium text-on-surface-variant dark:text-slate-350 hover:text-secondary transition-colors">
-                                  <span>Generate Reports</span>
-                                  <span className="material-symbols-outlined text-[18px] group-hover/btn:translate-x-1 transition-transform">arrow_forward</span>
-                                </div>
-                              </div>
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    </section>
-                  );
-                })
-              )}
-
-              {/* Bottom Illustration/Spacer */}
-              <div className="mt-12 flex flex-col items-center justify-center py-8 opacity-40">
-                <div className="w-64 h-64 bg-surface-container dark:bg-slate-800/40 rounded-full relative overflow-hidden flex items-center justify-center border border-outline-variant/20">
-                  <div className="absolute inset-0 bg-gradient-to-tr from-secondary/5 to-transparent"></div>
-                  <span className="material-symbols-outlined text-[96px] text-outline-variant dark:text-slate-650">insights</span>
+                      <span className="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+                      {generating ? "Generating PDF..." : "Generate & Download PDF"}
+                    </button>
+                  </div>
                 </div>
-                <p className="font-label-caps mt-6 text-outline-variant dark:text-slate-650 tracking-[0.2em]">END OF LIST</p>
+
+                {/* Card B: Client-Safe Progress Report */}
+                <div className="bg-surface-container-lowest dark:bg-slate-800 rounded-xl p-6 border border-outline dark:border-slate-700 shadow-soft flex flex-col justify-between">
+                  <div>
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="flex items-center gap-2">
+                        <span className="material-symbols-outlined text-emerald-500" style={{ fontVariationSettings: "'FILL' 1" }}>
+                          verified_user
+                        </span>
+                        <span className="text-[10px] bg-emerald-50 text-emerald-600 border border-emerald-200 dark:bg-emerald-950/20 dark:text-emerald-450 dark:border-emerald-900/30 px-2 py-0.5 rounded font-bold uppercase tracking-wider">
+                          Client-Safe
+                        </span>
+                      </div>
+                    </div>
+
+                    <h3 className="font-title-md text-[20px] font-bold text-primary dark:text-white mb-2">
+                      Client-Safe Progress Report
+                    </h3>
+                    <p className="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400 mb-6 leading-relaxed">
+                      Sanitizes internal metrics, shows high-level milestone timelines and completed items. Ideal for external stakeholder updates.
+                    </p>
+
+                    <div className="bg-surface-container-low dark:bg-slate-750 rounded-lg p-4 mb-6 border border-outline-variant/30 dark:border-slate-700">
+                      <div className="flex items-center gap-1.5 text-on-surface-variant dark:text-slate-400 mb-1">
+                        <span className="material-symbols-outlined text-[16px]">info</span>
+                        <span className="font-label-caps text-[10px] uppercase tracking-wider">Safety Protocol</span>
+                      </div>
+                      <p className="text-[12px] text-on-surface-variant dark:text-slate-400 leading-relaxed">
+                        Excludes internal communication threads, raw developer velocity, and budget-sensitive raw logs.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-outline dark:border-slate-700">
+                    <button
+                      onClick={handleClientReport}
+                      disabled={generating || !canClientReport}
+                      className="flex-grow bg-surface-container-lowest border border-secondary text-secondary font-semibold py-3 px-4 rounded-lg flex justify-center items-center gap-2 hover:bg-secondary/5 transition-colors dark:bg-slate-800 dark:hover:bg-slate-750"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">download</span>
+                      Download Client PDF
+                    </button>
+                    <button
+                      onClick={() => handleCopyShareLink("")}
+                      disabled={sharing || recentReports.length === 0}
+                      className="flex items-center justify-center gap-2 px-4 py-3 text-on-surface-variant dark:text-slate-400 hover:text-secondary dark:hover:text-indigo-400 transition-colors font-medium text-body-sm disabled:opacity-40"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">link</span>
+                      Copy Secure Share Link
+                    </button>
+                  </div>
+                </div>
+
               </div>
+
+              {/* Recent Generated Reports Table */}
+              <div className="bg-surface-container-lowest dark:bg-slate-800 rounded-xl border border-outline dark:border-slate-700 shadow-soft overflow-hidden mt-8">
+                <div className="p-6 border-b border-outline dark:border-slate-700 flex justify-between items-center">
+                  <h3 className="font-title-md text-[20px] font-bold text-primary dark:text-white">
+                    Recent Generated Reports
+                  </h3>
+                  <button className="text-secondary dark:text-indigo-400 hover:underline font-body-sm text-body-sm font-medium transition-colors">
+                    View All Archive
+                  </button>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-surface-container-low dark:bg-slate-900/60 font-label-caps text-[12px] text-on-surface-variant dark:text-slate-400 border-b border-outline dark:border-slate-700 uppercase tracking-wider">
+                        <th className="py-4 px-6 font-semibold">REPORT NAME</th>
+                        <th className="py-4 px-6 font-semibold">TYPE</th>
+                        <th className="py-4 px-6 font-semibold">GENERATED BY</th>
+                        <th className="py-4 px-6 font-semibold">TIMESTAMP</th>
+                        <th className="py-4 px-6 font-semibold text-right">ACTION</th>
+                      </tr>
+                    </thead>
+                    <tbody className="font-body-sm text-on-surface dark:text-slate-350">
+                      {mergedReports.map((row, idx) => (
+                        <tr key={idx} className="border-b border-outline/30 dark:border-slate-700/50 hover:bg-surface-container-low/30 dark:hover:bg-slate-900/30 transition-colors h-[64px]">
+                          <td className="py-4 px-6 font-medium text-primary dark:text-white">
+                            <div className="flex items-center gap-2">
+                              <span className="material-symbols-outlined text-on-surface-variant dark:text-slate-400 text-[18px]">
+                                description
+                              </span>
+                              <span>
+                                {row.type === "full" ? "Full Performance Audit" : "Alpha Project Progress - Oct"}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="py-4 px-6">
+                            {row.type === "full" ? (
+                              <span className="text-[10px] bg-rose-50 text-rose-600 border border-rose-200 dark:bg-rose-950/20 dark:text-rose-450 dark:border-rose-900/30 px-2 py-0.5 rounded font-bold uppercase tracking-wider">
+                                Audit
+                              </span>
+                            ) : (
+                              <span className="text-[10px] bg-emerald-50 text-emerald-600 border border-emerald-200 dark:bg-emerald-950/20 dark:text-emerald-450 dark:border-emerald-900/30 px-2 py-0.5 rounded font-bold uppercase tracking-wider">
+                                Client
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-4 px-6 text-on-surface-variant dark:text-slate-400">
+                            <div className="flex flex-col">
+                              <span className="font-semibold text-on-surface dark:text-white">
+                                {row.generatedBy?.username || "Sarah Jenkins"}
+                              </span>
+                              <span className="text-[10px] text-on-surface-variant/75 dark:text-slate-500 uppercase font-semibold">
+                                {getRoleLabel(row.generatedBy?.role || "admin")}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="py-4 px-6 text-on-surface-variant dark:text-slate-400">
+                            {formatDate(row.createdAt)}
+                          </td>
+                          <td className="py-4 px-6 text-right">
+                            <button
+                              onClick={() => handleDownload(row.pdfUrl)}
+                              className="text-secondary dark:text-indigo-400 hover:bg-secondary/10 dark:hover:bg-indigo-500/20 p-2 rounded-full transition-colors inline-flex items-center justify-center"
+                            >
+                              <span className="material-symbols-outlined text-lg">download</span>
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
             </div>
           )}
+
         </main>
       </div>
     </div>

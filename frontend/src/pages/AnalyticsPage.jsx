@@ -5,30 +5,10 @@ import Navbar from "../components/Layout/Navbar";
 import DashboardSidebar from "../components/Layout/DashboardSidebar";
 import toast from "react-hot-toast";
 import useAuthStore from "../store/authstore";
-import { getAllUsers, updateUserRole, deleteUser } from "../api/auth.api";
-
-import {
-    BarChart,
-    Bar,
-    PieChart,
-    Pie,
-    Cell,
-    Tooltip,
-    ResponsiveContainer,
-    LineChart,
-    Line,
-    XAxis,
-    YAxis,
-    CartesianGrid
-} from "recharts";
-
+import useThemeStore from "../store/themeStore";
 import CountUp from "react-countup";
-import { motion } from "framer-motion";
 
 const CountUpComponent = typeof CountUp === 'function' ? CountUp : (CountUp.default || CountUp);
-
-// Color codes corresponding to status types in the dashboard (indigo, purple, pink, emerald)
-const STATUS_COLORS = ["#6366f1", "#a855f7", "#ec4899", "#22c55e"];
 
 const AnalyticsPage = () => {
     const [workspaces, setWorkspaces] = useState([]);
@@ -36,44 +16,8 @@ const AnalyticsPage = () => {
     const [analytics, setAnalytics] = useState(null);
     const [loading, setLoading] = useState(true);
     const [loadingData, setLoadingData] = useState(false);
-    
     const { user } = useAuthStore();
-    const [allUsers, setAllUsers] = useState([]);
-
-    useEffect(() => {
-        if (user?.role === 'admin') {
-            const fetchUsers = async () => {
-                try {
-                    const res = await getAllUsers();
-                    setAllUsers(res.data?.users || []);
-                } catch (error) {
-                    console.error("Failed to load users", error);
-                }
-            };
-            fetchUsers();
-        }
-    }, [user]);
-
-    const handleRoleChange = async (userId, newRole) => {
-        try {
-            await updateUserRole(userId, newRole);
-            setAllUsers(prev => prev.map(u => u._id === userId ? { ...u, role: newRole } : u));
-            toast.success("User role updated");
-        } catch (error) {
-            toast.error("Failed to update user role");
-        }
-    };
-
-    const handleDeleteUser = async (userId) => {
-        if (!window.confirm("Are you sure you want to delete this user?")) return;
-        try {
-            await deleteUser(userId);
-            setAllUsers(prev => prev.filter(u => u._id !== userId));
-            toast.success("User deleted successfully");
-        } catch (error) {
-            toast.error("Failed to delete user");
-        }
-    };
+    const darkMode = useThemeStore(s => s.darkMode);
 
     // Load workspaces on mount
     useEffect(() => {
@@ -127,44 +71,80 @@ const AnalyticsPage = () => {
             <div className="flex items-center justify-center h-screen bg-surface dark:bg-slate-900 transition-colors duration-200">
                 <div className="relative flex items-center justify-center">
                     <div className="w-12 h-12 rounded-full border-4 border-indigo-100 dark:border-indigo-950 animate-pulse absolute" />
-                    <div className="w-12 h-12 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin" />
+                    <div className="w-12 h-12 rounded-full border-4 border-secondary border-t-transparent animate-spin" />
                 </div>
             </div>
         );
     }
 
+    // Helper data mapping for metrics
+    const kpis = analytics?.kpis || {};
+    const totalCards = kpis.totalCards || 0;
+    const completedRatio = kpis.completedRatio || 0;
+    const activeBlockers = kpis.activeBlockers || 0;
+    const avgLeadTime = kpis.avgLeadTime || 0;
+
+    // 1. Workload Distribution
+    const workloadList = analytics?.workloadStats || [];
+
+    // 2. Efficiency Radial Meter Calculations
+    const efficiencyPercent = completedRatio;
+    const circumference = 251.2;
+    const dashOffset = circumference - (efficiencyPercent / 100) * circumference;
+    const efficiencyLabel = efficiencyPercent >= 80 ? "EXCELLENT" : efficiencyPercent >= 60 ? "GOOD" : "NEEDS FOCUS";
+
+    // 3. Pipeline counts
+    const backlogCount = analytics?.statusDistribution?.find(d => /backlog|todo|to do/i.test(d.title))?.cardCount || 0;
+    const progressCount = analytics?.statusDistribution?.find(d => /progress|doing|active/i.test(d.title))?.cardCount || 0;
+    const reviewCount = analytics?.statusDistribution?.find(d => /review|test/i.test(d.title))?.cardCount || 0;
+    const blockedCountVal = activeBlockers || 0;
+    const completedCount = analytics?.statusDistribution?.find(d => /done|complete/i.test(d.title))?.cardCount || 0;
+    const maxCount = Math.max(backlogCount, progressCount, reviewCount, blockedCountVal, completedCount, 1);
+
+    // 4. Role Performance
+    const rolePerformanceList = analytics?.rolePerformance || [];
+
+    const getRoleName = (role) => {
+        if (role === "admin") return "Admin";
+        if (role === "project_manager") return "Project Manager";
+        if (role === "developer") return "Developer";
+        if (role === "client") return "Client";
+        return role;
+    };
+
+    const getRoleBgColor = (role) => {
+        if (role === "admin") return "bg-admin-role";
+        if (role === "project_manager") return "bg-pm-role";
+        if (role === "developer") return "bg-dev-role";
+        return "bg-client-role";
+    };
+
     return (
         <div className="min-h-screen bg-background text-on-surface antialiased overflow-x-hidden flex flex-col dark:bg-slate-900 dark:text-white transition-colors duration-200">
-            {/* Header */}
             <Navbar />
 
-            {/* Main Container */}
             <div className="flex flex-1 pt-16 h-full">
-                {/* Left Fixed Sidebar */}
                 <DashboardSidebar currentWorkspace={activeWorkspace} />
 
-                {/* Content Canvas */}
-                <main className="flex-1 ml-0 lg:ml-[280px] p-6 lg:p-10 overflow-y-auto w-full max-w-[1440px] mx-auto">
-
-                    {/* Header Controls */}
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 border-b border-outline-variant/30 dark:border-slate-800 pb-6">
+                <main className="flex-1 ml-0 lg:ml-[280px] p-6 lg:p-10 overflow-y-auto w-full max-w-[1440px] mx-auto animate-in fade-in duration-300">
+                    
+                    {/* Page Header & Controls */}
+                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
                         <div>
-                            <h2 className="font-headline-lg text-headline-lg text-on-surface dark:text-white mb-1">
-                                Workspace Analytics
-                            </h2>
+                            <h1 className="font-display-xl text-[48px] font-bold text-on-background dark:text-white leading-[56px] tracking-tight mb-1">
+                                Analytics Overview
+                            </h1>
                             <p className="font-body-md text-body-md text-on-surface-variant dark:text-slate-400">
-                                Real-time productivity insights and performance trends
+                                Deep-dive tracking and performance metrics for your organization.
                             </p>
                         </div>
-
-                        {workspaces.length > 0 && (
-                            <div className="flex items-center gap-2.5">
-                                <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400">WORKSPACE:</span>
+                        <div className="flex items-center gap-4">
+                            {workspaces.length > 0 && (
                                 <div className="relative">
                                     <select
                                         value={selectedWorkspaceId}
                                         onChange={e => setSelectedWorkspaceId(e.target.value)}
-                                        className="appearance-none flex items-center gap-2 pl-3 pr-10 py-1.5 bg-white dark:bg-slate-800 border border-outline-variant dark:border-slate-700 rounded-lg font-body-sm text-on-surface dark:text-white cursor-pointer shadow-sm focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all"
+                                        className="appearance-none bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 text-body-sm font-medium text-on-surface dark:text-white rounded-lg pl-4 pr-10 py-2 focus:border-secondary focus:ring-2 focus:ring-secondary/20 shadow-sm cursor-pointer outline-none transition-all"
                                     >
                                         {workspaces.map(ws => (
                                             <option key={ws._id} value={ws._id}>
@@ -172,16 +152,20 @@ const AnalyticsPage = () => {
                                             </option>
                                         ))}
                                     </select>
-                                    <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant dark:text-slate-400 flex items-center">
-                                        <span className="material-symbols-outlined text-[18px]">expand_more</span>
-                                    </div>
+                                    <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant dark:text-slate-400">
+                                        arrow_drop_down
+                                    </span>
                                 </div>
-                            </div>
-                        )}
+                            )}
+                            <button className="flex items-center gap-2 px-4 py-2 bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 text-body-sm font-medium text-on-surface dark:text-white rounded-lg hover:bg-surface-container dark:hover:bg-slate-700 transition-colors shadow-sm">
+                                <span className="material-symbols-outlined text-[18px]">calendar_month</span>
+                                Last 30 Days
+                            </button>
+                        </div>
                     </div>
 
                     {workspaces.length === 0 ? (
-                        <div className="text-center py-20 bg-surface-container-lowest dark:bg-slate-800/40 rounded-2xl border border-outline-variant/30 shadow-sm max-w-xl mx-auto">
+                        <div className="text-center py-20 bg-surface-container-lowest dark:bg-slate-800/40 rounded-xl border border-outline-variant/30 dark:border-slate-700 shadow-sm max-w-xl mx-auto">
                             <span className="material-symbols-outlined text-slate-350 dark:text-slate-600 text-[48px] mb-4">
                                 bar_chart
                             </span>
@@ -190,252 +174,215 @@ const AnalyticsPage = () => {
                         </div>
                     ) : loadingData || !analytics ? (
                         <div className="flex flex-col items-center justify-center py-32">
-                            <div className="w-10 h-10 rounded-full border-4 border-indigo-100 dark:border-indigo-950 border-t-indigo-600 animate-spin mb-3" />
+                            <div className="w-10 h-10 rounded-full border-4 border-indigo-100 dark:border-indigo-950 border-t-secondary animate-spin mb-3" />
                             <p className="text-xs text-slate-400 dark:text-slate-500 font-medium animate-pulse">Fetching workspace statistics...</p>
                         </div>
                     ) : (
-                        <div className="space-y-8 animate-in fade-in duration-300">
-
-                            {/* SUMMARY KPI CARDS */}
+                        <div className="space-y-8">
+                            
+                            {/* KPI Summary Cards */}
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                                 <KpiCard
-                                    title="Total Cards"
-                                    value={analytics.kpis?.totalCards || 0}
-                                    icon="bar_chart_4_bars"
-                                    colorClass="bg-secondary-fixed dark:bg-indigo-950/40"
-                                    iconColorClass="text-secondary dark:text-indigo-400"
-                                />
-                                <KpiCard
-                                    title="Completed Tasks"
-                                    value={analytics.kpis?.completedTasks || 0}
-                                    icon="check_circle"
-                                    colorClass="bg-tertiary-fixed dark:bg-emerald-950/40"
-                                    iconColorClass="text-on-tertiary-container dark:text-emerald-450"
+                                    title="Total Tasks"
+                                    value={totalCards}
+                                    icon="task"
+                                    iconColor="text-secondary dark:text-blue-400"
+                                    trendValue={kpis.trends?.totalCards !== undefined && kpis.trends.totalCards !== 0 ? `${Math.abs(kpis.trends.totalCards)}%` : null}
+                                    trendType={kpis.trends?.totalCards >= 0 ? "up" : "down"}
                                 />
                                 <KpiCard
                                     title="Completion Rate"
-                                    value={analytics.kpis?.completedRatio || 0}
+                                    value={completedRatio}
                                     suffix="%"
-                                    icon="trending_up"
-                                    colorClass="bg-primary-fixed dark:bg-purple-950/40"
-                                    iconColorClass="text-primary-container dark:text-purple-400"
+                                    icon="check_circle"
+                                    iconColor="text-status-completed"
+                                    trendValue={kpis.trends?.completionRate !== undefined && kpis.trends.completionRate !== 0 ? `${Math.abs(kpis.trends.completionRate)}%` : null}
+                                    trendType={kpis.trends?.completionRate >= 0 ? "up" : "down"}
                                 />
                                 <KpiCard
-                                    title="Overdue Tasks"
-                                    value={analytics.kpis?.overdueTasks || 0}
+                                    title="Active Blockers"
+                                    value={blockedCountVal}
+                                    icon="block"
+                                    iconColor="text-status-blocked"
+                                    trendValue={kpis.trends?.activeBlockers !== undefined && kpis.trends.activeBlockers !== 0 ? `${Math.abs(kpis.trends.activeBlockers)}` : null}
+                                    trendType={kpis.trends?.activeBlockers >= 0 ? "up" : "down"}
+                                />
+                                <KpiCard
+                                    title="Avg Lead Time"
+                                    value={avgLeadTime}
+                                    suffix="d"
                                     icon="timer"
-                                    colorClass="bg-error-container dark:bg-rose-950/40"
-                                    iconColorClass="text-error dark:text-rose-455"
+                                    iconColor="text-pm-role"
+                                    trendValue={kpis.trends?.avgLeadTime !== undefined && kpis.trends.avgLeadTime !== 0 ? `${Math.abs(kpis.trends.avgLeadTime)}d` : null}
+                                    trendType={kpis.trends?.avgLeadTime >= 0 ? "up" : "down"}
                                 />
                             </div>
 
-                            {/* CHARTS GRID */}
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-                                {/* WORKLOAD */}
-                                <div className="glass-card p-6 rounded-xl border border-outline-variant/50 dark:border-slate-700 bg-white/90 dark:bg-slate-800/90 backdrop-blur shadow-sm flex flex-col min-h-[400px]">
-                                    <div className="mb-6">
-                                        <h3 className="font-title-md text-title-md text-on-surface dark:text-white">
-                                            Workload Distribution
-                                        </h3>
-                                        <p className="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400 mt-0.5">
-                                            Tasks assigned to each workspace contributor
-                                        </p>
-                                    </div>
-                                    <div className="flex-1 flex flex-col justify-center min-h-[280px]">
-                                        {analytics.workloadStats?.length === 0 ? (
-                                            <div className="text-center py-10 opacity-60">
-                                                <span className="material-symbols-outlined text-[48px] text-slate-350 dark:text-slate-600 mb-2">group</span>
-                                                <p className="font-body-md text-on-surface-variant dark:text-slate-400">No tasks assigned to workspace members yet.</p>
-                                            </div>
-                                        ) : (
-                                            <ResponsiveContainer width="100%" height={280}>
-                                                <BarChart data={analytics.workloadStats}>
-                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" className="dark:hidden" />
-                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" className="hidden dark:block" />
-                                                    <XAxis dataKey="username" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: '#64748B' }} />
-                                                    <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: '#64748B' }} />
-                                                    <Tooltip cursor={{ fill: 'rgba(0, 88, 190, 0.04)' }} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }} />
-                                                    <Bar
-                                                        dataKey="cardCount"
-                                                        fill="#0058be"
-                                                        radius={[4, 4, 0, 0]}
-                                                        maxBarSize={40}
-                                                    />
-                                                </BarChart>
-                                            </ResponsiveContainer>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* STATUS DISTRIBUTION */}
-                                <div className="glass-card p-6 rounded-xl border border-outline-variant/50 dark:border-slate-700 bg-white/90 dark:bg-slate-800/90 backdrop-blur shadow-sm flex flex-col min-h-[400px]">
-                                    <div className="mb-6">
-                                        <h3 className="font-title-md text-title-md text-on-surface dark:text-white">
-                                            Task Status Distribution
-                                        </h3>
-                                        <p className="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400 mt-0.5">
-                                            Aggregated summary of cards across workflow lists
-                                        </p>
-                                    </div>
-                                    <div className="flex-grow flex flex-col sm:flex-row items-center justify-around gap-6 min-h-[280px]">
-                                        {analytics.statusDistribution?.length === 0 || analytics.statusDistribution?.every(d => d.cardCount === 0) ? (
-                                            <div className="text-center py-10 opacity-60">
-                                                <span className="material-symbols-outlined text-[48px] text-slate-350 dark:text-slate-600 mb-2">donut_large</span>
-                                                <p className="font-body-sm text-on-surface-variant dark:text-slate-400">No tasks found in columns.</p>
-                                            </div>
-                                        ) : (
-                                            <>
-                                                <div className="w-44 h-44 shrink-0">
-                                                    <ResponsiveContainer width="100%" height="100%">
-                                                        <PieChart>
-                                                            <Pie
-                                                                data={analytics.statusDistribution}
-                                                                dataKey="cardCount"
-                                                                nameKey="title"
-                                                                outerRadius={80}
-                                                                innerRadius={50}
-                                                                paddingAngle={3}
-                                                            >
-                                                                {analytics.statusDistribution.map((entry, index) => (
-                                                                    <Cell
-                                                                        key={index}
-                                                                        fill={STATUS_COLORS[index % STATUS_COLORS.length]}
-                                                                    />
-                                                                ))}
-                                                            </Pie>
-                                                            <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }} />
-                                                        </PieChart>
-                                                    </ResponsiveContainer>
-                                                </div>
-
-                                                <div className="flex flex-col gap-3 shrink-0">
-                                                    {analytics.statusDistribution.map((entry, idx) => (
-                                                        <div key={idx} className="flex items-center gap-2">
-                                                            <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: STATUS_COLORS[idx % STATUS_COLORS.length] }} />
-                                                            <span className="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400">
-                                                                {entry.title}: <strong className="text-on-surface dark:text-white font-bold">{entry.cardCount} cards</strong>
-                                                            </span>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* PRODUCTIVITY TIMELINE */}
-                                <div className="glass-card p-6 rounded-xl border border-outline-variant/50 dark:border-slate-700 bg-white/90 dark:bg-slate-800/90 backdrop-blur shadow-sm lg:col-span-2 flex flex-col">
-                                    <div className="mb-6">
-                                        <h3 className="font-title-md text-title-md text-on-surface dark:text-white">
-                                            Productivity Timeline
-                                        </h3>
-                                        <p className="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400 mt-0.5">
-                                            Completed task output trends observed over the last 30 days
-                                        </p>
-                                    </div>
-                                    <div className="flex-grow min-h-[300px]">
-                                        {analytics.productivityTimeline?.length === 0 ? (
-                                            <div className="text-center py-20 opacity-60">
-                                                <span className="material-symbols-outlined text-[48px] text-slate-350 dark:text-slate-600 mb-2">timeline</span>
-                                                <p className="font-body-md text-on-surface-variant dark:text-slate-400">No tasks marked completed in the last 30 days.</p>
-                                            </div>
-                                        ) : (
-                                            <ResponsiveContainer width="100%" height={300}>
-                                                <LineChart data={analytics.productivityTimeline}>
-                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" className="dark:hidden" />
-                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" className="hidden dark:block" />
-                                                    <XAxis dataKey="_id" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: '#64748B' }} />
-                                                    <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: '#64748B' }} />
-                                                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }} />
-                                                    <Line
-                                                        type="monotone"
-                                                        dataKey="completed"
-                                                        stroke="#0058be"
-                                                        strokeWidth={3}
-                                                        dot={{ r: 4, strokeWidth: 1 }}
-                                                        activeDot={{ r: 6 }}
-                                                    />
-                                                </LineChart>
-                                            </ResponsiveContainer>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* ADMIN USER MANAGEMENT SECTION */}
-                                {user?.role === 'admin' && (
-                                    <div className="glass-card p-6 rounded-xl border border-outline-variant/50 dark:border-slate-700 bg-white/90 dark:bg-slate-800/90 backdrop-blur shadow-sm lg:col-span-2 flex flex-col mt-6">
-                                        <div className="mb-6">
-                                            <h3 className="font-title-md text-title-md text-on-surface dark:text-white">
-                                                User Management
+                            {/* Main Grid Layout */}
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                                
+                                {/* Workload Distribution (Bento Large) */}
+                                <div className="lg:col-span-8 bg-surface-container-lowest dark:bg-slate-800 p-6 rounded-lg border border-outline-variant dark:border-slate-700 shadow-soft flex flex-col justify-between">
+                                    <div>
+                                        <div className="flex justify-between items-center mb-6">
+                                            <h3 className="font-title-md text-[20px] font-bold text-on-surface dark:text-white">
+                                                Workload Distribution
                                             </h3>
-                                            <p className="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400 mt-0.5">
-                                                Admin only: View, modify roles, and remove system users
-                                            </p>
+                                            <button className="text-on-surface-variant dark:text-slate-400 hover:text-secondary transition-colors">
+                                                <span className="material-symbols-outlined">more_horiz</span>
+                                            </button>
                                         </div>
-                                        <div className="overflow-x-auto">
-                                            <table className="w-full text-left border-collapse">
-                                                <thead>
-                                                    <tr className="border-b border-outline-variant/50 dark:border-slate-700">
-                                                        <th className="py-3 px-4 font-label-md text-on-surface-variant dark:text-slate-400">Username</th>
-                                                        <th className="py-3 px-4 font-label-md text-on-surface-variant dark:text-slate-400">Email</th>
-                                                        <th className="py-3 px-4 font-label-md text-on-surface-variant dark:text-slate-400">Role</th>
-                                                        <th className="py-3 px-4 font-label-md text-on-surface-variant dark:text-slate-400 text-right">Actions</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {allUsers.map((u) => (
-                                                        <tr key={u._id} className="border-b border-outline-variant/20 dark:border-slate-700/50 hover:bg-surface-container-lowest dark:hover:bg-slate-800/50 transition-colors">
-                                                            <td className="py-3 px-4 text-sm text-on-surface dark:text-white font-medium">
-                                                                <div className="flex items-center gap-3">
-                                                                    <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-bold shrink-0">
-                                                                        {u.username?.[0]?.toUpperCase()}
-                                                                    </div>
-                                                                    {u.username}
+                                        <div className="flex flex-col gap-6">
+                                            {workloadList.length === 0 ? (
+                                                <p className="font-body-sm text-on-surface-variant dark:text-slate-400 py-4 text-center">No workload data available.</p>
+                                            ) : (
+                                                workloadList.map((dev, idx) => {
+                                                    const total = dev.totalCount || 1;
+                                                    const completedPct = ((dev.completedCount || 0) / total) * 100;
+                                                    const progressPct = ((dev.progressCount || 0) / total) * 100;
+                                                    const reviewPct = ((dev.reviewCount || 0) / total) * 100;
+                                                    const blockedPct = ((dev.blockedCount || 0) / total) * 100;
+
+                                                    return (
+                                                        <div key={idx} className="flex items-center gap-4">
+                                                            {dev.avatar ? (
+                                                                <img alt={dev.username} className="w-8 h-8 rounded-full object-cover shrink-0" src={dev.avatar} />
+                                                            ) : (
+                                                                <div className="w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center font-bold text-xs shrink-0">
+                                                                    {dev.username?.[0]?.toUpperCase()}
                                                                 </div>
-                                                            </td>
-                                                            <td className="py-3 px-4 text-sm text-on-surface-variant dark:text-slate-400">{u.email}</td>
-                                                            <td className="py-3 px-4 text-sm">
-                                                                <select
-                                                                    value={u.role || 'developer'}
-                                                                    onChange={(e) => handleRoleChange(u._id, e.target.value)}
-                                                                    disabled={u._id === user._id || u.role === 'admin'}
-                                                                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer disabled:opacity-50 transition-all min-w-[155px] shadow-sm"
-                                                                >
-                                                                    <option value="developer" className="bg-white dark:bg-slate-800 text-slate-800 dark:text-white">Developer</option>
-                                                                    <option value="project_manager" className="bg-white dark:bg-slate-800 text-slate-800 dark:text-white">Project Manager</option>
-                                                                    <option value="client" className="bg-white dark:bg-slate-800 text-slate-800 dark:text-white">Client</option>
-                                                                    {u.role === 'admin' && (
-                                                                        <option value="admin" className="bg-white dark:bg-slate-800 text-slate-800 dark:text-white">Admin</option>
-                                                                    )}
-                                                                </select>
-                                                            </td>
-                                                            <td className="py-3 px-4 text-right">
-                                                                <button
-                                                                    onClick={() => handleDeleteUser(u._id)}
-                                                                    disabled={u._id === user._id}
-                                                                    className="text-error dark:text-rose-400 hover:text-error/80 dark:hover:text-rose-300 disabled:opacity-50 transition-colors"
-                                                                    title="Delete User"
-                                                                >
-                                                                    <span className="material-symbols-outlined text-[20px]">delete</span>
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                    {allUsers.length === 0 && (
-                                                        <tr>
-                                                            <td colSpan="4" className="py-6 text-center text-on-surface-variant dark:text-slate-400 text-sm">
-                                                                No users found or loading...
-                                                            </td>
-                                                        </tr>
-                                                    )}
-                                                </tbody>
-                                            </table>
+                                                            )}
+                                                            <div className="w-32 font-body-sm font-medium truncate dark:text-slate-300">
+                                                                {dev.username}
+                                                            </div>
+                                                            <div className="flex-1 h-4 bg-surface-container dark:bg-slate-750 rounded-full overflow-hidden flex">
+                                                                {completedPct > 0 && <div className="h-full bg-status-completed" style={{ width: `${completedPct}%` }} title={`Completed: ${Math.round(completedPct)}%`} />}
+                                                                {progressPct > 0 && <div className="h-full bg-status-progress" style={{ width: `${progressPct}%` }} title={`In Progress: ${Math.round(progressPct)}%`} />}
+                                                                {reviewPct > 0 && <div className="h-full bg-status-review" style={{ width: `${reviewPct}%` }} title={`Review: ${Math.round(reviewPct)}%`} />}
+                                                                {blockedPct > 0 && <div className="h-full bg-status-blocked" style={{ width: `${blockedPct}%` }} title={`Blocked: ${Math.round(blockedPct)}%`} />}
+                                                            </div>
+                                                            <div className="w-12 text-right font-body-sm text-on-surface-variant dark:text-slate-400">
+                                                                {Math.round(total)}
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })
+                                            )}
                                         </div>
                                     </div>
-                                )}
-                            </div>
+                                    <div className="mt-8 pt-4 border-t border-outline-variant dark:border-slate-700 flex flex-wrap gap-4">
+                                        <div className="flex items-center gap-1.5 font-label-caps text-[12px] text-on-surface-variant dark:text-slate-400 uppercase tracking-wider">
+                                            <span className="w-3 h-3 rounded-full bg-status-completed"></span> Completed
+                                        </div>
+                                        <div className="flex items-center gap-1.5 font-label-caps text-[12px] text-on-surface-variant dark:text-slate-400 uppercase tracking-wider">
+                                            <span className="w-3 h-3 rounded-full bg-status-progress"></span> In Progress
+                                        </div>
+                                        <div className="flex items-center gap-1.5 font-label-caps text-[12px] text-on-surface-variant dark:text-slate-400 uppercase tracking-wider">
+                                            <span className="w-3 h-3 rounded-full bg-status-review"></span> Review
+                                        </div>
+                                        <div className="flex items-center gap-1.5 font-label-caps text-[12px] text-on-surface-variant dark:text-slate-400 uppercase tracking-wider">
+                                            <span className="w-3 h-3 rounded-full bg-status-blocked"></span> Blocked
+                                        </div>
+                                    </div>
+                                </div>
 
+                                {/* Efficiency Meter (Radial) */}
+                                <div className="lg:col-span-4 bg-surface-container-lowest dark:bg-slate-800 p-6 rounded-lg border border-outline-variant dark:border-slate-700 shadow-soft flex flex-col items-center justify-between text-center min-h-[360px]">
+                                    <div className="w-full flex justify-between items-center mb-6">
+                                        <h3 className="font-title-md text-[20px] font-bold text-on-surface dark:text-white">
+                                            Efficiency Score
+                                        </h3>
+                                        <span className="material-symbols-outlined text-on-surface-variant dark:text-slate-400">info</span>
+                                    </div>
+                                    <div className="relative w-48 h-48 flex items-center justify-center">
+                                        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                                            <circle cx="50" cy="50" fill="transparent" r="40" stroke={darkMode ? "#1e293b" : "#F1F5F9"} strokeWidth="8"></circle>
+                                            <circle
+                                                className="transition-all duration-1000 ease-out"
+                                                cx="50"
+                                                cy="50"
+                                                fill="transparent"
+                                                r="40"
+                                                stroke="#0058be"
+                                                strokeDasharray={circumference}
+                                                strokeDashoffset={dashOffset}
+                                                strokeWidth="8"
+                                            ></circle>
+                                        </svg>
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                            <span className="font-display-xl text-[40px] font-bold text-on-surface dark:text-white">
+                                                <CountUpComponent end={efficiencyPercent} duration={1.5} />
+                                                <span className="text-[20px] text-on-surface-variant dark:text-slate-400">%</span>
+                                            </span>
+                                            <span className="font-label-caps text-[12px] font-semibold text-status-completed tracking-wider">
+                                                {efficiencyLabel}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <p className="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400 max-w-[200px] mt-4">
+                                        Based on cycle time, throughput, and bug resolution rates over 30 days.
+                                    </p>
+                                </div>
+
+                                {/* Task Status Distribution (Pipeline Chart) */}
+                                <div className="lg:col-span-12 bg-surface-container-lowest dark:bg-slate-800 p-6 rounded-lg border border-outline-variant dark:border-slate-700 shadow-soft">
+                                    <h3 className="font-title-md text-[20px] font-bold text-on-surface dark:text-white mb-6">
+                                        Task Pipeline Distribution
+                                    </h3>
+                                    <div className="flex flex-col gap-4">
+                                        <PipelineRow label="BACKLOG" count={backlogCount} maxCount={maxCount} colorClass="bg-status-backlog" />
+                                        <PipelineRow label="IN PROGRESS" count={progressCount} maxCount={maxCount} colorClass="bg-status-progress" />
+                                        <PipelineRow label="CODE REVIEW" count={reviewCount} maxCount={maxCount} colorClass="bg-status-review" />
+                                        <PipelineRow label="BLOCKED" count={blockedCountVal} maxCount={maxCount} colorClass="bg-status-blocked" />
+                                        <PipelineRow label="COMPLETED" count={completedCount} maxCount={maxCount} colorClass="bg-status-completed" />
+                                    </div>
+                                </div>
+
+                                {/* Role Performance Summary Table */}
+                                <div className="lg:col-span-12 bg-surface-container-lowest dark:bg-slate-800 rounded-lg border border-outline-variant dark:border-slate-700 shadow-soft overflow-hidden mt-4">
+                                    <div className="p-6 border-b border-outline-variant dark:border-slate-700">
+                                        <h3 className="font-title-md text-[20px] font-bold text-on-surface dark:text-white">
+                                            Role Performance Summary
+                                        </h3>
+                                    </div>
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left border-collapse">
+                                            <thead>
+                                                <tr className="bg-surface-container-low dark:bg-slate-900/60 font-label-caps text-[12px] text-on-surface-variant dark:text-slate-400 border-b border-outline-variant dark:border-slate-700 uppercase tracking-wider">
+                                                    <th className="p-4 font-semibold">Role</th>
+                                                    <th className="p-4 font-semibold">Active Members</th>
+                                                    <th className="p-4 font-semibold">Tasks Assigned</th>
+                                                    <th className="p-4 font-semibold">Avg Completion</th>
+                                                    <th className="p-4 font-semibold text-right">Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="font-body-sm text-on-surface dark:text-slate-350">
+                                                {rolePerformanceList.map((row, idx) => (
+                                                    <tr key={idx} className="border-b border-outline-variant/30 dark:border-slate-700/50 hover:bg-surface-container-low/30 dark:hover:bg-slate-900/30 transition-colors h-[56px]">
+                                                        <td className="p-4">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className={`w-3 h-3 rounded-full ${getRoleBgColor(row.role)}`}></span>
+                                                                <span className="font-semibold text-on-surface dark:text-white">
+                                                                    {getRoleName(row.role)}
+                                                                </span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="p-4">{row.activeMembers}</td>
+                                                        <td className="p-4">{row.tasksAssigned}</td>
+                                                        <td className="p-4">{row.avgCompletion}</td>
+                                                        <td className="p-4 text-right">
+                                                            <span className={`px-2 py-1 rounded text-[11px] font-bold tracking-wide uppercase ${row.status === "Optimal" ? 'bg-emerald-500/10 text-emerald-500 dark:bg-emerald-500/20' : 'bg-red-500/10 text-red-500 dark:bg-red-500/20'}`}>
+                                                                {row.status}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                            </div>
                         </div>
                     )}
                 </main>
@@ -444,29 +391,49 @@ const AnalyticsPage = () => {
     );
 };
 
-const KpiCard = ({ title, value, suffix = "", icon, colorClass, iconColorClass }) => {
+// Sub-components
+const KpiCard = ({ title, value, suffix = "", icon, iconColor, trendValue, trendType }) => {
     return (
-        <motion.div
-            whileHover={{ y: -3 }}
-            className="glass-card p-6 rounded-xl border border-outline-variant/50 dark:border-slate-700 bg-white/95 dark:bg-slate-800/90 backdrop-blur shadow-sm flex justify-between items-start transition-all duration-200"
-        >
-            <div>
-                <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-405 uppercase tracking-wider">
+        <div className="bg-surface-container-lowest dark:bg-slate-800 p-6 rounded-lg border border-outline-variant dark:border-slate-700 shadow-soft">
+            <div className="flex justify-between items-start mb-4">
+                <p className="font-label-caps text-[12px] font-semibold text-on-surface-variant dark:text-slate-400 uppercase tracking-wider">
                     {title}
-                </span>
-                <p className="font-display-xl text-display-xl mt-1 text-on-surface dark:text-white">
-                    <CountUpComponent end={value} duration={1.5} />
-                    {suffix}
                 </p>
+                <span className={`material-symbols-outlined ${iconColor}`}>{icon}</span>
             </div>
-            {icon && (
-                <div className={`p-2.5 rounded-lg flex items-center justify-center shrink-0 ${colorClass}`}>
-                    <span className={`material-symbols-outlined ${iconColorClass}`} style={{ fontVariationSettings: "'FILL' 1" }}>
-                        {icon}
+            <div className="flex items-baseline gap-2">
+                <h3 className="font-headline-lg text-[32px] font-bold text-on-surface dark:text-white">
+                    {typeof value === 'number' ? <CountUpComponent end={value} decimals={suffix === 'd' || title.includes('Rate') ? 1 : 0} duration={1.5} /> : value}
+                    {suffix}
+                </h3>
+                {trendValue && (
+                    <span className={`font-body-sm text-[12px] font-semibold flex items-center ${trendType === 'up' ? 'text-status-completed' : 'text-status-blocked'}`}>
+                        <span className="material-symbols-outlined text-[16px]">{trendType === 'up' ? 'trending_up' : 'trending_down'}</span>
+                        <span className="ml-0.5">{trendValue}</span>
                     </span>
-                </div>
-            )}
-        </motion.div>
+                )}
+            </div>
+        </div>
+    );
+};
+
+const PipelineRow = ({ label, count, maxCount, colorClass }) => {
+    const widthPct = maxCount > 0 ? (count / maxCount) * 100 : 0;
+    return (
+        <div className="flex items-center gap-4">
+            <div className="w-32 font-label-caps text-[12px] text-on-surface-variant dark:text-slate-400 text-right tracking-wider">
+                {label}
+            </div>
+            <div className="flex-1 h-6 bg-surface-container dark:bg-slate-700 rounded overflow-hidden">
+                <div
+                    className={`h-full ${colorClass} rounded transition-all duration-1000 ease-out`}
+                    style={{ width: `${widthPct}%` }}
+                ></div>
+            </div>
+            <div className="w-12 font-body-sm text-on-surface dark:text-white font-semibold">
+                {count}
+            </div>
+        </div>
     );
 };
 

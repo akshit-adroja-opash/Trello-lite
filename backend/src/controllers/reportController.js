@@ -1,5 +1,8 @@
 import Board from "../models/Board.js";
 import Report from "../models/Report.js";
+import User from "../models/User.js";
+import Column from "../models/Column.js";
+import Card from "../models/Card.js";
 import { generatePDF } from "../utils/generatePDF.js";
 import jwt from "jsonwebtoken";
 
@@ -15,9 +18,6 @@ export const generateFullReport = async (req, res) => {
                 message: "Board not found",
             });
         }
-
-        const Column = (await import("../models/Column.js")).default;
-        const Card = (await import("../models/Card.js")).default;
 
         const columns = await Column.find({ board: boardId }).sort("order").lean();
         for (const col of columns) {
@@ -66,9 +66,6 @@ export const generateClientReport = async (req, res) => {
                 message: "Board not found",
             });
         }
-
-        const Column = (await import("../models/Column.js")).default;
-        const Card = (await import("../models/Card.js")).default;
 
         const columns = await Column.find({ board: boardId }).sort("order").lean();
         for (const col of columns) {
@@ -163,4 +160,26 @@ export const downloadSharedReport = async (req, res) => {
     }
 
     res.download(report.pdfUrl);
+};
+
+export const getRecentReports = async (req, res) => {
+    try {
+        const { boardId } = req.params;
+        const filter = boardId ? { board: boardId } : {};
+
+        const reports = await Report.find(filter)
+            .populate("board", "name")
+            .populate("generatedBy", "username role")
+            .sort({ createdAt: -1 })
+            .limit(5);
+
+        res.status(200).json({
+            success: true,
+            reports
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
 };
