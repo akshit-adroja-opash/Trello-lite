@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 
-const CustomSelect = ({ value, onChange, options, icon, placeholder }) => {
+const CustomSelect = ({ value, onChange, options, icon, placeholder, staticDropdown = false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef(null);
 
@@ -21,7 +21,7 @@ const CustomSelect = ({ value, onChange, options, icon, placeholder }) => {
       <button 
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between gap-3 bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 text-body-sm font-medium text-on-surface dark:text-white rounded-lg px-4 py-2 hover:border-secondary hover:ring-1 hover:ring-secondary/50 focus:border-secondary focus:ring-2 focus:ring-secondary/20 shadow-sm transition-all min-w-[200px]"
+        className="flex items-center justify-between gap-3 bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 text-body-sm font-medium text-on-surface dark:text-white rounded-lg px-4 py-2 hover:border-secondary hover:ring-1 hover:ring-secondary/50 focus:border-secondary focus:ring-2 focus:ring-secondary/20 shadow-sm transition-all min-w-[200px] w-full"
       >
         <div className="flex items-center gap-2 truncate">
           {icon && <span className="material-symbols-outlined text-[18px] text-on-surface-variant dark:text-slate-400">{icon}</span>}
@@ -33,7 +33,7 @@ const CustomSelect = ({ value, onChange, options, icon, placeholder }) => {
       </button>
 
       {isOpen && (
-        <div className="absolute z-[100] top-full right-0 mt-1.5 w-full min-w-[200px] bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 rounded-xl shadow-lg overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className={`${staticDropdown ? 'mt-2' : 'absolute z-[100] top-full right-0 mt-1.5'} w-full min-w-[200px] bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 rounded-xl shadow-lg overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200`}>
           <div className="max-h-60 overflow-y-auto custom-scrollbar p-1.5">
             {options.map((opt) => (
               <button

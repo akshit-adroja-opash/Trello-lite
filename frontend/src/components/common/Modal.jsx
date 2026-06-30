@@ -1,10 +1,10 @@
 
-const Modal = ({ isOpen, onClose, title, icon, children, maxWidth = 'max-w-2xl', bodyClassName = 'p-lg' }) => {
+const Modal = ({ isOpen, onClose, title, icon, children, maxWidth = 'max-w-2xl', bodyClassName = 'p-lg', overflowVisible = false }) => {
   if (!isOpen) return null;
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm px-4 py-6 transition-all overflow-y-auto animate-in fade-in duration-200" 
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm px-4 py-6 transition-all animate-in fade-in duration-200" 
       onClick={onClose}
     >
       <div 
@@ -27,8 +27,8 @@ const Modal = ({ isOpen, onClose, title, icon, children, maxWidth = 'max-w-2xl',
           </div>
         )}
         
-        {/* Body (scrollable) */}
-        <div className={`${bodyClassName} overflow-y-auto custom-scrollbar flex-1`}>
+        {/* Body */}
+        <div className={`${bodyClassName} ${overflowVisible ? 'overflow-visible' : 'overflow-y-auto custom-scrollbar'} flex-1`}>
           {children}
         </div>
       </div>

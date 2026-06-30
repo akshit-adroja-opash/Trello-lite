@@ -455,6 +455,7 @@ export default function UserManagementPage() {
                 { value: "client", label: "Client" },
               ]}
               placeholder="Select Role"
+              staticDropdown={true}
             />
           </div>
 
@@ -502,6 +503,7 @@ export default function UserManagementPage() {
                   { value: "client", label: "Client" },
                 ]}
                 placeholder="Select Role"
+                staticDropdown={true}
               />
             </div>
 
