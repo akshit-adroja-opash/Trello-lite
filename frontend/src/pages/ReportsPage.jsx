@@ -285,7 +285,8 @@ const ReportsPage = () => {
       <div className="flex flex-1 pt-16 h-full">
         <DashboardSidebar currentWorkspace={activeWorkspace} />
 
-        <main className="flex-1 ml-0 lg:ml-[280px] p-6 lg:p-10 overflow-y-auto w-full max-w-[1440px] mx-auto animate-in fade-in duration-300">
+        <main className="flex-1 ml-0 lg:ml-[280px] p-6 lg:p-10 overflow-y-auto w-full flex flex-col justify-center items-center animate-in fade-in duration-300">
+          <div className="w-full max-w-[1440px]">
           
           {/* Page Title & Dropdowns Selector */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
@@ -556,6 +557,7 @@ const ReportsPage = () => {
             </div>
           )}
 
+          </div>
         </main>
       </div>
     </div>

@@ -22,7 +22,7 @@ const AssignTaskPage = () => {
     const [boardMembers, setBoardMembers] = useState([]);
     const [cards, setCards] = useState([]);
     const [selectedCardId, setSelectedCardId] = useState("");
-    
+
     // Form fields
     const [selectedAssignees, setSelectedAssignees] = useState([]);
     const [dueDate, setDueDate] = useState("");
@@ -192,7 +192,7 @@ const AssignTaskPage = () => {
             });
             if (res.status === "success" || res.data) {
                 toast.success("Task assigned successfully");
-                
+
                 // Update local state
                 setCards(prev => prev.map(c => {
                     if (c._id === selectedCardId) {
@@ -294,7 +294,7 @@ const AssignTaskPage = () => {
     };
 
     // Filter available assignees based on search input
-    const filteredMembers = boardMembers.filter(m => 
+    const filteredMembers = boardMembers.filter(m =>
         !selectedAssignees.includes(m._id) &&
         m.username?.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -319,12 +319,13 @@ const AssignTaskPage = () => {
             <div className="flex flex-1 pt-16 h-full">
                 <DashboardSidebar currentWorkspace={activeWorkspace} />
 
-                <main className="flex-1 ml-0 lg:ml-[280px] p-6 lg:p-10 overflow-y-auto w-full max-w-[1440px] mx-auto">
-                    {/* Header Section */}
-                    <div className="mb-xl">
-                        <h2 className="font-headline-lg text-headline-lg text-on-surface dark:text-white mb-xs">Command Center</h2>
-                        <p className="font-body-md text-body-md text-on-surface-variant dark:text-slate-400">Dispatch items and assign responsibilities across workspaces.</p>
-                    </div>
+                <main className="flex-1 ml-0 lg:ml-[280px] p-6 lg:p-10 overflow-y-auto w-full flex flex-col justify-center items-center">
+                    <div className="w-full max-w-[1440px]">
+                        {/* Header Section */}
+                        <div className="mb-xl">
+                            <h2 className="font-headline-lg text-headline-lg text-on-surface dark:text-white mb-xs">Command Center</h2>
+                            <p className="font-body-md text-body-md text-on-surface-variant dark:text-slate-400">Dispatch items and assign responsibilities across workspaces.</p>
+                        </div>
 
                     {/* Form Layout */}
                     <form onSubmit={handleAssignTask} className="bg-surface-container-lowest dark:bg-slate-800 rounded-xl shadow-sm border border-outline-variant dark:border-slate-700 p-lg lg:p-xl space-y-xl">
@@ -337,8 +338,8 @@ const AssignTaskPage = () => {
                                     <label className="block font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400" htmlFor="workspace">SELECT WORKSPACE</label>
                                     <div className="relative input-focus-ring rounded-lg transition-all duration-200">
                                         <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline dark:text-slate-500 text-[20px]">domain</span>
-                                        <select 
-                                            className="w-full bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg py-[10px] pl-10 pr-10 font-body-md text-body-md text-on-surface dark:text-white focus:outline-none focus:border-transparent cursor-pointer" 
+                                        <select
+                                            className="w-full bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg py-[10px] pl-10 pr-10 font-body-md text-body-md text-on-surface dark:text-white focus:outline-none focus:border-transparent cursor-pointer"
                                             id="workspace"
                                             value={selectedWorkspaceId}
                                             onChange={e => setSelectedWorkspaceId(e.target.value)}
@@ -357,8 +358,8 @@ const AssignTaskPage = () => {
                                     <label className="block font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400" htmlFor="board">SELECT BOARD</label>
                                     <div className="relative input-focus-ring rounded-lg transition-all duration-200">
                                         <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline dark:text-slate-500 text-[20px]">view_kanban</span>
-                                        <select 
-                                            className="w-full bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg py-[10px] pl-10 pr-10 font-body-md text-body-md text-on-surface dark:text-white focus:outline-none focus:border-transparent cursor-pointer disabled:opacity-50" 
+                                        <select
+                                            className="w-full bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg py-[10px] pl-10 pr-10 font-body-md text-body-md text-on-surface dark:text-white focus:outline-none focus:border-transparent cursor-pointer disabled:opacity-50"
                                             id="board"
                                             value={selectedBoardId}
                                             onChange={e => setSelectedBoardId(e.target.value)}
@@ -378,8 +379,8 @@ const AssignTaskPage = () => {
                                     <label className="block font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400" htmlFor="task">SELECT CARD/TASK</label>
                                     <div className="relative input-focus-ring rounded-lg transition-all duration-200">
                                         <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline dark:text-slate-500 text-[20px]">task</span>
-                                        <select 
-                                            className="w-full bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg py-[10px] pl-10 pr-10 font-body-md text-body-md text-on-surface dark:text-white focus:outline-none focus:border-transparent cursor-pointer disabled:opacity-50" 
+                                        <select
+                                            className="w-full bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg py-[10px] pl-10 pr-10 font-body-md text-body-md text-on-surface dark:text-white focus:outline-none focus:border-transparent cursor-pointer disabled:opacity-50"
                                             id="task"
                                             value={selectedCardId}
                                             onChange={e => handleCardChange(e.target.value)}
@@ -409,9 +410,9 @@ const AssignTaskPage = () => {
                                         {/* Search input */}
                                         <div className="relative mb-sm">
                                             <span className="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-outline dark:text-slate-500 text-[18px]">search</span>
-                                            <input 
-                                                className="w-full bg-surface-container-lowest dark:bg-slate-900 border border-outline-variant dark:border-slate-800 rounded py-1 pl-8 pr-2 text-sm focus:outline-none dark:text-white" 
-                                                placeholder="Search team members..." 
+                                            <input
+                                                className="w-full bg-surface-container-lowest dark:bg-slate-900 border border-outline-variant dark:border-slate-800 rounded py-1 pl-8 pr-2 text-sm focus:outline-none dark:text-white"
+                                                placeholder="Search team members..."
                                                 type="text"
                                                 value={searchTerm}
                                                 onChange={e => setSearchTerm(e.target.value)}
@@ -432,8 +433,8 @@ const AssignTaskPage = () => {
                                                                 {roleDetails.abbr}
                                                             </div>
                                                             <span className={`text-xs font-medium ${roleDetails.textClass}`}>{member.username}</span>
-                                                            <button 
-                                                                className={`hover:opacity-100 ml-1 transition-opacity ${roleDetails.textClass} opacity-60`} 
+                                                            <button
+                                                                className={`hover:opacity-100 ml-1 transition-opacity ${roleDetails.textClass} opacity-60`}
                                                                 type="button"
                                                                 onClick={() => handleRemoveAssignee(id)}
                                                             >
@@ -454,8 +455,8 @@ const AssignTaskPage = () => {
                                                 filteredMembers.map(member => {
                                                     const roleDetails = getRoleDetails(member.role);
                                                     return (
-                                                        <div 
-                                                            key={member._id} 
+                                                        <div
+                                                            key={member._id}
                                                             onClick={() => handleAddAssignee(member._id)}
                                                             className="flex items-center justify-between p-xs hover:bg-surface-container dark:hover:bg-slate-850 rounded cursor-pointer transition-colors"
                                                         >
@@ -485,9 +486,9 @@ const AssignTaskPage = () => {
                                         <label className="block font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400" htmlFor="due-date">DUE DATE</label>
                                         <div className="relative input-focus-ring rounded-lg transition-all duration-200">
                                             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline dark:text-slate-500 text-[20px]">calendar_today</span>
-                                            <input 
-                                                className="w-full bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg py-[10px] pl-10 pr-3 font-body-md text-body-md text-on-surface dark:text-white focus:outline-none focus:border-transparent cursor-pointer" 
-                                                id="due-date" 
+                                            <input
+                                                className="w-full bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg py-[10px] pl-10 pr-3 font-body-md text-body-md text-on-surface dark:text-white focus:outline-none focus:border-transparent cursor-pointer"
+                                                id="due-date"
                                                 type="date"
                                                 value={dueDate}
                                                 onChange={e => setDueDate(e.target.value)}
@@ -499,10 +500,10 @@ const AssignTaskPage = () => {
                                         <label className="block font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400">PRIORITY LEVEL</label>
                                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-sm">
                                             <label className="cursor-pointer group">
-                                                <input 
-                                                    className="peer sr-only" 
-                                                    name="priority" 
-                                                    type="radio" 
+                                                <input
+                                                    className="peer sr-only"
+                                                    name="priority"
+                                                    type="radio"
                                                     value="low"
                                                     checked={priority === "low"}
                                                     onChange={e => setPriority(e.target.value)}
@@ -512,10 +513,10 @@ const AssignTaskPage = () => {
                                                 </div>
                                             </label>
                                             <label className="cursor-pointer group">
-                                                <input 
-                                                    className="peer sr-only" 
-                                                    name="priority" 
-                                                    type="radio" 
+                                                <input
+                                                    className="peer sr-only"
+                                                    name="priority"
+                                                    type="radio"
                                                     value="medium"
                                                     checked={priority === "medium"}
                                                     onChange={e => setPriority(e.target.value)}
@@ -525,10 +526,10 @@ const AssignTaskPage = () => {
                                                 </div>
                                             </label>
                                             <label className="cursor-pointer group">
-                                                <input 
-                                                    className="peer sr-only" 
-                                                    name="priority" 
-                                                    type="radio" 
+                                                <input
+                                                    className="peer sr-only"
+                                                    name="priority"
+                                                    type="radio"
                                                     value="high"
                                                     checked={priority === "high"}
                                                     onChange={e => setPriority(e.target.value)}
@@ -538,10 +539,10 @@ const AssignTaskPage = () => {
                                                 </div>
                                             </label>
                                             <label className="cursor-pointer group">
-                                                <input 
-                                                    className="peer sr-only" 
-                                                    name="priority" 
-                                                    type="radio" 
+                                                <input
+                                                    className="peer sr-only"
+                                                    name="priority"
+                                                    type="radio"
                                                     value="urgent"
                                                     checked={priority === "urgent" || priority === "critical"}
                                                     onChange={e => setPriority(e.target.value)}
@@ -558,16 +559,16 @@ const AssignTaskPage = () => {
 
                         {/* Form Actions */}
                         <div className="pt-lg border-t border-outline-variant/50 dark:border-slate-800 flex items-center justify-end gap-md">
-                            <button 
-                                className="px-lg py-sm font-body-md text-body-md font-medium text-on-surface-variant dark:text-slate-400 hover:bg-surface-container dark:hover:bg-slate-800 rounded-lg transition-colors border border-transparent hover:border-outline-variant dark:hover:border-slate-750" 
+                            <button
+                                className="px-lg py-sm font-body-md text-body-md font-medium text-on-surface-variant dark:text-slate-400 hover:bg-surface-container dark:hover:bg-slate-800 rounded-lg transition-colors border border-transparent hover:border-outline-variant dark:hover:border-slate-750"
                                 type="button"
                                 onClick={handleCancel}
                             >
                                 Cancel
                             </button>
-                            <button 
-                                className={`group relative px-xl py-sm bg-secondary hover:bg-secondary-container text-on-secondary font-body-md text-body-md font-medium rounded-lg shadow-sm transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-secondary flex items-center gap-sm overflow-hidden uppercase tracking-wider ${updating ? 'is-loading' : ''}`} 
-                                style={{ backgroundColor: "#0058be" }} 
+                            <button
+                                className={`group relative px-xl py-sm bg-secondary hover:bg-secondary-container text-on-secondary font-body-md text-body-md font-medium rounded-lg shadow-sm transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-secondary flex items-center gap-sm overflow-hidden uppercase tracking-wider ${updating ? 'is-loading' : ''}`}
+                                style={{ backgroundColor: "#0058be" }}
                                 type="submit"
                                 disabled={updating}
                             >
@@ -581,6 +582,7 @@ const AssignTaskPage = () => {
                             </button>
                         </div>
                     </form>
+                    </div>
                 </main>
             </div>
         </div>
