@@ -294,7 +294,7 @@ const AssignTaskPage = () => {
                     <div className="w-full max-w-[1440px]">
                         {/* Header Section */}
                         <div className="mb-xl">
-                            <h2 className="font-headline-lg text-headline-lg text-on-surface dark:text-white mb-xs">Command Center</h2>
+                            <h2 className="font-display-xl text-display-xl text-primary dark:text-white mb-xs">Command Center</h2>
                             <p className="font-body-md text-body-md text-on-surface-variant dark:text-slate-400">Dispatch items and assign responsibilities across workspaces.</p>
                         </div>
 

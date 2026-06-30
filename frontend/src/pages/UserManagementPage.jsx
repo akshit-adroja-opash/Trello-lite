@@ -184,7 +184,7 @@ export default function UserManagementPage() {
           {/* Header */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-xl gap-md">
             <div>
-              <h2 className="font-headline-lg text-headline-lg text-primary dark:text-white">User Management</h2>
+              <h2 className="font-display-xl text-display-xl text-primary dark:text-white">User Management</h2>
               <p className="font-body-md text-body-md text-on-surface-variant dark:text-slate-400 mt-xs">
                 Manage system access, roles, and global identities.
               </p>
@@ -301,7 +301,7 @@ export default function UserManagementPage() {
                           <tr key={user._id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors h-[72px]">
                             <td className="py-sm px-lg">
                               <div className="flex items-center gap-md">
-                                <Avatar user={user} className="w-10 h-10 rounded-full shrink-0" />
+                                <Avatar name={user.username} avatar={user.avatar} size={40} />
                                 <p className="font-body-md text-body-md font-medium text-primary dark:text-white">
                                   {user.username}
                                 </p>
