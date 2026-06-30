@@ -124,7 +124,7 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
             <button
               onClick={() => setActiveTab('general')}
               className={`py-3 text-sm font-semibold flex items-center gap-2 transition-all ${activeTab === 'general'
-                  ? 'border-b-2 border-[#8b8cf1] text-[#8b8cf1] dark:border-[#a5a6ff] dark:text-[#a5a6ff]'
+                  ? 'border-b-2 border-secondary text-secondary dark:border-secondary-fixed dark:text-secondary-fixed'
                   : 'border-b-2 border-transparent text-slate-650 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
                 }`}
             >
@@ -138,7 +138,7 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
             <button
               onClick={() => setActiveTab('members')}
               className={`py-3 text-sm font-semibold flex items-center gap-2 transition-all ${activeTab === 'members'
-                  ? 'border-b-2 border-[#8b8cf1] text-[#8b8cf1] dark:border-[#a5a6ff] dark:text-[#a5a6ff]'
+                  ? 'border-b-2 border-secondary text-secondary dark:border-secondary-fixed dark:text-secondary-fixed'
                   : 'border-b-2 border-transparent text-slate-650 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
                 }`}
             >
@@ -171,7 +171,7 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
                   placeholder="e.g. Operations Hub"
                   required
                   disabled={!isActualAdmin}
-                  className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 text-slate-900 dark:text-white bg-white dark:bg-slate-900 focus:ring-1 focus:ring-[#8b8cf1] focus:border-[#8b8cf1] transition-colors outline-none h-[56px] text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 text-slate-900 dark:text-white bg-white dark:bg-slate-900 focus:ring-1 focus:ring-secondary focus:border-secondary transition-colors outline-none h-[56px] text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                 />
               </div>
 
@@ -186,7 +186,7 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
                   placeholder="Summarize the core operational workflows managed in this workspace..."
                   rows={5}
                   disabled={!isActualAdmin}
-                  className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 text-slate-900 dark:text-white bg-white dark:bg-slate-900 focus:ring-1 focus:ring-[#8b8cf1] focus:border-[#8b8cf1] transition-colors outline-none resize-none min-h-[140px] text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 text-slate-900 dark:text-white bg-white dark:bg-slate-900 focus:ring-1 focus:ring-secondary focus:border-secondary transition-colors outline-none resize-none min-h-[140px] text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                 />
               </div>
 
@@ -206,7 +206,7 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
                   <button
                     type="submit"
                     disabled={savingInfo || !name.trim() || (name.trim() === workspace.name && description.trim() === (workspace.description || ''))}
-                    className="px-8 py-2.5 bg-[#8b8cf1] hover:bg-[#7a7be0] text-white font-bold text-sm rounded-lg shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="px-8 py-2.5 bg-secondary hover:bg-secondary-container text-on-secondary font-bold text-sm rounded-lg shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {savingInfo ? (
                       <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -222,7 +222,7 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
             <div className="space-y-6">
               {loadingMembers ? (
                 <div className="flex items-center justify-center py-12">
-                  <div className="w-8 h-8 rounded-full border-4 border-slate-100 dark:border-slate-950 border-t-[#8b8cf1] animate-spin" />
+                  <div className="w-8 h-8 rounded-full border-4 border-slate-100 dark:border-slate-950 border-t-secondary animate-spin" />
                 </div>
               ) : members.length === 0 ? (
                 <p className="text-center py-12 text-sm text-slate-400 dark:text-slate-500 font-semibold">No members in this workspace</p>
@@ -294,7 +294,7 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-8 py-2.5 bg-[#8b8cf1] hover:bg-[#7a7be0] text-white font-bold text-sm rounded-lg shadow-sm transition-colors"
+                  className="px-8 py-2.5 bg-secondary hover:bg-secondary-container text-on-secondary font-bold text-sm rounded-lg shadow-sm transition-colors"
                 >
                   Close
                 </button>
