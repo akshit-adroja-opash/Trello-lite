@@ -14,6 +14,7 @@ import {
 } from "../middleware/reportPermission.js";
 
 import { verifyJWT } from "../middleware/auth.middleware.js";
+import { requireBoardRole } from "../middleware/role.middleware.js";
 
 const router = express.Router();
 
@@ -39,7 +40,7 @@ router.post(
 );
 
 router.get("/recent", verifyJWT, getRecentReports);
-router.get("/recent/:boardId", verifyJWT, getRecentReports);
+router.get("/recent/:boardId", verifyJWT, requireBoardRole(), getRecentReports);
 
 router.get("/shared/:token", downloadSharedReport);
 

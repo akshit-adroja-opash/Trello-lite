@@ -24,14 +24,14 @@ router.use(verifyJWT);
 
 
 router.post('/', requireBoardRole('admin', 'project_manager'), createCard);
-router.get('/column/:columnId', getCards);
+router.get('/column/:columnId', requireBoardRole(), getCards);
 router.get('/my-tasks', getMyTasks);
-router.get('/:cardId', getSingleCard);
-router.get('/:cardId/activities', getCardActivities);
+router.get('/:cardId', requireBoardRole(), getSingleCard);
+router.get('/:cardId/activities', requireBoardRole(), getCardActivities);
 router.post('/:cardId/comments', requireBoardRole('admin', 'project_manager', 'developer'), addComment);
 router.post('/:cardId/comments/:commentId/react', requireBoardRole('admin', 'project_manager', 'developer'), toggleCommentReaction);
 router.post('/:cardId/save-template', requireBoardRole('admin', 'project_manager', 'developer'), saveCardAsTemplate);
-router.get('/board/:boardId/templates', getBoardTemplates);
+router.get('/board/:boardId/templates', requireBoardRole(), getBoardTemplates);
 router.patch('/:cardId', requireBoardRole('admin', 'project_manager', 'developer'), updateCard);
 router.delete('/:cardId', requireBoardRole('admin', 'project_manager'), deleteCard);
 router.patch('/:cardId/move', requireBoardRole('admin', 'project_manager', 'developer'), moveCard);

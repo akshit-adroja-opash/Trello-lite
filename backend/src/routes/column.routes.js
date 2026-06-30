@@ -7,7 +7,7 @@ const router = Router();
 router.use(verifyJWT);
 
 router.post('/', requireBoardRole('admin', 'project_manager'), createColumn);
-router.get('/board/:boardId', getColumns);
+router.get('/board/:boardId', requireBoardRole(), getColumns);
 router.patch('/reorder', requireBoardRole('admin', 'project_manager'), reorderColumn);
 router.patch('/:columnId', requireBoardRole('admin', 'project_manager'), updateColumn);
 router.delete('/:columnId', requireBoardRole('admin', 'project_manager'), deleteColumn);

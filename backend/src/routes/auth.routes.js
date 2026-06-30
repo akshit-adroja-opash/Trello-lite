@@ -17,6 +17,7 @@ import {
   createUserByAdmin
 } from '../controllers/auth.controller.js';
 import { verifyJWT } from '../middleware/auth.middleware.js';
+import { requireGlobalRole } from '../middleware/role.middleware.js';
 import { avatarUpload } from '../middleware/upload.middleware.js';
 
 const router = Router();
@@ -38,9 +39,9 @@ router.get('/sessions', verifyJWT, getSessions);
 router.delete('/sessions/:id', verifyJWT, revokeSession);
 
 // Admin User Management routes
-router.get('/users', verifyJWT, getAllUsers);
-router.post('/users', verifyJWT, createUserByAdmin);
-router.patch('/users/:id/role', verifyJWT, updateUserRole);
-router.delete('/users/:id', verifyJWT, deleteUser);
+router.get('/users', verifyJWT, requireGlobalRole('admin'), getAllUsers);
+router.post('/users', verifyJWT, requireGlobalRole('admin'), createUserByAdmin);
+router.patch('/users/:id/role', verifyJWT, requireGlobalRole('admin'), updateUserRole);
+router.delete('/users/:id', verifyJWT, requireGlobalRole('admin'), deleteUser);
 
 export default router;

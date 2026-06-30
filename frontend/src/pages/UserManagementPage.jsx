@@ -6,6 +6,7 @@ import { getAllUsers, updateUserRole, deleteUser, createUserByAdmin } from '../a
 import Navbar from '../components/Layout/Navbar';
 import DashboardSidebar from '../components/Layout/DashboardSidebar';
 import Avatar from '../UI/Avatar';
+import CustomSelect from '../components/common/CustomSelect';
 
 export default function UserManagementPage() {
   const navigate = useNavigate();
@@ -213,22 +214,18 @@ export default function UserManagementPage() {
               </div>
 
               <div className="flex items-center gap-sm w-full sm:w-auto">
-                <div className="relative w-full sm:w-48">
-                  <select
+                  <CustomSelect
                     value={roleFilter}
-                    onChange={(e) => setRoleFilter(e.target.value)}
-                    className="w-full appearance-none bg-transparent border border-outline-variant dark:border-slate-700 rounded-lg px-md py-sm pr-xl font-body-sm text-body-sm focus:border-secondary dark:focus:border-indigo-500 focus:outline-none transition-shadow cursor-pointer text-on-surface dark:text-white dark:bg-slate-800"
-                  >
-                    <option value="all">All Roles</option>
-                    <option value="admin">Admin</option>
-                    <option value="project_manager">Project Manager</option>
-                    <option value="developer">Developer</option>
-                    <option value="client">Client</option>
-                  </select>
-                  <span className="material-symbols-outlined absolute right-md top-1/2 -translate-y-1/2 text-on-surface-variant dark:text-slate-400 text-[20px] pointer-events-none">
-                    expand_more
-                  </span>
-                </div>
+                    onChange={setRoleFilter}
+                    options={[
+                      { value: "all", label: "All Roles" },
+                      { value: "admin", label: "Admin" },
+                      { value: "project_manager", label: "Project Manager" },
+                      { value: "developer", label: "Developer" },
+                      { value: "client", label: "Client" },
+                    ]}
+                    placeholder="All Roles"
+                  />
 
                 <button
                   onClick={() => {
@@ -454,16 +451,17 @@ export default function UserManagementPage() {
 
               <div>
                 <label className="block font-body-sm text-on-surface-variant dark:text-slate-350 mb-xs">Role</label>
-                <select
+                <CustomSelect
                   value={inviteForm.role}
-                  onChange={(e) => setInviteForm({ ...inviteForm, role: e.target.value })}
-                  className="w-full border border-outline-variant dark:border-slate-700 rounded-lg px-md py-sm bg-transparent dark:text-white dark:bg-slate-800 focus:border-secondary dark:focus:border-indigo-500 focus:outline-none cursor-pointer"
-                >
-                  <option value="admin">Admin</option>
-                  <option value="project_manager">Project Manager</option>
-                  <option value="developer">Developer</option>
-                  <option value="client">Client</option>
-                </select>
+                  onChange={(val) => setInviteForm({ ...inviteForm, role: val })}
+                  options={[
+                    { value: "admin", label: "Admin" },
+                    { value: "project_manager", label: "Project Manager" },
+                    { value: "developer", label: "Developer" },
+                    { value: "client", label: "Client" },
+                  ]}
+                  placeholder="Select Role"
+                />
               </div>
 
               <div className="flex gap-md justify-end pt-md">
@@ -501,16 +499,17 @@ export default function UserManagementPage() {
 
             <div className="mb-lg">
               <label className="block font-body-sm text-on-surface-variant dark:text-slate-350 mb-xs">Select Role</label>
-              <select
+              <CustomSelect
                 value={newRole}
-                onChange={(e) => setNewRole(e.target.value)}
-                className="w-full border border-outline-variant dark:border-slate-700 rounded-lg px-md py-sm bg-transparent dark:text-white dark:bg-slate-800 focus:border-secondary dark:focus:border-indigo-500 focus:outline-none cursor-pointer"
-              >
-                <option value="admin">Admin</option>
-                <option value="project_manager">Project Manager</option>
-                <option value="developer">Developer</option>
-                <option value="client">Client</option>
-              </select>
+                onChange={setNewRole}
+                options={[
+                  { value: "admin", label: "Admin" },
+                  { value: "project_manager", label: "Project Manager" },
+                  { value: "developer", label: "Developer" },
+                  { value: "client", label: "Client" },
+                ]}
+                placeholder="Select Role"
+              />
             </div>
 
             <div className="flex gap-md justify-end">

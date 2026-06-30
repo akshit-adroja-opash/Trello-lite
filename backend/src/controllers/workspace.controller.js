@@ -8,10 +8,6 @@ import { sendNotificationToUser } from '../sockets/user.socket.js';
 
 export const createWorkspace = async (req, res, next) => {
     try {
-        // Only Admin and Project Manager can create workspaces
-        if (req.user.role === 'developer') {
-            return next(new ApiError(403, 'Developers cannot create workspaces'));
-        }
         const { name, description } = req.body;
         const workspace = await Workspace.create({
             name, description,
@@ -38,8 +34,6 @@ export const inviteMember = async (req, res, next) => {
 
         const workspace = await Workspace.findById(workspaceId);
         if (!workspace) return next(new ApiError(404, 'Workspace not found'));
-        if (workspace.Admin?.toString() !== req.user._id.toString() && req.user.role !== 'admin' && req.user.role !== 'project_manager')
-            return next(new ApiError(403, 'Only the Admin or System Admin can invite members'));
 
         const invitee = await User.findOne({ email });
         if (!invitee) return next(new ApiError(404, 'User with that email not found'));
@@ -77,8 +71,6 @@ export const getMembers = async (req, res, next) => {
         const { workspaceId } = req.params;
         const workspace = await Workspace.findById(workspaceId).populate('members.user', 'username email avatar role');
         if (!workspace) return next(new ApiError(404, 'Workspace not found'));
-        if (!workspace.members.some(m => m.user?._id?.toString() === req.user._id.toString()))
-            return next(new ApiError(403, 'Not a member of this workspace'));
         res.status(200).json({ status: 'success', data: { members: workspace.members } });
     } catch (error) { next(error); }
 };
@@ -90,15 +82,9 @@ export const updateMemberRole = async (req, res, next) => {
         const workspace = await Workspace.findById(workspaceId);
         if (!workspace) return next(new ApiError(404, 'Workspace not found'));
 
-        const userMember = workspace.members.find(m => m.user?.toString() === req.user._id.toString());
-        const isWorkspaceOwner = workspace.Admin?.toString() === req.user._id.toString();
-        const isWorkspaceAdmin = (userMember && userMember.role === 'admin') || isWorkspaceOwner;
         const isSystemAdmin = req.user.role === 'admin';
-        const isPM = req.user.role === 'project_manager' || (userMember && userMember.role === 'project_manager') || isWorkspaceOwner;
-
-        if (!isWorkspaceAdmin && !isSystemAdmin && !isPM) {
-            return next(new ApiError(403, 'Unauthorized to update member roles'));
-        }
+        const isWorkspaceAdmin = req.workspaceRole === 'admin';
+        const isPM = req.workspaceRole === 'project_manager';
 
         const member = workspace.members.id(memberId);
         if (!member) return next(new ApiError(404, 'Member not found'));
@@ -124,15 +110,6 @@ export const removeMember = async (req, res, next) => {
         const { workspaceId, memberId } = req.params;
         const workspace = await Workspace.findById(workspaceId);
         if (!workspace) return next(new ApiError(404, 'Workspace not found'));
-
-        const userMember = workspace.members.find(m => m.user?.toString() === req.user._id.toString());
-        const isWorkspaceOwner = workspace.Admin?.toString() === req.user._id.toString();
-        const isWorkspaceAdmin = (userMember && userMember.role === 'admin') || isWorkspaceOwner;
-        const isSystemAdmin = req.user.role === 'admin';
-
-        if (!isWorkspaceAdmin && !isSystemAdmin) {
-            return next(new ApiError(403, 'Only Workspace Admins or System Admins can remove members'));
-        }
 
         // Find the user ID of the member being removed before pulling from array
         const memberSub = workspace.members.id(memberId);

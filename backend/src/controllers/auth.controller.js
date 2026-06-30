@@ -153,9 +153,6 @@ export const deleteAccount = async (req, res, next) => {
 
 export const getAllUsers = async (req, res, next) => {
   try {
-    if (req.user.role !== 'admin') {
-      throw new ApiError(403, 'Only admins can view all users');
-    }
     const users = await User.find().select('-password').lean();
     const workspaces = await Workspace.find().lean();
     
@@ -184,9 +181,6 @@ export const getAllUsers = async (req, res, next) => {
 
 export const updateUserRole = async (req, res, next) => {
   try {
-    if (req.user.role !== 'admin') {
-      throw new ApiError(403, 'Only admins can update user roles');
-    }
     const { role } = req.body;
     const user = await User.findById(req.params.id);
     if (!user) {
@@ -207,9 +201,6 @@ export const updateUserRole = async (req, res, next) => {
 
 export const createUserByAdmin = async (req, res, next) => {
   try {
-    if (req.user.role !== 'admin') {
-      throw new ApiError(403, 'Only admins can create users');
-    }
     const { username, email, password, role = 'developer' } = req.body;
     if (!username || !email || !password) {
       throw new ApiError(400, 'Username, email and password are required');
@@ -230,9 +221,6 @@ export const createUserByAdmin = async (req, res, next) => {
 
 export const deleteUser = async (req, res, next) => {
   try {
-    if (req.user.role !== 'admin') {
-      throw new ApiError(403, 'Only admins can delete users');
-    }
     const user = await User.findByIdAndDelete(req.params.id);
     if (!user) {
       throw new ApiError(404, 'User not found');

@@ -3,6 +3,7 @@ import Report from "../models/Report.js";
 import User from "../models/User.js";
 import Column from "../models/Column.js";
 import Card from "../models/Card.js";
+import Workspace from "../models/Workspace.js";
 import { generatePDF } from "../utils/generatePDF.js";
 import jwt from "jsonwebtoken";
 
@@ -165,7 +166,22 @@ export const downloadSharedReport = async (req, res) => {
 export const getRecentReports = async (req, res) => {
     try {
         const { boardId } = req.params;
-        const filter = boardId ? { board: boardId } : {};
+        let filter = {};
+        if (boardId) {
+            filter = { board: boardId };
+        } else {
+            // Find all workspaces the user is a part of
+            const workspaces = await Workspace.find({
+                $or: [{ Admin: req.user._id }, { 'members.user': req.user._id }]
+            }).select('_id');
+            const workspaceIds = workspaces.map(w => w._id);
+            
+            // Find all boards in those workspaces
+            const boards = await Board.find({ workspace: { $in: workspaceIds } }).select('_id');
+            const boardIds = boards.map(b => b._id);
+            
+            filter = { board: { $in: boardIds } };
+        }
 
         const reports = await Report.find(filter)
             .populate("board", "name")

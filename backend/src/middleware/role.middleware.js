@@ -53,14 +53,56 @@ export const requireBoardRole = (...allowedRoles) => async (req, res, next) => {
 
         if (!member) return next(new ApiError(403, 'Not a board or workspace member'));
 
-        if (!allowedRoles.includes(member.role)) {
+        if (allowedRoles.length > 0 && !allowedRoles.includes(member.role)) {
             return next(new ApiError(403, `Requires role: ${allowedRoles.join(' or ')}`));
         }
 
         req.board = board;
         req.boardRole = member.role;
+
         next();
     } catch (err) {
         next(err);
     }
+};
+
+export const requireWorkspaceRole = (...allowedRoles) => async (req, res, next) => {
+    try {
+        const workspaceId = req.params?.workspaceId || req.body?.workspaceId || req.query?.workspaceId;
+        if (!workspaceId) return next(new ApiError(400, 'workspaceId required'));
+
+        const workspace = await Workspace.findById(workspaceId);
+        if (!workspace) return next(new ApiError(404, 'Workspace not found'));
+
+        let memberRole;
+        if (workspace.Admin?.toString() === req.user?._id?.toString() || req.user?.role === 'admin') {
+            memberRole = 'admin';
+        } else {
+            const member = workspace.members.find(m => m.user?.toString() === req.user?._id?.toString());
+            if (!member) return next(new ApiError(403, 'Not a workspace member'));
+            memberRole = member.role;
+        }
+
+        if (allowedRoles.length > 0 && !allowedRoles.includes(memberRole)) {
+            return next(new ApiError(403, `Requires workspace role: ${allowedRoles.join(' or ')}`));
+        }
+
+        req.workspace = workspace;
+        req.workspaceRole = memberRole;
+        next();
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const requireGlobalRole = (...allowedRoles) => (req, res, next) => {
+    if (!req.user || !req.user.role) {
+        return next(new ApiError(401, 'Unauthorized'));
+    }
+    
+    if (!allowedRoles.includes(req.user.role)) {
+        return next(new ApiError(403, `Requires global role: ${allowedRoles.join(' or ')}`));
+    }
+    
+    next();
 };

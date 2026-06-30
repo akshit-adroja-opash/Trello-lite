@@ -24,9 +24,6 @@ const getBoardIdsForUser = async (userId) => {
 // ─────────────────────────────────────────────────────────────
 export const getAdminDashboard = async (req, res) => {
   try {
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ success: false, message: 'Admin access required' });
-    }
 
     const [totalUsers, totalWorkspaces, totalBoards, totalCards] = await Promise.all([
       User.countDocuments(),
@@ -111,9 +108,6 @@ export const getAdminDashboard = async (req, res) => {
 // ─────────────────────────────────────────────────────────────
 export const getProjectManagerDashboard = async (req, res) => {
   try {
-    if (req.user.role !== 'project_manager') {
-      return res.status(403).json({ success: false, message: 'Project Manager access required' });
-    }
 
     const userId = req.user._id;
     const boardIds = await getBoardIdsForUser(userId);
@@ -158,9 +152,6 @@ export const getProjectManagerDashboard = async (req, res) => {
 // ─────────────────────────────────────────────────────────────
 export const getDeveloperDashboard = async (req, res) => {
   try {
-    if (req.user.role !== 'developer') {
-      return res.status(403).json({ success: false, message: 'Developer access required' });
-    }
 
     const userId = req.user._id;
 
@@ -199,9 +190,6 @@ export const getDeveloperDashboard = async (req, res) => {
 // ─────────────────────────────────────────────────────────────
 export const getClientDashboard = async (req, res) => {
   try {
-    if (req.user.role !== 'client') {
-      return res.status(403).json({ success: false, message: 'Client access required' });
-    }
 
     const userId = req.user._id;
 
