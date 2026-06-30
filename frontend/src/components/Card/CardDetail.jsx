@@ -128,7 +128,6 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
     const [blockedReason, setBlockedReason] = useState(initialCard.blockedReason || '');
     const [estimatedHours, setEstimatedHours] = useState(initialCard.estimatedHours || 0);
     const [reviewRequested, setReviewRequested] = useState(!!initialCard.reviewRequested);
-    const [activities, setActivities] = useState([]);
     const [saving, setSaving] = useState(false);
     const [typingUser, setTypingUser] = useState(null);
     const { updateCard: storeUpdate, removeCard, board, boardRole } = useBoardStore();
@@ -156,10 +155,6 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
             });
     }, [board]);
     const titleInputRef = useRef(null);
-
-    useEffect(() => {
-        getCardActivities(card._id).then(res => setActivities(res.data?.activities || [])).catch(() => { });
-    }, [card._id]);
 
     useEffect(() => {
         if (!socket) return;
@@ -260,7 +255,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                 setCommentText('');
                 toast.success('Comment added');
             }
-        } catch (err) {
+        } catch {
             toast.error('Failed to add comment');
         }
     };
@@ -274,7 +269,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                 storeUpdate(updatedCard);
                 socket?.emit('card:update', { boardId, card: updatedCard });
             }
-        } catch (err) {
+        } catch {
             toast.error('Failed to update reaction');
         }
     };
@@ -351,7 +346,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                 socket?.emit('card:update', { boardId, card: updated });
                 toast.success('Attachment deleted');
             }
-        } catch (err) {
+        } catch {
             toast.error('Failed to delete attachment');
         }
     };

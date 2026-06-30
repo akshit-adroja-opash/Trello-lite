@@ -27,7 +27,7 @@ router.post('/login', login);
 router.get('/me', verifyJWT, getMe);
 router.post('/logout', logout);
 router.patch('/profile', verifyJWT, avatarUpload.single('avatar'), updateProfile);
-router.get('/developers', verifyJWT, getDevelopers);
+router.get('/developers', verifyJWT, requireGlobalRole('admin', 'project_manager'), getDevelopers);
 router.delete('/account', verifyJWT, deleteAccount);
 
 // 2FA routes

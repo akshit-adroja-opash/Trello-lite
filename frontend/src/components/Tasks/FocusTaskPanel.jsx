@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import ReactMarkdown from 'react-markdown';
 import { getSingleBoard } from '../../api/board.api';
@@ -54,7 +54,7 @@ const FocusTaskPanel = ({ cards, initialIndex, onClose, onCardUpdated }) => {
                 const cols = res.data?.board?.columns || res.board?.columns || [];
                 setColumns(cols);
             })
-            .catch(err => console.error("Error fetching board columns:", err));
+            .catch(() => console.error("Error fetching board columns"));
     }, [card.board?._id]);
 
     const handleSave = async () => {
@@ -77,7 +77,7 @@ const FocusTaskPanel = ({ cards, initialIndex, onClose, onCardUpdated }) => {
             setCard(updated);
             onCardUpdated(updated);
             toast.success('Task details saved');
-        } catch (err) {
+        } catch {
             toast.error('Failed to save changes');
         } finally {
             setSaving(false);
@@ -97,7 +97,7 @@ const FocusTaskPanel = ({ cards, initialIndex, onClose, onCardUpdated }) => {
             setCard(updated);
             onCardUpdated(updated);
             toast.success('Task status updated');
-        } catch (err) {
+        } catch {
             toast.error('Failed to move task status');
         } finally {
             setMoving(false);
@@ -119,7 +119,7 @@ const FocusTaskPanel = ({ cards, initialIndex, onClose, onCardUpdated }) => {
             const updated = res.data?.card;
             setCard(updated);
             onCardUpdated(updated);
-        } catch (err) {
+        } catch {
             toast.error('Failed to update checklist item');
             // Revert state
             setChecklist(checklist);
@@ -144,7 +144,7 @@ const FocusTaskPanel = ({ cards, initialIndex, onClose, onCardUpdated }) => {
             setCard(updated);
             onCardUpdated(updated);
             toast.success('Added checklist item');
-        } catch (err) {
+        } catch {
             toast.error('Failed to add checklist item');
             setChecklist(checklist);
         }
@@ -167,7 +167,7 @@ const FocusTaskPanel = ({ cards, initialIndex, onClose, onCardUpdated }) => {
                 setCommentText('');
                 toast.success('Comment posted');
             }
-        } catch (err) {
+        } catch {
             toast.error('Failed to post comment');
         }
     };

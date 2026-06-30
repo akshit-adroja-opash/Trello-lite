@@ -4,7 +4,6 @@ import toast from 'react-hot-toast';
 import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors, closestCorners } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 import debounce from 'lodash/debounce';
-import { FiUsers } from 'react-icons/fi';
 import BoardMembersModal from '../components/Board/BoardMembersModal';
 import BoardSettingsModal from '../components/Board/BoardSettingsModal';
 
@@ -19,7 +18,6 @@ import { generateIndexBetween } from '../utils/fractionalIndex';
 
 import ColumnList from '../components/Column/ColumnList';
 import CardItem from '../components/Card/CardItem';
-import Avatar from '../UI/Avatar';
 import ActivitySidebar from '../components/Board/ActivitySidebar';
 import KeyboardShortcutsModal from '../components/Board/KeyboardShortcutsModal';
 import NotificationBell from '../components/Notifications/NotificationBell';
@@ -35,15 +33,13 @@ const BoardPage = () => {
     const connected = useSocketStore(s => s.connected);
 
 
-    const { board, columns, cards, presence, setBoard, setBoardRole, setColumns, setCardsForColumn,
+    const { board, columns, cards, setBoard, setBoardRole, setColumns, setCardsForColumn,
         addColumn, updateColumn, removeColumn, addCard, updateCard: storeUpdateCard,
         moveCardOptimistic, removeCard, setPresence, undo, redo, boardRole } = useBoardStore();
 
     const [loading, setLoading] = useState(true);
     const [activeCard, setActiveCard] = useState(null);
-    const [activeColumn, setActiveColumn] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
-    const [filterLabel, setFilterLabel] = useState('');
     const [showShortcuts, setShowShortcuts] = useState(false);
     const [cursors, setCursors] = useState([]);
     const searchRef = useRef(null);
@@ -255,7 +251,6 @@ const BoardPage = () => {
     const handleDragStart = ({ active }) => {
         const type = active.data.current?.type;
         if (type === 'card') setActiveCard(active.data.current.card);
-        if (type === 'column') setActiveColumn(active.data.current.column);
     };
 
     const handleToggleStar = async () => {
@@ -270,7 +265,7 @@ const BoardPage = () => {
     };
 
     const handleDragEnd = useCallback(async ({ active, over }) => {
-        setActiveCard(null); setActiveColumn(null);
+        setActiveCard(null); 
         if (!over || active.id === over.id) return;
         if (boardRole === 'client') return;
         const activeType = active.data.current?.type;

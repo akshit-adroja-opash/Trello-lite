@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import useAuthStore from '../store/authstore';
-import useSidebarStore from '../store/sidebarStore';
 import { createWorkspace, deleteWorkspace, getWorkspaces, inviteMember, getOverdueCount } from '../api/workspace.api';
-import { createBoard, getBoardsByWorkspace, deleteBoard, toggleStarBoard } from '../api/board.api';
+import { createBoard, getBoardsByWorkspace, deleteBoard } from '../api/board.api';
 import { getDevelopers } from '../api/auth.api';
 import Avatar from '../UI/Avatar';
 import { getRoleDisplayName } from '../utils/roleDisplay';
@@ -68,13 +67,6 @@ const DashboardPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   const user = useAuthStore(s => s.user);
-  const logout = useAuthStore(s => s.logout);
-  const navigate = useNavigate();
-
-  const isSidebarOpen = useSidebarStore(s => s.isOpen);
-  const toggleSidebar = useSidebarStore(s => s.toggle);
-  const closeSidebar = useSidebarStore(s => s.close);
-
   const [developers, setDevelopers] = useState([]);
 
   const boards = Object.values(boardsByWorkspace).flat();
@@ -139,38 +131,6 @@ const DashboardPage = () => {
     } catch (err) { toast.error(err.response?.data?.message || 'Failed to create workspace'); }
   };
 
-  const handleToggleStar = async (boardId, currentStarred) => {
-    try {
-      await toggleStarBoard(boardId);
-
-      // find which workspace contains this board
-      let foundWorkspaceId = null;
-      for (const [wsId, boardsList] of Object.entries(boardsByWorkspace)) {
-        if (boardsList.some(b => b._id === boardId)) {
-          foundWorkspaceId = wsId;
-          break;
-        }
-      }
-
-      if (foundWorkspaceId) {
-        setBoardsByWorkspace(prev => ({
-          ...prev,
-          [foundWorkspaceId]: prev[foundWorkspaceId].map(b =>
-            b._id === boardId
-              ? { ...b, isStarred: !currentStarred }
-              : b
-          )
-        }));
-      }
-
-      toast.success(currentStarred ? "Board unfavorited" : "Board favorited");
-
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to update favorite status");
-    }
-  };
-
   const handleCreateBoard = async () => {
     if (!boardName.trim()) return;
     try {
@@ -227,8 +187,6 @@ const DashboardPage = () => {
     setSelectedWorkspace(workspace);
     setSettingOpen(true);
   }
-
-  const handleLogout = async () => { await logout(); navigate('/login'); };
 
   if (loading) return (
     <div className="flex items-center justify-center h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-200">

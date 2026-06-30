@@ -1,19 +1,13 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import { getWorkspaces, getMembers } from "../api/workspace.api";
 import { getBoardsByWorkspace } from "../api/board.api";
 import { getColumnsByBoard } from "../api/column.api";
 import { getCardsByColumn, updateCard, getBoardTemplates } from "../api/card.api";
-import toast from "react-hot-toast";
-import useAuthStore from "../store/authstore";
-import useThemeStore from "../store/themeStore";
 import Navbar from "../components/Layout/Navbar";
 import DashboardSidebar from "../components/Layout/DashboardSidebar";
 
 const AssignTaskPage = () => {
-    const navigate = useNavigate();
-    const user = useAuthStore(s => s.user);
-    const darkMode = useThemeStore(s => s.darkMode);
 
     const [workspaces, setWorkspaces] = useState([]);
     const [selectedWorkspaceId, setSelectedWorkspaceId] = useState("");
@@ -42,7 +36,7 @@ const AssignTaskPage = () => {
                 if (wsList.length > 0) {
                     setSelectedWorkspaceId(wsList[0]._id);
                 }
-            } catch (err) {
+            } catch {
                 toast.error("Failed to load workspaces");
             } finally {
                 setLoading(false);
@@ -64,7 +58,7 @@ const AssignTaskPage = () => {
                 const boardsList = res.data?.boards || [];
                 setBoards(boardsList);
                 setSelectedBoardId("");
-            } catch (err) {
+            } catch {
                 toast.error("Failed to load boards");
             }
         };
@@ -131,7 +125,7 @@ const AssignTaskPage = () => {
                 setSelectedAssignees([]);
                 setDueDate("");
                 setPriority("medium");
-            } catch (err) {
+            } catch {
                 toast.error("Failed to load board tasks or members");
             }
         };

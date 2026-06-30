@@ -147,15 +147,6 @@ export const updateWorkspace = async (req, res, next) => {
         const workspace = await Workspace.findById(workspaceId);
         if (!workspace) return next(new ApiError(404, 'Workspace not found'));
 
-        const userMember = workspace.members.find(m => m.user?.toString() === req.user._id.toString());
-        const isWorkspaceOwner = workspace.Admin?.toString() === req.user._id.toString();
-        const isWorkspaceAdmin = (userMember && userMember.role === 'admin') || isWorkspaceOwner;
-        const isSystemAdmin = req.user.role === 'admin';
-
-        if (!isWorkspaceAdmin && !isSystemAdmin) {
-            return next(new ApiError(403, 'Only Workspace Admins or System Admins can update this workspace'));
-        }
-
         if (name) workspace.name = name;
         if (description !== undefined) workspace.description = description;
         await workspace.save();
@@ -169,9 +160,6 @@ export const getOverdueCount = async (req, res, next) => {
         const { workspaceId } = req.params;
         const workspace = await Workspace.findById(workspaceId);
         if (!workspace) return next(new ApiError(404, 'Workspace not found'));
-        const isMember = workspace.members.some(m => m.user?.toString() === req.user._id.toString());
-        if (!isMember) return next(new ApiError(403, 'Access denied'));
-
         // Find boards in workspace
         const Board = (await import('../models/Board.js')).default;
         const boards = await Board.find({ workspace: workspaceId }).select('_id');
@@ -191,14 +179,6 @@ export const deleteWorkspace = async (req, res, next) => {
         const workspace = await Workspace.findById(workspaceId);
         if (!workspace) return next(new ApiError(404, 'Workspace not found'));
 
-        const userMember = workspace.members.find(m => m.user?.toString() === req.user._id.toString());
-        const isWorkspaceOwner = workspace.Admin?.toString() === req.user._id.toString();
-        const isWorkspaceAdmin = (userMember && userMember.role === 'admin') || isWorkspaceOwner;
-        const isSystemAdmin = req.user.role === 'admin';
-
-        if (!isWorkspaceAdmin && !isSystemAdmin) {
-            return next(new ApiError(403, 'Only Workspace Admins or System Admins can delete this workspace'));
-        }
 
         await workspace.deleteOne();
         res.status(200).json({ status: 'success', message: 'Workspace deleted' });

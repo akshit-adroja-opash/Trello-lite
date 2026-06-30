@@ -7,7 +7,6 @@ import { deleteColumn, updateColumn } from '../../api/column.api';
 import { createCard as createCardApi, getBoardTemplates } from '../../api/card.api';
 import { generateIndexBetween } from '../../utils/fractionalIndex';
 import useBoardStore from '../../store/boardStore';
-import useAuthStore from '../../store/authstore';
 import { canDeleteColumn, canEditColumn, canCreateCard } from '../../utils/rolePermissions'; 
 
 const getColumnColorClasses = (name) => {
@@ -103,7 +102,7 @@ const ColumnItem = ({ column, cards, searchQuery, filterLabel, onAddCard, boardI
                 setAddingCard(false);
                 setShowTemplateMenu(false);
             }
-        } catch (err) {
+        } catch {
             toast.error('Failed to create card from template');
         }
     };

@@ -4,7 +4,6 @@ import { getWorkspaces } from "../api/workspace.api";
 import Navbar from "../components/Layout/Navbar";
 import DashboardSidebar from "../components/Layout/DashboardSidebar";
 import toast from "react-hot-toast";
-import useAuthStore from "../store/authstore";
 import useThemeStore from "../store/themeStore";
 import CountUp from "react-countup";
 import CustomSelect from "../components/common/CustomSelect";
@@ -17,7 +16,6 @@ const AnalyticsPage = () => {
     const [analytics, setAnalytics] = useState(null);
     const [loading, setLoading] = useState(true);
     const [loadingData, setLoadingData] = useState(false);
-    const { user } = useAuthStore();
     const darkMode = useThemeStore(s => s.darkMode);
 
     // Load workspaces on mount
@@ -32,7 +30,7 @@ const AnalyticsPage = () => {
                 } else {
                     setLoading(false);
                 }
-            } catch (err) {
+            } catch {
                 toast.error("Failed to load workspaces");
                 setLoading(false);
             }

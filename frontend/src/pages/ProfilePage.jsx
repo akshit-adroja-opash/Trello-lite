@@ -61,7 +61,7 @@ const ProfilePage = () => {
         await revokeSession(sessionId);
         toast.success("Device logged out successfully");
         setSessions(prev => prev.filter(s => s._id !== sessionId));
-      } catch (err) {
+      } catch {
         toast.error("Failed to revoke session");
       }
     }
@@ -155,7 +155,7 @@ const ProfilePage = () => {
         await deleteAccountAction();
         toast.success("Account deleted successfully");
         // user will be redirected because token/user state is cleared
-      } catch (err) {
+      } catch {
         toast.error("Failed to delete account");
       }
     }

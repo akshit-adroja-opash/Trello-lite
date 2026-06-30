@@ -1,4 +1,3 @@
-import React from 'react';
 
 const Modal = ({ isOpen, onClose, title, icon, children, maxWidth = 'max-w-2xl', bodyClassName = 'p-lg' }) => {
   if (!isOpen) return null;

@@ -22,23 +22,23 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
   const [loadingMembers, setLoadingMembers] = useState(false);
   const [updatingMemberId, setUpdatingMemberId] = useState(null);
 
-  useEffect(() => {
-    if (activeTab === 'members') {
-      loadMembers();
-    }
-  }, [activeTab]);
-
   const loadMembers = async () => {
     setLoadingMembers(true);
     try {
       const res = await getMembers(workspace._id);
       setMembers(res.data?.members || []);
-    } catch (err) {
+    } catch {
       toast.error('Failed to load workspace members');
     } finally {
       setLoadingMembers(false);
     }
   };
+
+  useEffect(() => {
+    if (activeTab === 'members') {
+      loadMembers();
+    }
+  }, [activeTab]);
 
   const handleSaveInfo = async (e) => {
     e.preventDefault();
@@ -58,28 +58,7 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
     }
   };
 
-  const handleRoleChange = async (memberUserId, newRole) => {
-    setUpdatingMemberId(memberUserId);
-    try {
-      // Find member subdocument ID
-      const memberObj = members.find(m => m.user?._id === memberUserId || m.user === memberUserId);
-      if (!memberObj) return;
 
-      const res = await updateMemberRole(workspace._id, memberObj._id, { role: newRole });
-      toast.success('Member role updated');
-
-      // Update local members list
-      setMembers(prev => prev.map(m => m._id === memberObj._id ? { ...m, role: newRole } : m));
-
-      // Notify parent to refresh workspace data
-      const updatedMembers = workspace.members.map(m => m._id === memberObj._id ? { ...m, role: newRole } : m);
-      onWorkspaceUpdated({ ...workspace, members: updatedMembers });
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to update role');
-    } finally {
-      setUpdatingMemberId(null);
-    }
-  };
 
   const handleRemoveMember = async (memberUserId) => {
     const memberObj = members.find(m => m.user?._id === memberUserId || m.user === memberUserId);

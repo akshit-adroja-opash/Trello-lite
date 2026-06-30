@@ -1,5 +1,5 @@
-import { useEffect, useState, useRef } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import useAuthStore from "../store/authstore";
 import { getWorkspaces } from "../api/workspace.api";
@@ -86,7 +86,7 @@ const ReportsPage = () => {
         setSelectedWorkspaceId(initialWorkspaceId);
         setSelectedBoardId(initialBoardId);
 
-      } catch (err) {
+      } catch {
         toast.error("Failed to load workspace data");
       } finally {
         setLoading(false);

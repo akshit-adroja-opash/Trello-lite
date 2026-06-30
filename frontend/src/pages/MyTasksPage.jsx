@@ -57,7 +57,7 @@ const MyTasksPage = () => {
             });
             toast.success('Task block status updated');
             fetchTasks();
-        } catch (err) {
+        } catch {
             toast.error('Failed to update block status');
         }
     };
@@ -71,7 +71,7 @@ const MyTasksPage = () => {
             });
             toast.success('Task review status updated');
             fetchTasks();
-        } catch (err) {
+        } catch {
             toast.error('Failed to update review status');
         }
     };

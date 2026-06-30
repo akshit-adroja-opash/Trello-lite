@@ -1,0 +1,367 @@
+﻿
+D:\Trello-lite\frontend\src\UI\Toast.jsx
+  3:14  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  7:14  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+D:\Trello-lite\frontend\src\components\Board\BoardCalendarView.jsx
+  175:18  error  'err' is defined but never used  no-unused-vars
+
+D:\Trello-lite\frontend\src\components\Board\BoardMembersModal.jsx
+  31:13  error    Error: Cannot access variable before it is declared
+
+`loadBoardMembers` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+  29 |
+  30 |         if (isOpen && board?._id) {
+> 31 |             loadBoardMembers();
+     |             ^^^^^^^^^^^^^^^^ `loadBoardMembers` accessed before it is declared
+  32 |         }
+  33 |
+  34 |     }, [isOpen, board]);
+
+  34 |     }, [isOpen, board]);
+  35 |
+> 36 |     const loadBoardMembers = async () => {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 37 |
+     | ^
+> 38 |         try {
+     ΓÇª
+     | ^
+> 56 |
+     | ^
+> 57 |     };
+     | ^^^^^^^ `loadBoardMembers` is declared here
+  58 |
+  59 |     const handleAddMember = async () => {
+  60 |  react-hooks/immutability
+  34:8   warning  React Hook useEffect has a missing dependency: 'loadBoardMembers'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     react-hooks/exhaustive-deps
+
+D:\Trello-lite\frontend\src\components\Card\CardDetail.jsx
+  131:12  error  'activities' is assigned a value but never used  no-unused-vars
+  263:18  error  'err' is defined but never used                  no-unused-vars
+  277:18  error  'err' is defined but never used                  no-unused-vars
+  354:18  error  'err' is defined but never used                  no-unused-vars
+
+D:\Trello-lite\frontend\src\components\Column\ColumnItem.jsx
+   10:8   error  'useAuthStore' is defined but never used  no-unused-vars
+  106:18  error  'err' is defined but never used           no-unused-vars
+
+D:\Trello-lite\frontend\src\components\Dashboard\AdminDashboardPanel.jsx
+  58:5  error  Error: Cannot reassign variable after render completes
+
+Reassigning `cumulative` after render has completed can cause inconsistent behavior on subsequent renders. Consider using state instead.
+
+  56 |   const gradient = nonZero.map(({ pct, color }) => {
+  57 |     const start = cumulative;
+> 58 |     cumulative += pct;
+     |     ^^^^^^^^^^ Cannot reassign `cumulative` after render completes
+  59 |     return `${color} ${start}% ${cumulative}%`;
+  60 |   }).join(', ');
+  61 |  react-hooks/immutability
+
+D:\Trello-lite\frontend\src\components\Dashboard\ProjectManagerDashboardPanel.jsx
+   47:58  error  'emptyMsg' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                no-unused-vars
+  104:23  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+  102 |         {/* Upcoming Milestones */}
+  103 |         <SectionCard icon="flag" iconColor="text-[#7c3aed]" title="Upcoming Milestones">
+> 104 |           {loading ? <Skeleton /> : data?.upcomingMilestones?.length === 0 ? (
+      |                       ^^^^^^^^ This component is created during render
+  105 |             <p className="font-body-sm text-on-surface-variant dark:text-slate-400 text-center py-md">No upcoming milestones ≡ƒÄë</p>
+  106 |           ) : (
+  107 |             <div className="space-y-xs">
+
+  68 |   }, []);
+  69 |
+> 70 |   const Skeleton = () => (
+     |                    ^^^^^^^
+> 71 |     <div className="space-y-sm">
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 72 |       {Array.from({ length: 3 }).map((_, i) => (
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 73 |         <div key={i} className="h-12 rounded-lg bg-surface-container dark:bg-slate-700 animate-pulse" />
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 74 |       ))}
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 75 |     </div>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 76 |   );
+     | ^^^^ The component is created during render here
+  77 |
+  78 |   return (
+  79 |     <section className="space-y-xl">  react-hooks/static-components
+  115:23  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+  113 |         {/* Blocked Tasks */}
+  114 |         <SectionCard icon="block" iconColor="text-error" title="Blocked Tasks">
+> 115 |           {loading ? <Skeleton /> : data?.blockedTasks?.length === 0 ? (
+      |                       ^^^^^^^^ This component is created during render
+  116 |             <p className="font-body-sm text-on-surface-variant dark:text-slate-400 text-center py-md">No blocked tasks ≡ƒÄë</p>
+  117 |           ) : (
+  118 |             <div className="space-y-xs">
+
+  68 |   }, []);
+  69 |
+> 70 |   const Skeleton = () => (
+     |                    ^^^^^^^
+> 71 |     <div className="space-y-sm">
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 72 |       {Array.from({ length: 3 }).map((_, i) => (
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 73 |         <div key={i} className="h-12 rounded-lg bg-surface-container dark:bg-slate-700 animate-pulse" />
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 74 |       ))}
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 75 |     </div>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 76 |   );
+     | ^^^^ The component is created during render here
+  77 |
+  78 |   return (
+  79 |     <section className="space-y-xl">                             react-hooks/static-components
+  126:23  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+  124 |         {/* Pending Reviews */}
+  125 |         <SectionCard icon="rate_review" iconColor="text-[#f9a825]" title="Client Reviews">
+> 126 |           {loading ? <Skeleton /> : data?.pendingReviews?.length === 0 ? (
+      |                       ^^^^^^^^ This component is created during render
+  127 |             <p className="font-body-sm text-on-surface-variant dark:text-slate-400 text-center py-md">No pending reviews</p>
+  128 |           ) : (
+  129 |             <div className="space-y-xs">
+
+  68 |   }, []);
+  69 |
+> 70 |   const Skeleton = () => (
+     |                    ^^^^^^^
+> 71 |     <div className="space-y-sm">
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 72 |       {Array.from({ length: 3 }).map((_, i) => (
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 73 |         <div key={i} className="h-12 rounded-lg bg-surface-container dark:bg-slate-700 animate-pulse" />
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 74 |       ))}
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 75 |     </div>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 76 |   );
+     | ^^^^ The component is created during render here
+  77 |
+  78 |   return (
+  79 |     <section className="space-y-xl">               react-hooks/static-components
+
+D:\Trello-lite\frontend\src\components\Tasks\FocusTaskPanel.jsx
+    1:8   error  'React' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    no-unused-vars
+   34:9   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  32 |         if (!activeCard) return;
+  33 |
+> 34 |         setCard(activeCard);
+     |         ^^^^^^^ Avoid calling setState() directly within an effect
+  35 |         setTitle(activeCard.title || '');
+  36 |         setDescription(activeCard.description || '');
+  37 |         setDueDate(activeCard.dueDate ? activeCard.dueDate.slice(0, 10) : '');  react-hooks/set-state-in-effect
+   80:18  error  'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      no-unused-vars
+  100:18  error  'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      no-unused-vars
+  122:18  error  'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      no-unused-vars
+  147:18  error  'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      no-unused-vars
+  170:18  error  'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      no-unused-vars
+
+D:\Trello-lite\frontend\src\components\Tasks\TaskQueueFilters.jsx
+  1:8  error  'React' is defined but never used  no-unused-vars
+
+D:\Trello-lite\frontend\src\components\common\Modal.jsx
+  1:8  error  'React' is defined but never used  no-unused-vars
+
+D:\Trello-lite\frontend\src\components\workspace\WorkspaceSettingsModal.jsx
+  27:7   error    Error: Cannot access variable before it is declared
+
+`loadMembers` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+  25 |   useEffect(() => {
+  26 |     if (activeTab === 'members') {
+> 27 |       loadMembers();
+     |       ^^^^^^^^^^^ `loadMembers` accessed before it is declared
+  28 |     }
+  29 |   }, [activeTab]);
+  30 |
+
+  29 |   }, [activeTab]);
+  30 |
+> 31 |   const loadMembers = async () => {
+     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 32 |     setLoadingMembers(true);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 33 |     try {
+     ΓÇª
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 40 |     }
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 41 |   };
+     | ^^^^^ `loadMembers` is declared here
+  42 |
+  43 |   const handleSaveInfo = async (e) => {
+  44 |     e.preventDefault();  react-hooks/immutability
+  29:6   warning  React Hook useEffect has a missing dependency: 'loadMembers'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            react-hooks/exhaustive-deps
+  36:14  error    'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           no-unused-vars
+  61:9   error    'handleRoleChange' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     no-unused-vars
+  68:13  error    'res' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  no-unused-vars
+
+D:\Trello-lite\frontend\src\hooks\useSocket.js
+  12:6  warning  React Hook useEffect has missing dependencies: 'connect' and 'disconnect'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+D:\Trello-lite\frontend\src\pages\AnalyticsPage.jsx
+  20:13  error  'user' is assigned a value but never used  no-unused-vars
+  35:22  error  'err' is defined but never used            no-unused-vars
+
+D:\Trello-lite\frontend\src\pages\AssignTaskPage.jsx
+    2:10  error  'Link' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              no-unused-vars
+   14:11  error  'navigate' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 no-unused-vars
+   15:11  error  'user' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     no-unused-vars
+   16:11  error  'darkMode' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 no-unused-vars
+   45:22  error  'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               no-unused-vars
+   57:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  55 |     useEffect(() => {
+  56 |         if (!selectedWorkspaceId) {
+> 57 |             setBoards([]);
+     |             ^^^^^^^^^ Avoid calling setState() directly within an effect
+  58 |             setSelectedBoardId("");
+  59 |             return;
+  60 |         }                                           react-hooks/set-state-in-effect
+   67:22  error  'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               no-unused-vars
+   77:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  75 |     useEffect(() => {
+  76 |         if (!selectedBoardId) {
+> 77 |             setBoardMembers([]);
+     |             ^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  78 |             setCards([]);
+  79 |             setSelectedCardId("");
+  80 |             setSelectedAssignees([]);  react-hooks/set-state-in-effect
+  134:22  error  'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               no-unused-vars
+
+D:\Trello-lite\frontend\src\pages\BoardPage.jsx
+    7:10  error    'FiUsers' is defined but never used                                                                                                                                                                                                  no-unused-vars
+   22:8   error    'Avatar' is defined but never used                                                                                                                                                                                                   no-unused-vars
+   38:36  error    'presence' is assigned a value but never used                                                                                                                                                                                        no-unused-vars
+   44:12  error    'activeColumn' is assigned a value but never used                                                                                                                                                                                    no-unused-vars
+   46:12  error    'filterLabel' is assigned a value but never used                                                                                                                                                                                     no-unused-vars
+   46:25  error    'setFilterLabel' is assigned a value but never used                                                                                                                                                                                  no-unused-vars
+  115:8   warning  React Hook useEffect has missing dependencies: 'navigate', 'setBoard', 'setCardsForColumn', and 'setColumns'. Either include them or remove the dependency array                                                                     react-hooks/exhaustive-deps
+  219:8   warning  React Hook useEffect has missing dependencies: 'addCard', 'addColumn', 'moveCardOptimistic', 'removeCard', 'removeColumn', 'setPresence', 'storeUpdateCard', and 'updateColumn'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  317:8   warning  React Hook useCallback has missing dependencies: 'moveCardOptimistic', 'setColumns', 'storeUpdateCard', and 'updateColumn'. Either include them or remove the dependency array                                                       react-hooks/exhaustive-deps
+
+D:\Trello-lite\frontend\src\pages\DashboardPage.jsx
+   74:9  error  'isSidebarOpen' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               no-unused-vars
+   75:9  error  'toggleSidebar' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               no-unused-vars
+   76:9  error  'closeSidebar' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                no-unused-vars
+   97:7  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+   95 |       }
+   96 |     } else {
+>  97 |       setDevelopers([]);
+      |       ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+   98 |     }
+   99 |   }, [showInvite, user]);
+  100 |  react-hooks/set-state-in-effect
+  142:9  error  'handleToggleStar' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            no-unused-vars
+  231:9  error  'handleLogout' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                no-unused-vars
+
+D:\Trello-lite\frontend\src\pages\MyTasksPage.jsx
+  41:9   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  39 |     useEffect(() => {
+  40 |         if (!user) return;
+> 41 |         fetchTasks();
+     |         ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  42 |     }, [user, filters]);
+  43 |
+  44 |     // Quick inline toggles  react-hooks/set-state-in-effect
+  42:8   warning  React Hook useEffect has a missing dependency: 'fetchTasks'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          react-hooks/exhaustive-deps
+  60:18  error    'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        no-unused-vars
+  74:18  error    'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        no-unused-vars
+
+D:\Trello-lite\frontend\src\pages\ProfilePage.jsx
+   64:16  error  'err' is defined but never used  no-unused-vars
+  158:16  error  'err' is defined but never used  no-unused-vars
+
+D:\Trello-lite\frontend\src\pages\ReportsPage.jsx
+   1:31  error  'useRef' is defined but never used  no-unused-vars
+   2:10  error  'Link' is defined but never used    no-unused-vars
+  89:16  error  'err' is defined but never used     no-unused-vars
+
+D:\Trello-lite\frontend\src\pages\UserManagementPage.jsx
+   2:10  error  'Link' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     no-unused-vars
+  69:5   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  67 |
+  68 |   useEffect(() => {
+> 69 |     fetchUsers();
+     |     ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  70 |   }, []);
+  71 |
+  72 |   // Filter & Search logic                                     react-hooks/set-state-in-effect
+  90:5   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  88 |
+  89 |   useEffect(() => {
+> 90 |     setCurrentPage(1);
+     |     ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  91 |   }, [searchQuery, roleFilter]);
+  92 |
+  93 |   // Role style configuration  react-hooks/set-state-in-effect
+
+D:\Trello-lite\frontend\src\store\authstore.js
+  63:13  error  Empty block statement  no-empty
+
+Γ£û 70 problems (63 errors, 7 warnings)
+

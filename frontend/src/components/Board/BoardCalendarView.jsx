@@ -172,7 +172,7 @@ const BoardCalendarView = ({ boardId, filteredCards }) => {
                 socket?.emit('card:update', { boardId, card: updatedCard });
                 toast.success(`Cleared due date from "${card.title}"`);
             }
-        } catch (err) {
+        } catch {
             toast.error('Failed to unschedule card');
         }
     };

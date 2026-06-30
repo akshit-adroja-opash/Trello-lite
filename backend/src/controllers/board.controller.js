@@ -70,31 +70,6 @@ export const getSingleBoard = async (req, res, next) => {
             .populate('members.user', 'username email avatar role');
         if (!board) return next(new ApiError(404, 'Board not found'));
 
-        const AdminId = board.Admin?._id || board.Admin;
-        const isAdmin = AdminId?.toString() === req.user._id.toString();
-
-        let isMember = isAdmin || board.members.some(m => {
-            const memberUserId = m.user?._id || m.user;
-            return memberUserId && memberUserId.toString() === req.user._id.toString();
-        });
-
-        if (!isMember) {
-            const workspaceId = board.workspace?._id || board.workspace;
-            if (workspaceId) {
-                const workspace = await Workspace.findById(workspaceId);
-                if (workspace) {
-                    isMember = workspace.members.some(m => {
-                        const wsUserId = m.user?._id || m.user;
-                        return wsUserId && wsUserId.toString() === req.user._id.toString();
-                    });
-                }
-            }
-        }
-
-        if (!isMember) {
-            return next(new ApiError(403, 'Access denied'));
-        }
-
         res.status(200).json({ status: 'success', data: { board: formatBoard(board, req.user._id) } });
     } catch (error) { next(error); }
 };
@@ -105,8 +80,6 @@ export const updateBoard = async (req, res, next) => {
         const { name, background } = req.body;
         const board = await Board.findById(boardId);
         if (!board) return next(new ApiError(404, 'Board not found'));
-        if (board.Admin?.toString() !== req.user._id.toString() && req.user.role !== 'admin' && req.user.role !== 'project_manager')
-            return next(new ApiError(403, 'Only the Admin or System Admin can update this board'));
         if (name) board.name = name;
         if (background) board.background = background;
         await board.save();
@@ -119,8 +92,6 @@ export const deleteBoard = async (req, res, next) => {
         const { boardId } = req.params;
         const board = await Board.findById(boardId);
         if (!board) return next(new ApiError(404, 'Board not found'));
-        if (board.Admin?.toString() !== req.user._id.toString() && req.user.role !== 'admin' && req.user.role !== 'project_manager')
-            return next(new ApiError(403, 'Only the Admin or System Admin can delete this board'));
         await board.deleteOne();
         res.status(200).json({ status: 'success', message: 'Board deleted' });
     } catch (error) { next(error); }
@@ -141,16 +112,6 @@ export const addBoardMember = async (req, res, next) => {
         const { email, role = 'developer' } = req.body;
         const board = await Board.findById(boardId);
         if (!board) return next(new ApiError(404, 'Board not found'));
-
-        const isSystemAdmin = req.user.role === 'admin';
-        const workspace = await Workspace.findById(board.workspace);
-        const wsMember = workspace?.members.find(m => m.user?.toString() === req.user._id.toString());
-        const isWorkspaceOwner = workspace?.Admin?.toString() === req.user._id.toString();
-        const isWorkspaceAdmin = wsMember?.role === 'admin' || isWorkspaceOwner || req.user.role === 'project_manager';
-
-        if (!isSystemAdmin && !isWorkspaceAdmin) {
-            return next(new ApiError(403, 'Only Workspace Admins or System Admins can add members'));
-        }
 
         const { default: User } = await import('../models/User.js');
         const invitee = await User.findOne({ email });
@@ -176,15 +137,6 @@ export const updateBoardMemberRole = async (req, res, next) => {
         const board = await Board.findById(boardId);
         if (!board) return next(new ApiError(404, 'Board not found'));
 
-        const isSystemAdmin = req.user.role === 'admin';
-        const workspace = await Workspace.findById(board.workspace);
-        const wsMember = workspace?.members.find(m => m.user?.toString() === req.user._id.toString());
-        const isWorkspaceOwner = workspace?.Admin?.toString() === req.user._id.toString();
-        const isWorkspaceAdmin = wsMember?.role === 'admin' || isWorkspaceOwner || req.user.role === 'project_manager';
-
-        if (!isSystemAdmin && !isWorkspaceAdmin) {
-            return next(new ApiError(403, 'Only Workspace Admins or System Admins can change roles'));
-        }
         const member = board.members.find(m => m.user?.toString() === memberId);
         if (!member) return next(new ApiError(404, 'Member not found'));
         member.role = role;
@@ -198,16 +150,6 @@ export const removeBoardMember = async (req, res, next) => {
         const { boardId, memberId } = req.params;
         const board = await Board.findById(boardId);
         if (!board) return next(new ApiError(404, 'Board not found'));
-
-        const isSystemAdmin = req.user.role === 'admin';
-        const workspace = await Workspace.findById(board.workspace);
-        const wsMember = workspace?.members.find(m => m.user?.toString() === req.user._id.toString());
-        const isWorkspaceOwner = workspace?.Admin?.toString() === req.user._id.toString();
-        const isWorkspaceAdmin = wsMember?.role === 'admin' || isWorkspaceOwner || req.user.role === 'project_manager';
-
-        if (!isSystemAdmin && !isWorkspaceAdmin) {
-            return next(new ApiError(403, 'Only Workspace Admins or System Admins can remove members'));
-        }
 
         board.members = board.members.filter(m => m.user?.toString() !== memberId);
         await board.save();

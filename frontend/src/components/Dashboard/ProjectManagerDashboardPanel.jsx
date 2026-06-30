@@ -56,6 +56,14 @@ function SectionCard({ icon, iconColor, title, children, emptyMsg }) {
   );
 }
 
+const Skeleton = () => (
+  <div className="space-y-sm">
+    {Array.from({ length: 3 }).map((_, i) => (
+      <div key={i} className="h-12 rounded-lg bg-surface-container dark:bg-slate-700 animate-pulse" />
+    ))}
+  </div>
+);
+
 export default function ProjectManagerDashboardPanel() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -67,13 +75,6 @@ export default function ProjectManagerDashboardPanel() {
       .finally(() => setLoading(false));
   }, []);
 
-  const Skeleton = () => (
-    <div className="space-y-sm">
-      {Array.from({ length: 3 }).map((_, i) => (
-        <div key={i} className="h-12 rounded-lg bg-surface-container dark:bg-slate-700 animate-pulse" />
-      ))}
-    </div>
-  );
 
   return (
     <section className="space-y-xl">
