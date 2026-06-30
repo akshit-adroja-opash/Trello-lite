@@ -374,29 +374,6 @@ input:-webkit-autofill:active {
   background: var(--primary-bg);
 }
 
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.3);
-  backdrop-filter: blur(4px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 100;
-  padding: 20px;
-  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.modal-content {
-  width: min(540px, 100%);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  padding: 32px;
-  border-radius: 20px;
-  box-shadow: var(--shadow-lg);
-  position: relative;
-  animation: scaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
 
 .avatar {
   width: 36px;

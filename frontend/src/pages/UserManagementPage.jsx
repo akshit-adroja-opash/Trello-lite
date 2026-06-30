@@ -7,6 +7,7 @@ import Navbar from '../components/Layout/Navbar';
 import DashboardSidebar from '../components/Layout/DashboardSidebar';
 import Avatar from '../UI/Avatar';
 import CustomSelect from '../components/common/CustomSelect';
+import Modal from '../components/common/Modal';
 
 export default function UserManagementPage() {
   const navigate = useNavigate();
@@ -400,99 +401,91 @@ export default function UserManagementPage() {
       {/* MODALS */}
 
       {/* Invite User Modal */}
-      {showInviteModal && (
-        <div className="modal-overlay">
-          <div className="modal-content dark:bg-slate-800 dark:border-slate-700">
-            <div className="flex justify-between items-center mb-md">
-              <h3 className="font-title-md text-title-md text-primary dark:text-white">Invite / Create New User</h3>
-              <button
-                onClick={() => setShowInviteModal(false)}
-                className="text-on-surface-variant dark:text-slate-400 hover:text-primary dark:hover:text-white"
-              >
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
-            <form onSubmit={handleInviteSubmit} className="space-y-md">
-              <div>
-                <label className="block font-body-sm text-on-surface-variant dark:text-slate-350 mb-xs">Username</label>
-                <input
-                  type="text"
-                  required
-                  value={inviteForm.username}
-                  onChange={(e) => setInviteForm({ ...inviteForm, username: e.target.value })}
-                  placeholder="e.g. sarahjenkins"
-                  className="w-full border border-outline-variant dark:border-slate-700 rounded-lg px-md py-sm bg-transparent dark:text-white focus:border-secondary dark:focus:border-indigo-500 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block font-body-sm text-on-surface-variant dark:text-slate-350 mb-xs">Email Address</label>
-                <input
-                  type="email"
-                  required
-                  value={inviteForm.email}
-                  onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })}
-                  placeholder="sarah.j@company.com"
-                  className="w-full border border-outline-variant dark:border-slate-700 rounded-lg px-md py-sm bg-transparent dark:text-white focus:border-secondary dark:focus:border-indigo-500 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block font-body-sm text-on-surface-variant dark:text-slate-350 mb-xs">Password</label>
-                <input
-                  type="password"
-                  required
-                  value={inviteForm.password}
-                  onChange={(e) => setInviteForm({ ...inviteForm, password: e.target.value })}
-                  placeholder="••••••••"
-                  className="w-full border border-outline-variant dark:border-slate-700 rounded-lg px-md py-sm bg-transparent dark:text-white focus:border-secondary dark:focus:border-indigo-500 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block font-body-sm text-on-surface-variant dark:text-slate-350 mb-xs">Role</label>
-                <CustomSelect
-                  value={inviteForm.role}
-                  onChange={(val) => setInviteForm({ ...inviteForm, role: val })}
-                  options={[
-                    { value: "admin", label: "Admin" },
-                    { value: "project_manager", label: "Project Manager" },
-                    { value: "developer", label: "Developer" },
-                    { value: "client", label: "Client" },
-                  ]}
-                  placeholder="Select Role"
-                />
-              </div>
-
-              <div className="flex gap-md justify-end pt-md">
-                <button
-                  type="button"
-                  onClick={() => setShowInviteModal(false)}
-                  className="px-lg py-sm border border-outline-variant dark:border-slate-700 rounded-lg font-medium text-body-sm text-on-surface-variant dark:text-slate-400 hover:bg-surface-container dark:hover:bg-slate-700"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={actionLoading}
-                  className="px-lg py-sm bg-secondary text-white dark:bg-indigo-600 rounded-lg font-medium text-body-sm hover:opacity-90 flex items-center gap-xs"
-                >
-                  {actionLoading && <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
-                  Create User
-                </button>
-              </div>
-            </form>
+      <Modal 
+        isOpen={showInviteModal} 
+        onClose={() => setShowInviteModal(false)} 
+        title="Invite / Create New User"
+      >
+        <form onSubmit={handleInviteSubmit} className="space-y-md pt-sm">
+          <div>
+            <label className="block font-body-sm text-on-surface-variant dark:text-slate-350 mb-xs">Username</label>
+            <input
+              type="text"
+              required
+              value={inviteForm.username}
+              onChange={(e) => setInviteForm({ ...inviteForm, username: e.target.value })}
+              placeholder="e.g. sarahjenkins"
+              className="w-full border border-outline-variant dark:border-slate-700 rounded-lg px-md py-sm bg-transparent dark:text-white focus:border-secondary dark:focus:border-indigo-500 focus:outline-none"
+            />
           </div>
-        </div>
-      )}
+
+          <div>
+            <label className="block font-body-sm text-on-surface-variant dark:text-slate-350 mb-xs">Email Address</label>
+            <input
+              type="email"
+              required
+              value={inviteForm.email}
+              onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })}
+              placeholder="sarah.j@company.com"
+              className="w-full border border-outline-variant dark:border-slate-700 rounded-lg px-md py-sm bg-transparent dark:text-white focus:border-secondary dark:focus:border-indigo-500 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="block font-body-sm text-on-surface-variant dark:text-slate-350 mb-xs">Password</label>
+            <input
+              type="password"
+              required
+              value={inviteForm.password}
+              onChange={(e) => setInviteForm({ ...inviteForm, password: e.target.value })}
+              placeholder="••••••••"
+              className="w-full border border-outline-variant dark:border-slate-700 rounded-lg px-md py-sm bg-transparent dark:text-white focus:border-secondary dark:focus:border-indigo-500 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="block font-body-sm text-on-surface-variant dark:text-slate-350 mb-xs">Role</label>
+            <CustomSelect
+              value={inviteForm.role}
+              onChange={(val) => setInviteForm({ ...inviteForm, role: val })}
+              options={[
+                { value: "admin", label: "Admin" },
+                { value: "project_manager", label: "Project Manager" },
+                { value: "developer", label: "Developer" },
+                { value: "client", label: "Client" },
+              ]}
+              placeholder="Select Role"
+            />
+          </div>
+
+          <div className="flex gap-md justify-end pt-md">
+            <button
+              type="button"
+              onClick={() => setShowInviteModal(false)}
+              className="px-lg py-sm border border-outline-variant dark:border-slate-700 rounded-lg font-medium text-body-sm text-on-surface-variant dark:text-slate-400 hover:bg-surface-container dark:hover:bg-slate-700"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={actionLoading}
+              className="px-lg py-sm bg-secondary text-white dark:bg-indigo-600 rounded-lg font-medium text-body-sm hover:opacity-90 flex items-center gap-xs"
+            >
+              {actionLoading && <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
+              Create User
+            </button>
+          </div>
+        </form>
+      </Modal>
 
       {/* Change Role Modal */}
-      {showRoleModal && selectedUser && (
-        <div className="modal-overlay">
-          <div className="modal-content dark:bg-slate-800 dark:border-slate-700">
-            <h3 className="font-title-md text-title-md text-primary dark:text-white mb-sm">
-              Change System Role
-            </h3>
+      {selectedUser && (
+        <Modal 
+          isOpen={showRoleModal} 
+          onClose={() => setShowRoleModal(false)} 
+          title="Change System Role"
+        >
+          <div className="pt-sm">
             <p className="font-body-sm text-on-surface-variant dark:text-slate-400 mb-md">
               Update the global permissions for user <strong>{selectedUser.username}</strong> ({selectedUser.email}).
             </p>
@@ -512,7 +505,7 @@ export default function UserManagementPage() {
               />
             </div>
 
-            <div className="flex gap-md justify-end">
+            <div className="flex gap-md justify-end pt-md">
               <button
                 onClick={() => setShowRoleModal(false)}
                 className="px-lg py-sm border border-outline-variant dark:border-slate-700 rounded-lg font-medium text-body-sm text-on-surface-variant dark:text-slate-400 hover:bg-surface-container dark:hover:bg-slate-700"
@@ -529,22 +522,22 @@ export default function UserManagementPage() {
               </button>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
 
       {/* Delete User Modal */}
-      {showDeleteModal && selectedUser && (
-        <div className="modal-overlay">
-          <div className="modal-content dark:bg-slate-800 dark:border-slate-700 border-error/30">
-            <h3 className="font-title-md text-title-md text-error mb-sm flex items-center gap-xs">
-              <span className="material-symbols-outlined text-error">warning</span>
-              Delete User Account
-            </h3>
+      {selectedUser && (
+        <Modal 
+          isOpen={showDeleteModal} 
+          onClose={() => setShowDeleteModal(false)} 
+          title="Delete User Account"
+        >
+          <div className="pt-sm">
             <p className="font-body-sm text-on-surface-variant dark:text-slate-400 mb-md">
               Are you sure you want to delete the user <strong>{selectedUser.username}</strong>? This action is permanent and will revoke all access immediately.
             </p>
 
-            <div className="flex gap-md justify-end">
+            <div className="flex gap-md justify-end pt-md">
               <button
                 onClick={() => setShowDeleteModal(false)}
                 className="px-lg py-sm border border-outline-variant dark:border-slate-700 rounded-lg font-medium text-body-sm text-on-surface-variant dark:text-slate-400 hover:bg-surface-container dark:hover:bg-slate-700"
@@ -561,7 +554,7 @@ export default function UserManagementPage() {
               </button>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   );

@@ -4,6 +4,7 @@ import Avatar from '../../UI/Avatar';
 import { getMembers, updateMemberRole, removeMember, updateWorkspace } from '../../api/workspace.api';
 import { getRoleDisplayName } from '../../utils/roleDisplay';
 import useAuthStore from '../../store/authstore';
+import Modal from '../common/Modal';
 
 const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
   const [activeTab, setActiveTab] = useState('general'); // 'general' | 'members'
@@ -107,8 +108,12 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
   const AdminId = workspace.Admin?._id || workspace.Admin;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm px-4 py-6 transition-all overflow-y-auto" onClick={onClose}>
-      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-2xl border border-slate-100 dark:border-slate-700 w-full max-w-[682px] overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+    <Modal 
+      isOpen={true} 
+      onClose={onClose} 
+      maxWidth="max-w-[682px]" 
+      bodyClassName="p-0"
+    >
 
         {/* Header */}
         <header className="p-6 pb-4 flex justify-between items-start">
@@ -320,8 +325,7 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
 
         </div>
 
-      </div>
-    </div>
+    </Modal>
   );
 };
 
