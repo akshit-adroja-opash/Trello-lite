@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 
-const CustomSelect = ({ value, onChange, options, icon, placeholder, staticDropdown = false }) => {
+const CustomSelect = ({ value, onChange, options, icon, placeholder, staticDropdown = false, minWidth = "min-w-[200px]", className = "" }) => {
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef(null);
 
@@ -17,23 +17,23 @@ const CustomSelect = ({ value, onChange, options, icon, placeholder, staticDropd
   const selected = options.find(o => o.value === value);
 
   return (
-    <div className="relative" ref={ref}>
-      <button 
+    <div className={`relative ${className}`} ref={ref}>
+      <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between gap-3 bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 text-body-sm font-medium text-on-surface dark:text-white rounded-lg px-4 py-2 hover:border-secondary hover:ring-1 hover:ring-secondary/50 focus:border-secondary focus:ring-2 focus:ring-secondary/20 shadow-sm transition-all min-w-[200px] w-full"
+        className={`flex items-center justify-between gap-2 sm:gap-3 bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 text-body-sm font-medium text-on-surface dark:text-white rounded-lg px-3 sm:px-4 py-2 hover:border-secondary hover:ring-1 hover:ring-secondary/50 focus:border-secondary focus:ring-2 focus:ring-secondary/20 shadow-sm transition-all ${minWidth} w-full`}
       >
-        <div className="flex items-center gap-2 truncate">
-          {icon && <span className="material-symbols-outlined text-[18px] text-on-surface-variant dark:text-slate-400">{icon}</span>}
+        <div className="flex items-center gap-1.5 sm:gap-2 truncate min-w-0">
+          {icon && <span className="material-symbols-outlined text-[18px] text-on-surface-variant dark:text-slate-400 shrink-0">{icon}</span>}
           <span className="truncate">{selected ? selected.label : placeholder}</span>
         </div>
-        <span className={`material-symbols-outlined text-[20px] text-on-surface-variant dark:text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
+        <span className={`material-symbols-outlined text-[20px] text-on-surface-variant dark:text-slate-400 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
           expand_more
         </span>
       </button>
 
       {isOpen && (
-        <div className={`${staticDropdown ? 'mt-2' : 'absolute z-[100] top-full right-0 mt-1.5'} w-full min-w-[200px] bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 rounded-xl shadow-lg overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200`}>
+        <div className={`${staticDropdown ? 'mt-2' : 'absolute z-[100] top-full right-0 mt-1.5'} w-full ${minWidth} bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 rounded-xl shadow-lg overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200`}>
           <div className="max-h-60 overflow-y-auto custom-scrollbar p-1.5">
             {options.map((opt) => (
               <button

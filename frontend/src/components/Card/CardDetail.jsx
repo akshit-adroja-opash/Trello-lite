@@ -572,18 +572,18 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                 </DndContext>
                             </div>
 
-                            <div className="flex gap-2">
+                            <div className="flex items-center gap-2 min-w-0">
                                 <input
                                     value={newCheckItem}
                                     onChange={e => setNewCheckItem(e.target.value)}
                                     onKeyDown={e => e.key === 'Enter' && addCheck()}
                                     placeholder="Add task checkpoint..."
                                     type="text"
-                                    className="flex-1 bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-700 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all dark:text-white"
+                                    className="flex-1 min-w-0 bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-700 rounded-lg px-3 py-1.5 sm:px-4 sm:py-2 text-sm focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all dark:text-white"
                                 />
                                 <button
                                     onClick={addCheck}
-                                    className="bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 px-4 py-1.5 rounded-lg font-bold text-sm hover:bg-slate-200 dark:hover:bg-slate-750 transition-all active:scale-95 border border-slate-200 dark:border-slate-700"
+                                    className="shrink-0 bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg font-bold text-sm hover:bg-slate-200 dark:hover:bg-slate-750 transition-all active:scale-95 border border-slate-200 dark:border-slate-700"
                                 >
                                     Add Item
                                 </button>

@@ -196,7 +196,7 @@ const DashboardPage = () => {
 
       {/* Main Content Canvas */}
       <main className="ml-0 lg:ml-[280px] pt-16 min-h-screen">
-        <div className="max-w-[1400px] mx-auto p-6 lg:p-10">
+        <div className="max-w-[1400px] mx-auto p-4 sm:p-6 lg:p-10">
 
           {/* Role-Aware Dashboard Panel */}
           {user?.role === 'admin' && <div className="mb-xl"><AdminDashboardPanel /></div>}
@@ -205,11 +205,11 @@ const DashboardPage = () => {
           {user?.role === 'client' && <div className="mb-xl"><ClientDashboardPanel /></div>}
 
           {/* Workspaces Section */}
-          <div className="flex justify-between items-center mb-md">
+          <div className="flex justify-between items-center mb-md gap-3">
             <h3 className="font-title-md text-title-md text-primary dark:text-white">My Workspaces</h3>
             {user?.role !== 'developer' && user?.role !== 'client' && (
               <button onClick={() => setShowCreateWs(true)}
-                className="bg-secondary text-on-secondary px-lg py-sm rounded-lg font-body-sm font-medium hover:opacity-90 transition-opacity shadow-sm flex items-center gap-xs">
+                className="bg-secondary text-on-secondary px-3.5 py-2 rounded-lg font-body-sm font-medium hover:opacity-90 transition-opacity shadow-sm flex items-center gap-1.5 whitespace-nowrap">
                 <span className="material-symbols-outlined text-[18px]">add</span>
                 New Workspace
               </button>
@@ -297,52 +297,68 @@ const DashboardPage = () => {
                 );
 
                 return (
-                  <div key={ws._id} className="tonal-card rounded-3xl p-8 border border-outline-variant dark:border-slate-700 dark:bg-slate-800/40 overflow-hidden mb-8">
+                  <div key={ws._id} className="tonal-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 border border-outline-variant dark:border-slate-700 dark:bg-slate-800/40 overflow-hidden mb-6 sm:mb-8">
 
                     {/* Workspace Meta Header */}
-                    <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-8">
-                      <div className="flex gap-4">
-                        <div className="w-16 h-16 rounded-2xl bg-primary-fixed-dim text-on-primary-fixed text-2xl font-black border border-outline-variant dark:border-slate-700 flex items-center justify-center">
-                          {ws.name.charAt(0).toUpperCase()}
+                    <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-6 sm:mb-8">
+                      <div className="flex justify-between items-start w-full md:w-auto gap-2">
+                        <div className="flex gap-3 sm:gap-4">
+                          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-primary-fixed-dim text-on-primary-fixed text-xl sm:text-2xl font-black border border-outline-variant dark:border-slate-700 flex items-center justify-center shrink-0">
+                            {ws.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-headline-lg text-lg sm:text-headline-sm text-primary dark:text-white">{ws.name}</span>
+                              {overdueCounts[ws._id] > 0 && (
+                                <span className="inline-flex items-center gap-1 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 border border-rose-200/60 dark:border-rose-900/40 text-[11.5px] font-bold px-2 py-0.5 rounded-full select-none shadow-sm animate-pulse">
+                                  <span className="material-symbols-outlined text-[13px] text-rose-500">alarm</span>
+                                  {overdueCounts[ws._id]} Overdue
+                                </span>
+                              )}
+                            </div>
+                            {ws.description && <p className="font-body-md text-sm sm:text-base text-on-primary-container dark:text-slate-400 mb-1">{ws.description}</p>}
+                            <div className="flex items-center gap-1.5 text-on-primary-container dark:text-slate-400">
+                              <span className="material-symbols-outlined text-[18px]">link</span>
+                              <span className="font-body-sm font-semibold">{ws.members?.length || 1} members</span>
+                            </div>
+                          </div>
                         </div>
-                        <div>
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-headline-lg text-headline-sm text-primary dark:text-white">{ws.name}</span>
-                            {overdueCounts[ws._id] > 0 && (
-                              <span className="inline-flex items-center gap-1 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 border border-rose-200/60 dark:border-rose-900/40 text-[11.5px] font-bold px-2 py-0.5 rounded-full select-none shadow-sm animate-pulse">
-                                <span className="material-symbols-outlined text-[13px] text-rose-500">alarm</span>
-                                {overdueCounts[ws._id]} Overdue
-                              </span>
-                            )}
-                          </div>
-                          {ws.description && <p className="font-body-md text-on-primary-container dark:text-slate-400 mb-1">{ws.description}</p>}
-                          <div className="flex items-center gap-1.5 text-on-primary-container dark:text-slate-400">
-                            <span className="material-symbols-outlined text-[18px]">link</span>
-                            <span className="font-body-sm font-semibold">{ws.members?.length || 1} members</span>
-                          </div>
+
+                        {/* Mobile-only Top Right Corner Action Buttons */}
+                        <div className="flex md:hidden gap-1.5 items-center shrink-0">
+                          {isWsAdmin && (
+                            <button onClick={() => openWorkspaceSettings(ws)} className="flex items-center justify-center p-2 bg-surface-container-low dark:bg-slate-700 text-on-surface-variant dark:text-slate-200 rounded-xl border border-outline-variant dark:border-slate-600 hover:bg-surface-container-high dark:hover:bg-slate-650 transition-colors shadow-xs" title="Workspace Settings">
+                              <span className="material-symbols-outlined text-[18px]">settings</span>
+                            </button>
+                          )}
+                          {isActualAdmin && (
+                            <button onClick={() => handleDeleteWorkspace(ws._id)} className="flex items-center justify-center p-2 text-error hover:bg-error-container hover:text-on-error-container rounded-xl transition-all shadow-xs" title="Delete Workspace">
+                              <span className="material-symbols-outlined text-[18px]">delete</span>
+                            </button>
+                          )}
                         </div>
                       </div>
 
-                      <div className="flex gap-2 flex-wrap w-full md:w-auto items-center">
+                      <div className="flex gap-2 flex-wrap w-full md:w-auto items-center pt-1 md:pt-0">
                         {isWsAdmin && (
-                          <button onClick={() => setShowInvite(ws._id)} className="flex-1 md:flex-none flex items-center justify-center gap-1 px-4 py-2 bg-surface-container-low dark:bg-slate-700 text-on-surface-variant dark:text-slate-200 rounded-lg border border-outline-variant dark:border-slate-600 hover:bg-surface-container-high dark:hover:bg-slate-650 transition-colors font-body-sm font-semibold">
+                          <button onClick={() => setShowInvite(ws._id)} className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3.5 py-2 bg-surface-container-low dark:bg-slate-700 text-on-surface-variant dark:text-slate-200 rounded-xl border border-outline-variant dark:border-slate-600 hover:bg-surface-container-high dark:hover:bg-slate-650 transition-colors font-body-sm font-semibold whitespace-nowrap shadow-xs">
                             <span className="material-symbols-outlined text-[18px]">person_add</span>
                             <span>Invite Members</span>
                           </button>
                         )}
                         {isWsAdmin && (
-                          <button onClick={() => setShowCreateBoard(ws._id)} className="flex-1 md:flex-none flex items-center justify-center gap-1 px-4 py-2 bg-secondary text-white rounded-lg border border-secondary hover:opacity-90 transition-opacity font-body-sm font-semibold">
+                          <button onClick={() => setShowCreateBoard(ws._id)} className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3.5 py-2 bg-secondary text-white rounded-xl border border-secondary hover:opacity-90 transition-opacity font-body-sm font-semibold whitespace-nowrap shadow-xs">
                             <span className="material-symbols-outlined text-[18px]">add</span>
                             <span>Add Board</span>
                           </button>
                         )}
                         {isWsAdmin && (
-                          <button onClick={() => openWorkspaceSettings(ws)} className="flex-1 md:flex-none flex items-center justify-center p-2 bg-surface-container-low dark:bg-slate-700 text-on-surface-variant dark:text-slate-200 rounded-lg border border-outline-variant dark:border-slate-600 hover:bg-surface-container-high dark:hover:bg-slate-650 transition-colors" title="Workspace Settings">
+                          <button onClick={() => openWorkspaceSettings(ws)} className="hidden md:flex shrink-0 items-center justify-center p-2 bg-surface-container-low dark:bg-slate-700 text-on-surface-variant dark:text-slate-200 rounded-xl border border-outline-variant dark:border-slate-600 hover:bg-surface-container-high dark:hover:bg-slate-650 transition-colors shadow-xs" title="Workspace Settings">
                             <span className="material-symbols-outlined text-[18px]">settings</span>
                           </button>
                         )}
                         {isActualAdmin && (
-                          <button onClick={() => handleDeleteWorkspace(ws._id)} className="flex-1 md:flex-none flex items-center justify-center p-2 text-error hover:bg-error-container hover:text-on-error-container rounded-lg transition-all" title="Delete Workspace">
+                          <button onClick={() => handleDeleteWorkspace(ws._id)} className="hidden md:flex shrink-0 items-center justify-center p-2 text-error hover:bg-error-container hover:text-on-error-container rounded-xl transition-all shadow-xs" title="Delete Workspace">
                             <span className="material-symbols-outlined text-[18px]">delete</span>
                           </button>
                         )}
@@ -351,13 +367,13 @@ const DashboardPage = () => {
 
                     {/* Members Strip */}
                     {ws.members && ws.members.length > 0 && (
-                      <div className="flex flex-wrap items-center gap-4 border-y border-outline-variant/30 py-4 mb-8">
-                        <span className="font-label-caps text-label-caps text-outline dark:text-slate-400 mr-2">MEMBERS:</span>
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-3 border-y border-outline-variant/30 py-3.5 mb-6 sm:mb-8">
+                        <span className="font-label-caps text-xs text-outline dark:text-slate-400 mr-1 font-semibold w-full sm:w-auto mb-1 sm:mb-0">MEMBERS:</span>
                         {ws.members.map(member => (
-                          <div key={member._id} className="flex items-center gap-1 bg-surface-container-low dark:bg-slate-700 border border-outline-variant dark:border-slate-600 px-2 py-1 rounded-full shadow-sm">
-                            <Avatar name={member.user?.username} avatar={member.user?.avatar} size={24} />
-                            <span className="font-body-sm font-semibold text-on-surface dark:text-slate-200">{member.user?.username || member.user?.email}</span>
-                            <span className="font-label-caps text-[10px] bg-secondary-fixed-dim text-on-secondary-fixed-variant dark:text-slate-900 px-1.5 py-0.5 rounded-full uppercase ml-1">
+                          <div key={member._id} className="flex items-center gap-1.5 bg-surface-container-low dark:bg-slate-700/80 border border-outline-variant dark:border-slate-600 px-2.5 py-1 rounded-full shadow-2xs max-w-full">
+                            <Avatar name={member.user?.username} avatar={member.user?.avatar} size={22} />
+                            <span className="font-body-sm text-xs sm:text-sm font-semibold text-on-surface dark:text-slate-200 truncate max-w-[110px] sm:max-w-none">{member.user?.username || member.user?.email}</span>
+                            <span className="font-label-caps text-[9.5px] font-bold bg-secondary-fixed-dim text-on-secondary-fixed-variant dark:text-slate-900 px-1.5 py-0.5 rounded-full uppercase ml-0.5 shrink-0">
                               {getRoleDisplayName(member.user?.role || member.role)}
                             </span>
                           </div>

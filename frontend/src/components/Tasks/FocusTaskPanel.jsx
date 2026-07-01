@@ -272,15 +272,15 @@ const FocusTaskPanel = ({ cards, initialIndex, onClose, onCardUpdated }) => {
                                 ))}
                             </div>
 
-                            <form onSubmit={handleAddCheckItem} className="flex items-center gap-sm mt-2">
+                            <form onSubmit={handleAddCheckItem} className="flex items-center gap-2 mt-2 min-w-0">
                                 <input 
                                     value={newCheckItem}
                                     onChange={e => setNewCheckItem(e.target.value)}
-                                    className="flex-1 bg-surface-container-low dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg px-md py-sm font-body-sm text-on-surface dark:text-slate-200 focus:border-secondary focus:ring-2 focus:ring-secondary/20 transition-all outline-none" 
+                                    className="flex-1 min-w-0 bg-surface-container-low dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg px-3 py-1.5 sm:px-4 sm:py-2 font-body-sm text-on-surface dark:text-slate-200 focus:border-secondary focus:ring-2 focus:ring-secondary/20 transition-all outline-none" 
                                     placeholder="Add checklist item..." 
                                     type="text"
                                 />
-                                <button type="submit" className="bg-secondary dark:bg-blue-600 text-on-secondary dark:text-white font-body-sm font-medium px-md py-sm rounded-lg hover:bg-secondary-container hover:text-on-secondary-container dark:hover:bg-blue-700 transition-colors shadow-sm whitespace-nowrap">
+                                <button type="submit" className="shrink-0 bg-secondary dark:bg-blue-600 text-on-secondary dark:text-white font-body-sm font-medium px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg hover:bg-secondary-container hover:text-on-secondary-container dark:hover:bg-blue-700 transition-colors shadow-sm whitespace-nowrap">
                                     Add Item
                                 </button>
                             </form>

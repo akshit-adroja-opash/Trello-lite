@@ -170,20 +170,20 @@ const MyTasksPage = () => {
     };
 
     return (
-        <AdminPanelLayout mainClassName="max-w-[1600px] w-full h-full min-h-[calc(100vh-120px)] mx-auto px-margin-mobile md:px-margin-desktop py-lg flex flex-col gap-lg">
+        <AdminPanelLayout mainClassName="max-w-[1400px] w-full h-full min-h-[calc(100vh-120px)] flex flex-col gap-lg">
             
             {/* Page Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="font-headline-lg text-[32px] font-bold text-primary dark:text-white tracking-tight mb-1">Work Queue</h1>
+                    <h1 className="font-display-xl text-display-xl text-primary dark:text-white font-bold tracking-tight mb-1">Work Queue</h1>
                     <p className="font-body-md text-[16px] text-on-surface-variant dark:text-slate-400">Track assigned cards, blockers, reviews, and upcoming work.</p>
                 </div>
                 {cards.length > 0 && !loading && (
                     <button 
                         onClick={() => setFocusMode(true)}
-                        className="flex items-center gap-2 bg-secondary-container dark:bg-blue-600 text-on-secondary-container dark:text-white font-title-md text-[20px] font-semibold px-6 py-3 rounded-lg hover:bg-secondary-container/90 dark:hover:bg-blue-700 transition-colors shadow-sm self-start md:self-auto"
+                        className="flex items-center gap-2 bg-secondary-container dark:bg-blue-600 text-on-secondary-container dark:text-white font-body-md text-sm font-semibold px-4 py-2 rounded-lg hover:bg-secondary-container/90 dark:hover:bg-blue-700 transition-colors shadow-sm self-end md:self-auto"
                     >
-                        <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
+                        <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
                         Start Focus Mode
                     </button>
                 )}

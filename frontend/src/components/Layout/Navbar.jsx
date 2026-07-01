@@ -38,10 +38,10 @@ const Navbar = ({ searchQuery, setSearchQuery }) => {
 
   return (
     <header className="fixed top-0 right-0 w-full lg:w-[calc(100%-280px)] h-16 z-40 bg-surface-container-lowest dark:bg-slate-800 border-b border-outline-variant dark:border-slate-700 transition-colors">
-      <div className="flex justify-between items-center px-6 lg:px-10 h-full">
+      <div className="flex justify-between items-center px-3 sm:px-6 lg:px-10 h-full">
         
         {/* Search Bar / Mobile Menu trigger */}
-        <div className="flex items-center flex-1 max-w-md">
+        <div className="flex items-center flex-1 max-w-[165px] sm:max-w-[250px] md:max-w-md">
           <button
             onClick={toggleSidebar}
             className="lg:hidden p-2 text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-slate-700 rounded-lg mr-2 transition-colors shrink-0"
@@ -72,8 +72,8 @@ const Navbar = ({ searchQuery, setSearchQuery }) => {
         </div>
 
         {/* Global Toolbar items */}
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-6">
+          <div className="flex items-center gap-1 sm:gap-4">
             {isDashboard && <ThemeToggle />}
             <NotificationBell />
           </div>

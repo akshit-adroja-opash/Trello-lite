@@ -179,7 +179,7 @@ export default function UserManagementPage() {
       <div className="flex flex-1 pt-16 h-full">
         <DashboardSidebar />
 
-        <main className="flex-1 ml-0 lg:ml-[280px] p-6 lg:p-10 overflow-y-auto w-full flex flex-col justify-center items-center">
+        <main className="flex-1 ml-0 lg:ml-[280px] p-6 lg:p-10 overflow-y-auto w-full flex flex-col justify-start items-center">
           <div className="w-full max-w-[1600px]">
           {/* Header */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-xl gap-md">

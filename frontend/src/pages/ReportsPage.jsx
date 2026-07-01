@@ -275,40 +275,46 @@ const ReportsPage = () => {
       <div className="flex flex-1 pt-16 h-full">
         <DashboardSidebar currentWorkspace={activeWorkspace} />
 
-        <main className="flex-1 ml-0 lg:ml-[280px] p-6 lg:p-10 overflow-y-auto w-full flex flex-col justify-center items-center animate-in fade-in duration-300">
+        <main className="flex-1 ml-0 lg:ml-[280px] p-4 sm:p-6 lg:p-10 overflow-y-auto w-full flex flex-col justify-start items-center animate-in fade-in duration-300">
           <div className="w-full max-w-[1440px]">
           
           {/* Page Title & Dropdowns Selector */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-6 sm:mb-8">
             <div>
-              <h2 className="font-display-xl text-[48px] font-bold text-primary dark:text-white leading-[56px] tracking-tight mb-1">
+              <h2 className="font-display-xl text-3xl sm:text-[40px] md:text-[48px] font-bold text-primary dark:text-white leading-tight md:leading-[56px] tracking-tight mb-1">
                 Reports Engine
               </h2>
-              <p className="font-body-md text-body-md text-on-surface-variant dark:text-slate-400">
+              <p className="font-body-md text-sm sm:text-body-md text-on-surface-variant dark:text-slate-400">
                 Generate, download, and manage workspace performance documentation.
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-4">
+            <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
               {workspaces.length > 0 && (
-                <div className="flex items-center gap-3">
+                <div className="flex flex-row items-center gap-2 sm:gap-3 w-full sm:w-auto">
                   {/* Workspace selector */}
-                  <CustomSelect
-                    value={selectedWorkspaceId}
-                    onChange={handleWorkspaceChange}
-                    options={workspaces.map(ws => ({ value: ws._id, label: ws.name }))}
-                    icon="workspaces"
-                    placeholder="Select Workspace"
-                  />
+                  <div className="flex-1 min-w-0 sm:flex-initial">
+                    <CustomSelect
+                      value={selectedWorkspaceId}
+                      onChange={handleWorkspaceChange}
+                      options={workspaces.map(ws => ({ value: ws._id, label: ws.name }))}
+                      icon="workspaces"
+                      placeholder="Select Workspace"
+                      minWidth="min-w-0 sm:min-w-[180px]"
+                    />
+                  </div>
 
                   {/* Board selector */}
                   {selectedWorkspaceId && (
-                    <CustomSelect
-                      value={selectedBoardId}
-                      onChange={handleBoardChange}
-                      options={(boardsByWorkspace[selectedWorkspaceId] || []).map(b => ({ value: b._id, label: b.name }))}
-                      icon="dashboard"
-                      placeholder="Select Board"
-                    />
+                    <div className="flex-1 min-w-0 sm:flex-initial">
+                      <CustomSelect
+                        value={selectedBoardId}
+                        onChange={handleBoardChange}
+                        options={(boardsByWorkspace[selectedWorkspaceId] || []).map(b => ({ value: b._id, label: b.name }))}
+                        icon="dashboard"
+                        placeholder="Select Board"
+                        minWidth="min-w-0 sm:min-w-[180px]"
+                      />
+                    </div>
                   )}
                 </div>
               )}
@@ -331,7 +337,7 @@ const ReportsPage = () => {
                 
                 {/* Card A: Full Performance Audit Report */}
                 {canFullReport && (
-                <div className="bg-surface-container-lowest dark:bg-slate-800 rounded-xl p-6 border border-outline dark:border-slate-700 shadow-soft flex flex-col justify-between">
+                <div className="bg-surface-container-lowest dark:bg-slate-800 rounded-xl p-4 sm:p-6 border border-outline dark:border-slate-700 shadow-soft flex flex-col justify-between">
                   <div>
                     <div className="flex justify-between items-start mb-6">
                       <div className="flex items-center gap-2">
@@ -344,10 +350,10 @@ const ReportsPage = () => {
                       </div>
                     </div>
                     
-                    <h3 className="font-title-md text-[20px] font-bold text-primary dark:text-white mb-2">
+                    <h3 className="font-title-md text-lg sm:text-[20px] font-bold text-primary dark:text-white mb-2">
                       Full Performance Audit Report
                     </h3>
-                    <p className="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400 mb-6 leading-relaxed">
+                    <p className="font-body-sm text-xs sm:text-body-sm text-on-surface-variant dark:text-slate-400 mb-6 leading-relaxed">
                       Comprehensive system report including raw developer logs, granular task tracking data, sprint velocity metrics, and un-sanitized team performance reviews.
                     </p>
 
@@ -402,7 +408,7 @@ const ReportsPage = () => {
                 )}
 
                 {/* Card B: Client-Safe Progress Report */}
-                <div className="bg-surface-container-lowest dark:bg-slate-800 rounded-xl p-6 border border-outline dark:border-slate-700 shadow-soft flex flex-col justify-between">
+                <div className="bg-surface-container-lowest dark:bg-slate-800 rounded-xl p-4 sm:p-6 border border-outline dark:border-slate-700 shadow-soft flex flex-col justify-between">
                   <div>
                     <div className="flex justify-between items-start mb-6">
                       <div className="flex items-center gap-2">
@@ -415,10 +421,10 @@ const ReportsPage = () => {
                       </div>
                     </div>
 
-                    <h3 className="font-title-md text-[20px] font-bold text-primary dark:text-white mb-2">
+                    <h3 className="font-title-md text-lg sm:text-[20px] font-bold text-primary dark:text-white mb-2">
                       Client-Safe Progress Report
                     </h3>
-                    <p className="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400 mb-6 leading-relaxed">
+                    <p className="font-body-sm text-xs sm:text-body-sm text-on-surface-variant dark:text-slate-400 mb-6 leading-relaxed">
                       Sanitizes internal metrics, shows high-level milestone timelines and completed items. Ideal for external stakeholder updates.
                     </p>
 
@@ -437,7 +443,7 @@ const ReportsPage = () => {
                     <button
                       onClick={handleClientReport}
                       disabled={generating || !canClientReport}
-                      className="flex-grow bg-surface-container-lowest border border-secondary text-secondary font-semibold py-3 px-4 rounded-lg flex justify-center items-center gap-2 hover:bg-secondary/5 transition-colors dark:bg-slate-800 dark:hover:bg-slate-750"
+                      className="flex-grow bg-surface-container-lowest border border-secondary text-secondary font-semibold py-3 px-4 rounded-lg flex justify-center items-center gap-2 hover:bg-secondary/5 transition-colors dark:bg-slate-800 dark:hover:bg-slate-750 text-sm sm:text-base"
                     >
                       <span className="material-symbols-outlined text-[18px]">download</span>
                       Download Client PDF
@@ -445,7 +451,7 @@ const ReportsPage = () => {
                     <button
                       onClick={() => handleCopyShareLink("")}
                       disabled={sharing || recentReports.length === 0}
-                      className="flex items-center justify-center gap-2 px-4 py-3 text-on-surface-variant dark:text-slate-400 hover:text-secondary dark:hover:text-indigo-400 transition-colors font-medium text-body-sm disabled:opacity-40"
+                      className="flex items-center justify-center gap-2 px-4 py-3 text-on-surface-variant dark:text-slate-400 hover:text-secondary dark:hover:text-indigo-400 transition-colors font-medium text-sm sm:text-body-sm disabled:opacity-40"
                     >
                       <span className="material-symbols-outlined text-[18px]">link</span>
                       Copy Secure Share Link
@@ -457,8 +463,8 @@ const ReportsPage = () => {
 
               {/* Recent Generated Reports Table */}
               <div className="bg-surface-container-lowest dark:bg-slate-800 rounded-xl border border-outline dark:border-slate-700 shadow-soft overflow-hidden mt-8">
-                <div className="p-6 border-b border-outline dark:border-slate-700 flex justify-between items-center">
-                  <h3 className="font-title-md text-[20px] font-bold text-primary dark:text-white">
+                <div className="p-4 sm:p-6 border-b border-outline dark:border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                  <h3 className="font-title-md text-lg sm:text-[20px] font-bold text-primary dark:text-white">
                     Recent Generated Reports
                   </h3>
                   <button className="text-secondary dark:text-indigo-400 hover:underline font-body-sm text-body-sm font-medium transition-colors">
@@ -469,17 +475,17 @@ const ReportsPage = () => {
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-surface-container-low dark:bg-slate-900/60 font-label-caps text-[12px] text-on-surface-variant dark:text-slate-400 border-b border-outline dark:border-slate-700 uppercase tracking-wider">
-                        <th className="py-4 px-6 font-semibold">REPORT NAME</th>
-                        <th className="py-4 px-6 font-semibold">TYPE</th>
-                        <th className="py-4 px-6 font-semibold">GENERATED BY</th>
-                        <th className="py-4 px-6 font-semibold">TIMESTAMP</th>
-                        <th className="py-4 px-6 font-semibold text-right">ACTION</th>
+                        <th className="py-3.5 px-4 sm:py-4 sm:px-6 font-semibold whitespace-nowrap">REPORT NAME</th>
+                        <th className="py-3.5 px-4 sm:py-4 sm:px-6 font-semibold whitespace-nowrap">TYPE</th>
+                        <th className="py-3.5 px-4 sm:py-4 sm:px-6 font-semibold whitespace-nowrap">GENERATED BY</th>
+                        <th className="py-3.5 px-4 sm:py-4 sm:px-6 font-semibold whitespace-nowrap">TIMESTAMP</th>
+                        <th className="py-3.5 px-4 sm:py-4 sm:px-6 font-semibold text-right whitespace-nowrap">ACTION</th>
                       </tr>
                     </thead>
                     <tbody className="font-body-sm text-on-surface dark:text-slate-350">
                       {mergedReports.map((row, idx) => (
                         <tr key={idx} className="border-b border-outline/30 dark:border-slate-700/50 hover:bg-surface-container-low/30 dark:hover:bg-slate-900/30 transition-colors h-[64px]">
-                          <td className="py-4 px-6 font-medium text-primary dark:text-white">
+                          <td className="py-3.5 px-4 sm:py-4 sm:px-6 font-medium text-primary dark:text-white whitespace-nowrap">
                             <div className="flex items-center gap-2">
                               <span className="material-symbols-outlined text-on-surface-variant dark:text-slate-400 text-[18px]">
                                 description
@@ -489,7 +495,7 @@ const ReportsPage = () => {
                               </span>
                             </div>
                           </td>
-                          <td className="py-4 px-6">
+                          <td className="py-3.5 px-4 sm:py-4 sm:px-6 whitespace-nowrap">
                             {row.type === "full" ? (
                               <span className="text-[10px] bg-rose-50 text-rose-600 border border-rose-200 dark:bg-rose-950/20 dark:text-rose-450 dark:border-rose-900/30 px-2 py-0.5 rounded font-bold uppercase tracking-wider">
                                 Audit
@@ -500,7 +506,7 @@ const ReportsPage = () => {
                               </span>
                             )}
                           </td>
-                          <td className="py-4 px-6 text-on-surface-variant dark:text-slate-400">
+                          <td className="py-3.5 px-4 sm:py-4 sm:px-6 text-on-surface-variant dark:text-slate-400 whitespace-nowrap">
                             <div className="flex flex-col">
                               <span className="font-semibold text-on-surface dark:text-white">
                                 {row.generatedBy?.username || "Sarah Jenkins"}
@@ -510,10 +516,10 @@ const ReportsPage = () => {
                               </span>
                             </div>
                           </td>
-                          <td className="py-4 px-6 text-on-surface-variant dark:text-slate-400">
+                          <td className="py-3.5 px-4 sm:py-4 sm:px-6 text-on-surface-variant dark:text-slate-400 whitespace-nowrap">
                             {formatDate(row.createdAt)}
                           </td>
-                          <td className="py-4 px-6 text-right">
+                          <td className="py-3.5 px-4 sm:py-4 sm:px-6 text-right whitespace-nowrap">
                             <button
                               onClick={() => handleDownload(row.pdfUrl)}
                               className="text-secondary dark:text-indigo-400 hover:bg-secondary/10 dark:hover:bg-indigo-500/20 p-2 rounded-full transition-colors inline-flex items-center justify-center"

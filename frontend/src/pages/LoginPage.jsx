@@ -132,17 +132,6 @@ const LoginPage = () => {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="w-full bg-surface-container-lowest dark:bg-slate-950 border-t border-outline-variant dark:border-slate-800 py-6 px-10">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 max-w-7xl mx-auto">
-          <p className="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-450">© 2026 Trellolite. All rights reserved.</p>
-          <div className="flex gap-6">
-            <a className="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-405 hover:text-primary dark:hover:text-white transition-colors" href="#">Privacy Policy</a>
-            <a className="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-405 hover:text-primary dark:hover:text-white transition-colors" href="#">Terms of Service</a>
-            <a className="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-405 hover:text-primary dark:hover:text-white transition-colors" href="#">Help Center</a>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };
