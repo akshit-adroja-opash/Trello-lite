@@ -416,13 +416,13 @@ const ReportsPage = () => {
                           verified_user
                         </span>
                         <span className="text-[10px] bg-emerald-50 text-emerald-600 border border-emerald-200 dark:bg-emerald-950/20 dark:text-emerald-450 dark:border-emerald-900/30 px-2 py-0.5 rounded font-bold uppercase tracking-wider">
-                          Client-Safe
+                          Client
                         </span>
                       </div>
                     </div>
 
                     <h3 className="font-title-md text-lg sm:text-[20px] font-bold text-primary dark:text-white mb-2">
-                      Client-Safe Progress Report
+                      Client Progress Report
                     </h3>
                     <p className="font-body-sm text-xs sm:text-body-sm text-on-surface-variant dark:text-slate-400 mb-6 leading-relaxed">
                       Sanitizes internal metrics, shows high-level milestone timelines and completed items. Ideal for external stakeholder updates.

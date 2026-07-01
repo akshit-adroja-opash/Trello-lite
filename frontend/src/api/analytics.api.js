@@ -1,9 +1,9 @@
 import API from "./axios"
 
-export const getWorkspaceAnalytics = async (workspaceId) => {
+export const getWorkspaceAnalytics = async (workspaceId, timeRange = 'all') => {
     try {
         const response = await API.get(
-            `/analytics/workspace/${workspaceId}`
+            `/analytics/workspace/${workspaceId}?timeRange=${timeRange}`
         );
 
         return response.data;

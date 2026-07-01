@@ -333,9 +333,6 @@ const DashboardPage = () => {
                           <div key={member._id} className="flex items-center gap-1.5 bg-surface-container-low dark:bg-slate-700/80 border border-outline-variant dark:border-slate-600 px-2.5 py-1 rounded-full shadow-2xs max-w-full">
                             <Avatar name={member.user?.username} avatar={member.user?.avatar} size={22} />
                             <span className="font-body-sm text-xs sm:text-sm font-semibold text-on-surface dark:text-slate-200 truncate max-w-[110px] sm:max-w-none">{member.user?.username || member.user?.email}</span>
-                            <span className="font-label-caps text-[9.5px] font-bold bg-secondary-fixed-dim text-on-secondary-fixed-variant dark:text-slate-900 px-1.5 py-0.5 rounded-full uppercase ml-0.5 shrink-0">
-                              {getRoleDisplayName(member.user?.role || member.role)}
-                            </span>
                           </div>
                         ))}
                       </div>

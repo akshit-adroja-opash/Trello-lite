@@ -47,12 +47,26 @@ export const getWorkspaceAnalytics = async (req, res) => {
         const boardObjectIds = boardIds.map(id => new mongoose.Types.ObjectId(id));
 
         // =========================
+        // TIME RANGE FILTER
+        // =========================
+        const { timeRange } = req.query; // e.g., '7', '30', '90', '365', 'all'
+        let dateFilter = {};
+        if (timeRange && timeRange !== 'all') {
+            const days = parseInt(timeRange, 10);
+            if (!isNaN(days) && days > 0) {
+                const startDate = new Date();
+                startDate.setDate(startDate.getDate() - days);
+                dateFilter.createdAt = { $gte: startDate };
+            }
+        }
+        const cardQuery = { board: { $in: boardIds }, ...dateFilter };
+        const cardMatchQuery = { board: { $in: boardObjectIds }, ...dateFilter };
+
+        // =========================
         // TOTAL COUNTS
         // =========================
 
-        const totalCards = await Card.countDocuments({
-            board: { $in: boardIds }
-        });
+        const totalCards = await Card.countDocuments(cardQuery);
 
         const totalColumns = await Column.countDocuments({
             board: { $in: boardIds }
@@ -74,7 +88,7 @@ export const getWorkspaceAnalytics = async (req, res) => {
         // =========================
 
         const completedTasks = await Card.countDocuments({
-            board: { $in: boardIds },
+            ...cardQuery,
             column: { $in: doneColumnIds }
         });
 
@@ -88,7 +102,7 @@ export const getWorkspaceAnalytics = async (req, res) => {
         // =========================
 
         const overdueTasks = await Card.countDocuments({
-            board: { $in: boardIds },
+            ...cardQuery,
             dueDate: { $lt: new Date() },
             column: { $nin: doneColumnIds }
         });
@@ -98,7 +112,7 @@ export const getWorkspaceAnalytics = async (req, res) => {
         // =========================
 
         const activeBlockers = await Card.countDocuments({
-            board: { $in: boardIds },
+            ...cardQuery,
             blocked: true
         });
 
@@ -107,7 +121,7 @@ export const getWorkspaceAnalytics = async (req, res) => {
         // =========================
 
         const completedCardsInfo = await Card.find({
-            board: { $in: boardIds },
+            ...cardQuery,
             column: { $in: doneColumnIds }
         }).select("createdAt updatedAt");
 
@@ -127,9 +141,7 @@ export const getWorkspaceAnalytics = async (req, res) => {
 
         const workloadStats = await Card.aggregate([
             {
-                $match: {
-                    board: { $in: boardObjectIds }
-                }
+                $match: cardMatchQuery
             },
             {
                 $unwind: "$assignees"
@@ -262,7 +274,8 @@ export const getWorkspaceAnalytics = async (req, res) => {
         // =========================
 
         const last30Days = new Date();
-        last30Days.setDate(last30Days.getDate() - 30);
+        const timelineDays = (timeRange && timeRange !== 'all' && !isNaN(parseInt(timeRange, 10))) ? parseInt(timeRange, 10) : 30;
+        last30Days.setDate(last30Days.getDate() - timelineDays);
 
         const productivityTimeline = await Card.aggregate([
             {
@@ -333,7 +346,7 @@ export const getWorkspaceAnalytics = async (req, res) => {
         const roleTasksCount = { admin: 0, project_manager: 0, developer: 0, client: 0 };
         const roleCompletionTimes = { admin: [], project_manager: [], developer: [], client: [] };
 
-        const cardsWithAssignees = await Card.find({ board: { $in: boardIds } })
+        const cardsWithAssignees = await Card.find(cardQuery)
             .select("assignees createdAt updatedAt column")
             .populate("column", "name");
 

@@ -16,6 +16,7 @@ const ProfilePage = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
+  const [imgError, setImgError] = useState(false);
   const [saving, setSaving] = useState(false);
   const fileRef = useRef(null);
 
@@ -113,6 +114,7 @@ const ProfilePage = () => {
 
     setAvatarFile(file);
     setAvatarPreview(URL.createObjectURL(file));
+    setImgError(false);
   };
 
   const getAvatarUrl = () => {
@@ -202,11 +204,12 @@ const ProfilePage = () => {
                   onClick={() => fileRef.current?.click()}
                   className="w-32 h-32 rounded-full border-[6px] border-white dark:border-slate-850 bg-secondary dark:bg-indigo-650 flex items-center justify-center text-on-secondary text-5xl font-black shadow-xl translate-y-16 overflow-hidden relative z-10 cursor-pointer transition-transform hover:scale-105"
                 >
-                  {getAvatarUrl() ? (
+                  {getAvatarUrl() && !imgError ? (
                     <img
                       src={getAvatarUrl()}
                       alt="avatar"
                       className="w-full h-full object-cover"
+                      onError={() => setImgError(true)}
                     />
                   ) : (
                     <span>{(user?.username || '?').charAt(0).toUpperCase()}</span>

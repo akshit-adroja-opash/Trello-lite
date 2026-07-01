@@ -246,43 +246,26 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
                           <div>
                             <p className="text-sm font-semibold text-slate-800 dark:text-white flex items-center gap-2">
                               {memberUser.username}
-                              {isAdmin && (
-                                <span className="bg-indigo-50 dark:bg-indigo-950/40 text-indigo-650 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/40 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide">
-                                  {getRoleDisplayName(memberUser.role || m.role)}
-                                </span>
-                              )}
                             </p>
                             <p className="text-xs text-slate-450 dark:text-slate-500 mt-0.5">{memberUser.email}</p>
                           </div>
                         </div>
 
                         <div className="flex items-center gap-3 self-end sm:self-auto">
-                          {isAdmin ? (
-                            <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest px-3">
-                              Full Access
-                            </span>
-                          ) : (
-                            <>
-                              <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest px-3">
-                                {getRoleDisplayName(memberUser.role || m.role)}
-                              </span>
-
-                              {isActualAdmin && (
-                                <button
-                                  onClick={(e) => handleRemoveMember(memberUser._id, e)}
-                                  disabled={isUpdating}
-                                  className="w-9 h-9 flex items-center justify-center border border-rose-200 dark:border-rose-900/60 rounded-lg text-rose-600 dark:text-rose-450 hover:bg-rose-50 dark:hover:bg-rose-950/20 hover:border-transparent transition-all disabled:opacity-50"
-                                  title="Remove member"
-                                >
-                                  <svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg">
-                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                    <line x1="10" x2="10" y1="11" y2="17"></line>
-                                    <line x1="14" x2="14" y1="11" y2="17"></line>
-                                  </svg>
-                                </button>
-                              )}
-                            </>
+                          {!isAdmin && isActualAdmin && (
+                            <button
+                              onClick={(e) => handleRemoveMember(memberUser._id, e)}
+                              disabled={isUpdating}
+                              className="w-9 h-9 flex items-center justify-center border border-rose-200 dark:border-rose-900/60 rounded-lg text-rose-600 dark:text-rose-450 hover:bg-rose-50 dark:hover:bg-rose-950/20 hover:border-transparent transition-all disabled:opacity-50"
+                              title="Remove member"
+                            >
+                              <svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                <line x1="10" x2="10" y1="11" y2="17"></line>
+                                <line x1="14" x2="14" y1="11" y2="17"></line>
+                              </svg>
+                            </button>
                           )}
                         </div>
                       </div>

@@ -7,12 +7,14 @@ import useThemeStore from "../store/themeStore";
 import CountUp from "react-countup";
 import CustomSelect from "../components/common/CustomSelect";
 import useWorkspaceStore from "../store/workspaceStore";
+import Avatar from "../UI/Avatar";
 
 const CountUpComponent = typeof CountUp === 'function' ? CountUp : (CountUp.default || CountUp);
 
 const AnalyticsPage = () => {
     const { workspaces, fetchWorkspacesAndBoards } = useWorkspaceStore();
     const [selectedWorkspaceId, setSelectedWorkspaceId] = useState("");
+    const [timeRange, setTimeRange] = useState("all");
     const [analytics, setAnalytics] = useState(null);
     const [loading, setLoading] = useState(true);
     const [loadingData, setLoadingData] = useState(false);
@@ -39,7 +41,7 @@ const AnalyticsPage = () => {
         const fetchAnalytics = async () => {
             setLoadingData(true);
             try {
-                const data = await getWorkspaceAnalytics(selectedWorkspaceId);
+                const data = await getWorkspaceAnalytics(selectedWorkspaceId, timeRange);
                 if (data && data.success) {
                     setAnalytics(data.analytics);
                 } else {
@@ -55,7 +57,7 @@ const AnalyticsPage = () => {
         };
 
         fetchAnalytics();
-    }, [selectedWorkspaceId]);
+    }, [selectedWorkspaceId, timeRange]);
 
     const activeWorkspace = workspaces.find(w => w._id === selectedWorkspaceId);
 
@@ -85,6 +87,7 @@ const AnalyticsPage = () => {
     const circumference = 251.2;
     const dashOffset = circumference - (efficiencyPercent / 100) * circumference;
     const efficiencyLabel = efficiencyPercent >= 80 ? "EXCELLENT" : efficiencyPercent >= 60 ? "GOOD" : "NEEDS FOCUS";
+    const efficiencyColor = efficiencyPercent >= 80 ? "text-emerald-500 dark:text-emerald-400" : efficiencyPercent >= 60 ? "text-emerald-500 dark:text-emerald-400" : "text-amber-500 dark:text-amber-400";
 
     // 3. Pipeline counts
     const backlogCount = analytics?.statusDistribution?.find(d => /backlog|todo|to do/i.test(d.title))?.cardCount || 0;
@@ -106,10 +109,10 @@ const AnalyticsPage = () => {
     };
 
     const getRoleBgColor = (role) => {
-        if (role === "admin") return "bg-admin-role";
-        if (role === "project_manager") return "bg-pm-role";
-        if (role === "developer") return "bg-dev-role";
-        return "bg-client-role";
+        if (role === "admin") return "bg-blue-600 dark:bg-blue-500";
+        if (role === "project_manager") return "bg-purple-600 dark:bg-purple-500";
+        if (role === "developer") return "bg-slate-500 dark:bg-slate-400";
+        return "bg-rose-600 dark:bg-rose-500";
     };
 
     return (
@@ -142,10 +145,19 @@ const AnalyticsPage = () => {
                                     placeholder="Select Workspace"
                                 />
                             )}
-                            <button className="flex items-center gap-2 px-4 py-2.5 bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 text-body-sm font-medium text-on-surface dark:text-white rounded-lg hover:border-secondary hover:ring-1 hover:ring-secondary/50 transition-all shadow-sm">
-                                <span className="material-symbols-outlined text-[18px] text-on-surface-variant dark:text-slate-400">calendar_month</span>
-                                Last 30 Days
-                            </button>
+                            <CustomSelect
+                                value={timeRange}
+                                onChange={setTimeRange}
+                                options={[
+                                    { value: "all", label: "All Time" },
+                                    { value: "365", label: "This Year" },
+                                    { value: "90", label: "Last 90 Days" },
+                                    { value: "30", label: "Last 30 Days" },
+                                    { value: "7", label: "Last 7 Days" }
+                                ]}
+                                icon="calendar_month"
+                                placeholder="Time Range"
+                            />
                         </div>
                     </div>
 
@@ -171,7 +183,7 @@ const AnalyticsPage = () => {
                                     title="Total Tasks"
                                     value={totalCards}
                                     icon="task"
-                                    iconColor="text-secondary dark:text-blue-400"
+                                    iconColor="text-indigo-600 dark:text-indigo-400"
                                     trendValue={kpis.trends?.totalCards !== undefined && kpis.trends.totalCards !== 0 ? `${Math.abs(kpis.trends.totalCards)}%` : null}
                                     trendType={kpis.trends?.totalCards >= 0 ? "up" : "down"}
                                 />
@@ -180,7 +192,7 @@ const AnalyticsPage = () => {
                                     value={completedRatio}
                                     suffix="%"
                                     icon="check_circle"
-                                    iconColor="text-status-completed"
+                                    iconColor="text-emerald-500 dark:text-emerald-400"
                                     trendValue={kpis.trends?.completionRate !== undefined && kpis.trends.completionRate !== 0 ? `${Math.abs(kpis.trends.completionRate)}%` : null}
                                     trendType={kpis.trends?.completionRate >= 0 ? "up" : "down"}
                                 />
@@ -188,7 +200,7 @@ const AnalyticsPage = () => {
                                     title="Active Blockers"
                                     value={blockedCountVal}
                                     icon="block"
-                                    iconColor="text-status-blocked"
+                                    iconColor="text-rose-500 dark:text-rose-400"
                                     trendValue={kpis.trends?.activeBlockers !== undefined && kpis.trends.activeBlockers !== 0 ? `${Math.abs(kpis.trends.activeBlockers)}` : null}
                                     trendType={kpis.trends?.activeBlockers >= 0 ? "up" : "down"}
                                 />
@@ -197,7 +209,7 @@ const AnalyticsPage = () => {
                                     value={avgLeadTime}
                                     suffix="d"
                                     icon="timer"
-                                    iconColor="text-pm-role"
+                                    iconColor="text-purple-600 dark:text-purple-400"
                                     trendValue={kpis.trends?.avgLeadTime !== undefined && kpis.trends.avgLeadTime !== 0 ? `${Math.abs(kpis.trends.avgLeadTime)}d` : null}
                                     trendType={kpis.trends?.avgLeadTime >= 0 ? "up" : "down"}
                                 />
@@ -230,23 +242,17 @@ const AnalyticsPage = () => {
 
                                                     return (
                                                         <div key={idx} className="flex items-center gap-4">
-                                                            {dev.avatar ? (
-                                                                <img alt={dev.username} className="w-8 h-8 rounded-full object-cover shrink-0" src={dev.avatar} />
-                                                            ) : (
-                                                                <div className="w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center font-bold text-xs shrink-0">
-                                                                    {dev.username?.[0]?.toUpperCase()}
-                                                                </div>
-                                                            )}
+                                                            <Avatar name={dev.username} avatar={dev.avatar} size={32} />
                                                             <div className="w-32 font-body-sm font-medium truncate dark:text-slate-300">
                                                                 {dev.username}
                                                             </div>
-                                                            <div className="flex-1 h-4 bg-surface-container dark:bg-slate-750 rounded-full overflow-hidden flex">
-                                                                {completedPct > 0 && <div className="h-full bg-status-completed" style={{ width: `${completedPct}%` }} title={`Completed: ${Math.round(completedPct)}%`} />}
-                                                                {progressPct > 0 && <div className="h-full bg-status-progress" style={{ width: `${progressPct}%` }} title={`In Progress: ${Math.round(progressPct)}%`} />}
-                                                                {reviewPct > 0 && <div className="h-full bg-status-review" style={{ width: `${reviewPct}%` }} title={`Review: ${Math.round(reviewPct)}%`} />}
-                                                                {blockedPct > 0 && <div className="h-full bg-status-blocked" style={{ width: `${blockedPct}%` }} title={`Blocked: ${Math.round(blockedPct)}%`} />}
+                                                            <div className="flex-1 h-4 bg-slate-100 dark:bg-slate-750 rounded-full overflow-hidden flex">
+                                                                {completedPct > 0 && <div className="h-full bg-status-completed transition-all duration-500" style={{ width: `${completedPct}%` }} title={`Completed: ${Math.round(completedPct)}%`} />}
+                                                                {progressPct > 0 && <div className="h-full bg-status-progress transition-all duration-500" style={{ width: `${progressPct}%` }} title={`In Progress: ${Math.round(progressPct)}%`} />}
+                                                                {reviewPct > 0 && <div className="h-full bg-status-review transition-all duration-500" style={{ width: `${reviewPct}%` }} title={`Review: ${Math.round(reviewPct)}%`} />}
+                                                                {blockedPct > 0 && <div className="h-full bg-status-blocked transition-all duration-500" style={{ width: `${blockedPct}%` }} title={`Blocked: ${Math.round(blockedPct)}%`} />}
                                                             </div>
-                                                            <div className="w-12 text-right font-body-sm text-on-surface-variant dark:text-slate-400">
+                                                            <div className="w-12 text-right font-body-sm text-on-surface-variant dark:text-slate-400 font-semibold">
                                                                 {Math.round(total)}
                                                             </div>
                                                         </div>
@@ -255,17 +261,17 @@ const AnalyticsPage = () => {
                                             )}
                                         </div>
                                     </div>
-                                    <div className="mt-8 pt-4 border-t border-outline-variant dark:border-slate-700 flex flex-wrap gap-4">
-                                        <div className="flex items-center gap-1.5 font-label-caps text-[12px] text-on-surface-variant dark:text-slate-400 uppercase tracking-wider">
+                                    <div className="mt-8 pt-4 border-t border-outline-variant dark:border-slate-700 flex flex-wrap gap-6">
+                                        <div className="flex items-center gap-2 font-label-caps text-[12px] font-semibold text-on-surface-variant dark:text-slate-400">
                                             <span className="w-3 h-3 rounded-full bg-status-completed"></span> Completed
                                         </div>
-                                        <div className="flex items-center gap-1.5 font-label-caps text-[12px] text-on-surface-variant dark:text-slate-400 uppercase tracking-wider">
+                                        <div className="flex items-center gap-2 font-label-caps text-[12px] font-semibold text-on-surface-variant dark:text-slate-400">
                                             <span className="w-3 h-3 rounded-full bg-status-progress"></span> In Progress
                                         </div>
-                                        <div className="flex items-center gap-1.5 font-label-caps text-[12px] text-on-surface-variant dark:text-slate-400 uppercase tracking-wider">
+                                        <div className="flex items-center gap-2 font-label-caps text-[12px] font-semibold text-on-surface-variant dark:text-slate-400">
                                             <span className="w-3 h-3 rounded-full bg-status-review"></span> Review
                                         </div>
-                                        <div className="flex items-center gap-1.5 font-label-caps text-[12px] text-on-surface-variant dark:text-slate-400 uppercase tracking-wider">
+                                        <div className="flex items-center gap-2 font-label-caps text-[12px] font-semibold text-on-surface-variant dark:text-slate-400">
                                             <span className="w-3 h-3 rounded-full bg-status-blocked"></span> Blocked
                                         </div>
                                     </div>
@@ -288,7 +294,7 @@ const AnalyticsPage = () => {
                                                 cy="50"
                                                 fill="transparent"
                                                 r="40"
-                                                stroke="#0058be"
+                                                stroke={darkMode ? "#3b82f6" : "#0058be"}
                                                 strokeDasharray={circumference}
                                                 strokeDashoffset={dashOffset}
                                                 strokeWidth="8"
@@ -299,7 +305,7 @@ const AnalyticsPage = () => {
                                                 <CountUpComponent end={efficiencyPercent} duration={1.5} />
                                                 <span className="text-[20px] text-on-surface-variant dark:text-slate-400">%</span>
                                             </span>
-                                            <span className="font-label-caps text-[12px] font-semibold text-status-completed tracking-wider">
+                                            <span className={`font-label-caps text-[12px] font-bold tracking-wider uppercase ${efficiencyColor}`}>
                                                 {efficiencyLabel}
                                             </span>
                                         </div>
@@ -315,11 +321,11 @@ const AnalyticsPage = () => {
                                         Task Pipeline Distribution
                                     </h3>
                                     <div className="flex flex-col gap-4">
-                                        <PipelineRow label="BACKLOG" count={backlogCount} maxCount={maxCount} colorClass="bg-status-backlog" />
-                                        <PipelineRow label="IN PROGRESS" count={progressCount} maxCount={maxCount} colorClass="bg-status-progress" />
-                                        <PipelineRow label="CODE REVIEW" count={reviewCount} maxCount={maxCount} colorClass="bg-status-review" />
-                                        <PipelineRow label="BLOCKED" count={blockedCountVal} maxCount={maxCount} colorClass="bg-status-blocked" />
-                                        <PipelineRow label="COMPLETED" count={completedCount} maxCount={maxCount} colorClass="bg-status-completed" />
+                                        <PipelineRow label="BACKLOG" count={backlogCount} maxCount={maxCount} colorClass="bg-slate-400 dark:bg-slate-500" />
+                                        <PipelineRow label="IN PROGRESS" count={progressCount} maxCount={maxCount} colorClass="bg-blue-500 dark:bg-blue-400" />
+                                        <PipelineRow label="CODE REVIEW" count={reviewCount} maxCount={maxCount} colorClass="bg-purple-500 dark:bg-purple-400" />
+                                        <PipelineRow label="BLOCKED" count={blockedCountVal} maxCount={maxCount} colorClass="bg-rose-500 dark:bg-rose-400" />
+                                        <PipelineRow label="COMPLETED" count={completedCount} maxCount={maxCount} colorClass="bg-emerald-500 dark:bg-emerald-400" />
                                     </div>
                                 </div>
 
@@ -393,7 +399,7 @@ const KpiCard = ({ title, value, suffix = "", icon, iconColor, trendValue, trend
                     {suffix}
                 </h3>
                 {trendValue && (
-                    <span className={`font-body-sm text-[12px] font-semibold flex items-center ${trendType === 'up' ? 'text-status-completed' : 'text-status-blocked'}`}>
+                    <span className={`font-body-sm text-[12px] font-semibold flex items-center ${trendType === 'up' ? 'text-emerald-500 dark:text-emerald-400' : 'text-rose-500 dark:text-rose-400'}`}>
                         <span className="material-symbols-outlined text-[16px]">{trendType === 'up' ? 'trending_up' : 'trending_down'}</span>
                         <span className="ml-0.5">{trendValue}</span>
                     </span>
@@ -410,7 +416,7 @@ const PipelineRow = ({ label, count, maxCount, colorClass }) => {
             <div className="w-32 font-label-caps text-[12px] text-on-surface-variant dark:text-slate-400 text-right tracking-wider">
                 {label}
             </div>
-            <div className="flex-1 h-6 bg-surface-container dark:bg-slate-700 rounded overflow-hidden">
+            <div className="flex-1 h-6 bg-slate-100 dark:bg-slate-700/60 rounded overflow-hidden">
                 <div
                     className={`h-full ${colorClass} rounded transition-all duration-1000 ease-out`}
                     style={{ width: `${widthPct}%` }}

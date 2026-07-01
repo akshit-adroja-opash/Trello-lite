@@ -1,5 +1,7 @@
 
 
+import { useState, useEffect } from 'react';
+
 const COLORS = [
     '#4F46E5', 
     '#0EA5E9', 
@@ -12,8 +14,13 @@ const COLORS = [
 ];
 
 const Avatar = ({ name = '?', avatar, size = 32 }) => {
+    const [imgError, setImgError] = useState(false);
     const safeName = name && name.trim() ? name.trim() : '?';
     const initial = safeName.charAt(0).toUpperCase();
+
+    useEffect(() => {
+        setImgError(false);
+    }, [avatar]);
 
     const getAvatarUrl = (path) => {
         if (!path) return '';
@@ -38,14 +45,15 @@ const Avatar = ({ name = '?', avatar, size = 32 }) => {
 
     const baseClassName = "rounded-full shrink-0 select-none object-cover border-2 border-slate-100 ring-1 ring-slate-200/50 shadow-sm";
 
-    if (avatar) {
+    if (avatar && !imgError) {
         return (
             <img 
                 src={getAvatarUrl(avatar)} 
                 alt={safeName} 
                 title={safeName}
                 style={{ width: size, height: size }}
-                className={baseClassName} 
+                className={baseClassName}
+                onError={() => setImgError(true)}
             />
         );
     }
