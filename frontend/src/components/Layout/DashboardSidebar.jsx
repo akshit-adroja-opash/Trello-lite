@@ -41,7 +41,7 @@ const DashboardSidebar = ({ currentWorkspace, openWorkspaceSettings, boards: pro
   useEffect(() => {
     if (propBoards) return;
     fetchWorkspacesAndBoards();
-  }, [propBoards, fetchWorkspacesAndBoards]);
+  }, [propBoards, fetchWorkspacesAndBoards, user?._id]);
 
   const boards = propBoards || Object.values(boardsByWorkspace).flat();
   const starredBoards = boards.filter((board) => board.isStarred);

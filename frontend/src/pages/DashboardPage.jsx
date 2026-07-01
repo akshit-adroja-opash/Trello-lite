@@ -89,7 +89,7 @@ const DashboardPage = () => {
   useEffect(() => {
     const loadOverdueCounts = async () => {
       try {
-        await fetchWorkspacesAndBoards();
+        await fetchWorkspacesAndBoards(true);
         const wsList = useWorkspaceStore.getState().workspaces;
         const overdueMap = {};
         await Promise.all(
@@ -109,7 +109,7 @@ const DashboardPage = () => {
       }
     };
     loadOverdueCounts();
-  }, [fetchWorkspacesAndBoards]);
+  }, [fetchWorkspacesAndBoards, user?._id]);
 
   const handleCreateWorkspace = async () => {
     if (!wsName.trim()) return;

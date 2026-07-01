@@ -9,6 +9,8 @@ const useWorkspaceStore = create((set, get) => ({
     fetched: false,
     error: null,
 
+    reset: () => set({ workspaces: [], boardsByWorkspace: {}, loading: false, fetched: false, error: null }),
+
     fetchWorkspacesAndBoards: async (force = false) => {
         if (get().fetched && !force) return;
         

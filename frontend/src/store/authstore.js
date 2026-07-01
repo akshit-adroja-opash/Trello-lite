@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { loginUser, registerUser, getMe, logoutUser, updateProfile as apiUpdateProfile, deleteAccount as apiDeleteAccount } from "../api/auth.api";
+import useWorkspaceStore from "./workspaceStore";
 
 const useAuthStore = create((set) => ({
   user: null,
@@ -8,6 +9,7 @@ const useAuthStore = create((set) => ({
 
   register: async (data) => {
     set({ loading: true });
+    useWorkspaceStore.getState().reset();
 
     try {
       const res = await registerUser(data);
@@ -25,6 +27,7 @@ const useAuthStore = create((set) => ({
 
   login: async (data) => {
     set({ loading: true });
+    useWorkspaceStore.getState().reset();
 
     try {
       const res = await loginUser(data);
@@ -49,6 +52,7 @@ const useAuthStore = create((set) => ({
       });
     } catch {
       localStorage.removeItem("token");
+      useWorkspaceStore.getState().reset();
 
       set({
         user: null,
@@ -64,6 +68,7 @@ const useAuthStore = create((set) => ({
     }
 
     localStorage.removeItem("token");
+    useWorkspaceStore.getState().reset();
 
     set({
       user: null,
