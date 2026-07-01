@@ -207,7 +207,6 @@ const FocusTaskPanel = ({ cards, initialIndex, onClose, onCardUpdated }) => {
                     </div>
                 </div>
             </header>
-
             {/* Main Content Canvas */}
             <main className="flex-1 overflow-y-auto p-margin-desktop bg-background dark:bg-slate-900">
                 <div className="max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-12 gap-gutter">

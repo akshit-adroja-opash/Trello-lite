@@ -60,7 +60,12 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
 
 
 
-  const handleRemoveMember = async (memberUserId) => {
+  const handleRemoveMember = async (memberUserId, e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (updatingMemberId) return;
     const memberObj = members.find(m => m.user?._id === memberUserId || m.user === memberUserId);
     if (!memberObj) return;
 
@@ -264,7 +269,7 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
 
                               {isActualAdmin && (
                                 <button
-                                  onClick={() => handleRemoveMember(memberUser._id)}
+                                  onClick={(e) => handleRemoveMember(memberUser._id, e)}
                                   disabled={isUpdating}
                                   className="w-9 h-9 flex items-center justify-center border border-rose-200 dark:border-rose-900/60 rounded-lg text-rose-600 dark:text-rose-450 hover:bg-rose-50 dark:hover:bg-rose-950/20 hover:border-transparent transition-all disabled:opacity-50"
                                   title="Remove member"

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getAdminDashboardData } from '../../api/dashboard.api';
+import useWorkspaceStore from '../../store/workspaceStore';
 
 /* ─── Role config ──────────────────────────────────── */
 const ROLE_CONFIG = {
@@ -174,6 +175,8 @@ export default function AdminDashboardPanel() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const workspaces = useWorkspaceStore(s => s.workspaces);
+  const boardsByWorkspace = useWorkspaceStore(s => s.boardsByWorkspace);
 
   useEffect(() => {
     getAdminDashboardData()
@@ -183,7 +186,7 @@ export default function AdminDashboardPanel() {
       })
       .catch(err => setError(err?.response?.data?.message || 'Failed to load admin dashboard'))
       .finally(() => setLoading(false));
-  }, []);
+  }, [workspaces, boardsByWorkspace]);
 
   /* Build donut segments from real roleDistribution API data */
   const totalUsers = data?.stats?.totalUsers || 1;

@@ -179,6 +179,17 @@ export const deleteWorkspace = async (req, res, next) => {
         const workspace = await Workspace.findById(workspaceId);
         if (!workspace) return next(new ApiError(404, 'Workspace not found'));
 
+        // Cascade delete boards, columns, and cards inside this workspace
+        const Board = (await import('../models/Board.js')).default;
+        const Column = (await import('../models/Column.js')).default;
+        const Card = (await import('../models/Card.js')).default;
+        const boards = await Board.find({ workspace: workspaceId }).select('_id');
+        const boardIds = boards.map(b => b._id);
+        if (boardIds.length > 0) {
+            await Card.deleteMany({ board: { $in: boardIds } });
+            await Column.deleteMany({ board: { $in: boardIds } });
+            await Board.deleteMany({ _id: { $in: boardIds } });
+        }
 
         await workspace.deleteOne();
         res.status(200).json({ status: 'success', message: 'Workspace deleted' });

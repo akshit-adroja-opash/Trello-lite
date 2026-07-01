@@ -41,6 +41,7 @@ const DashboardPage = () => {
     fetchWorkspacesAndBoards,
     addWorkspace,
     removeWorkspace,
+    updateWorkspace,
     addBoard,
     removeBoard
   } = useWorkspaceStore();
@@ -137,7 +138,11 @@ const DashboardPage = () => {
   const handleInvite = async () => {
     if (!inviteEmail.trim()) return;
     try {
-      await inviteMember(showInvite, { email: inviteEmail.trim(), role: inviteRole });
+      const res = await inviteMember(showInvite, { email: inviteEmail.trim(), role: inviteRole });
+      const updatedWs = res.data?.workspace;
+      if (updatedWs) {
+        updateWorkspace(updatedWs._id, updatedWs);
+      }
       setInviteEmail(''); setInviteRole('client'); setShowInvite(null);
       toast.success('Invitation sent');
     } catch (err) { toast.error(err.response?.data?.message || 'Failed to send invite'); }

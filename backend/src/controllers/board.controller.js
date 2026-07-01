@@ -92,6 +92,13 @@ export const deleteBoard = async (req, res, next) => {
         const { boardId } = req.params;
         const board = await Board.findById(boardId);
         if (!board) return next(new ApiError(404, 'Board not found'));
+
+        // Cascade delete columns and cards inside this board
+        const { default: Column } = await import('../models/Column.js');
+        const { default: Card } = await import('../models/Card.js');
+        await Card.deleteMany({ board: boardId });
+        await Column.deleteMany({ board: boardId });
+
         await board.deleteOne();
         res.status(200).json({ status: 'success', message: 'Board deleted' });
     } catch (error) { next(error); }
