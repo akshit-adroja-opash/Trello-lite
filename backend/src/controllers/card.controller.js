@@ -3,6 +3,8 @@ import Activity from '../models/Activity.js';
 import { ApiError } from '../utils/apiError.js';
 import fs from 'fs';
 import path from 'path';
+import { uploadBufferToGridFS, deleteFromGridFS } from '../utils/gridfsStorage.js';
+import { v4 as uuidv4 } from 'uuid';
 import Board from '../models/Board.js';
 import Workspace from '../models/Workspace.js';
 import { getBoardIdsForUser } from './dashboard.controller.js';
@@ -407,14 +409,16 @@ export const addCardAttachment = async (req, res, next) => {
 
         const card = await Card.findById(cardId);
         if (!card) {
-            // Cleanup the file if card doesn't exist
-            fs.unlink(req.file.path, () => {});
             return next(new ApiError(404, 'Card not found'));
         }
 
+        const ext = path.extname(req.file.originalname || '');
+        const filename = `${uuidv4()}${ext}`;
+        const fileUrl = await uploadBufferToGridFS(req.file.buffer, filename, req.file.mimetype, 'cards');
+
         const attachment = {
             filename: req.file.originalname,
-            url: `/uploads/cards/${req.file.filename}`,
+            url: fileUrl,
             mimeType: req.file.mimetype,
             size: req.file.size,
             uploadedBy: req.user._id,
@@ -441,9 +445,6 @@ export const addCardAttachment = async (req, res, next) => {
 
         res.status(200).json({ status: 'success', data: { card: populatedCard } });
     } catch (error) {
-        if (req.file) {
-            fs.unlink(req.file.path, () => {});
-        }
         next(error);
     }
 };
@@ -458,12 +459,9 @@ export const deleteCardAttachment = async (req, res, next) => {
         const attachment = card.attachments.id(attachmentId);
         if (!attachment) return next(new ApiError(404, 'Attachment not found'));
 
-        // Delete file from disk
+        // Delete file from GridFS
         const filename = path.basename(attachment.url);
-        const filePath = path.join(path.resolve('uploads', 'cards'), filename);
-        fs.unlink(filePath, (err) => {
-            if (err) console.error('Failed to delete physical file:', err.message);
-        });
+        await deleteFromGridFS(filename);
 
         // Remove from DB
         card.attachments.pull(attachmentId);

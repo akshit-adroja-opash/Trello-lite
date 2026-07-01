@@ -1,6 +1,7 @@
 import PDFDocument from "pdfkit";
 import fs from "fs";
 import path from "path";
+import { openGridFSUploadStream } from "./gridfsStorage.js";
 
 // Color Palette
 const COLOR_PRIMARY = "#2563EB";      // Blue 600
@@ -107,14 +108,6 @@ const drawContinuationHeader = (doc, boardName) => {
 export const generatePDF = async (data, fileName) => {
     return new Promise((resolve, reject) => {
         try {
-            const reportsDir = path.join("uploads", "reports");
-
-            if (!fs.existsSync(reportsDir)) {
-                fs.mkdirSync(reportsDir, { recursive: true });
-            }
-
-            const filePath = path.join(reportsDir, fileName);
-
             // No bufferPages — pages render immediately to avoid blank page accumulation
             const doc = new PDFDocument({
                 size: "A4",
@@ -122,8 +115,8 @@ export const generatePDF = async (data, fileName) => {
                 autoFirstPage: true,
             });
 
-            const writeStream = fs.createWriteStream(filePath);
-            doc.pipe(writeStream);
+            const uploadStream = openGridFSUploadStream(fileName, "application/pdf", "reports");
+            doc.pipe(uploadStream);
 
             let isFirstPage = true;
 
@@ -413,11 +406,11 @@ export const generatePDF = async (data, fileName) => {
 
             doc.end();
 
-            writeStream.on("finish", () => {
-                resolve(filePath.replace(/\\/g, "/"));
+            uploadStream.on("finish", () => {
+                resolve(`/uploads/reports/${fileName}`);
             });
 
-            writeStream.on("error", (err) => {
+            uploadStream.on("error", (err) => {
                 reject(err);
             });
         } catch (error) {

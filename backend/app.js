@@ -15,6 +15,7 @@ import notificationRoutes from "./src/routes/notification.routes.js";
 import reportRoutes from "./src/routes/report.routes.js";
 import analyticsRoutes from "./src/routes/analytics.routes.js";
 import dashboardRoutes from "./src/routes/dashboard.routes.js";
+import { serveGridFSFile } from "./src/utils/gridfsStorage.js";
 
 
 const app = express();
@@ -36,6 +37,8 @@ app.use(morgan("dev"));
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+app.get('/uploads/:category/:filename', serveGridFSFile);
+app.get('/uploads/:filename', serveGridFSFile);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use("/api/v1/auth", authRoutes);

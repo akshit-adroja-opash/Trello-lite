@@ -1,27 +1,7 @@
 import multer from 'multer';
 import path from 'path';
-import fs from 'fs';
-import { v4 as uuidv4 } from 'uuid';
 
-// Ensure upload directories exist
-const avatarsDir = path.resolve('uploads', 'avatars');
-const cardsDir = path.resolve('uploads', 'cards');
-if (!fs.existsSync(avatarsDir)) {
-  fs.mkdirSync(avatarsDir, { recursive: true });
-}
-if (!fs.existsSync(cardsDir)) {
-  fs.mkdirSync(cardsDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, avatarsDir);
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `${uuidv4()}${ext}`);
-  },
-});
+const storage = multer.memoryStorage();
 
 export const avatarUpload = multer({
   storage,
@@ -37,18 +17,8 @@ export const avatarUpload = multer({
   },
 });
 
-const cardStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, cardsDir);
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `${uuidv4()}${ext}`);
-  },
-});
-
 export const cardAttachmentUpload = multer({
-  storage: cardStorage,
+  storage,
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB Limit
   fileFilter: (req, file, cb) => {
     // Reject video formats (mp4, mkv, avi, mov, etc.)
@@ -67,3 +37,4 @@ export const cardAttachmentUpload = multer({
     }
   },
 });
+

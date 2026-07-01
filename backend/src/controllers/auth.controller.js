@@ -3,6 +3,9 @@ import Session from "../models/Session.js";
 import Workspace from "../models/Workspace.js";
 import { generateToken } from "../utils/generateToken.js";
 import { ApiError } from "../utils/apiError.js";
+import { uploadBufferToGridFS } from "../utils/gridfsStorage.js";
+import { v4 as uuidv4 } from "uuid";
+import path from "path";
 
 export const register = async (req, res, next) => {
   try {
@@ -91,7 +94,10 @@ export const updateProfile = async (req, res, next) => {
     if (req.body.email) user.email = req.body.email;
     if (req.body.password) user.password = req.body.password;
     if (req.file) {
-      user.avatar = `/uploads/avatars/${req.file.filename}`;
+      const ext = path.extname(req.file.originalname || '');
+      const filename = `${uuidv4()}${ext}`;
+      const fileUrl = await uploadBufferToGridFS(req.file.buffer, filename, req.file.mimetype, 'avatars');
+      user.avatar = fileUrl;
     }
 
     await user.save();
