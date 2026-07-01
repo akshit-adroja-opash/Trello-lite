@@ -441,3 +441,40 @@ input:-webkit-autofill:active {
   box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.05), 0 4px 6px -2px rgba(15, 23, 42, 0.02);
   backdrop-filter: blur(8px);
 }
+
+/* Global sleek custom scrollbar for all scrollable elements */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--surface-overlay) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--surface-overlay);
+  border-radius: 9999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+html.dark * {
+  scrollbar-color: #334155 transparent;
+}
+
+html.dark *::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 9999px;
+}
+
+html.dark *::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
