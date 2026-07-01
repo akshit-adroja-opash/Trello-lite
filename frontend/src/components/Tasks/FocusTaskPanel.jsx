@@ -58,6 +58,10 @@ const FocusTaskPanel = ({ cards, initialIndex, onClose, onCardUpdated }) => {
     }, [card.board?._id]);
 
     const handleSave = async () => {
+        if (blocked && !blockedReason.trim()) {
+            toast.error('A reason is required to mark a task as blocked');
+            return;
+        }
         setSaving(true);
         try {
             const res = await updateCard(card._id, {

@@ -232,51 +232,6 @@ const DashboardPage = () => {
             </div>
           )}
 
-          {starredBoards.length > 0 && (
-            <div className="mb-10">
-              <div className="flex items-center gap-2 mb-4">
-                <svg
-                  className="w-5 h-5 text-yellow-400"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.958a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.367 2.447a1 1 0 00-.364 1.118l1.287 3.958c.3.922-.755 1.688-1.54 1.118l-3.366-2.447a1 1 0 00-1.176 0l-3.366 2.447c-.785.57-1.84-.196-1.54-1.118l1.287-3.958a1 1 0 00-.364-1.118L2.98 9.385c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.958z" />
-                </svg>
-
-                <h2 className="text-xl font-bold text-slate-800 dark:text-white">
-                  Starred Boards
-                </h2>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-                {starredBoards.map((board) => (
-                  <Link
-                    key={board._id}
-                    to={`/board/${board._id}`}
-                    className="rounded-2xl border border-yellow-200 dark:border-yellow-900 bg-yellow-50 dark:bg-yellow-950/20 p-5 hover:shadow-lg transition-all"
-                  >
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-semibold text-slate-800 dark:text-white">
-                        {board.name}
-                      </h3>
-
-                      <svg
-                        className="w-5 h-5 text-yellow-400"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.958a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.367 2.447a1 1 0 00-.364 1.118l1.287 3.958c.3.922-.755 1.688-1.54 1.118l-3.366-2.447a1 1 0 00-1.176 0l-3.366 2.447c-.785.57-1.84-.196-1.54-1.118l1.287-3.958a1 1 0 00-.364-1.118L2.98 9.385c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.958z" />
-                      </svg>
-                    </div>
-
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
-                      Quick access board
-                    </p>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* Workspaces List */}
           <section className="space-y-8">

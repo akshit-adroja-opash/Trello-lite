@@ -46,7 +46,12 @@ const MyTasksPage = () => {
         const isCurrentlyBlocked = !!cardObj.blocked;
         let reason = '';
         if (!isCurrentlyBlocked) {
-            reason = prompt('Enter reason for blockage:') || 'No reason specified';
+            const input = prompt('Enter reason for blockage:');
+            if (input === null || !input.trim()) {
+                toast.error('A reason is required to mark a task as blocked');
+                return;
+            }
+            reason = input.trim();
         }
         try {
             await updateCard(cardObj._id, {

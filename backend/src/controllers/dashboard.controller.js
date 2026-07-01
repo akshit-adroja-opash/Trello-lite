@@ -8,11 +8,17 @@ import User from '../models/User.js';
 // ─────────────────────────────────────────────────────────────
 // HELPER: board IDs for workspaces the user belongs to
 // ─────────────────────────────────────────────────────────────
-const getBoardIdsForUser = async (userId) => {
+export const getBoardIdsForUser = async (userId) => {
   const workspaces = await Workspace.find({
     $or: [{ Admin: userId }, { 'members.user': userId }],
   }).select('_id');
-  const boards = await Board.find({ workspace: { $in: workspaces.map(w => w._id) } }).select('_id');
+  const boards = await Board.find({
+    $or: [
+      { workspace: { $in: workspaces.map(w => w._id) } },
+      { Admin: userId },
+      { 'members.user': userId }
+    ]
+  }).select('_id');
   return boards.map(b => b._id);
 };
 
@@ -119,9 +125,9 @@ export const getProjectManagerDashboard = async (req, res) => {
     const doneColumnIds = doneColumns.map(c => c._id);
 
     const [overdueCount, blockedCount, reviewCount, activeBoardCount] = await Promise.all([
-      Card.countDocuments({ board: { $in: boardIds }, dueDate: { $lt: new Date() }, column: { $nin: doneColumnIds } }),
-      Card.countDocuments({ board: { $in: boardIds }, blocked: true }),
-      Card.countDocuments({ board: { $in: boardIds }, reviewRequested: true }),
+      Card.countDocuments({ board: { $in: boardIds }, assignees: userId, dueDate: { $lt: new Date() }, column: { $nin: doneColumnIds } }),
+      Card.countDocuments({ board: { $in: boardIds }, assignees: userId, blocked: true }),
+      Card.countDocuments({ board: { $in: boardIds }, assignees: userId, reviewRequested: true }),
       Board.countDocuments({ _id: { $in: boardIds } }),
     ]);
 
@@ -129,11 +135,11 @@ export const getProjectManagerDashboard = async (req, res) => {
     twoWeeksLater.setDate(twoWeeksLater.getDate() + 14);
 
     const [upcomingMilestones, blockedTasks, pendingReviews] = await Promise.all([
-      Card.find({ board: { $in: boardIds }, dueDate: { $gte: new Date(), $lte: twoWeeksLater }, column: { $nin: doneColumnIds } })
+      Card.find({ board: { $in: boardIds }, assignees: userId, dueDate: { $gte: new Date(), $lte: twoWeeksLater }, column: { $nin: doneColumnIds } })
         .sort({ dueDate: 1 }).limit(5).populate('board', 'name').select('title dueDate priority board').lean(),
-      Card.find({ board: { $in: boardIds }, blocked: true })
+      Card.find({ board: { $in: boardIds }, assignees: userId, blocked: true })
         .limit(5).populate('board', 'name').select('title blockedReason priority board').lean(),
-      Card.find({ board: { $in: boardIds }, reviewRequested: true })
+      Card.find({ board: { $in: boardIds }, assignees: userId, reviewRequested: true })
         .limit(5).populate('board', 'name').select('title priority board').lean(),
     ]);
 
@@ -154,6 +160,7 @@ export const getDeveloperDashboard = async (req, res) => {
   try {
 
     const userId = req.user._id;
+    const boardIds = await getBoardIdsForUser(userId);
 
     const doneColumns = await Column.find({ name: { $regex: /done/i } }).select('_id');
     const doneColumnIds = doneColumns.map(c => c._id);
@@ -162,16 +169,16 @@ export const getDeveloperDashboard = async (req, res) => {
     sevenDaysLater.setDate(sevenDaysLater.getDate() + 7);
 
     const [myTaskCount, blockedCount, dueSoonCount, overdueCount] = await Promise.all([
-      Card.countDocuments({ assignees: userId, column: { $nin: doneColumnIds } }),
-      Card.countDocuments({ assignees: userId, blocked: true, column: { $nin: doneColumnIds } }),
-      Card.countDocuments({ assignees: userId, dueDate: { $gte: new Date(), $lte: sevenDaysLater }, column: { $nin: doneColumnIds } }),
-      Card.countDocuments({ assignees: userId, dueDate: { $lt: new Date() }, column: { $nin: doneColumnIds } }),
+      Card.countDocuments({ assignees: userId, board: { $in: boardIds }, column: { $nin: doneColumnIds } }),
+      Card.countDocuments({ assignees: userId, board: { $in: boardIds }, blocked: true, column: { $nin: doneColumnIds } }),
+      Card.countDocuments({ assignees: userId, board: { $in: boardIds }, dueDate: { $gte: new Date(), $lte: sevenDaysLater }, column: { $nin: doneColumnIds } }),
+      Card.countDocuments({ assignees: userId, board: { $in: boardIds }, dueDate: { $lt: new Date() }, column: { $nin: doneColumnIds } }),
     ]);
 
     const [myTasks, blockedItems] = await Promise.all([
-      Card.find({ assignees: userId, column: { $nin: doneColumnIds } })
+      Card.find({ assignees: userId, board: { $in: boardIds }, column: { $nin: doneColumnIds } })
         .sort({ dueDate: 1 }).limit(10).populate('board', 'name').select('title dueDate priority blocked blockedReason board').lean(),
-      Card.find({ assignees: userId, blocked: true, column: { $nin: doneColumnIds } })
+      Card.find({ assignees: userId, board: { $in: boardIds }, blocked: true, column: { $nin: doneColumnIds } })
         .limit(5).populate('board', 'name').select('title blockedReason priority board').lean(),
     ]);
 
@@ -203,10 +210,10 @@ export const getClientDashboard = async (req, res) => {
 
     const [sharedBoardCount, reviewCount] = await Promise.all([
       Board.countDocuments({ workspace: { $in: workspaceIds } }),
-      Card.countDocuments({ board: { $in: boardIds }, reviewRequested: true }),
+      Card.countDocuments({ board: { $in: boardIds }, assignees: userId, reviewRequested: true }),
     ]);
 
-    const pendingApprovals = await Card.find({ board: { $in: boardIds }, reviewRequested: true })
+    const pendingApprovals = await Card.find({ board: { $in: boardIds }, assignees: userId, reviewRequested: true })
       .limit(5).populate('board', 'name').select('title priority board').lean();
 
     return res.status(200).json({

@@ -76,7 +76,7 @@ const App = () => {
         <Route
           path="/my-tasks"
           element={
-            <ProtectedRoute allowedRoles={["developer"]}>
+            <ProtectedRoute>
               <MyTasksPage />
             </ProtectedRoute>
           }

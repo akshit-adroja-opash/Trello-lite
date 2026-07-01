@@ -5,9 +5,17 @@ import fs from 'fs';
 import path from 'path';
 import Board from '../models/Board.js';
 import Workspace from '../models/Workspace.js';
+import { getBoardIdsForUser } from './dashboard.controller.js';
 
 const logActivity = (userId, boardId, cardId, action, details) =>
     Activity.create({ user: userId, board: boardId, card: cardId, action, details }).catch(() => { });
+
+const getPopulatedCard = async (cardId) => {
+    return Card.findById(cardId)
+        .populate('assignees', 'username email avatar')
+        .populate('comments.user', 'username email avatar')
+        .populate('comments.reactions.users', 'username');
+};
 
 export const createCard = async (req, res, next) => {
     try {
@@ -42,7 +50,8 @@ export const createCard = async (req, res, next) => {
         }
 
         logActivity(req.user._id, boardId, card._id, 'created', `Created card "${title}"`);
-        res.status(201).json({ status: 'success', data: { card } });
+        const populatedCard = await getPopulatedCard(card._id);
+        res.status(201).json({ status: 'success', data: { card: populatedCard } });
     } catch (error) { next(error); }
 };
 
@@ -138,7 +147,8 @@ export const updateCard = async (req, res, next) => {
         }
 
         logActivity(req.user._id, card.board, card._id, 'updated', `Updated card "${card.title}"`);
-        res.status(200).json({ status: 'success', data: { card } });
+        const populatedCard = await getPopulatedCard(card._id);
+        res.status(200).json({ status: 'success', data: { card: populatedCard } });
     } catch (error) { next(error); }
 };
 
@@ -173,7 +183,8 @@ export const moveCard = async (req, res, next) => {
         logActivity(req.user._id, card.board, card._id, 'moved',
             `Moved card "${card.title}" from column ${fromColumn} to ${targetColumnId}`);
 
-        res.status(200).json({ status: 'success', data: { card } });
+        const populatedCard = await getPopulatedCard(card._id);
+        res.status(200).json({ status: 'success', data: { card: populatedCard } });
     } catch (error) { next(error); }
 };
 
@@ -191,7 +202,8 @@ export const getCardActivities = async (req, res, next) => {
 export const getMyTasks = async (req, res, next) => {
     try {
         const { priority, blocked, overdue, dueSoon, reviewRequested } = req.query;
-        const query = { assignees: req.user._id };
+        const boardIds = await getBoardIdsForUser(req.user._id);
+        const query = { assignees: req.user._id, board: { $in: boardIds } };
 
         if (priority) {
             query.priority = priority;
@@ -235,9 +247,7 @@ export const addComment = async (req, res, next) => {
         card.comments.push(comment);
         await card.save();
 
-        const populatedCard = await Card.findById(card._id)
-            .populate('comments.user', 'username avatar')
-            .populate('comments.reactions.users', 'username');
+        const populatedCard = await getPopulatedCard(card._id);
         const newComment = populatedCard.comments[populatedCard.comments.length - 1];
 
         const Activity = (await import('../models/Activity.js')).default;
@@ -380,10 +390,7 @@ export const toggleCommentReaction = async (req, res, next) => {
 
         await card.save();
 
-        const populatedCard = await Card.findById(cardId)
-            .populate('assignees', 'username email avatar')
-            .populate('comments.user', 'username email avatar')
-            .populate('comments.reactions.users', 'username');
+        const populatedCard = await getPopulatedCard(cardId);
 
         logActivity(req.user._id, card.board, card._id, 'updated', `Reacted ${emoji} to a comment on card "${card.title}"`);
 
@@ -419,10 +426,7 @@ export const addCardAttachment = async (req, res, next) => {
         card.version = (card.version || 0) + 1;
         await card.save();
 
-        const populatedCard = await Card.findById(cardId)
-            .populate('assignees', 'username email avatar')
-            .populate('comments.user', 'username email avatar')
-            .populate('comments.reactions.users', 'username');
+        const populatedCard = await getPopulatedCard(cardId);
 
         logActivity(req.user._id, card.board, card._id, 'updated', `Attached file "${req.file.originalname}" to card "${card.title}"`);
 
@@ -466,10 +470,7 @@ export const deleteCardAttachment = async (req, res, next) => {
         card.version = (card.version || 0) + 1;
         await card.save();
 
-        const populatedCard = await Card.findById(cardId)
-            .populate('assignees', 'username email avatar')
-            .populate('comments.user', 'username email avatar')
-            .populate('comments.reactions.users', 'username');
+        const populatedCard = await getPopulatedCard(cardId);
 
         logActivity(req.user._id, card.board, card._id, 'updated', `Removed attachment "${attachment.filename}" from card "${card.title}"`);
 
