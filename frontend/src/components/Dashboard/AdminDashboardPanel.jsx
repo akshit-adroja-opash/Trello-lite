@@ -223,7 +223,7 @@ export default function AdminDashboardPanel() {
       )}
 
       {/* ── Metric Cards (4) ─────────────────────────────── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-gutter">
         {loading
           ? Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="h-28 rounded-xl bg-surface-container dark:bg-slate-800/60 animate-pulse border border-outline-variant dark:border-slate-700" />
@@ -256,7 +256,7 @@ export default function AdminDashboardPanel() {
       </div>
 
       {/* ── Charts Row ───────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-gutter">
 
         {/* Donut – Role Distribution (real data) */}
         <div className="bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 rounded-xl p-lg shadow-sm flex flex-col">
@@ -308,7 +308,7 @@ export default function AdminDashboardPanel() {
 
       {/* ── Additional Stats Row ─────────────────────────── */}
       {!loading && data && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-gutter">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-gutter">
           {[
             { label: 'Total Boards', icon: 'dashboard', value: data.stats.totalBoards },
             { label: 'Total Cards', icon: 'task_alt', value: data.stats.totalCards },

@@ -239,18 +239,18 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
                     const isUpdating = updatingMemberId === memberUser._id;
 
                     return (
-                      <div key={m._id} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 first:pt-0 last:pb-0">
-                        <div className="flex items-center gap-3">
+                      <div key={m._id} className="py-4 flex flex-row items-center justify-between gap-3 first:pt-0 last:pb-0">
+                        <div className="flex items-center gap-3 min-w-0">
                           <Avatar name={memberUser.username || '?'} avatar={memberUser.avatar} size={36} />
-                          <div>
-                            <p className="text-sm font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-slate-800 dark:text-white flex items-center gap-2 truncate">
                               {memberUser.username}
                             </p>
-                            <p className="text-xs text-slate-450 dark:text-slate-500 mt-0.5">{memberUser.email}</p>
+                            <p className="text-xs text-slate-450 dark:text-slate-500 mt-0.5 truncate">{memberUser.email}</p>
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-3 self-end sm:self-auto">
+                        <div className="flex items-center gap-2 shrink-0">
                           {!isAdmin && isActualAdmin && (
                             <button
                               onClick={(e) => handleRemoveMember(memberUser._id, e)}

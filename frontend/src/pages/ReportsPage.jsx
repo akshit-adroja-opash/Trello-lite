@@ -405,7 +405,7 @@ const ReportsPage = () => {
                     </div>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-outline dark:border-slate-700">
+                  <div className="flex flex-col xl:flex-row gap-3 pt-6 border-t border-outline dark:border-slate-700">
                     <button
                       onClick={handleClientReport}
                       disabled={generating || !canClientReport}

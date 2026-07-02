@@ -338,12 +338,12 @@ const DashboardPage = () => {
                     )}
 
                     {/* Boards Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                       {boards.map((board, index) => {
                         const isBoardAdmin = board.Admin === user?._id || board.Admin?._id === user?._id || user?.role === 'admin' || user?.role === 'project_manager';
                         return (
                           <Link key={board._id} to={`/board/${board._id}`}
-                            className="relative h-44 rounded-xl overflow-hidden group cursor-pointer border border-outline-variant dark:border-slate-700 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md block"
+                            className="relative h-36 sm:h-40 xl:h-44 rounded-xl overflow-hidden group cursor-pointer border border-outline-variant dark:border-slate-700 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md block"
                           >
                             <div className="absolute inset-0" style={{ background: board.background || BOARD_COLORS[index % BOARD_COLORS.length] }}></div>
                             {BOARD_WALLPAPERS[index % BOARD_WALLPAPERS.length] && (
@@ -374,7 +374,7 @@ const DashboardPage = () => {
                       {isWsAdmin && (
                         <button
                           onClick={() => setShowCreateBoard(ws._id)}
-                          className="h-44 rounded-xl border-2 border-dashed border-outline-variant dark:border-slate-700 flex flex-col items-center justify-center gap-sm text-outline dark:text-slate-400 hover:border-secondary hover:text-secondary dark:hover:text-indigo-400 hover:bg-secondary-fixed/20 dark:hover:bg-slate-750/30 transition-all cursor-pointer group"
+                          className="h-36 sm:h-40 xl:h-44 rounded-xl border-2 border-dashed border-outline-variant dark:border-slate-700 flex flex-col items-center justify-center gap-sm text-outline dark:text-slate-400 hover:border-secondary hover:text-secondary dark:hover:text-indigo-400 hover:bg-secondary-fixed/20 dark:hover:bg-slate-750/30 transition-all cursor-pointer group"
                         >
                           <div className="w-12 h-12 rounded-full border-2 border-current flex items-center justify-center group-hover:scale-110 transition-transform">
                             <span className="material-symbols-outlined text-[32px]">add</span>

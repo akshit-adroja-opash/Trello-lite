@@ -303,7 +303,7 @@ const AssignTaskPage = () => {
                         {/* Section 1: Location */}
                         <div className="space-y-md">
                             <h3 className="font-title-md text-title-md text-on-surface dark:text-white border-b border-surface-container dark:border-slate-800 pb-sm">Task Destination</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-lg">
                                 {/* Select Workspace */}
                                 <div className="space-y-sm">
                                     <label className="block font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400" htmlFor="workspace">SELECT WORKSPACE</label>
@@ -346,7 +346,7 @@ const AssignTaskPage = () => {
                                 </div>
 
                                 {/* Select Task */}
-                                <div className="space-y-sm md:col-span-2 lg:col-span-1">
+                                <div className="space-y-sm md:col-span-2 xl:col-span-1">
                                     <label className="block font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400" htmlFor="task">SELECT CARD/TASK</label>
                                     <div className="relative input-focus-ring rounded-lg transition-all duration-200">
                                         <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline dark:text-slate-500 text-[20px]">task</span>
@@ -373,7 +373,7 @@ const AssignTaskPage = () => {
                         {/* Section 2: Assignment & Details */}
                         <div className="space-y-md pt-md">
                             <h3 className="font-title-md text-title-md text-on-surface dark:text-white border-b border-surface-container dark:border-slate-800 pb-sm">Assignment Details</h3>
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-lg">
+                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-lg">
                                 {/* Assignees (Simulated Multi-select) */}
                                 <div className="space-y-sm">
                                     <label className="block font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400">ASSIGNEES</label>
@@ -479,8 +479,9 @@ const AssignTaskPage = () => {
                                                     checked={priority === "low"}
                                                     onChange={e => setPriority(e.target.value)}
                                                 />
-                                                <div className="text-center py-2 px-3 border border-outline-variant dark:border-slate-700 rounded-lg peer-checked:bg-surface-container-high dark:peer-checked:bg-slate-800 peer-checked:border-on-surface-variant dark:peer-checked:border-slate-400 transition-colors hover:bg-surface dark:hover:bg-slate-850 text-sm font-medium text-on-surface dark:text-slate-300">
-                                                    <span className="material-symbols-outlined text-[16px] align-text-bottom mr-1 text-outline dark:text-slate-500">arrow_downward</span> Low
+                                                <div className="flex items-center justify-center gap-1 py-2 px-2 border border-outline-variant dark:border-slate-700 rounded-lg peer-checked:bg-surface-container-high dark:peer-checked:bg-slate-800 peer-checked:border-on-surface-variant dark:peer-checked:border-slate-400 transition-colors hover:bg-surface dark:hover:bg-slate-850 text-xs sm:text-sm font-medium text-on-surface dark:text-slate-300 whitespace-nowrap">
+                                                    <span className="material-symbols-outlined text-[16px] text-outline dark:text-slate-500 shrink-0">arrow_downward</span>
+                                                    <span>Low</span>
                                                 </div>
                                             </label>
                                             <label className="cursor-pointer group">
@@ -492,8 +493,9 @@ const AssignTaskPage = () => {
                                                     checked={priority === "medium"}
                                                     onChange={e => setPriority(e.target.value)}
                                                 />
-                                                <div className="text-center py-2 px-3 border border-outline-variant dark:border-slate-700 rounded-lg peer-checked:bg-blue-50 dark:peer-checked:bg-blue-950/20 peer-checked:border-secondary dark:peer-checked:border-indigo-500 peer-checked:text-secondary dark:peer-checked:text-indigo-400 transition-colors hover:bg-surface dark:hover:bg-slate-850 text-sm font-medium text-on-surface dark:text-slate-300">
-                                                    <span className="material-symbols-outlined text-[16px] align-text-bottom mr-1 text-secondary dark:text-indigo-550">remove</span> Medium
+                                                <div className="flex items-center justify-center gap-1 py-2 px-2 border border-outline-variant dark:border-slate-700 rounded-lg peer-checked:bg-blue-50 dark:peer-checked:bg-blue-950/20 peer-checked:border-secondary dark:peer-checked:border-indigo-500 peer-checked:text-secondary dark:peer-checked:text-indigo-400 transition-colors hover:bg-surface dark:hover:bg-slate-850 text-xs sm:text-sm font-medium text-on-surface dark:text-slate-300 whitespace-nowrap">
+                                                    <span className="material-symbols-outlined text-[16px] text-secondary dark:text-indigo-550 shrink-0">remove</span>
+                                                    <span>Medium</span>
                                                 </div>
                                             </label>
                                             <label className="cursor-pointer group">
@@ -505,8 +507,9 @@ const AssignTaskPage = () => {
                                                     checked={priority === "high"}
                                                     onChange={e => setPriority(e.target.value)}
                                                 />
-                                                <div className="text-center py-2 px-3 border border-outline-variant dark:border-slate-700 rounded-lg peer-checked:bg-orange-50 dark:peer-checked:bg-orange-950/20 peer-checked:border-orange-500 dark:peer-checked:border-orange-600 peer-checked:text-orange-700 dark:peer-checked:text-orange-400 transition-colors hover:bg-surface dark:hover:bg-slate-850 text-sm font-medium text-on-surface dark:text-slate-300">
-                                                    <span className="material-symbols-outlined text-[16px] align-text-bottom mr-1 text-orange-500">arrow_upward</span> High
+                                                <div className="flex items-center justify-center gap-1 py-2 px-2 border border-outline-variant dark:border-slate-700 rounded-lg peer-checked:bg-orange-50 dark:peer-checked:bg-orange-950/20 peer-checked:border-orange-500 dark:peer-checked:border-orange-600 peer-checked:text-orange-700 dark:peer-checked:text-orange-400 transition-colors hover:bg-surface dark:hover:bg-slate-850 text-xs sm:text-sm font-medium text-on-surface dark:text-slate-300 whitespace-nowrap">
+                                                    <span className="material-symbols-outlined text-[16px] text-orange-500 shrink-0">arrow_upward</span>
+                                                    <span>High</span>
                                                 </div>
                                             </label>
                                             <label className="cursor-pointer group">
@@ -518,8 +521,9 @@ const AssignTaskPage = () => {
                                                     checked={priority === "urgent" || priority === "critical"}
                                                     onChange={e => setPriority(e.target.value)}
                                                 />
-                                                <div className="text-center py-2 px-3 border border-outline-variant dark:border-slate-700 rounded-lg peer-checked:bg-red-50 dark:peer-checked:bg-red-950/20 peer-checked:border-error dark:peer-checked:border-red-600 peer-checked:text-error dark:peer-checked:text-red-400 transition-colors hover:bg-surface dark:hover:bg-slate-850 text-sm font-medium text-on-surface dark:text-slate-300">
-                                                    <span className="material-symbols-outlined text-[16px] align-text-bottom mr-1 text-error dark:text-red-500">warning</span> Critical
+                                                <div className="flex items-center justify-center gap-1 py-2 px-2 border border-outline-variant dark:border-slate-700 rounded-lg peer-checked:bg-red-50 dark:peer-checked:bg-red-950/20 peer-checked:border-error dark:peer-checked:border-red-600 peer-checked:text-error dark:peer-checked:text-red-400 transition-colors hover:bg-surface dark:hover:bg-slate-850 text-xs sm:text-sm font-medium text-on-surface dark:text-slate-300 whitespace-nowrap">
+                                                    <span className="material-symbols-outlined text-[16px] text-error dark:text-red-500 shrink-0">warning</span>
+                                                    <span>Critical</span>
                                                 </div>
                                             </label>
                                         </div>
@@ -529,16 +533,16 @@ const AssignTaskPage = () => {
                         </div>
 
                         {/* Form Actions */}
-                        <div className="pt-lg border-t border-outline-variant/50 dark:border-slate-800 flex items-center justify-end gap-md">
+                        <div className="pt-lg border-t border-outline-variant/50 dark:border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 sm:gap-md">
                             <button
-                                className="px-lg py-sm font-body-md text-body-md font-medium text-on-surface-variant dark:text-slate-400 hover:bg-surface-container dark:hover:bg-slate-800 rounded-lg transition-colors border border-transparent hover:border-outline-variant dark:hover:border-slate-750"
+                                className="px-lg py-sm font-body-md text-body-md font-medium text-on-surface-variant dark:text-slate-400 hover:bg-surface-container dark:hover:bg-slate-800 rounded-lg transition-colors border border-transparent hover:border-outline-variant dark:hover:border-slate-750 text-center"
                                 type="button"
                                 onClick={handleCancel}
                             >
                                 Cancel
                             </button>
                             <button
-                                className={`group relative px-xl py-sm bg-secondary hover:bg-secondary-container text-on-secondary font-body-md text-body-md font-medium rounded-lg shadow-sm transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-secondary flex items-center gap-sm overflow-hidden uppercase tracking-wider ${updating ? 'is-loading' : ''}`}
+                                className={`group relative px-xl py-sm bg-secondary hover:bg-secondary-container text-on-secondary font-body-md text-body-md font-medium rounded-lg shadow-sm transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-secondary flex items-center justify-center gap-sm overflow-hidden uppercase tracking-wider ${updating ? 'is-loading' : ''}`}
                                 style={{ backgroundColor: "#0058be" }}
                                 type="submit"
                                 disabled={updating}

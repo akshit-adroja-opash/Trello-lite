@@ -12,7 +12,6 @@ const Navbar = ({ searchQuery, setSearchQuery }) => {
   const toggleSidebar = useSidebarStore((s) => s.toggle);
   const navigate = useNavigate();
   const location = useLocation();
-  const isDashboard = location.pathname === '/dashboard';
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -74,7 +73,7 @@ const Navbar = ({ searchQuery, setSearchQuery }) => {
         {/* Global Toolbar items */}
         <div className="flex items-center gap-2 sm:gap-6">
           <div className="flex items-center gap-1 sm:gap-4">
-            {isDashboard && <ThemeToggle />}
+            <ThemeToggle />
             <NotificationBell />
           </div>
           <div className="h-8 w-px bg-outline-variant dark:bg-slate-700 mx-1"></div>

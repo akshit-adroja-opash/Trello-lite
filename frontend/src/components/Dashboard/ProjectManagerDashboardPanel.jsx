@@ -67,7 +67,7 @@ export default function ProjectManagerDashboardPanel() {
       </div>
 
       {/* Metric Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-gutter">
         {loading ? Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="h-28 rounded-xl bg-surface-container dark:bg-slate-800 animate-pulse border border-outline-variant dark:border-slate-700" />
         )) : <>

@@ -134,7 +134,7 @@ const AnalyticsPage = () => {
                                 Deep-dive tracking and performance metrics for your organization.
                             </p>
                         </div>
-                        <div className="flex items-center gap-4">
+                        <div className="flex flex-row items-center gap-2 sm:gap-4 w-full sm:w-auto">
                             {workspaces.length > 0 && (
                                 <CustomSelect
                                     value={selectedWorkspaceId}
@@ -142,6 +142,8 @@ const AnalyticsPage = () => {
                                     options={workspaces.map(ws => ({ value: ws._id, label: ws.name }))}
                                     icon="workspaces"
                                     placeholder="Select Workspace"
+                                    className="flex-1 min-w-0 sm:flex-none"
+                                    minWidth="min-w-0 sm:min-w-[180px]"
                                 />
                             )}
                             <CustomSelect
@@ -156,6 +158,8 @@ const AnalyticsPage = () => {
                                 ]}
                                 icon="calendar_month"
                                 placeholder="Time Range"
+                                className="flex-1 min-w-0 sm:flex-none"
+                                minWidth="min-w-0 sm:min-w-[180px]"
                             />
                         </div>
                     </div>
