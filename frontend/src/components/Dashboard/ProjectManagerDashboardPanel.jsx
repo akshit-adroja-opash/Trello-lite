@@ -111,11 +111,11 @@ export default function ProjectManagerDashboardPanel() {
               {data.pendingReviews.map(c => <CardRow key={c._id} card={c} />)}
             </div>
           )}
-          <div className="flex gap-sm mt-auto pt-sm border-t border-outline-variant dark:border-slate-700">
-            <Link to="/analytics" className="flex-1 flex items-center justify-center gap-xs px-sm py-xs rounded-lg bg-surface-container dark:bg-slate-700 font-body-sm font-medium text-on-surface-variant dark:text-slate-300 hover:bg-surface-container-high dark:hover:bg-slate-600 transition-colors">
+          <div className="flex items-center justify-center gap-3 mt-auto pt-3 border-t border-outline-variant dark:border-slate-700 w-full">
+            <Link to="/analytics" className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-surface-container dark:bg-slate-700 font-body-sm font-medium text-on-surface-variant dark:text-slate-300 hover:bg-surface-container-high dark:hover:bg-slate-600 transition-colors text-center w-full">
               <span className="material-symbols-outlined text-[16px]">bar_chart</span>Analytics
             </Link>
-            <Link to="/reports" className="flex-1 flex items-center justify-center gap-xs px-sm py-xs rounded-lg bg-surface-container dark:bg-slate-700 font-body-sm font-medium text-on-surface-variant dark:text-slate-300 hover:bg-surface-container-high dark:hover:bg-slate-600 transition-colors">
+            <Link to="/reports" className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-surface-container dark:bg-slate-700 font-body-sm font-medium text-on-surface-variant dark:text-slate-300 hover:bg-surface-container-high dark:hover:bg-slate-600 transition-colors text-center w-full">
               <span className="material-symbols-outlined text-[16px]">description</span>Reports
             </Link>
           </div>

@@ -12,7 +12,7 @@ const MyTasksPage = () => {
     const [loading, setLoading] = useState(true);
     const [selectedCard, setSelectedCard] = useState(null);
     const [focusMode, setFocusMode] = useState(false);
-    
+
     const [filters, setFilters] = useState({
         priority: null,
         blocked: false,
@@ -32,7 +32,7 @@ const MyTasksPage = () => {
 
         getMyTasks(params)
             .then(res => setCards(res.data?.cards || []))
-            .catch(() => {})
+            .catch(() => { })
             .finally(() => setLoading(false));
     };
 
@@ -109,7 +109,7 @@ const MyTasksPage = () => {
 
     const renderCardRow = (card) => {
         const isOverdue = card.dueDate && new Date(card.dueDate) < new Date();
-        
+
         return (
             <div key={card._id} className="bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 rounded-lg p-md shadow-[0_4px_6px_-1px_rgba(15,23,42,0.05)] dark:shadow-none flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-surface-container-low dark:hover:bg-slate-750 transition-colors duration-200">
                 <div className="flex flex-col gap-2">
@@ -123,21 +123,21 @@ const MyTasksPage = () => {
                     </h3>
                     <div className="flex flex-wrap items-center gap-2 mt-1">
                         {renderPriorityBadge(card.priority)}
-                        
+
                         {card.dueDate && (
                             <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold tracking-wide uppercase ${isOverdue ? 'bg-error-container dark:bg-error-container/20 text-on-error-container dark:text-red-400' : 'bg-surface-container-high dark:bg-slate-700 text-on-surface dark:text-slate-300'}`}>
                                 <span className="material-symbols-outlined text-[12px] mr-1">calendar_today</span>
                                 {new Date(card.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                             </span>
                         )}
-                        
+
                         {card.blocked && card.blockedReason && (
                             <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold tracking-wide uppercase bg-error-container dark:bg-error-container/20 text-on-error-container dark:text-red-400">
                                 <span className="material-symbols-outlined text-[12px] mr-1">block</span>
                                 Blocked
                             </span>
                         )}
-                        
+
                         {card.reviewRequested && (
                             <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold tracking-wide uppercase bg-secondary-fixed dark:bg-secondary-fixed/20 text-on-secondary-fixed dark:text-blue-400">
                                 <span className="material-symbols-outlined text-[12px] mr-1">rate_review</span>
@@ -146,25 +146,25 @@ const MyTasksPage = () => {
                         )}
                     </div>
                 </div>
-                
+
                 <div className="flex items-center gap-2 self-start sm:self-center shrink-0">
-                    <button 
+                    <button
                         onClick={() => handleToggleBlocked(card)}
                         className={`flex items-center gap-1.5 px-3 py-1.5 border ${card.blocked ? 'bg-error text-on-error border-error dark:bg-red-600 dark:text-white dark:border-red-600' : 'bg-transparent border-outline-variant text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white'} rounded transition-colors font-body-sm text-[14px]`}
                     >
                         <span className="material-symbols-outlined text-[18px]">block</span>
                         {card.blocked ? 'Blocked' : 'Block'}
                     </button>
-                    <button 
+                    <button
                         onClick={() => handleToggleReview(card)}
                         className={`flex items-center gap-1.5 px-3 py-1.5 border ${card.reviewRequested ? 'bg-secondary text-on-secondary border-secondary dark:bg-blue-600 dark:text-white dark:border-blue-600' : 'bg-transparent border-outline-variant text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white'} rounded transition-colors font-body-sm text-[14px]`}
                     >
                         <span className="material-symbols-outlined text-[18px]">rate_review</span>
                         {card.reviewRequested ? 'Under Review' : 'Request Review'}
                     </button>
-                    <button 
+                    <button
                         onClick={() => setSelectedCard(card)}
-                        className="p-1.5 border border-outline-variant text-on-surface-variant rounded hover:bg-surface-container-high hover:text-on-surface dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white transition-colors flex items-center justify-center bg-transparent" 
+                        className="p-1.5 border border-outline-variant text-on-surface-variant rounded hover:bg-surface-container-high hover:text-on-surface dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white transition-colors flex items-center justify-center bg-transparent"
                         title="Open Detail"
                     >
                         <span className="material-symbols-outlined text-[18px]">open_in_new</span>
@@ -176,7 +176,7 @@ const MyTasksPage = () => {
 
     return (
         <AdminPanelLayout mainClassName="max-w-[1400px] w-full h-full min-h-[calc(100vh-120px)] flex flex-col gap-lg">
-            
+
             {/* Page Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
@@ -184,7 +184,7 @@ const MyTasksPage = () => {
                     <p className="font-body-md text-[16px] text-on-surface-variant dark:text-slate-400">Track assigned cards, blockers, reviews, and upcoming work.</p>
                 </div>
                 {cards.length > 0 && !loading && (
-                    <button 
+                    <button
                         onClick={() => setFocusMode(true)}
                         className="flex items-center gap-2 bg-secondary-container dark:bg-blue-600 text-on-secondary-container dark:text-white font-body-md text-sm font-semibold px-4 py-2 rounded-lg hover:bg-secondary-container/90 dark:hover:bg-blue-700 transition-colors shadow-sm self-end md:self-auto"
                     >
@@ -201,40 +201,40 @@ const MyTasksPage = () => {
                     FILTER BY
                 </span>
                 <div className="w-px h-4 bg-outline-variant dark:bg-slate-700 mx-1 hidden sm:block"></div>
-                
-                <button 
-                    onClick={() => setFilters(prev => ({...prev, priority: prev.priority ? null : 'all'}))}
+
+                <button
+                    onClick={() => setFilters(prev => ({ ...prev, priority: prev.priority ? null : 'all' }))}
                     className={`flex items-center gap-1.5 px-3 py-1.5 font-body-sm text-[14px] rounded-full transition-colors ${filters.priority ? 'bg-secondary-fixed/50 dark:bg-blue-900/40 border border-secondary text-on-secondary-fixed dark:text-blue-400' : 'bg-transparent border border-outline-variant text-on-surface-variant hover:bg-surface-container-low dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-700'}`}
                 >
                     <span className="material-symbols-outlined text-[16px]">bolt</span>
                     All Priorities
                 </button>
-                
-                <button 
+
+                <button
                     onClick={() => toggleFilter('blocked')}
                     className={`flex items-center gap-1.5 px-3 py-1.5 font-body-sm text-[14px] rounded-full transition-colors ${filters.blocked ? 'bg-error-container dark:bg-red-900/40 border border-error text-on-error-container dark:text-red-400' : 'bg-transparent border border-outline-variant text-on-surface-variant hover:bg-surface-container-low dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-700'}`}
                 >
                     <span className="material-symbols-outlined text-[16px]">block</span>
                     Blocked
                 </button>
-                
-                <button 
+
+                <button
                     onClick={() => toggleFilter('overdue')}
                     className={`flex items-center gap-1.5 px-3 py-1.5 font-body-sm text-[14px] rounded-full transition-colors ${filters.overdue ? 'bg-amber-100 dark:bg-amber-900/40 border border-amber-600 text-amber-800 dark:text-amber-400' : 'bg-transparent border border-outline-variant text-on-surface-variant hover:bg-surface-container-low dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-700'}`}
                 >
                     <span className="material-symbols-outlined text-[16px]">alarm</span>
                     Overdue
                 </button>
-                
-                <button 
+
+                <button
                     onClick={() => toggleFilter('dueSoon')}
                     className={`flex items-center gap-1.5 px-3 py-1.5 font-body-sm text-[14px] rounded-full transition-colors ${filters.dueSoon ? 'bg-emerald-100 dark:bg-emerald-900/40 border border-emerald-600 text-emerald-800 dark:text-emerald-400' : 'bg-transparent border border-outline-variant text-on-surface-variant hover:bg-surface-container-low dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-700'}`}
                 >
                     <span className="material-symbols-outlined text-[16px]">schedule</span>
                     Due Soon
                 </button>
-                
-                <button 
+
+                <button
                     onClick={() => toggleFilter('reviewRequested')}
                     className={`flex items-center gap-1.5 px-3 py-1.5 font-body-sm text-[14px] rounded-full transition-colors ${filters.reviewRequested ? 'bg-secondary-fixed dark:bg-blue-900/40 border border-secondary text-on-secondary-fixed dark:text-blue-400' : 'bg-transparent border border-outline-variant text-on-surface-variant hover:bg-surface-container-low dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-700'}`}
                 >
@@ -264,7 +264,7 @@ const MyTasksPage = () => {
                                 <span className="material-symbols-outlined text-error dark:text-red-400 text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>error</span>
                                 <h2 className="font-label-caps text-[12px] text-primary dark:text-white uppercase tracking-wider font-bold">High & Urgent Priority ({highUrgentTasks.length})</h2>
                             </div>
-                            
+
                             {highUrgentTasks.map(renderCardRow)}
                         </section>
                     )}
@@ -276,7 +276,7 @@ const MyTasksPage = () => {
                                 <span className="material-symbols-outlined text-secondary dark:text-blue-400 text-[20px]">schedule</span>
                                 <h2 className="font-label-caps text-[12px] text-primary dark:text-white uppercase tracking-wider font-bold">Upcoming & Other Tasks ({upcomingTasks.length})</h2>
                             </div>
-                            
+
                             {upcomingTasks.map(renderCardRow)}
                         </section>
                     )}

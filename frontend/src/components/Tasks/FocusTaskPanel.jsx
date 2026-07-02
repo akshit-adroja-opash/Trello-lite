@@ -21,7 +21,7 @@ const FocusTaskPanel = ({ cards, initialIndex, onClose, onCardUpdated }) => {
     const [checklist, setChecklist] = useState([]);
     const [newCheckItem, setNewCheckItem] = useState('');
     const [commentText, setCommentText] = useState('');
-    
+
     const [columns, setColumns] = useState([]);
     const [saving, setSaving] = useState(false);
     const [moving, setMoving] = useState(false);
@@ -113,7 +113,7 @@ const FocusTaskPanel = ({ cards, initialIndex, onClose, onCardUpdated }) => {
             index === idx ? { ...item, done: !item.done } : item
         );
         setChecklist(updatedChecklist);
-        
+
         try {
             const res = await updateCard(card._id, {
                 checklist: updatedChecklist,
@@ -210,7 +210,7 @@ const FocusTaskPanel = ({ cards, initialIndex, onClose, onCardUpdated }) => {
             {/* Main Content Canvas */}
             <main className="flex-1 overflow-y-auto p-margin-desktop bg-background dark:bg-slate-900">
                 <div className="max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-12 gap-gutter">
-                    
+
                     {/* Left Column: Content Area */}
                     <div className="col-span-1 md:col-span-8 flex flex-col gap-lg">
                         {/* Task Header Card */}
@@ -276,11 +276,11 @@ const FocusTaskPanel = ({ cards, initialIndex, onClose, onCardUpdated }) => {
                             </div>
 
                             <form onSubmit={handleAddCheckItem} className="flex items-center gap-2 mt-2 min-w-0">
-                                <input 
+                                <input
                                     value={newCheckItem}
                                     onChange={e => setNewCheckItem(e.target.value)}
-                                    className="flex-1 min-w-0 bg-surface-container-low dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg px-3 py-1.5 sm:px-4 sm:py-2 font-body-sm text-on-surface dark:text-slate-200 focus:border-secondary focus:ring-2 focus:ring-secondary/20 transition-all outline-none" 
-                                    placeholder="Add checklist item..." 
+                                    className="flex-1 min-w-0 bg-surface-container-low dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg px-3 py-1.5 sm:px-4 sm:py-2 font-body-sm text-on-surface dark:text-slate-200 focus:border-secondary focus:ring-2 focus:ring-secondary/20 transition-all outline-none"
+                                    placeholder="Add checklist item..."
                                     type="text"
                                 />
                                 <button type="submit" className="shrink-0 bg-secondary dark:bg-blue-600 text-on-secondary dark:text-white font-body-sm font-medium px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg hover:bg-secondary-container hover:text-on-secondary-container dark:hover:bg-blue-700 transition-colors shadow-sm whitespace-nowrap">
@@ -292,7 +292,7 @@ const FocusTaskPanel = ({ cards, initialIndex, onClose, onCardUpdated }) => {
 
                     {/* Right Column: Settings & Context */}
                     <div className="col-span-1 md:col-span-4 flex flex-col gap-lg">
-                        
+
                         {/* Settings Card */}
                         <div className="bg-surface-container-lowest/95 dark:bg-slate-800/95 backdrop-blur-[8px] border border-outline-variant dark:border-slate-700 shadow-[0_4px_6px_-1px_rgba(15,23,42,0.05)] rounded-xl p-lg flex flex-col gap-md">
                             <div className="flex items-center gap-sm text-on-surface-variant dark:text-slate-400 border-b border-outline-variant dark:border-slate-700 pb-md mb-sm">
@@ -305,7 +305,7 @@ const FocusTaskPanel = ({ cards, initialIndex, onClose, onCardUpdated }) => {
                                 <div className="flex flex-col gap-xs">
                                     <label className="font-label-caps text-on-surface-variant dark:text-slate-400">COLUMN (STATUS)</label>
                                     <div className="relative">
-                                        <select 
+                                        <select
                                             value={card.column?._id || ''}
                                             onChange={handleColumnChange}
                                             disabled={moving || columns.length === 0}
@@ -325,7 +325,7 @@ const FocusTaskPanel = ({ cards, initialIndex, onClose, onCardUpdated }) => {
                                 <div className="flex flex-col gap-xs">
                                     <label className="font-label-caps text-on-surface-variant dark:text-slate-400">PRIORITY</label>
                                     <div className="relative">
-                                        <select 
+                                        <select
                                             value={priority}
                                             onChange={e => setPriority(e.target.value)}
                                             className="w-full appearance-none bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg pl-xl pr-xl py-sm font-body-sm text-on-surface dark:text-slate-200 focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none"
@@ -335,11 +335,10 @@ const FocusTaskPanel = ({ cards, initialIndex, onClose, onCardUpdated }) => {
                                             <option value="high">High</option>
                                             <option value="urgent">Urgent</option>
                                         </select>
-                                        <div className={`absolute left-md top-1/2 -translate-y-1/2 w-3 h-3 rounded-full ${
-                                            priority === 'urgent' ? 'bg-red-500' :
-                                            priority === 'high' ? 'bg-orange-500' :
-                                            priority === 'medium' ? 'bg-yellow-400' : 'bg-emerald-500'
-                                        } pointer-events-none`}></div>
+                                        <div className={`absolute left-md top-1/2 -translate-y-1/2 w-3 h-3 rounded-full ${priority === 'urgent' ? 'bg-red-500' :
+                                                priority === 'high' ? 'bg-orange-500' :
+                                                    priority === 'medium' ? 'bg-yellow-400' : 'bg-emerald-500'
+                                            } pointer-events-none`}></div>
                                         <span className="material-symbols-outlined absolute right-md top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-xl">expand_more</span>
                                     </div>
                                 </div>
@@ -347,12 +346,12 @@ const FocusTaskPanel = ({ cards, initialIndex, onClose, onCardUpdated }) => {
                                 {/* Estimated Hours */}
                                 <div className="flex flex-col gap-xs">
                                     <label className="font-label-caps text-on-surface-variant dark:text-slate-400">ESTIMATED HOURS</label>
-                                    <input 
-                                        type="number" 
+                                    <input
+                                        type="number"
                                         min="0"
                                         value={estimatedHours}
                                         onChange={e => setEstimatedHours(Math.max(0, parseInt(e.target.value) || 0))}
-                                        className="w-full bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg px-md py-sm font-body-sm text-on-surface dark:text-slate-200 focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none" 
+                                        className="w-full bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg px-md py-sm font-body-sm text-on-surface dark:text-slate-200 focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none"
                                     />
                                 </div>
 
@@ -360,11 +359,11 @@ const FocusTaskPanel = ({ cards, initialIndex, onClose, onCardUpdated }) => {
                                 <div className="flex flex-col gap-xs">
                                     <label className="font-label-caps text-on-surface-variant dark:text-slate-400">DUE DATE</label>
                                     <div className="relative">
-                                        <input 
+                                        <input
                                             type="date"
                                             value={dueDate}
                                             onChange={e => setDueDate(e.target.value)}
-                                            className="w-full bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg px-md py-sm font-body-sm text-on-surface dark:text-slate-200 focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none pr-xl" 
+                                            className="w-full bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg px-md py-sm font-body-sm text-on-surface dark:text-slate-200 focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none pr-xl"
                                         />
                                     </div>
                                 </div>
@@ -372,14 +371,14 @@ const FocusTaskPanel = ({ cards, initialIndex, onClose, onCardUpdated }) => {
                                 {/* Toggles */}
                                 <div className="flex flex-col gap-sm pt-sm">
                                     <label className="flex items-center gap-sm cursor-pointer group">
-                                        <input 
-                                            type="checkbox" 
+                                        <input
+                                            type="checkbox"
                                             checked={blocked}
                                             onChange={e => {
                                                 setBlocked(e.target.checked);
                                                 if (!e.target.checked) setBlockedReason('');
                                             }}
-                                            className="w-4 h-4 rounded border-outline-variant text-error dark:text-red-500 focus:ring-error" 
+                                            className="w-4 h-4 rounded border-outline-variant text-error dark:text-red-500 focus:ring-error"
                                         />
                                         <span className="font-label-caps text-on-surface-variant dark:text-slate-400 group-hover:text-on-surface dark:group-hover:text-white transition-colors">BLOCKED / WAITING</span>
                                     </label>
@@ -395,18 +394,18 @@ const FocusTaskPanel = ({ cards, initialIndex, onClose, onCardUpdated }) => {
                                     )}
 
                                     <label className="flex items-center gap-sm cursor-pointer group">
-                                        <input 
-                                            type="checkbox" 
+                                        <input
+                                            type="checkbox"
                                             checked={reviewRequested}
                                             onChange={e => setReviewRequested(e.target.checked)}
-                                            className="w-4 h-4 rounded border-outline-variant text-secondary dark:text-blue-500 focus:ring-secondary" 
+                                            className="w-4 h-4 rounded border-outline-variant text-secondary dark:text-blue-500 focus:ring-secondary"
                                         />
                                         <span className="font-label-caps text-on-surface-variant dark:text-slate-400 group-hover:text-on-surface dark:group-hover:text-white transition-colors">REVIEW REQUESTED</span>
                                     </label>
                                 </div>
 
                                 {/* Save Button */}
-                                <button 
+                                <button
                                     onClick={handleSave}
                                     disabled={saving}
                                     className="w-full bg-secondary dark:bg-blue-600 text-on-secondary dark:text-white font-body-md font-semibold px-md py-sm rounded-lg hover:bg-secondary-container hover:text-on-secondary-container dark:hover:bg-blue-700 transition-colors shadow-sm flex items-center justify-center gap-sm mt-sm"
@@ -456,14 +455,14 @@ const FocusTaskPanel = ({ cards, initialIndex, onClose, onCardUpdated }) => {
                             </div>
 
                             <form onSubmit={handleAddComment} className="flex flex-col gap-sm mt-sm">
-                                <textarea 
+                                <textarea
                                     value={commentText}
                                     onChange={e => setCommentText(e.target.value)}
-                                    className="w-full bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg px-md py-sm font-body-sm text-on-surface dark:text-slate-200 focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none resize-none" 
-                                    placeholder="Write a comment..." 
+                                    className="w-full bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg px-md py-sm font-body-sm text-on-surface dark:text-slate-200 focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none resize-none"
+                                    placeholder="Write a comment..."
                                     rows="3"
                                 />
-                                <button 
+                                <button
                                     type="submit"
                                     disabled={!commentText.trim()}
                                     className="self-start bg-surface-container-high dark:bg-slate-700 text-on-surface-variant dark:text-slate-300 font-body-sm font-medium px-md py-sm rounded-lg hover:bg-surface-variant dark:hover:bg-slate-600 hover:text-on-surface dark:hover:text-white transition-colors disabled:opacity-50"

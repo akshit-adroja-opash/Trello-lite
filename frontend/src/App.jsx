@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
+import { Toaster, ToastBar } from "react-hot-toast";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -36,7 +36,24 @@ const App = () => {
 
   return (
     <div>
-      <Toaster position="top-right" />
+      <Toaster 
+        position="top-right" 
+        containerStyle={{
+          top: 74,
+        }}
+      >
+        {(t) => (
+          <div
+            style={{
+              opacity: t.visible ? 1 : 0,
+              transform: t.visible ? 'translateX(0)' : 'translateX(120%)',
+              transition: 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+            }}
+          >
+            <ToastBar toast={t} style={{ ...t.style, animation: 'none' }} />
+          </div>
+        )}
+      </Toaster>
       <Routes>
         <Route path="/" element={token ? <Navigate to="/dashboard" /> : <LoginPage />} />
         <Route path="/login" element={<LoginPage />} />

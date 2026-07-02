@@ -180,12 +180,12 @@ const ProfilePage = () => {
         <main className="flex-1 ml-0 lg:ml-[280px] p-6 lg:p-10 overflow-y-auto w-full max-w-[1440px] mx-auto">
           
           {/* Breadcrumbs & Header */}
-          <div className="flex justify-between items-end mb-10">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3 sm:gap-4 mb-6 sm:mb-10">
             <div>
               <h1 className="font-headline-lg text-headline-lg text-primary dark:text-white mb-1">My Profile</h1>
               <p className="font-body-md text-on-surface-variant dark:text-slate-400">Manage your account settings and personal information</p>
             </div>
-            <nav className="flex items-center gap-1 text-body-sm">
+            <nav className="flex items-center gap-1 text-body-sm self-start sm:self-auto">
               <Link className="text-secondary hover:underline dark:text-indigo-400" to="/dashboard">Dashboard</Link>
               <span className="material-symbols-outlined text-sm opacity-40">chevron_right</span>
               <span className="text-on-surface-variant dark:text-slate-350 font-bold">My Profile</span>
