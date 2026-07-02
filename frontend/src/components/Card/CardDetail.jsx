@@ -131,6 +131,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
     const [reviewRequested, setReviewRequested] = useState(!!initialCard.reviewRequested);
     const [saving, setSaving] = useState(false);
     const [typingUser, setTypingUser] = useState(null);
+    const [openHistoryId, setOpenHistoryId] = useState(null);
     const { updateCard: storeUpdate, removeCard, board, boardRole } = useBoardStore();
     const socket = useSocketStore(s => s.socket);
     const boardId = useBoardStore(s => s.board?._id);
@@ -301,7 +302,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
 
     const [uploading, setUploading] = useState(false);
 
-    const handleUploadFile = async (e) => {
+    const handleUploadFile = async (e, targetAttachmentId = null) => {
         const file = e.target.files[0];
         if (!file) return;
 
@@ -319,7 +320,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
 
         setUploading(true);
         try {
-            const res = await uploadAttachment(card._id, file);
+            const res = await uploadAttachment(card._id, file, targetAttachmentId);
             const updated = res.data?.card;
             if (updated) {
                 setCard(updated);
@@ -336,16 +337,19 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
         }
     };
 
-    const handleDeleteFile = async (attachmentId) => {
-        if (!confirm('Are you sure you want to delete this attachment?')) return;
+    const handleDeleteFile = async (attachmentId, versionNumber = null) => {
+        const msg = versionNumber
+            ? `Are you sure you want to delete version v${versionNumber}?`
+            : 'Are you sure you want to delete this attachment and all its versions?';
+        if (!confirm(msg)) return;
         try {
-            const res = await deleteAttachment(card._id, attachmentId);
+            const res = await deleteAttachment(card._id, attachmentId, versionNumber);
             const updated = res.data?.card;
             if (updated) {
                 setCard(updated);
                 storeUpdate(updated);
                 socket?.emit('card:update', { boardId, card: updated });
-                toast.success('Attachment deleted');
+                toast.success(versionNumber ? `Version v${versionNumber} deleted` : 'Attachment deleted');
             }
         } catch {
             toast.error('Failed to delete attachment');
@@ -636,63 +640,156 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                         return (
                                             <div
                                                 key={att._id}
-                                                className="group relative flex gap-3 p-3 bg-slate-50/50 dark:bg-slate-900/30 border border-slate-200 dark:border-slate-800 rounded-xl hover:shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-all overflow-hidden"
+                                                className="group relative flex flex-col p-3 bg-slate-50/50 dark:bg-slate-900/30 border border-slate-200 dark:border-slate-800 rounded-xl hover:shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-all overflow-hidden"
                                             >
-                                                {/* Left Thumbnail/Icon */}
-                                                <div className="w-14 h-14 rounded-lg bg-slate-100 dark:bg-slate-850 flex items-center justify-center overflow-hidden shrink-0 border border-slate-200/50 dark:border-slate-800">
-                                                    {isImage ? (
-                                                        <img
-                                                            src={fileUrl}
-                                                            alt={att.filename}
-                                                            className="w-full h-full object-cover"
-                                                            onError={(e) => {
-                                                                e.target.onerror = null;
-                                                                e.target.src = 'https://placehold.co/100?text=File';
-                                                            }}
-                                                        />
-                                                    ) : (
-                                                        <span className="material-symbols-outlined text-slate-400 dark:text-slate-500 text-2xl">
-                                                            {att.filename.endsWith('.pdf') ? 'picture_as_pdf' :
-                                                                (att.filename.endsWith('.zip') || att.filename.endsWith('.rar')) ? 'folder_zip' :
-                                                                    'description'}
-                                                        </span>
-                                                    )}
-                                                </div>
-
-                                                {/* Info */}
-                                                <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
-                                                    <div className="space-y-0.5">
-                                                        <p className="text-xs font-bold text-slate-700 dark:text-slate-200 truncate" title={att.filename}>
-                                                            {att.filename}
-                                                        </p>
-                                                        <p className="text-[10px] text-slate-450 dark:text-slate-500 font-medium">
-                                                            {sizeInKB} KB
-                                                        </p>
-                                                    </div>
-
-                                                    <div className="flex gap-3 mt-1">
-                                                        <a
-                                                            href={fileUrl}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            download={att.filename}
-                                                            className="text-[10px] font-bold text-indigo-650 hover:text-indigo-850 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors flex items-center gap-0.5 cursor-pointer"
-                                                        >
-                                                            <span className="material-symbols-outlined text-[12px]">download</span>
-                                                            Download
-                                                        </a>
-
-                                                        {canEdit && (
-                                                            <button
-                                                                onClick={() => handleDeleteFile(att._id)}
-                                                                className="text-[10px] font-bold text-rose-500 hover:text-rose-750 transition-colors flex items-center gap-0.5 cursor-pointer"
-                                                            >
-                                                                <span className="material-symbols-outlined text-[12px]">delete</span>
-                                                                Remove
-                                                            </button>
+                                                <div className="flex gap-3">
+                                                    {/* Left Thumbnail/Icon */}
+                                                    <div className="w-14 h-14 rounded-lg bg-slate-100 dark:bg-slate-850 flex items-center justify-center overflow-hidden shrink-0 border border-slate-200/50 dark:border-slate-800">
+                                                        {isImage ? (
+                                                            <img
+                                                                src={fileUrl}
+                                                                alt={att.filename}
+                                                                className="w-full h-full object-cover"
+                                                                onError={(e) => {
+                                                                    e.target.onerror = null;
+                                                                    e.target.src = 'https://placehold.co/100?text=File';
+                                                                }}
+                                                            />
+                                                        ) : (
+                                                            <span className="material-symbols-outlined text-slate-400 dark:text-slate-500 text-2xl">
+                                                                {att.filename.endsWith('.pdf') ? 'picture_as_pdf' :
+                                                                    (att.filename.endsWith('.zip') || att.filename.endsWith('.rar')) ? 'folder_zip' :
+                                                                        'description'}
+                                                            </span>
                                                         )}
                                                     </div>
+
+                                                    {/* Info */}
+                                                    <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                                                        <div className="space-y-0.5">
+                                                            <div className="flex items-center gap-1.5 min-w-0">
+                                                                <p className="text-xs font-bold text-slate-700 dark:text-slate-200 truncate" title={att.filename}>
+                                                                    {att.filename}
+                                                                </p>
+                                                                <span className="shrink-0 px-1.5 py-0.5 text-[9px] font-extrabold bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 rounded uppercase">
+                                                                    v{att.version || 1}
+                                                                </span>
+                                                            </div>
+                                                            <div className="text-[10px] text-slate-450 dark:text-slate-500 font-medium flex items-center gap-2">
+                                                                <span>{sizeInKB} KB</span>
+                                                                {att.versions && att.versions.length > 1 && (
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => setOpenHistoryId(openHistoryId === att._id ? null : att._id)}
+                                                                        className="text-indigo-600 dark:text-indigo-400 hover:underline font-bold flex items-center gap-0.5 cursor-pointer"
+                                                                    >
+                                                                        <span>History ({att.versions.length})</span>
+                                                                        <span className="material-symbols-outlined text-[12px]">
+                                                                            {openHistoryId === att._id ? 'expand_less' : 'expand_more'}
+                                                                        </span>
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="flex flex-wrap gap-3 mt-1 items-center">
+                                                            <a
+                                                                href={fileUrl}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                download={att.filename}
+                                                                className="text-[10px] font-bold text-indigo-650 hover:text-indigo-850 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors flex items-center gap-0.5 cursor-pointer"
+                                                            >
+                                                                <span className="material-symbols-outlined text-[12px]">download</span>
+                                                                Download
+                                                            </a>
+
+                                                            {canEdit && (
+                                                                <label
+                                                                    title={`Upload revised version v${(att.version || 1) + 1}`}
+                                                                    className="text-[10px] font-bold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors flex items-center gap-0.5 cursor-pointer"
+                                                                >
+                                                                    <span className="material-symbols-outlined text-[12px]">upload</span>
+                                                                    <span>v{(att.version || 1) + 1}</span>
+                                                                    <input
+                                                                        type="file"
+                                                                        className="hidden"
+                                                                        onChange={(e) => handleUploadFile(e, att._id)}
+                                                                    />
+                                                                </label>
+                                                            )}
+
+                                                            {canEdit && (
+                                                                <button
+                                                                    onClick={() => handleDeleteFile(att._id)}
+                                                                    className="text-[10px] font-bold text-rose-500 hover:text-rose-750 transition-colors flex items-center gap-0.5 cursor-pointer"
+                                                                >
+                                                                    <span className="material-symbols-outlined text-[12px]">delete</span>
+                                                                    Remove
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    </div>
                                                 </div>
+
+                                                {/* Version History Timeline/List */}
+                                                {openHistoryId === att._id && att.versions && att.versions.length > 0 && (
+                                                    <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800 space-y-2">
+                                                        <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                                                            <span className="material-symbols-outlined text-[14px]">history</span>
+                                                            <span>Version History</span>
+                                                        </p>
+                                                        <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                                                            {[...att.versions].reverse().map((ver) => {
+                                                                const verUrl = getAttachmentUrl(ver.url);
+                                                                const verSize = ver.size ? Math.round(ver.size / 1024) : 0;
+                                                                const verDate = ver.uploadedAt ? new Date(ver.uploadedAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : '';
+                                                                return (
+                                                                    <div
+                                                                        key={ver._id || ver.version}
+                                                                        className="flex items-center justify-between p-2 bg-white dark:bg-slate-800/60 rounded-lg border border-slate-100 dark:border-slate-800 text-[11px]"
+                                                                    >
+                                                                        <div className="flex items-center gap-2 min-w-0">
+                                                                            <span className="px-1.5 py-0.5 text-[9px] font-bold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded shrink-0">
+                                                                                v{ver.version}
+                                                                            </span>
+                                                                            <div className="min-w-0">
+                                                                                <p className="font-semibold text-slate-700 dark:text-slate-200 truncate" title={ver.filename}>
+                                                                                    {ver.filename}
+                                                                                </p>
+                                                                                <p className="text-[9px] text-slate-400">
+                                                                                    {verSize} KB • {verDate}
+                                                                                </p>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="flex items-center gap-1.5 shrink-0">
+                                                                            <a
+                                                                                href={verUrl}
+                                                                                target="_blank"
+                                                                                rel="noopener noreferrer"
+                                                                                download={ver.filename}
+                                                                                className="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700"
+                                                                                title="Download this version"
+                                                                            >
+                                                                                <span className="material-symbols-outlined text-[14px]">download</span>
+                                                                            </a>
+                                                                            {canEdit && att.versions.length > 1 && (
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => handleDeleteFile(att._id, ver.version)}
+                                                                                    className="text-rose-500 hover:text-rose-700 p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer"
+                                                                                    title={`Delete v${ver.version}`}
+                                                                                >
+                                                                                    <span className="material-symbols-outlined text-[14px]">delete</span>
+                                                                                </button>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         );
                                     })

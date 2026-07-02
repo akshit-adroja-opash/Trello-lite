@@ -60,16 +60,22 @@ export const toggleCommentReaction = async (cardId, commentId, emoji) => {
     return response.data;
 };
 
-export const uploadAttachment = async (cardId, file) => {
+export const uploadAttachment = async (cardId, file, targetAttachmentId = null) => {
     const formData = new FormData();
     formData.append('file', file);
-    const response = await API.post(`/cards/${cardId}/attachments`, formData, {
+    const url = targetAttachmentId
+        ? `/cards/${cardId}/attachments?targetAttachmentId=${targetAttachmentId}`
+        : `/cards/${cardId}/attachments`;
+    const response = await API.post(url, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
     });
     return response.data;
 };
 
-export const deleteAttachment = async (cardId, attachmentId) => {
-    const response = await API.delete(`/cards/${cardId}/attachments/${attachmentId}`);
+export const deleteAttachment = async (cardId, attachmentId, versionNumber = null) => {
+    const url = versionNumber
+        ? `/cards/${cardId}/attachments/${attachmentId}?versionNumber=${versionNumber}`
+        : `/cards/${cardId}/attachments/${attachmentId}`;
+    const response = await API.delete(url);
     return response.data;
 };

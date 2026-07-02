@@ -30,7 +30,18 @@ const cardSchema = new mongoose.Schema({
         mimeType: { type: String },
         size: { type: Number },
         uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-        uploadedAt: { type: Date, default: Date.now }
+        uploadedAt: { type: Date, default: Date.now },
+        version: { type: Number, default: 1 },
+        versions: [{
+            version: { type: Number, required: true },
+            filename: { type: String, required: true },
+            url: { type: String, required: true },
+            mimeType: { type: String },
+            size: { type: Number },
+            uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+            uploadedAt: { type: Date, default: Date.now },
+            note: { type: String, default: "" }
+        }]
     }],
     isTemplate: { type: Boolean, default: false },
     priority: { type: String, enum: ['low', 'medium', 'high', 'urgent'], default: 'medium' },

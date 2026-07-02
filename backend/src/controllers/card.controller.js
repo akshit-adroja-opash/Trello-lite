@@ -402,6 +402,7 @@ export const toggleCommentReaction = async (req, res, next) => {
 export const addCardAttachment = async (req, res, next) => {
     try {
         const { cardId } = req.params;
+        const { targetAttachmentId } = req.query;
         if (!req.file) {
             return next(new ApiError(400, 'No file uploaded'));
         }
@@ -415,23 +416,77 @@ export const addCardAttachment = async (req, res, next) => {
         const filename = `${uuidv4()}${ext}`;
         const fileUrl = await uploadBufferToGridFS(req.file.buffer, filename, req.file.mimetype, 'cards');
 
-        const attachment = {
-            filename: req.file.originalname,
-            url: fileUrl,
-            mimeType: req.file.mimetype,
-            size: req.file.size,
-            uploadedBy: req.user._id,
-            uploadedAt: new Date()
-        };
-
         card.attachments = card.attachments || [];
-        card.attachments.push(attachment);
+
+        // Check if updating existing attachment (by targetAttachmentId or matching filename)
+        let existingAtt = null;
+        if (targetAttachmentId) {
+            existingAtt = card.attachments.id(targetAttachmentId);
+        }
+        if (!existingAtt) {
+            existingAtt = card.attachments.find(a => a.filename.toLowerCase() === req.file.originalname.toLowerCase());
+        }
+
+        if (existingAtt) {
+            // Initialize versions array with existing data if empty
+            if (!existingAtt.versions || existingAtt.versions.length === 0) {
+                existingAtt.versions = [{
+                    version: existingAtt.version || 1,
+                    filename: existingAtt.filename,
+                    url: existingAtt.url,
+                    mimeType: existingAtt.mimeType,
+                    size: existingAtt.size,
+                    uploadedBy: existingAtt.uploadedBy,
+                    uploadedAt: existingAtt.uploadedAt
+                }];
+            }
+            const newVersionNum = (existingAtt.version || existingAtt.versions.length || 1) + 1;
+            existingAtt.version = newVersionNum;
+            existingAtt.filename = req.file.originalname;
+            existingAtt.url = fileUrl;
+            existingAtt.mimeType = req.file.mimetype;
+            existingAtt.size = req.file.size;
+            existingAtt.uploadedBy = req.user._id;
+            existingAtt.uploadedAt = new Date();
+
+            existingAtt.versions.push({
+                version: newVersionNum,
+                filename: req.file.originalname,
+                url: fileUrl,
+                mimeType: req.file.mimetype,
+                size: req.file.size,
+                uploadedBy: req.user._id,
+                uploadedAt: new Date()
+            });
+
+            logActivity(req.user._id, card.board, card._id, 'updated', `Uploaded new version (v${newVersionNum}) for "${req.file.originalname}" on card "${card.title}"`);
+        } else {
+            const newAtt = {
+                filename: req.file.originalname,
+                url: fileUrl,
+                mimeType: req.file.mimetype,
+                size: req.file.size,
+                uploadedBy: req.user._id,
+                uploadedAt: new Date(),
+                version: 1,
+                versions: [{
+                    version: 1,
+                    filename: req.file.originalname,
+                    url: fileUrl,
+                    mimeType: req.file.mimetype,
+                    size: req.file.size,
+                    uploadedBy: req.user._id,
+                    uploadedAt: new Date()
+                }]
+            };
+            card.attachments.push(newAtt);
+            logActivity(req.user._id, card.board, card._id, 'updated', `Attached file "${req.file.originalname}" to card "${card.title}"`);
+        }
+
         card.version = (card.version || 0) + 1;
         await card.save();
 
         const populatedCard = await getPopulatedCard(cardId);
-
-        logActivity(req.user._id, card.board, card._id, 'updated', `Attached file "${req.file.originalname}" to card "${card.title}"`);
 
         // Send Socket update
         try {
@@ -451,6 +506,7 @@ export const addCardAttachment = async (req, res, next) => {
 export const deleteCardAttachment = async (req, res, next) => {
     try {
         const { cardId, attachmentId } = req.params;
+        const { versionNumber } = req.query;
 
         const card = await Card.findById(cardId);
         if (!card) return next(new ApiError(404, 'Card not found'));
@@ -458,18 +514,50 @@ export const deleteCardAttachment = async (req, res, next) => {
         const attachment = card.attachments.id(attachmentId);
         if (!attachment) return next(new ApiError(404, 'Attachment not found'));
 
-        // Delete file from GridFS
-        const filename = path.basename(attachment.url);
-        await deleteFromGridFS(filename);
+        if (versionNumber) {
+            const verNum = parseInt(versionNumber, 10);
+            const verIdx = attachment.versions?.findIndex(v => v.version === verNum);
+            if (verIdx !== -1 && verIdx !== undefined) {
+                const verObj = attachment.versions[verIdx];
+                const filename = path.basename(verObj.url);
+                try { await deleteFromGridFS(filename); } catch (err) { console.error('GridFS file delete error:', err.message); }
+                attachment.versions.splice(verIdx, 1);
 
-        // Remove from DB
-        card.attachments.pull(attachmentId);
+                if (attachment.versions.length === 0) {
+                    card.attachments.pull(attachmentId);
+                    logActivity(req.user._id, card.board, card._id, 'updated', `Removed attachment "${attachment.filename}" from card "${card.title}"`);
+                } else if (attachment.version === verNum) {
+                    const latest = attachment.versions[attachment.versions.length - 1];
+                    attachment.version = latest.version;
+                    attachment.filename = latest.filename;
+                    attachment.url = latest.url;
+                    attachment.mimeType = latest.mimeType;
+                    attachment.size = latest.size;
+                    attachment.uploadedBy = latest.uploadedBy;
+                    attachment.uploadedAt = latest.uploadedAt;
+                    logActivity(req.user._id, card.board, card._id, 'updated', `Deleted version v${verNum} of "${attachment.filename}" on card "${card.title}"`);
+                } else {
+                    logActivity(req.user._id, card.board, card._id, 'updated', `Deleted version v${verNum} of "${attachment.filename}" on card "${card.title}"`);
+                }
+            }
+        } else {
+            if (attachment.versions && attachment.versions.length > 0) {
+                for (const ver of attachment.versions) {
+                    const fname = path.basename(ver.url);
+                    try { await deleteFromGridFS(fname); } catch (err) { console.error('GridFS file delete error:', err.message); }
+                }
+            } else {
+                const filename = path.basename(attachment.url);
+                try { await deleteFromGridFS(filename); } catch (err) { console.error('GridFS file delete error:', err.message); }
+            }
+            card.attachments.pull(attachmentId);
+            logActivity(req.user._id, card.board, card._id, 'updated', `Removed attachment "${attachment.filename}" from card "${card.title}"`);
+        }
+
         card.version = (card.version || 0) + 1;
         await card.save();
 
         const populatedCard = await getPopulatedCard(cardId);
-
-        logActivity(req.user._id, card.board, card._id, 'updated', `Removed attachment "${attachment.filename}" from card "${card.title}"`);
 
         // Send Socket update
         try {
