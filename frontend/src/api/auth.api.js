@@ -75,4 +75,9 @@ export const getSessions = async () => {
 export const revokeSession = async (sessionId) => {
     const response = await API.delete(`/auth/sessions/${sessionId}`);
     return response.data;
+};
+
+export const refreshAccessToken = async () => {
+    const response = await API.post('/auth/refresh-token');
+    return response.data;
 };

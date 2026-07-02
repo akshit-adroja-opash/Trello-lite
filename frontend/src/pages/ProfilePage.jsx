@@ -5,6 +5,7 @@ import useAuthStore from '../store/authstore';
 import DashboardSidebar from '../components/Layout/DashboardSidebar';
 import Navbar from '../components/Layout/Navbar';
 import { getRoleDisplayName } from '../utils/roleDisplay';
+import { SERVER_URL } from '../api/axios';
 import { get2FAStatus, toggle2FA, getSessions, revokeSession } from '../api/auth.api';
 
 const ProfilePage = () => {
@@ -121,7 +122,7 @@ const ProfilePage = () => {
     if (avatarPreview) return avatarPreview;
     if (!user?.avatar) return null;
     if (user.avatar.startsWith('http') || user.avatar.startsWith('data:')) return user.avatar;
-    const backendBase = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:5000';
+    const backendBase = SERVER_URL;
     return `${backendBase}${user.avatar.startsWith('/') ? '' : '/'}${user.avatar}`;
   };
 

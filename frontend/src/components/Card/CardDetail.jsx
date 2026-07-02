@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import ReactMarkdown from 'react-markdown';
 import { updateCard, deleteCard, getCardActivities, addComment, saveCardAsTemplate, toggleCommentReaction, uploadAttachment, deleteAttachment } from '../../api/card.api';
+import { SERVER_URL } from '../../api/axios';
 import useBoardStore from '../../store/boardStore';
 import useSocketStore from '../../store/socketStore';
 import useAuthStore from '../../store/authstore';
@@ -628,9 +629,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                             if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
                                                 return path;
                                             }
-                                            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
-                                            const host = apiUrl.split('/api')[0];
-                                            return `${host}${path.startsWith('/') ? '' : '/'}${path}`;
+                                            return `${SERVER_URL}${path.startsWith('/') ? '' : '/'}${path}`;
                                         };
                                         const fileUrl = getAttachmentUrl(att.url);
 

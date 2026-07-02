@@ -1,6 +1,7 @@
 
 
 import { useState, useEffect } from 'react';
+import { SERVER_URL } from '../api/axios';
 
 const COLORS = [
     '#4F46E5', 
@@ -27,9 +28,7 @@ const Avatar = ({ name = '?', avatar, size = 32 }) => {
         if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
             return path;
         }
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
-        const host = apiUrl.split('/api')[0];
-        return `${host}${path.startsWith('/') ? '' : '/'}${path}`;
+        return `${SERVER_URL}${path.startsWith('/') ? '' : '/'}${path}`;
     };
     
     const getBgColor = (str) => {

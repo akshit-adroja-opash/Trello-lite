@@ -7,10 +7,11 @@ import { generateClientReport, generateFullReport, shareReportLink, getRecentRep
 import DashboardSidebar from "../components/Layout/DashboardSidebar";
 import useWorkspaceStore from "../store/workspaceStore";
 import Navbar from "../components/Layout/Navbar";
+import {SERVER_URL} from "../api/axios";
 import CustomSelect from "../components/common/CustomSelect";
 
 const ReportsPage = () => {
-  const backendBase = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:5000';
+  const backendBase = SERVER_URL;
   const { boardId } = useParams();
   const user = useAuthStore((s) => s.user);
 
@@ -211,42 +212,7 @@ const ReportsPage = () => {
 
   const activeWorkspace = workspaces.find(w => w._id === selectedWorkspaceId);
 
-  // Merge database reports with mockup fallbacks for complete layout presentation
-  const mergedReports = [
-    ...(recentReports || []),
-    {
-      _id: "mock-1",
-      board: { name: selectedBoard?.name || "Workspace Board" },
-      type: "full",
-      generatedBy: { username: "Sarah Jenkins", role: "admin" },
-      createdAt: "2023-10-24T14:32:00.000Z",
-      pdfUrl: ""
-    },
-    {
-      _id: "mock-2",
-      board: { name: selectedBoard?.name || "Workspace Board" },
-      type: "client",
-      generatedBy: { username: "Mike Ross", role: "project_manager" },
-      createdAt: "2023-10-22T09:15:00.000Z",
-      pdfUrl: ""
-    },
-    {
-      _id: "mock-3",
-      board: { name: selectedBoard?.name || "Workspace Board" },
-      type: "full",
-      generatedBy: { username: "Alex Chen", role: "developer" },
-      createdAt: "2023-10-20T16:45:00.000Z",
-      pdfUrl: ""
-    },
-    {
-      _id: "mock-4",
-      board: { name: selectedBoard?.name || "Workspace Board" },
-      type: "client",
-      generatedBy: { username: "Mike Ross", role: "project_manager" },
-      createdAt: "2023-09-30T11:00:00.000Z",
-      pdfUrl: ""
-    }
-  ].slice(0, 5);
+  const mergedReports = recentReports || [];
 
   const formatDate = (dateStr) => {
     try {

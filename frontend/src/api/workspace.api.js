@@ -47,3 +47,8 @@ export const getOverdueCount = async (workspaceId) => {
   return response.data;
 };
 
+export const getWorkspaceActivity = async (workspaceId) => {
+  const response = await API.get(`/workspaces/${workspaceId}/activity`);
+  return response.data;
+};
+
