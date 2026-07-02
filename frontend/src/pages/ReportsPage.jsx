@@ -131,7 +131,7 @@ const ReportsPage = () => {
       const data = await generateFullReport(selectedBoardId);
       toast.success("Full report generated successfully");
       const normalizedPath = data.report.pdfUrl.replace(/\\/g, "/");
-      window.open(`${backendBase}/${normalizedPath}`, "_blank");
+      window.open(`${backendBase}${normalizedPath.startsWith('/') ? '' : '/'}${normalizedPath}`, "_blank");
       
       // Refresh reports list
       const res = await getRecentReports(selectedBoardId);
@@ -154,7 +154,7 @@ const ReportsPage = () => {
       const data = await generateClientReport(selectedBoardId);
       toast.success("Client progress report generated successfully");
       const normalizedPath = data.report.pdfUrl.replace(/\\/g, "/");
-      window.open(`${backendBase}/${normalizedPath}`, "_blank");
+      window.open(`${backendBase}${normalizedPath.startsWith('/') ? '' : '/'}${normalizedPath}`, "_blank");
 
       // Refresh reports list
       const res = await getRecentReports(selectedBoardId);
@@ -196,7 +196,7 @@ const ReportsPage = () => {
       return;
     }
     const normalizedPath = pdfUrl.replace(/\\/g, "/");
-    window.open(`${backendBase}/${normalizedPath}`, "_blank");
+    window.open(`${backendBase}${normalizedPath.startsWith('/') ? '' : '/'}${normalizedPath}`, "_blank");
   };
 
   if (loading) {

@@ -105,7 +105,14 @@ export const serveGridFSFile = async (req, res, next) => {
     }
 
     const file = files[0];
-    res.setHeader('Content-Type', file.contentType || 'application/octet-stream');
+    let contentType = file.contentType || file.metadata?.contentType;
+    if (!contentType) {
+      if (targetFilename.endsWith('.pdf')) contentType = 'application/pdf';
+      else if (targetFilename.endsWith('.png')) contentType = 'image/png';
+      else if (targetFilename.match(/\.(jpg|jpeg)$/i)) contentType = 'image/jpeg';
+      else contentType = 'application/octet-stream';
+    }
+    res.setHeader('Content-Type', contentType);
     res.setHeader('Content-Length', file.length);
     res.setHeader('Cache-Control', 'public, max-age=31536000');
 

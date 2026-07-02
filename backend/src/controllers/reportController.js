@@ -144,23 +144,28 @@ export const shareReportLink = async (req, res) => {
 };
 
 export const downloadSharedReport = async (req, res) => {
+    try {
+        const { token } = req.params;
 
-    const { token } = req.params;
+        const decoded = jwt.verify(
+            token,
+            process.env.JWT_SECRET
+        );
 
-    const decoded = jwt.verify(
-        token,
-        process.env.JWT_SECRET
-    );
+        const report = await Report.findById(decoded.reportId);
 
-    const report = await Report.findById(decoded.reportId);
+        if (!report) {
+            return res.status(404).json({
+                message: "Report not found",
+            });
+        }
 
-    if (!report) {
-        return res.status(404).json({
-            message: "Report not found",
+        res.redirect(report.pdfUrl);
+    } catch (error) {
+        res.status(400).json({
+            message: "Invalid or expired share link",
         });
     }
-
-    res.download(report.pdfUrl);
 };
 
 export const getRecentReports = async (req, res) => {

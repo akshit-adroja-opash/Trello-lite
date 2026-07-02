@@ -20,6 +20,14 @@ import { serveGridFSFile } from "./src/utils/gridfsStorage.js";
 
 const app = express();
 
+// Normalize URL paths to prevent double slashes (e.g. //uploads/...) from returning 404
+app.use((req, res, next) => {
+  if (req.url.startsWith('//')) {
+    req.url = req.url.replace(/^\/+/, '/');
+  }
+  next();
+});
+
 const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173")
   .split(",")
   .map(origin => origin.trim())
@@ -37,8 +45,8 @@ app.use(morgan("dev"));
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-app.get('/uploads/:category/:filename', serveGridFSFile);
-app.get('/uploads/:filename', serveGridFSFile);
+app.get(['/uploads/:category/:filename', '//uploads/:category/:filename'], serveGridFSFile);
+app.get(['/uploads/:filename', '//uploads/:filename'], serveGridFSFile);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use("/api/v1/auth", authRoutes);
