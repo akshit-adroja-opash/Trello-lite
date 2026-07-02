@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import Avatar from '../../UI/Avatar';
-import { getMembers, updateMemberRole, removeMember, updateWorkspace } from '../../api/workspace.api';
-import { getRoleDisplayName } from '../../utils/roleDisplay';
+import { getMembers, removeMember, updateWorkspace } from '../../api/workspace.api';
 import useAuthStore from '../../store/authstore';
 import Modal from '../common/Modal';
 

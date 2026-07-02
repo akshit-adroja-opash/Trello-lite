@@ -12,8 +12,6 @@ export const registerBoardHandlers = (io, socket) => {
         socket.data.boardId = boardId;
         socket.data.user = user;
 
-        console.log(`Socket ${socket.id} joined board ${boardId}`);
-
         if (user) {
             if (!boardPresence.has(boardId)) boardPresence.set(boardId, new Map());
             boardPresence.get(boardId).set(socket.id, user);

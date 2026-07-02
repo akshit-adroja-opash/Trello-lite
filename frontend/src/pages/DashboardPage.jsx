@@ -7,7 +7,6 @@ import { createWorkspace, deleteWorkspace, inviteMember, getOverdueCount } from 
 import { createBoard, deleteBoard } from '../api/board.api';
 import { getDevelopers } from '../api/auth.api';
 import Avatar from '../UI/Avatar';
-import { getRoleDisplayName } from '../utils/roleDisplay';
 import WorkspaceSettingsModal from '../components/workspace/WorkspaceSettingsModal';
 import Navbar from '../components/Layout/Navbar';
 import DashboardSidebar from '../components/Layout/DashboardSidebar';

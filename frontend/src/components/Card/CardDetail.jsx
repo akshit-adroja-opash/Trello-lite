@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import ReactMarkdown from 'react-markdown';
-import { updateCard, deleteCard, getCardActivities, addComment, saveCardAsTemplate, toggleCommentReaction, uploadAttachment, deleteAttachment } from '../../api/card.api';
+import { updateCard, deleteCard, addComment, saveCardAsTemplate, toggleCommentReaction, uploadAttachment, deleteAttachment } from '../../api/card.api';
 import { SERVER_URL } from '../../api/axios';
 import useBoardStore from '../../store/boardStore';
 import useSocketStore from '../../store/socketStore';

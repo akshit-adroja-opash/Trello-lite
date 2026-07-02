@@ -1,7 +1,6 @@
 import Card from '../models/Card.js';
 import Activity from '../models/Activity.js';
 import { ApiError } from '../utils/apiError.js';
-import fs from 'fs';
 import path from 'path';
 import { uploadBufferToGridFS, deleteFromGridFS } from '../utils/gridfsStorage.js';
 import { v4 as uuidv4 } from 'uuid';

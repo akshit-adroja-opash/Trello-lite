@@ -5,7 +5,6 @@ export const registerUserHandlers = (io, socket) => {
     socket.on('register_user', (userId) => {
         if (userId) {
             userSockets.set(userId, socket.id);
-            console.log(`User ${userId} registered with socket ${socket.id}`);
         }
     });
 
@@ -14,7 +13,6 @@ export const registerUserHandlers = (io, socket) => {
         for (const [userId, socketId] of userSockets.entries()) {
             if (socketId === socket.id) {
                 userSockets.delete(userId);
-                console.log(`User ${userId} disconnected. Removed from socket map.`);
                 break;
             }
         }

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { getWorkspaceAnalytics } from "../api/analytics.api";
 import Navbar from "../components/Layout/Navbar";
 import DashboardSidebar from "../components/Layout/DashboardSidebar";
-import toast from "react-hot-toast";
 import useThemeStore from "../store/themeStore";
 import CountUp from "react-countup";
 import CustomSelect from "../components/common/CustomSelect";

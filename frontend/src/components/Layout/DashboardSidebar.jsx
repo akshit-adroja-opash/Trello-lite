@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import useAuthStore from '../../store/authstore';
 import useSidebarStore from '../../store/sidebarStore';
