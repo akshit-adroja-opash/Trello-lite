@@ -13,11 +13,11 @@ const useSocketStore = create((set, get) => ({
         const token = localStorage.getItem('token');
         const socket = io(SOCKET_URL, {
             auth: { token },
-            transports: ['websocket'],
+            transports: ['polling', 'websocket'],
             withCredentials: true,
             reconnection: true,
-            reconnectionAttempts: Infinity,
-            reconnectionDelay: 1000,
+            reconnectionAttempts: 5,
+            reconnectionDelay: 2000,
             reconnectionDelayMax: 30000,
             randomizationFactor: 0.5,
         });

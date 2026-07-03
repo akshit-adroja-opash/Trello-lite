@@ -1,9 +1,13 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import path from "path";
 import { fileURLToPath } from "url";
+import mongoose from "mongoose";
 import { errorMiddleware } from "./src/middleware/error.middleware.js";
 import authRoutes from "./src/routes/auth.routes.js";
 import workspaceRoutes from "./src/routes/workspace.routes.js";
@@ -17,8 +21,30 @@ import analyticsRoutes from "./src/routes/analytics.routes.js";
 import dashboardRoutes from "./src/routes/dashboard.routes.js";
 import { serveGridFSFile } from "./src/utils/gridfsStorage.js";
 
+// Lazy MongoDB connection for Vercel serverless (cached across warm invocations)
+let dbConnected = false;
+const connectDB = async () => {
+  if (dbConnected || mongoose.connection.readyState >= 1) return;
+  try {
+    await mongoose.connect(process.env.MONGODB_URI);
+    dbConnected = true;
+  } catch (err) {
+    console.error("MongoDB connection FAILED:", err);
+    throw err;
+  }
+};
 
 const app = express();
+
+// Ensure DB is connected before handling any request
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    res.status(500).json({ error: "Database connection failed" });
+  }
+});
 
 // Normalize URL paths to prevent double slashes (e.g. //uploads/...) from returning 404
 app.use((req, res, next) => {
