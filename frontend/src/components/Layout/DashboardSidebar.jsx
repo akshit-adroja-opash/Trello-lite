@@ -147,24 +147,16 @@ const DashboardSidebar = ({ currentWorkspace, openWorkspaceSettings, boards: pro
           )}
         </div>
 
-        {/* Support & Documentation Footer */}
+        {/* Support Footer */}
         <div className="mt-auto pt-6 border-t border-outline-variant dark:border-slate-700 flex flex-col gap-1">
-          <a
-            href="#"
-            onClick={(e) => { e.preventDefault(); alert("Support portal coming soon!"); }}
+          <Link
+            to="/support"
+            onClick={closeSidebar}
             className="flex items-center gap-4 px-3 py-2 rounded text-on-surface-variant dark:text-slate-300 font-medium hover:bg-surface-container dark:hover:bg-slate-700/50 transition-colors duration-200 ease-in-out"
           >
             <span className="material-symbols-outlined">help</span>
             <span>Support</span>
-          </a>
-          <a
-            href="#"
-            onClick={(e) => { e.preventDefault(); alert("Documentation coming soon!"); }}
-            className="flex items-center gap-4 px-3 py-2 rounded text-on-surface-variant dark:text-slate-300 font-medium hover:bg-surface-container dark:hover:bg-slate-700/50 transition-colors duration-200 ease-in-out"
-          >
-            <span className="material-symbols-outlined">description</span>
-            <span>Documentation</span>
-          </a>
+          </Link>
         </div>
       </aside>
     </>
