@@ -630,6 +630,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
 
                                         const getAttachmentUrl = (path) => {
                                             if (!path) return '';
+
                                             if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
                                                 return path;
                                             }
@@ -713,6 +714,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                                                     <span>v{(att.version || 1) + 1}</span>
                                                                     <input
                                                                         type="file"
+                                                                        
                                                                         className="hidden"
                                                                         onChange={(e) => handleUploadFile(e, att._id)}
                                                                     />

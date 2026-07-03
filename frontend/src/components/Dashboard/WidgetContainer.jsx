@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import useAuthStore from '../../store/authstore';
 
 function WidgetItem({ children, colSpan = 'col-span-1' }) {
@@ -162,9 +163,9 @@ export default function WidgetContainer({
         )}
       </div>
 
-      {/* Customize Modal / Drawer */}
-      {showCustomizeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+      {/* Customize Modal / Drawer - Using createPortal to cover entire screen including Navbar and Sidebar */}
+      {showCustomizeModal && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-150">
           <div
             className="bg-surface-container-lowest dark:bg-slate-800 rounded-2xl border border-outline-variant dark:border-slate-700 shadow-2xl max-w-md w-full p-6 space-y-6 animate-in zoom-in-95 duration-150"
             onClick={e => e.stopPropagation()}
@@ -178,7 +179,7 @@ export default function WidgetContainer({
               </div>
               <button
                 onClick={() => setShowCustomizeModal(false)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:bg-surface-container dark:hover:bg-slate-700 transition-colors"
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:bg-surface-container dark:hover:bg-slate-700 transition-colors cursor-pointer"
               >
                 <span className="material-symbols-outlined text-[20px]">close</span>
               </button>
@@ -247,7 +248,8 @@ export default function WidgetContainer({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
