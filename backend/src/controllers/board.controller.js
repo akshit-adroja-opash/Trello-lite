@@ -26,9 +26,18 @@ export const createBoard = async (req, res, next) => {
         const isMember = workspace.members.some(m => m.user?.toString() === req.user._id.toString());
         if (!isMember) return next(new ApiError(403, 'Not a workspace member'));
 
+        // Include all admins and project_managers from the workspace as default board members
+        const defaultBoardMembers = workspace.members
+            .filter(m => m.role === 'admin' || m.role === 'project_manager')
+            .map(m => ({ user: m.user, role: m.role }));
+
+        if (!defaultBoardMembers.some(m => m.user?.toString() === req.user._id.toString())) {
+            defaultBoardMembers.push({ user: req.user._id, role: req.user.role });
+        }
+
         const board = await Board.create({
             name, workspace: workspaceId, Admin: req.user._id, background,
-            members: [{ user: req.user._id, role: req.user.role }]
+            members: defaultBoardMembers
         });
 
         // Automatically populate new board with default columns

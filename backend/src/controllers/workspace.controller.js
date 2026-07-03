@@ -9,10 +9,23 @@ import { sendNotificationToUser } from '../sockets/user.socket.js';
 export const createWorkspace = async (req, res, next) => {
     try {
         const { name, description } = req.body;
+        
+        // Fetch all users with role 'admin' or 'project_manager' so they are added by default
+        const defaultUsers = await User.find({ role: { $in: ['admin', 'project_manager'] } });
+        const membersList = defaultUsers.map(u => ({
+            user: u._id,
+            role: u.role
+        }));
+
+        // Ensure the creator is included in case they weren't in that query
+        if (!membersList.some(m => m.user.toString() === req.user._id.toString())) {
+            membersList.push({ user: req.user._id, role: req.user.role });
+        }
+
         const workspace = await Workspace.create({
             name, description,
             Admin: req.user._id,
-            members: [{ user: req.user._id, role: req.user.role }]
+            members: membersList
         });
         const populated = await Workspace.findById(workspace._id).populate('members.user', 'username email avatar role');
         res.status(201).json({ status: 'success', data: { workspace: populated } });
