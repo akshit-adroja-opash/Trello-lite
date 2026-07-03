@@ -399,19 +399,19 @@ const DashboardPage = () => {
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Workspace Name</label>
             <input value={wsName} onChange={e => setWsName(e.target.value)}
               placeholder="e.g. Engineering, Marketing Automation" autoFocus
-              className="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all" />
+              className="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-secondary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 transition-all" />
           </div>
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Description <span className="text-slate-300 dark:text-slate-650 lowercase font-normal">(optional)</span></label>
             <input value={wsDesc} onChange={e => setWsDesc(e.target.value)}
               placeholder="Briefly summarize operations inside this hub..."
-              className="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all" />
+              className="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-secondary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 transition-all" />
           </div>
           <div className="flex gap-3 pt-2">
             <button onClick={handleCreateWorkspace} disabled={!wsName.trim()}
-              className="flex-1 h-11 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl shadow-sm transition-all">Create Hub</button>
+              className="flex-1 h-11 bg-secondary hover:bg-[#00489e] disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl shadow-md shadow-blue-500/20 active:scale-95 transition-all">Create Hub</button>
             <button onClick={() => setShowCreateWs(false)}
-              className="flex-1 h-11 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-semibold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">Cancel</button>
+              className="flex-1 h-11 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-semibold rounded-xl hover:bg-slate-100 dark:hover:bg-slate-750 active:scale-95 transition-all">Cancel</button>
           </div>
         </div>
       </Modal>
@@ -426,14 +426,14 @@ const DashboardPage = () => {
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Board Name</label>
             <input value={boardName} onChange={e => setBoardName(e.target.value)}
               placeholder="e.g. Q3 Sprint Backlog" autoFocus
-              className="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all" />
+              className="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-secondary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 transition-all" />
           </div>
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Select Visual Wallpaper Theme</label>
             <div className="grid grid-cols-4 gap-2.5">
               {BOARD_COLORS.map(c => (
                 <button key={c} onClick={() => setBoardColor(c)}
-                  className={`h-9 rounded-xl border-2 transition-all relative ${boardColor === c ? 'border-indigo-600 scale-105 shadow-md shadow-indigo-100' : 'border-transparent hover:scale-102'}`}
+                  className={`h-9 rounded-xl border-2 transition-all relative ${boardColor === c ? 'border-secondary scale-105 shadow-md shadow-blue-100 dark:shadow-none' : 'border-transparent hover:scale-102'}`}
                   style={{ background: c }}>
                   {boardColor === c && (
                     <span className="absolute inset-0 flex items-center justify-center text-white drop-shadow-sm">
@@ -446,9 +446,9 @@ const DashboardPage = () => {
           </div>
           <div className="flex gap-3 pt-2">
             <button onClick={handleCreateBoard} disabled={!boardName.trim()}
-              className="flex-1 h-11 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl shadow-sm transition-all">Launch Board</button>
+              className="flex-1 h-11 bg-secondary hover:bg-[#00489e] disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl shadow-md shadow-blue-500/20 active:scale-95 transition-all">Launch Board</button>
             <button onClick={() => setShowCreateBoard(null)}
-              className="flex-1 h-11 border border-slate-200 dark:border-slate-700 text-slate-650 dark:text-slate-350 text-sm font-semibold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">Cancel</button>
+              className="flex-1 h-11 border border-slate-200 dark:border-slate-700 text-slate-650 dark:text-slate-350 text-sm font-semibold rounded-xl hover:bg-slate-100 dark:hover:bg-slate-750 active:scale-95 transition-all">Cancel</button>
           </div>
         </div>
       </Modal>
@@ -468,14 +468,14 @@ const DashboardPage = () => {
                       setInviteRole(dev.role || 'client');
                     }}
                     className={`flex items-center gap-2 px-2.5 py-1.5 rounded-full text-xs border transition-all ${inviteEmail === dev.email
-                      ? 'bg-indigo-50 border-indigo-300 text-indigo-700 dark:bg-indigo-950/40 dark:border-indigo-800 dark:text-indigo-300 font-semibold'
-                      : 'bg-white border-slate-200 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 hover:border-indigo-400'
+                      ? 'bg-blue-50 border-blue-300 text-secondary dark:bg-blue-950/40 dark:border-blue-800 dark:text-blue-300 font-semibold shadow-2xs'
+                      : 'bg-white border-slate-200 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 hover:border-blue-400 dark:hover:border-blue-500'
                       }`}
                   >
                     <Avatar name={dev.username} avatar={dev.avatar} size={20} />
                     <span>{dev.username}</span>
                   </button>
-                ))}
+                 ))}
               </div>
             </div>
           )}
@@ -483,12 +483,12 @@ const DashboardPage = () => {
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Email Address</label>
             <input value={inviteEmail} onChange={e => setInviteEmail(e.target.value)}
               type="email" placeholder="Trellolite@gmail.com" autoFocus
-              className="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all" />
+              className="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-secondary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 transition-all" />
           </div>
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Role</label>
             <select value={inviteRole} onChange={e => setInviteRole(e.target.value)}
-              className="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all cursor-pointer">
+              className="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium focus:outline-none focus:border-secondary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 transition-all cursor-pointer">
               <option value="client">Client</option>
               <option value="developer">Developer</option>
               <option value="project_manager">Project Manager</option>
@@ -496,9 +496,9 @@ const DashboardPage = () => {
           </div>
           <div className="flex gap-3 pt-2">
             <button onClick={handleInvite} disabled={!inviteEmail.trim()}
-              className="flex-1 h-11 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl shadow-sm transition-all">Send Invitation</button>
+              className="flex-1 h-11 bg-secondary hover:bg-[#00489e] disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl shadow-md shadow-blue-500/20 active:scale-95 transition-all">Send Invitation</button>
             <button onClick={() => setShowInvite(null)}
-              className="flex-1 h-11 border border-slate-200 dark:border-slate-700 text-slate-650 dark:text-slate-350 text-sm font-semibold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">Cancel</button>
+              className="flex-1 h-11 border border-slate-200 dark:border-slate-700 text-slate-650 dark:text-slate-350 text-sm font-semibold rounded-xl hover:bg-slate-100 dark:hover:bg-slate-750 active:scale-95 transition-all">Cancel</button>
           </div>
         </div>
       </Modal>
