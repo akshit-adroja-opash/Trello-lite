@@ -13,7 +13,8 @@ const isVercelOrigin = (origin) => typeof origin === 'string' && /\.vercel\.app$
 const corsOrigin = (origin, callback) => {
     if (!origin) return callback(null, true);
     if (allowedOrigins.includes(origin) || isVercelOrigin(origin)) return callback(null, true);
-    return callback(new Error('Not allowed by CORS'));
+    console.warn('Socket CORS blocked origin:', origin);
+    return callback(null, false);
 };
 
 export const initSocket = (server) => {

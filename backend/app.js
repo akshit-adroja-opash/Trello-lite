@@ -42,7 +42,8 @@ const isVercelOrigin = (origin) => typeof origin === 'string' && /\.vercel\.app$
 const corsOrigin = (origin, callback) => {
   if (!origin) return callback(null, true); // allow non-browser tools like curl or server-to-server
   if (allowedOrigins.includes(origin) || isVercelOrigin(origin)) return callback(null, true);
-  return callback(new Error('Not allowed by CORS'));
+  console.warn('CORS blocked origin:', origin);
+  return callback(null, false);
 };
 
 // CORS config
