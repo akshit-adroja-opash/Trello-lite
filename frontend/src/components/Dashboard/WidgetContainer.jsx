@@ -37,18 +37,13 @@ export default function WidgetContainer({
   }, [user, context]);
 
   const activeOrder = useMemo(() => {
-    if (savedContextPrefs.order && Array.isArray(savedContextPrefs.order) && savedContextPrefs.order.length > 0) {
-      const validSaved = savedContextPrefs.order.filter(id => widgets.some(w => w.id === id));
-      const missing = widgets.map(w => w.id).filter(id => !validSaved.includes(id));
-      return [...validSaved, ...missing];
-    }
     if (defaultOrder.length > 0) {
       const validDef = defaultOrder.filter(id => widgets.some(w => w.id === id));
       const missing = widgets.map(w => w.id).filter(id => !validDef.includes(id));
       return [...validDef, ...missing];
     }
     return widgets.map(w => w.id);
-  }, [savedContextPrefs.order, widgets, defaultOrder]);
+  }, [widgets, defaultOrder]);
 
   const activeHidden = useMemo(() => {
     if (savedContextPrefs.hidden && Array.isArray(savedContextPrefs.hidden)) {
@@ -128,7 +123,7 @@ export default function WidgetContainer({
       )}
 
       {/* Grid of widgets */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
         {sortedWidgets.length === 0 ? (
           <div className="col-span-full py-16 px-6 text-center bg-surface-container-lowest dark:bg-slate-800/50 rounded-2xl border-2 border-dashed border-outline-variant dark:border-slate-700">
             <span className="material-symbols-outlined text-4xl text-on-surface-variant dark:text-slate-500 mb-2">

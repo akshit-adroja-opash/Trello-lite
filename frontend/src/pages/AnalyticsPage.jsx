@@ -196,13 +196,13 @@ const AnalyticsPage = () => {
                                 showModal={showCustomizeModal}
                                 onShowModalChange={setShowCustomizeModal}
                                 title="Workspace Analytics & Performance"
-                                defaultOrder={['kpis', 'burndown', 'workload', 'efficiency', 'pipeline', 'roles']}
+                                defaultOrder={['kpis', 'burndown', 'workload', 'pipeline', 'efficiency', 'roles']}
                                 widgets={[
                                     {
                                         id: 'kpis',
                                         title: 'KPI Summary Metrics',
                                         icon: 'query_stats',
-                                        colSpan: 'col-span-1 md:col-span-2 lg:col-span-3',
+                                        colSpan: 'col-span-1 md:col-span-2 lg:col-span-6',
                                         component: (
                                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                                                 <KpiCard
@@ -246,7 +246,7 @@ const AnalyticsPage = () => {
                                         id: 'burndown',
                                         title: 'Sprint Velocity & Burndown',
                                         icon: 'trending_down',
-                                        colSpan: 'col-span-1 md:col-span-2 lg:col-span-3',
+                                        colSpan: 'col-span-1 md:col-span-2 lg:col-span-6',
                                         component: (
                                             <BurndownWidget
                                                 timeline={analytics?.productivityTimeline || []}
@@ -260,9 +260,9 @@ const AnalyticsPage = () => {
                                         id: 'workload',
                                         title: 'Workload Distribution',
                                         icon: 'group_work',
-                                        colSpan: 'col-span-1 md:col-span-2 lg:col-span-2',
+                                        colSpan: 'col-span-1 md:col-span-1 lg:col-span-3',
                                         component: (
-                                            <div className="bg-surface-container-lowest dark:bg-slate-800 p-6 rounded-lg border border-outline-variant dark:border-slate-700 shadow-soft flex flex-col justify-between h-full min-h-[360px]">
+                                            <div className="bg-surface-container-lowest dark:bg-slate-800 p-6 rounded-xl border border-outline-variant dark:border-slate-700 shadow-sm flex flex-col justify-between h-full min-h-[380px]">
                                                 <div>
                                                     <div className="flex justify-between items-center mb-6">
                                                         <h3 className="font-title-md text-[20px] font-bold text-on-surface dark:text-white">
@@ -322,12 +322,38 @@ const AnalyticsPage = () => {
                                         )
                                     },
                                     {
+                                        id: 'pipeline',
+                                        title: 'Task Pipeline Distribution',
+                                        icon: 'view_kanban',
+                                        colSpan: 'col-span-1 md:col-span-1 lg:col-span-3',
+                                        component: (
+                                            <div className="bg-surface-container-lowest dark:bg-slate-800 p-6 rounded-xl border border-outline-variant dark:border-slate-700 shadow-sm flex flex-col justify-between h-full min-h-[380px]">
+                                                <div>
+                                                    <h3 className="font-title-md text-[20px] font-bold text-on-surface dark:text-white mb-6">
+                                                        Task Pipeline Distribution
+                                                    </h3>
+                                                    <div className="flex flex-col gap-4">
+                                                        <PipelineRow label="BACKLOG" count={backlogCount} maxCount={maxCount} colorClass="bg-slate-400 dark:bg-slate-500" />
+                                                        <PipelineRow label="IN PROGRESS" count={progressCount} maxCount={maxCount} colorClass="bg-blue-500 dark:bg-blue-400" />
+                                                        <PipelineRow label="CODE REVIEW" count={reviewCount} maxCount={maxCount} colorClass="bg-purple-500 dark:bg-purple-400" />
+                                                        <PipelineRow label="BLOCKED" count={blockedCountVal} maxCount={maxCount} colorClass="bg-rose-500 dark:bg-rose-400" />
+                                                        <PipelineRow label="COMPLETED" count={completedCount} maxCount={maxCount} colorClass="bg-emerald-500 dark:bg-emerald-400" />
+                                                    </div>
+                                                </div>
+                                                <div className="mt-8 pt-4 border-t border-outline-variant dark:border-slate-700 flex items-center justify-between text-xs text-on-surface-variant dark:text-slate-400 font-semibold">
+                                                    <span>Total Active Cards across Stages</span>
+                                                    <span className="text-primary dark:text-indigo-400 font-bold">{maxCount > 1 ? maxCount : 0} Max Peak Stage</span>
+                                                </div>
+                                            </div>
+                                        )
+                                    },
+                                    {
                                         id: 'efficiency',
                                         title: 'Efficiency Score',
                                         icon: 'speed',
-                                        colSpan: 'col-span-1 md:col-span-1 lg:col-span-1',
+                                        colSpan: 'col-span-1 md:col-span-1 lg:col-span-2',
                                         component: (
-                                            <div className="bg-surface-container-lowest dark:bg-slate-800 p-6 rounded-lg border border-outline-variant dark:border-slate-700 shadow-soft flex flex-col items-center justify-between text-center h-full min-h-[360px]">
+                                            <div className="bg-surface-container-lowest dark:bg-slate-800 p-6 rounded-xl border border-outline-variant dark:border-slate-700 shadow-sm flex flex-col items-center justify-between text-center h-full min-h-[380px]">
                                                 <div className="w-full flex justify-between items-center mb-6">
                                                     <h3 className="font-title-md text-[20px] font-bold text-on-surface dark:text-white">
                                                         Efficiency Score
@@ -366,71 +392,53 @@ const AnalyticsPage = () => {
                                         )
                                     },
                                     {
-                                        id: 'pipeline',
-                                        title: 'Task Pipeline Distribution',
-                                        icon: 'view_kanban',
-                                        colSpan: 'col-span-1 md:col-span-2 lg:col-span-3',
-                                        component: (
-                                            <div className="bg-surface-container-lowest dark:bg-slate-800 p-6 rounded-lg border border-outline-variant dark:border-slate-700 shadow-soft">
-                                                <h3 className="font-title-md text-[20px] font-bold text-on-surface dark:text-white mb-6">
-                                                    Task Pipeline Distribution
-                                                </h3>
-                                                <div className="flex flex-col gap-4">
-                                                    <PipelineRow label="BACKLOG" count={backlogCount} maxCount={maxCount} colorClass="bg-slate-400 dark:bg-slate-500" />
-                                                    <PipelineRow label="IN PROGRESS" count={progressCount} maxCount={maxCount} colorClass="bg-blue-500 dark:bg-blue-400" />
-                                                    <PipelineRow label="CODE REVIEW" count={reviewCount} maxCount={maxCount} colorClass="bg-purple-500 dark:bg-purple-400" />
-                                                    <PipelineRow label="BLOCKED" count={blockedCountVal} maxCount={maxCount} colorClass="bg-rose-500 dark:bg-rose-400" />
-                                                    <PipelineRow label="COMPLETED" count={completedCount} maxCount={maxCount} colorClass="bg-emerald-500 dark:bg-emerald-400" />
-                                                </div>
-                                            </div>
-                                        )
-                                    },
-                                    {
                                         id: 'roles',
                                         title: 'Role Performance Summary',
                                         icon: 'supervised_user_circle',
-                                        colSpan: 'col-span-1 md:col-span-2 lg:col-span-3',
+                                        colSpan: 'col-span-1 md:col-span-2 lg:col-span-4',
                                         component: (
-                                            <div className="bg-surface-container-lowest dark:bg-slate-800 rounded-lg border border-outline-variant dark:border-slate-700 shadow-soft overflow-hidden">
-                                                <div className="p-6 border-b border-outline-variant dark:border-slate-700">
-                                                    <h3 className="font-title-md text-[20px] font-bold text-on-surface dark:text-white">
-                                                        Role Performance Summary
-                                                    </h3>
-                                                </div>
-                                                <div className="overflow-x-auto">
-                                                    <table className="w-full text-left border-collapse">
-                                                        <thead>
-                                                            <tr className="bg-surface-container-low dark:bg-slate-900/60 font-label-caps text-[12px] text-on-surface-variant dark:text-slate-400 border-b border-outline-variant dark:border-slate-700 uppercase tracking-wider">
-                                                                <th className="p-4 font-semibold">Role</th>
-                                                                <th className="p-4 font-semibold">Active Members</th>
-                                                                <th className="p-4 font-semibold">Tasks Assigned</th>
-                                                                <th className="p-4 font-semibold">Avg Completion</th>
-                                                                <th className="p-4 font-semibold text-right">Status</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody className="font-body-sm text-on-surface dark:text-slate-350">
-                                                            {rolePerformanceList.map((row, idx) => (
-                                                                <tr key={idx} className="border-b border-outline-variant/30 dark:border-slate-700/50 hover:bg-surface-container-low/30 dark:hover:bg-slate-900/30 transition-colors h-[56px]">
-                                                                    <td className="p-4">
-                                                                        <div className="flex items-center gap-2">
-                                                                            <span className={`w-3 h-3 rounded-full ${getRoleBgColor(row.role)}`}></span>
-                                                                            <span className="font-semibold text-on-surface dark:text-white">
-                                                                                {getRoleName(row.role)}
-                                                                            </span>
-                                                                        </div>
-                                                                    </td>
-                                                                    <td className="p-4">{row.activeMembers}</td>
-                                                                    <td className="p-4">{row.tasksAssigned}</td>
-                                                                    <td className="p-4">{row.avgCompletion}</td>
-                                                                    <td className="p-4 text-right">
-                                                                        <span className={`px-2 py-1 rounded text-[11px] font-bold tracking-wide uppercase ${row.status === "Optimal" ? 'bg-emerald-500/10 text-emerald-500 dark:bg-emerald-500/20' : 'bg-red-500/10 text-red-500 dark:bg-red-500/20'}`}>
-                                                                            {row.status}
-                                                                        </span>
-                                                                    </td>
+                                            <div className="bg-surface-container-lowest dark:bg-slate-800 rounded-xl border border-outline-variant dark:border-slate-700 shadow-sm overflow-hidden flex flex-col justify-between h-full min-h-[380px]">
+                                                <div>
+                                                    <div className="p-6 border-b border-outline-variant dark:border-slate-700">
+                                                        <h3 className="font-title-md text-[20px] font-bold text-on-surface dark:text-white">
+                                                            Role Performance Summary
+                                                        </h3>
+                                                    </div>
+                                                    <div className="overflow-x-auto">
+                                                        <table className="w-full text-left border-collapse">
+                                                            <thead>
+                                                                <tr className="bg-surface-container-low dark:bg-slate-900/60 font-label-caps text-[12px] text-on-surface-variant dark:text-slate-400 border-b border-outline-variant dark:border-slate-700 uppercase tracking-wider">
+                                                                    <th className="p-4 font-semibold">Role</th>
+                                                                    <th className="p-4 font-semibold">Active Members</th>
+                                                                    <th className="p-4 font-semibold">Tasks Assigned</th>
+                                                                    <th className="p-4 font-semibold">Avg Completion</th>
+                                                                    <th className="p-4 font-semibold text-right">Status</th>
                                                                 </tr>
-                                                            ))}
-                                                        </tbody>
-                                                    </table>
+                                                            </thead>
+                                                            <tbody className="font-body-sm text-on-surface dark:text-slate-350">
+                                                                {rolePerformanceList.map((row, idx) => (
+                                                                    <tr key={idx} className="border-b border-outline-variant/30 dark:border-slate-700/50 hover:bg-surface-container-low/30 dark:hover:bg-slate-900/30 transition-colors h-[56px]">
+                                                                        <td className="p-4">
+                                                                            <div className="flex items-center gap-2">
+                                                                                <span className={`w-3 h-3 rounded-full ${getRoleBgColor(row.role)}`}></span>
+                                                                                <span className="font-semibold text-on-surface dark:text-white">
+                                                                                    {getRoleName(row.role)}
+                                                                                </span>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td className="p-4">{row.activeMembers}</td>
+                                                                        <td className="p-4">{row.tasksAssigned}</td>
+                                                                        <td className="p-4">{row.avgCompletion}</td>
+                                                                        <td className="p-4 text-right">
+                                                                            <span className={`px-2 py-1 rounded text-[11px] font-bold tracking-wide uppercase ${row.status === "Optimal" ? 'bg-emerald-500/10 text-emerald-500 dark:bg-emerald-500/20' : 'bg-red-500/10 text-red-500 dark:bg-red-500/20'}`}>
+                                                                                {row.status}
+                                                                            </span>
+                                                                        </td>
+                                                                    </tr>
+                                                                ))}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
                                                 </div>
                                             </div>
                                         )
