@@ -247,7 +247,14 @@ const AnalyticsPage = () => {
                                         title: 'Sprint Velocity & Burndown',
                                         icon: 'trending_down',
                                         colSpan: 'col-span-1 md:col-span-2 lg:col-span-3',
-                                        component: <BurndownWidget />
+                                        component: (
+                                            <BurndownWidget
+                                                timeline={analytics?.productivityTimeline || []}
+                                                totalCards={totalCards}
+                                                completedTasks={kpis.completedTasks || 0}
+                                                timeRange={timeRange}
+                                            />
+                                        )
                                     },
                                     {
                                         id: 'workload',

@@ -2,32 +2,77 @@ import { useState, useMemo } from 'react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import useThemeStore from '../../../store/themeStore';
 
-export default function BurndownWidget({ data: propData }) {
+export default function BurndownWidget({ timeline = [], totalCards = 0, completedTasks = 0, timeRange = '14', data: propData }) {
   const darkMode = useThemeStore(s => s.darkMode);
   const [viewMode, setViewMode] = useState('burndown'); // 'burndown' or 'velocity'
 
   // Generate responsive burndown timeline data based on current sprint or props
-  const chartData = useMemo(() => {
-    if (propData && propData.length > 0) return propData;
+  const { chartData, sprintStatus, statusColor, trajectoryLabel } = useMemo(() => {
+    if (propData && propData.length > 0) {
+      return {
+        chartData: propData,
+        sprintStatus: "Sprint On Track",
+        statusColor: "text-purple-600 dark:text-purple-400",
+        trajectoryLabel: "Current Sprint Trajectory"
+      };
+    }
 
-    // Simulated 14-day Sprint Burndown & Velocity Data
-    return [
-      { day: 'Day 1', ideal: 40, actual: 40, velocity: 0 },
-      { day: 'Day 2', ideal: 37, actual: 39, velocity: 1 },
-      { day: 'Day 3', ideal: 34, actual: 35, velocity: 4 },
-      { day: 'Day 4', ideal: 31, actual: 32, velocity: 3 },
-      { day: 'Day 5', ideal: 28, actual: 30, velocity: 2 },
-      { day: 'Day 6', ideal: 25, actual: 24, velocity: 6 },
-      { day: 'Day 7', ideal: 22, actual: 21, velocity: 3 },
-      { day: 'Day 8', ideal: 19, actual: 18, velocity: 3 },
-      { day: 'Day 9', ideal: 16, actual: 14, velocity: 4 },
-      { day: 'Day 10', ideal: 13, actual: 11, velocity: 3 },
-      { day: 'Day 11', ideal: 10, actual: 9, velocity: 2 },
-      { day: 'Day 12', ideal: 7, actual: 5, velocity: 4 },
-      { day: 'Day 13', ideal: 4, actual: 2, velocity: 3 },
-      { day: 'Day 14', ideal: 0, actual: 0, velocity: 2 },
-    ];
-  }, [propData]);
+    const daysCount = timeRange === '7' ? 7 : timeRange === '30' ? 30 : timeRange === '90' ? 90 : 14;
+    const trajectoryLabel = timeRange === '7' ? "7-Day Sprint Trajectory" : timeRange === '30' ? "30-Day Trajectory" : timeRange === '90' ? "Quarterly Trajectory" : "Current 14-Day Sprint Trajectory";
+
+    // Sum up completed tasks in this timeline window
+    const totalCompletedInPeriod = timeline.reduce((sum, item) => sum + (item.completed || 0), 0);
+    const startTotal = Math.max(totalCards, totalCards + totalCompletedInPeriod);
+    let runningActual = startTotal;
+
+    const computed = [];
+    const today = new Date();
+
+    for (let i = 0; i < daysCount; i++) {
+      const targetDate = new Date();
+      targetDate.setDate(today.getDate() - (daysCount - 1 - i));
+      const dateStr = targetDate.toISOString().split('T')[0];
+      
+      const found = timeline.find(item => item._id === dateStr);
+      const vel = found ? found.completed : 0;
+      
+      runningActual = Math.max(0, runningActual - vel);
+      const ideal = Math.round(startTotal * (1 - i / Math.max(1, daysCount - 1)));
+
+      // Day label
+      const dayLabel = daysCount <= 14 ? `Day ${i + 1}` : targetDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+      computed.push({
+        day: dayLabel,
+        ideal: ideal,
+        actual: runningActual,
+        velocity: vel
+      });
+    }
+
+    // Determine sprint status
+    const lastDayActual = computed.length > 0 ? computed[computed.length - 1].actual : 0;
+    const lastDayIdeal = computed.length > 0 ? computed[computed.length - 1].ideal : 0;
+    
+    let sprintStatus = "Sprint On Track";
+    let statusColor = "text-purple-600 dark:text-purple-400";
+
+    if (startTotal === 0 && totalCards === 0) {
+      sprintStatus = "No Active Tasks";
+      statusColor = "text-slate-500 dark:text-slate-400";
+    } else if (lastDayActual === 0) {
+      sprintStatus = "100% Completed";
+      statusColor = "text-emerald-600 dark:text-emerald-400";
+    } else if (lastDayActual > lastDayIdeal + 2) {
+      sprintStatus = "Behind Schedule";
+      statusColor = "text-rose-600 dark:text-rose-400";
+    } else {
+      sprintStatus = "Sprint On Track";
+      statusColor = "text-purple-600 dark:text-purple-400";
+    }
+
+    return { chartData: computed, sprintStatus, statusColor, trajectoryLabel };
+  }, [propData, timeline, totalCards, timeRange]);
 
   return (
     <div className="bg-surface-container-lowest dark:bg-slate-800 p-6 rounded-xl border border-outline-variant dark:border-slate-700 shadow-sm flex flex-col justify-between h-full min-h-[360px]">
@@ -39,7 +84,7 @@ export default function BurndownWidget({ data: propData }) {
               <h3 className="font-title-md text-[18px] font-bold text-on-surface dark:text-white">
                 Sprint Velocity & Burndown
               </h3>
-              <p className="text-xs text-on-surface-variant dark:text-slate-400">Current 2-Week Sprint Trajectory</p>
+              <p className="text-xs text-on-surface-variant dark:text-slate-400">{trajectoryLabel}</p>
             </div>
           </div>
 
@@ -133,7 +178,7 @@ export default function BurndownWidget({ data: propData }) {
             </div>
           )}
         </div>
-        <span className="font-semibold text-purple-600 dark:text-purple-400">Sprint 12 On Track</span>
+        <span className={`font-semibold ${statusColor}`}>{sprintStatus}</span>
       </div>
     </div>
   );
