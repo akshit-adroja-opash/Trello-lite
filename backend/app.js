@@ -37,10 +37,18 @@ const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173")
   .map(origin => origin.trim())
   .filter(Boolean);
 
+const isVercelOrigin = (origin) => typeof origin === 'string' && /\.vercel\.app$/.test(origin);
+
+const corsOrigin = (origin, callback) => {
+  if (!origin) return callback(null, true); // allow non-browser tools like curl or server-to-server
+  if (allowedOrigins.includes(origin) || isVercelOrigin(origin)) return callback(null, true);
+  return callback(new Error('Not allowed by CORS'));
+};
+
 // CORS config
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: corsOrigin,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -49,7 +57,7 @@ app.use(
 
 // Explicitly handle preflight OPTIONS for Vercel serverless
 app.options('*', cors({
-  origin: allowedOrigins,
+  origin: corsOrigin,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],

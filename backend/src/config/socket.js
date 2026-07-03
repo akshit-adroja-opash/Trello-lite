@@ -8,10 +8,18 @@ const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
     .map((origin) => origin.trim())
     .filter(Boolean);
 
+const isVercelOrigin = (origin) => typeof origin === 'string' && /\.vercel\.app$/.test(origin);
+
+const corsOrigin = (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin) || isVercelOrigin(origin)) return callback(null, true);
+    return callback(new Error('Not allowed by CORS'));
+};
+
 export const initSocket = (server) => {
     io = new Server(server, {
         cors: {
-            origin: allowedOrigins,
+            origin: corsOrigin,
             methods: ['GET', 'POST'],
             credentials: true,
         },
