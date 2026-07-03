@@ -77,7 +77,7 @@ const BoardSettingsModal = ({ board, isOpen, onClose, onBoardUpdated }) => {
             onChange={e => setName(e.target.value)}
             placeholder="Board name"
             required
-            className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all"
+            className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all"
           />
         </div>
 
@@ -89,7 +89,7 @@ const BoardSettingsModal = ({ board, isOpen, onClose, onBoardUpdated }) => {
                 key={color}
                 type="button"
                 onClick={() => setBackground(color)}
-                className={`h-14 rounded-xl relative transition-all duration-200 hover:scale-102 flex items-center justify-center shadow-sm ${background === color ? 'ring-4 ring-indigo-500 ring-offset-2 dark:ring-offset-slate-800 scale-102 font-bold' : ''}`}
+                className={`h-14 rounded-xl relative transition-all duration-200 hover:scale-102 flex items-center justify-center shadow-sm ${background === color ? 'ring-4 ring-blue-500 ring-offset-2 dark:ring-offset-slate-800 scale-102 font-bold' : ''}`}
                 style={{ background: color }}
               >
                 {background === color && (
@@ -112,7 +112,7 @@ const BoardSettingsModal = ({ board, isOpen, onClose, onBoardUpdated }) => {
             <button
               type="submit"
               disabled={saving || !name.trim()}
-              className="h-10 px-5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
+              className="h-10 px-5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
             >
               {saving ? (
                 <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

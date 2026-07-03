@@ -185,7 +185,7 @@ const BoardCalendarView = ({ boardId, filteredCards }) => {
                 {/* Calendar Header Controls */}
                 <div className="flex flex-wrap items-center justify-between gap-3 mb-4 shrink-0">
                     <h2 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                        <span className="material-symbols-outlined text-indigo-500">calendar_month</span>
+                        <span className="material-symbols-outlined text-blue-600 dark:text-blue-400">calendar_month</span>
                         {monthNames[month]} {year}
                     </h2>
                     <div className="flex items-center gap-2 bg-slate-100/80 dark:bg-slate-900/60 p-1.5 rounded-xl border border-slate-200/40 dark:border-slate-850">
@@ -198,7 +198,7 @@ const BoardCalendarView = ({ boardId, filteredCards }) => {
                         </button>
                         <button
                             onClick={handleToday}
-                            className="px-3.5 py-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 rounded-lg hover:text-indigo-700 dark:hover:text-indigo-300 shadow-sm border border-slate-200/20 transition-all active:scale-[0.98]"
+                            className="px-3.5 py-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 bg-white dark:bg-slate-800 rounded-lg hover:text-blue-700 dark:hover:text-blue-300 shadow-sm border border-slate-200/20 transition-all active:scale-[0.98]"
                         >
                             Today
                         </button>
@@ -232,10 +232,10 @@ const BoardCalendarView = ({ boardId, filteredCards }) => {
                                 onDragOver={e => canEdit && e.preventDefault()}
                                 onDrop={e => handleDropOnDay(e, date)}
                                 className={`flex flex-col bg-white dark:bg-slate-800/80 p-2 border border-slate-100/60 dark:border-slate-800/20 min-h-[64px] max-h-[120px] overflow-y-auto hover:bg-slate-50/50 dark:hover:bg-slate-800 transition-colors duration-100 group relative rounded-xl ${!isCurrentMonth ? 'opacity-40 bg-slate-50/30 dark:bg-slate-800/30' : ''
-                                    } ${isToday ? 'ring-2 ring-indigo-500/80 dark:ring-indigo-400' : ''}`}
+                                    } ${isToday ? 'ring-2 ring-blue-500/80 dark:ring-blue-400' : ''}`}
                             >
                                 <span className={`text-xs font-bold self-end rounded-full w-5 h-5 flex items-center justify-center mb-1 select-none ${isToday
-                                        ? 'bg-indigo-600 text-white shadow-sm'
+                                        ? 'bg-blue-600 text-white shadow-sm'
                                         : 'text-slate-650 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200'
                                     }`}>
                                     {date.getDate()}
@@ -248,7 +248,7 @@ const BoardCalendarView = ({ boardId, filteredCards }) => {
                                             draggable={canEdit}
                                             onDragStart={e => handleDragStart(e, card)}
                                             onClick={() => setSelectedCard(card)}
-                                            className="px-2 py-1.5 text-[11px] font-bold text-slate-700 dark:text-slate-350 bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-700 rounded-lg hover:border-indigo-400 dark:hover:border-indigo-800 cursor-grab active:cursor-grabbing hover:shadow-sm truncate select-none transition-all flex flex-col gap-1 shrink-0"
+                                            className="px-2 py-1.5 text-[11px] font-bold text-slate-700 dark:text-slate-350 bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-700 rounded-lg hover:border-blue-400 dark:hover:border-blue-500 cursor-grab active:cursor-grabbing hover:shadow-sm truncate select-none transition-all flex flex-col gap-1 shrink-0"
                                             style={{
                                                 borderLeft: card.labels?.[0]?.color
                                                     ? `3px solid ${card.labels[0].color}`
@@ -283,7 +283,7 @@ const BoardCalendarView = ({ boardId, filteredCards }) => {
             >
                 <div className="shrink-0 mb-4">
                     <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-455 dark:text-slate-400 flex items-center gap-2">
-                        <span className="material-symbols-outlined text-indigo-500 text-[20px]">assignment_late</span>
+                        <span className="material-symbols-outlined text-blue-600 dark:text-blue-400 text-[20px]">assignment_late</span>
                         Unscheduled Tasks
                     </h3>
                     <p className="text-[11px] text-slate-450 mt-1 leading-relaxed">

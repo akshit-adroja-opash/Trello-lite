@@ -29,7 +29,7 @@ const KeyboardShortcutsModal = ({ onClose }) => {
                             viewBox="0 0 24 24"
                             stroke="currentColor"
                             strokeWidth="2.5"
-                            className="text-indigo-600"
+                            className="text-blue-600"
                         >
                             <path
                                 strokeLinecap="round"

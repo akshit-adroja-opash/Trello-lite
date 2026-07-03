@@ -140,7 +140,7 @@ const ActivitySidebar = ({ boardId, isOpen, onClose }) => {
 
                             <div className="flex items-center gap-2 mb-2">
 
-                                <div className="w-8 h-8 rounded-full bg-indigo-500 text-white flex items-center justify-center text-sm font-bold">
+                                <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-bold">
 
                                     {activity.user?.username?.[0] || "U"}
 

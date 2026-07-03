@@ -52,13 +52,13 @@ const FilterSortPanel = ({
                             uniqueLabels.map(label => (
                                 <label 
                                     key={label.name} 
-                                    className="flex items-center gap-2.5 cursor-pointer text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 select-none transition-colors"
+                                    className="flex items-center gap-2.5 cursor-pointer text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 select-none transition-colors"
                                 >
                                     <input 
                                         type="checkbox"
                                         checked={selectedLabels.includes(label.name)}
                                         onChange={() => handleLabelToggle(label.name)}
-                                        className="w-4 h-4 rounded text-indigo-600 border-slate-300 focus:ring-indigo-500 dark:bg-slate-900 dark:border-slate-700"
+                                        className="w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-700"
                                     />
                                     <span 
                                         className="w-2.5 h-2.5 rounded-full shrink-0" 
@@ -83,13 +83,13 @@ const FilterSortPanel = ({
                             uniqueAssignees.map(user => (
                                 <label 
                                     key={user._id} 
-                                    className="flex items-center gap-2.5 cursor-pointer text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 select-none transition-colors"
+                                    className="flex items-center gap-2.5 cursor-pointer text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 select-none transition-colors"
                                 >
                                     <input 
                                         type="checkbox"
                                         checked={selectedAssignees.includes(user._id)}
                                         onChange={() => handleAssigneeToggle(user._id)}
-                                        className="w-4 h-4 rounded text-indigo-600 border-slate-300 focus:ring-indigo-500 dark:bg-slate-900 dark:border-slate-700"
+                                        className="w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-700"
                                     />
                                     <Avatar name={user.username} avatar={user.avatar} size={18} />
                                     <span className="font-semibold text-xs">{user.username}</span>
@@ -114,7 +114,7 @@ const FilterSortPanel = ({
                         ].map(option => (
                             <label 
                                 key={option.value} 
-                                className="flex items-center gap-2.5 cursor-pointer text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 select-none transition-colors font-semibold text-xs"
+                                className="flex items-center gap-2.5 cursor-pointer text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 select-none transition-colors font-semibold text-xs"
                             >
                                 <input 
                                     type="radio"
@@ -122,7 +122,7 @@ const FilterSortPanel = ({
                                     value={option.value}
                                     checked={dueDateFilter === option.value}
                                     onChange={() => setDueDateFilter(option.value)}
-                                    className="w-4 h-4 text-indigo-600 border-slate-300 focus:ring-indigo-500 dark:bg-slate-900 dark:border-slate-700"
+                                    className="w-4 h-4 text-blue-600 border-slate-300 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-700"
                                 />
                                 {option.label}
                             </label>
@@ -139,7 +139,7 @@ const FilterSortPanel = ({
                         <select 
                             value={sortBy} 
                             onChange={(e) => setSortBy(e.target.value)}
-                            className="w-full h-10 pl-3.5 pr-9 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 text-xs font-semibold appearance-none focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all cursor-pointer"
+                            className="w-full h-10 pl-3.5 pr-9 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 text-xs font-semibold appearance-none focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all cursor-pointer"
                         >
                             <option value="default">Default (Column Order)</option>
                             <option value="dueDate">Due Date: Soonest First</option>
