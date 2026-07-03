@@ -32,6 +32,12 @@ const userSchema = new mongoose.Schema({
     twoFactorEnabled: {
         type: Boolean,
         default: false
+    },
+    preferences: {
+        dashboardWidgets: {
+            type: Object,
+            default: {}
+        }
     }
 }, { timestamps: true });
 

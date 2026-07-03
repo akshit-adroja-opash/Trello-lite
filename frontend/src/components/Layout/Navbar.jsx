@@ -13,6 +13,24 @@ const Navbar = ({ searchQuery, setSearchQuery }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [localSearchQuery, setLocalSearchQuery] = useState('');
+  const activeSearchQuery = setSearchQuery ? searchQuery : localSearchQuery;
+  const handleSearchChange = (e) => {
+    const val = e.target.value;
+    if (setSearchQuery) {
+      setSearchQuery(val);
+    } else {
+      setLocalSearchQuery(val);
+    }
+  };
+  const handleClearSearch = () => {
+    if (setSearchQuery) {
+      setSearchQuery('');
+    } else {
+      setLocalSearchQuery('');
+    }
+  };
+
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -42,32 +60,37 @@ const Navbar = ({ searchQuery, setSearchQuery }) => {
         {/* Search Bar / Mobile Menu trigger */}
         <div className="flex items-center flex-1 max-w-[165px] sm:max-w-[250px] md:max-w-md">
           <button
+            type="button"
             onClick={toggleSidebar}
-            className="lg:hidden p-2 text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-slate-700 rounded-lg mr-2 transition-colors shrink-0"
+            className="lg:hidden p-2 text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-slate-700 rounded-lg mr-2 transition-colors shrink-0 cursor-pointer"
           >
             <span className="material-symbols-outlined">menu</span>
           </button>
           
-          {setSearchQuery && (
-            <div className="relative w-full flex-1">
-              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-[20px] pointer-events-none">search</span>
-              <input 
-                value={searchQuery || ''}
-                onChange={e => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-9 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none font-body-md text-slate-800 dark:text-white transition-all text-sm" 
-                placeholder="Search workspaces, boards..." 
-                type="text"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-500 hover:text-slate-650 dark:hover:text-slate-300 transition-all flex items-center justify-center"
-                >
-                  <span className="material-symbols-outlined text-[16px]">close</span>
-                </button>
-              )}
-            </div>
-          )}
+          <div className="relative w-full flex-1">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-[20px] pointer-events-none">search</span>
+            <input 
+              value={activeSearchQuery || ''}
+              onChange={handleSearchChange}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !setSearchQuery && activeSearchQuery.trim()) {
+                  navigate(`/dashboard?search=${encodeURIComponent(activeSearchQuery.trim())}`);
+                }
+              }}
+              className="w-full pl-10 pr-9 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none font-body-md text-slate-800 dark:text-white transition-all text-sm" 
+              placeholder="Search workspaces, boards..." 
+              type="text"
+            />
+            {activeSearchQuery && (
+              <button
+                type="button"
+                onClick={handleClearSearch}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-500 hover:text-slate-650 dark:hover:text-slate-300 transition-all flex items-center justify-center cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-[16px]">close</span>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Global Toolbar items */}

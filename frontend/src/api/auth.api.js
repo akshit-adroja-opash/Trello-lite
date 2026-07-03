@@ -27,6 +27,11 @@ export const updateProfile = async (formData) => {
     return response.data;
 };
 
+export const updateUserPreferences = async (preferences) => {
+    const response = await API.patch('/auth/profile', { preferences });
+    return response.data;
+};
+
 export const getDevelopers = async () => {
     const response = await API.get('/auth/developers');
     return response.data;

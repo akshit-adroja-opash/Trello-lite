@@ -93,6 +93,31 @@ export const updateProfile = async (req, res, next) => {
     if (req.body.username) user.username = req.body.username;
     if (req.body.email) user.email = req.body.email;
     if (req.body.password) user.password = req.body.password;
+    if (req.body.preferences) {
+      let prefs = req.body.preferences;
+      if (typeof prefs === 'string') {
+        try {
+          prefs = JSON.parse(prefs);
+        } catch (e) {
+          // ignore parsing error
+        }
+      }
+      if (typeof prefs === 'object' && prefs !== null) {
+        const currentDashboardWidgets = (user.preferences && user.preferences.dashboardWidgets) || {};
+        const newDashboardWidgets = (prefs && prefs.dashboardWidgets) || {};
+        
+        user.preferences = {
+          ...(user.preferences || {}),
+          ...prefs,
+          dashboardWidgets: {
+            ...currentDashboardWidgets,
+            ...newDashboardWidgets
+          }
+        };
+        user.markModified('preferences');
+        user.markModified('preferences.dashboardWidgets');
+      }
+    }
     if (req.file) {
       const ext = path.extname(req.file.originalname || '');
       const filename = `${uuidv4()}${ext}`;

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { loginUser, registerUser, getMe, logoutUser, updateProfile as apiUpdateProfile, deleteAccount as apiDeleteAccount } from "../api/auth.api";
+import { loginUser, registerUser, getMe, logoutUser, updateProfile as apiUpdateProfile, deleteAccount as apiDeleteAccount, updateUserPreferences as apiUpdatePreferences } from "../api/auth.api";
 import useWorkspaceStore from "./workspaceStore";
 
 const useAuthStore = create((set) => ({
@@ -79,6 +79,41 @@ const useAuthStore = create((set) => ({
   updateProfile: async (formData) => {
     const res = await apiUpdateProfile(formData);
     set({ user: res.data.user });
+  },
+
+  updatePreferences: async (preferences) => {
+    const currentUser = useAuthStore.getState().user;
+    if (currentUser) {
+      const updatedPrefs = {
+        ...(currentUser.preferences || {}),
+        ...preferences,
+        dashboardWidgets: {
+          ...((currentUser.preferences && currentUser.preferences.dashboardWidgets) || {}),
+          ...((preferences && preferences.dashboardWidgets) || {})
+        }
+      };
+      set({ user: { ...currentUser, preferences: updatedPrefs } });
+      try {
+        const res = await apiUpdatePreferences(preferences);
+        if (res?.data?.user) {
+          const latestUser = useAuthStore.getState().user;
+          const mergedUser = {
+            ...res.data.user,
+            preferences: {
+              ...(res.data.user.preferences || {}),
+              ...((latestUser?.preferences) || {}),
+              dashboardWidgets: {
+                ...((res.data.user.preferences && res.data.user.preferences.dashboardWidgets) || {}),
+                ...((latestUser?.preferences && latestUser.preferences.dashboardWidgets) || {})
+              }
+            }
+          };
+          set({ user: mergedUser });
+        }
+      } catch (err) {
+        console.error('Failed to sync preferences:', err);
+      }
+    }
   },
 
   deleteAccountAction: async () => {
