@@ -104,7 +104,7 @@ export const updateCard = async (req, res, next) => {
 
                 const isSystemAdmin = req.user.role === 'admin';
                 const workspace = await Workspace.findById(board.workspace);
-                const wsMember = workspace?.members.find(m => m.user?.toString() === req.user._id.toString());
+                const wsMember = workspace?.members?.find(m => m.user?.toString() === req.user._id.toString());
                 const isWorkspaceOwner = workspace?.Admin?.toString() === req.user._id.toString();
                 const isWorkspaceAdmin = wsMember?.role === 'admin' || isWorkspaceOwner || req.user.role === 'project_manager';
 

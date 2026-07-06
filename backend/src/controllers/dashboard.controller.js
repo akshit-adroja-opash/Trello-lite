@@ -30,21 +30,6 @@ export const getBoardIdsForUser = async (userId) => {
 // ─────────────────────────────────────────────────────────────
 export const getAdminDashboard = async (req, res) => {
   try {
-    // Clean up orphaned boards, columns, and cards from database
-    const activeWorkspaces = await Workspace.find().select('_id');
-    const activeWsIds = activeWorkspaces.map(w => w._id);
-    const orphanedBoards = await Board.find({ workspace: { $nin: activeWsIds } }).select('_id');
-    if (orphanedBoards.length > 0) {
-      const orphanBoardIds = orphanedBoards.map(b => b._id);
-      await Card.deleteMany({ board: { $in: orphanBoardIds } });
-      await Column.deleteMany({ board: { $in: orphanBoardIds } });
-      await Board.deleteMany({ _id: { $in: orphanBoardIds } });
-    }
-    const activeBoards = await Board.find().select('_id');
-    const activeBoardIds = activeBoards.map(b => b._id);
-    await Card.deleteMany({ board: { $nin: activeBoardIds } });
-    await Column.deleteMany({ board: { $nin: activeBoardIds } });
-
     const [totalUsers, totalWorkspaces, totalBoards, totalCards] = await Promise.all([
       User.countDocuments(),
       Workspace.countDocuments(),
