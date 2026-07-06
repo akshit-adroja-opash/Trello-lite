@@ -57,7 +57,7 @@ app.use(
 );
 
 // Explicitly handle preflight OPTIONS for Vercel serverless
-app.options('*', cors({
+app.options('{*path}', cors({
   origin: corsOrigin,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
