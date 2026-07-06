@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import useNotificationStore from '../../store/notificationStore';
 import { getSingleCard } from '../../api/card.api';
 
@@ -86,6 +86,14 @@ const NotificationDropdown = ({ onClose }) => {
                                 <span>Mark read</span>
                             </button>
                         )}
+                        <Link
+                            to="/settings"
+                            onClick={onClose}
+                            title="Notification settings"
+                            className="w-7 h-7 flex items-center justify-center rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container dark:hover:bg-slate-700 transition-colors"
+                        >
+                            <span className="material-symbols-outlined text-[17px]">settings</span>
+                        </Link>
                         <button
                             onClick={onClose}
                             className="w-7 h-7 flex items-center justify-center rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container dark:hover:bg-slate-700 transition-colors"

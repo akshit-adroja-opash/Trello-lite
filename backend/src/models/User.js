@@ -37,6 +37,18 @@ const userSchema = new mongoose.Schema({
         dashboardWidgets: {
             type: Object,
             default: {}
+        },
+        notifications: {
+            mutedTypes: {
+                type: [String],
+                enum: ['CARD_UPDATE', 'BOARD_COMMENT', 'TASK_ACTION', 'MENTION', 'WORKSPACE_INVITE', 'WORKSPACE_REMOVE', 'TASK_ASSIGN'],
+                default: []
+            },
+            mutedBoards: [{
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Board'
+            }],
+            emailEnabled: { type: Boolean, default: true }
         }
     }
 }, { timestamps: true });

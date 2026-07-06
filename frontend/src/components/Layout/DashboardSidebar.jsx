@@ -147,8 +147,9 @@ const DashboardSidebar = ({ currentWorkspace, openWorkspaceSettings, boards: pro
           )}
         </div>
 
-        {/* Support Footer */}
+        {/* Settings & Support Footer */}
         <div className="mt-auto pt-6 border-t border-outline-variant dark:border-slate-700 flex flex-col gap-1">
+          <NavItem to="/settings" label="Settings" icon="settings" />
           <Link
             to="/support"
             onClick={closeSidebar}

@@ -19,6 +19,7 @@ import notificationRoutes from "./src/routes/notification.routes.js";
 import reportRoutes from "./src/routes/report.routes.js";
 import analyticsRoutes from "./src/routes/analytics.routes.js";
 import dashboardRoutes from "./src/routes/dashboard.routes.js";
+import preferencesRoutes from "./src/routes/preferences.routes.js";
 import { serveGridFSFile } from "./src/utils/gridfsStorage.js";
 
 
@@ -32,21 +33,36 @@ app.use((req, res, next) => {
   next();
 });
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://trello-lite-gold.vercel.app",
+  "https://trello-lite-eight.vercel.app",
+  process.env.CORS_ORIGIN
+].filter(Boolean);
+
 app.use(cors({
-  origin: "https://trello-lite-gold.vercel.app",
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
-// Apne main CORS middleware ke turant BAAD ise likhein:
+// Manual CORS fallback for preflight requests
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "https://trello-lite-gold.vercel.app");
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.header("Access-Control-Allow-Origin", origin);
+  }
   res.header("Access-Control-Allow-Credentials", "true");
   res.header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
   res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
   
-  // Agar browser preflight OPTIONS request bhej raha hai, toh use 200 OK dekar yahi roko
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200);
   }
@@ -85,6 +101,7 @@ app.use("/api/v1/notifications", notificationRoutes);
 app.use("/api/v1/reports", reportRoutes);
 app.use("/api/v1/analytics", analyticsRoutes);
 app.use("/api/v1/dashboard", dashboardRoutes);
+app.use("/api/v1/preferences", preferencesRoutes);
 
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok" });

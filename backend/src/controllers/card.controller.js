@@ -43,7 +43,7 @@ export const createCard = async (req, res, next) => {
                         entityModel: 'Card'
                     });
 
-                    sendNotificationToUser(io, assigneeId, notif);
+                    sendNotificationToUser(io, assigneeId, { ...notif.toObject(), boardId: boardId });
                 }
             } catch (err) {
                 console.error('Failed to send task assignment notifications:', err.message);
@@ -140,7 +140,7 @@ export const updateCard = async (req, res, next) => {
                         entityModel: 'Card'
                     });
 
-                    sendNotificationToUser(io, assigneeId, notif);
+                    sendNotificationToUser(io, assigneeId, { ...notif.toObject(), boardId: card.board });
                 }
             } catch (err) {
                 console.error('Failed to send task assignment notifications:', err.message);
@@ -305,7 +305,7 @@ export const addComment = async (req, res, next) => {
                         entityModel: 'Card'
                     });
 
-                    sendNotificationToUser(io, recipientId, notif);
+                    sendNotificationToUser(io, recipientId, { ...notif.toObject(), boardId: card.board });
                 }
             }
         } catch (socketErr) {

@@ -20,12 +20,35 @@ export const registerUserHandlers = (io, socket) => {
 };
 
 /**
- * Emits a notification to a specific user if they are currently connected.
+ * Emits a notification to a specific user if they are currently connected
+ * and have not muted the notification type or board.
  * @param {import('socket.io').Server} io - The socket.io server instance
  * @param {String} userId - The ID of the recipient user
- * @param {Object} notification - The notification payload
+ * @param {Object} notification - The notification payload (must include `type`, optionally `boardId`)
  */
-export const sendNotificationToUser = (io, userId, notification) => {
+export const sendNotificationToUser = async (io, userId, notification) => {
+    try {
+        const User = (await import('../models/User.js')).default;
+        const user = await User.findById(userId).select('preferences.notifications').lean();
+        if (user?.preferences?.notifications) {
+            const prefs = user.preferences.notifications;
+            // Skip if user has muted this notification type
+            if (prefs.mutedTypes?.length > 0 && prefs.mutedTypes.includes(notification.type)) {
+                return;
+            }
+            // Skip if user has muted the board this notification is about
+            if (notification.boardId && prefs.mutedBoards?.length > 0) {
+                const boardIdStr = notification.boardId.toString();
+                if (prefs.mutedBoards.some(id => id.toString() === boardIdStr)) {
+                    return;
+                }
+            }
+        }
+    } catch (err) {
+        console.error('Failed to check notification preferences:', err.message);
+        // Continue sending on error — don't block notifications due to preference check failure
+    }
+
     const socketId = userSockets.get(userId.toString());
     if (socketId) {
         io.to(socketId).emit('new_notification', notification);

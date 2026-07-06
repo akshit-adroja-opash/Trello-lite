@@ -175,7 +175,7 @@ export const deleteAccount = async (req, res, next) => {
       message: 'Account deleted successfully'
     });
   } catch (error) {
-    next(error);
+    next(error);  
   }
 };
 
