@@ -32,36 +32,11 @@ app.use((req, res, next) => {
   next();
 });
 
-const allowedOrigins = (process.env.CORS_ORIGIN || '')
-  .split(",")
-  .map(origin => origin.trim())
-  .filter(Boolean);
-
-const isVercelOrigin = (origin) => typeof origin === 'string' && /\.vercel\.app$/.test(origin);
-
-const corsOrigin = (origin, callback) => {
-  if (!origin) return callback(null, true); 
-  if (allowedOrigins.includes(origin) || isVercelOrigin(origin)) return callback(null, true);
-  console.warn('CORS blocked origin:', origin);
-  return callback(null, false);
-};
-
-// 1. Main CORS configuration (Yeh preflight bhi handle karega)
-app.use(
-  cors({
-    origin: corsOrigin,
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  }),
-);
-
-// 2. AGAR explicit preflight handle karna hi hai, toh naya syntax (.*) use karein:
-app.options('(.*)', cors({
-  origin: corsOrigin,
+app.use(cors({
+  origin: "https://trello-lite-gold.vercel.app",
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
 app.use(express.json({ limit: "16kb" }));
