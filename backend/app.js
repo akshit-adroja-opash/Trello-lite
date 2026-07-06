@@ -32,7 +32,7 @@ app.use((req, res, next) => {
   next();
 });
 
-const allowedOrigins = (process.env.CORS_ORIGIN)
+const allowedOrigins = (process.env.CORS_ORIGIN || '')
   .split(",")
   .map(origin => origin.trim())
   .filter(Boolean);
@@ -40,13 +40,13 @@ const allowedOrigins = (process.env.CORS_ORIGIN)
 const isVercelOrigin = (origin) => typeof origin === 'string' && /\.vercel\.app$/.test(origin);
 
 const corsOrigin = (origin, callback) => {
-  if (!origin) return callback(null, true); // allow non-browser tools like curl or server-to-server
+  if (!origin) return callback(null, true); 
   if (allowedOrigins.includes(origin) || isVercelOrigin(origin)) return callback(null, true);
   console.warn('CORS blocked origin:', origin);
   return callback(null, false);
 };
 
-// CORS config
+// 1. Main CORS configuration (Yeh preflight bhi handle karega)
 app.use(
   cors({
     origin: corsOrigin,
@@ -56,8 +56,8 @@ app.use(
   }),
 );
 
-// Explicitly handle preflight OPTIONS for Vercel serverless
-app.options('{*path}', cors({
+// 2. AGAR explicit preflight handle karna hi hai, toh naya syntax (.*) use karein:
+app.options('(.*)', cors({
   origin: corsOrigin,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
