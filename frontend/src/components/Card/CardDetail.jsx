@@ -902,7 +902,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                     value={dueDate}
                                     onChange={e => setDueDate(e.target.value)}
                                     disabled={!canEdit}
-                                    className="w-full bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-on-surface dark:text-white outline-none cursor-pointer disabled:opacity-50"
+                                    className="w-full bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-on-surface dark:text-white outline-none cursor-pointer disabled:opacity-50 [color-scheme:light] dark:[color-scheme:dark]"
                                 />
                             </div>
                         </section>

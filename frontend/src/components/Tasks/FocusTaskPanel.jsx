@@ -363,7 +363,7 @@ const FocusTaskPanel = ({ cards, initialIndex, onClose, onCardUpdated }) => {
                                             type="date"
                                             value={dueDate}
                                             onChange={e => setDueDate(e.target.value)}
-                                            className="w-full bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg px-md py-sm font-body-sm text-on-surface dark:text-slate-200 focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none pr-xl"
+                                            className="w-full bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg px-md py-sm font-body-sm text-on-surface dark:text-slate-200 focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none pr-xl [color-scheme:light] dark:[color-scheme:dark]"
                                         />
                                     </div>
                                 </div>

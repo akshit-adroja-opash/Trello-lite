@@ -458,7 +458,7 @@ const AssignTaskPage = () => {
                                         <div className="relative input-focus-ring rounded-lg transition-all duration-200">
                                             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline dark:text-slate-500 text-[20px]">calendar_today</span>
                                             <input
-                                                className="w-full bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg py-[10px] pl-10 pr-3 font-body-md text-body-md text-on-surface dark:text-white focus:outline-none focus:border-transparent cursor-pointer"
+                                                className="w-full bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 rounded-lg py-[10px] pl-10 pr-3 font-body-md text-body-md text-on-surface dark:text-white focus:outline-none focus:border-transparent cursor-pointer [color-scheme:light] dark:[color-scheme:dark]"
                                                 id="due-date"
                                                 type="date"
                                                 value={dueDate}
