@@ -245,7 +245,7 @@ const MyTasksPage = () => {
 
             {loading ? (
                 <div className="flex items-center justify-center py-20">
-                    <div className="w-10 h-10 rounded-full border-4 border-indigo-100 dark:border-indigo-950 border-t-indigo-600 animate-spin" />
+                    <div className="w-10 h-10 rounded-full border-4 border-blue-100 dark:border-blue-950 border-t-blue-600 animate-spin" />
                 </div>
             ) : cards.length === 0 ? (
                 <div className="text-center py-20 bg-surface-container-lowest dark:bg-slate-800 rounded-lg border border-outline-variant dark:border-slate-700 shadow-sm">

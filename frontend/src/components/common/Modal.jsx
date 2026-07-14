@@ -15,7 +15,7 @@ const Modal = ({ isOpen, onClose, title, icon, children, maxWidth = 'max-w-2xl',
         {(title || icon) && (
           <div className="flex items-center justify-between p-lg border-b border-outline-variant dark:border-slate-700 shrink-0">
             <div className="flex items-center gap-sm">
-              {icon && <span className="material-symbols-outlined text-primary dark:text-indigo-400 text-[24px]">{icon}</span>}
+              {icon && <span className="material-symbols-outlined text-primary dark:text-blue-400 text-[24px]">{icon}</span>}
               {title && <h2 className="text-title-lg font-title-lg text-on-surface dark:text-white">{title}</h2>}
             </div>
             <button 

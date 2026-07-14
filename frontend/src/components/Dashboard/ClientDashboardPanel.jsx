@@ -51,7 +51,7 @@ export default function ClientDashboardPanel() {
         <div className="lg:col-span-2 bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 rounded-xl p-lg shadow-sm flex flex-col gap-md">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-sm">
-              <span className="material-symbols-outlined text-[18px] text-secondary dark:text-indigo-400">dashboard</span>
+              <span className="material-symbols-outlined text-[18px] text-secondary dark:text-blue-400">dashboard</span>
               <h3 className="font-title-md text-title-md text-primary dark:text-white">Shared Boards</h3>
             </div>
           </div>
@@ -75,14 +75,14 @@ export default function ClientDashboardPanel() {
                   <div className="w-8 h-8 rounded-lg shrink-0"
                     style={{ background: board.background || BOARD_COLORS[idx % BOARD_COLORS.length] }} />
                   <div className="flex-1 min-w-0">
-                    <p className="font-body-sm font-semibold text-on-surface dark:text-white truncate group-hover:text-secondary dark:group-hover:text-indigo-400 transition-colors">
+                    <p className="font-body-sm font-semibold text-on-surface dark:text-white truncate group-hover:text-secondary dark:group-hover:text-blue-400 transition-colors">
                       {board.name}
                     </p>
                     <p className="font-body-sm text-[12px] text-on-surface-variant dark:text-slate-400">
                       Updated {new Date(board.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                     </p>
                   </div>
-                  <span className="material-symbols-outlined text-[16px] text-on-surface-variant group-hover:text-secondary dark:group-hover:text-indigo-400 transition-colors">
+                  <span className="material-symbols-outlined text-[16px] text-on-surface-variant group-hover:text-secondary dark:group-hover:text-blue-400 transition-colors">
                     arrow_forward
                   </span>
                 </Link>

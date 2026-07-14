@@ -39,12 +39,12 @@ export default function WorkloadWidget({ workspaceId, data: propData }) {
       <div>
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-indigo-600 dark:text-indigo-400">group_work</span>
+            <span className="material-symbols-outlined text-blue-600 dark:text-blue-400">group_work</span>
             <h3 className="font-title-md text-[18px] font-bold text-on-surface dark:text-white">
               Team Workload Distribution
             </h3>
           </div>
-          <span className="text-[11px] font-semibold capitalize tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-300">
+          <span className="text-[11px] font-semibold capitalize tracking-wider px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-300">
             Active Load
           </span>
         </div>

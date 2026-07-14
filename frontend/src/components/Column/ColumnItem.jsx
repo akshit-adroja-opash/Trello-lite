@@ -31,11 +31,11 @@ const getColumnColorClasses = (name) => {
     }
     if (lowerName.includes('review') || lowerName.includes('testing') || lowerName.includes('qa')) {
         return {
-            bg: 'bg-indigo-50/60 dark:bg-indigo-950/15',
-            border: 'border-indigo-200/60 dark:border-indigo-900/30',
-            text: 'text-indigo-800 dark:text-indigo-300',
-            badge: 'bg-indigo-100/80 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300',
-            bar: 'bg-indigo-500/85 dark:bg-indigo-400/85'
+            bg: 'bg-blue-50/60 dark:bg-blue-950/15',
+            border: 'border-blue-200/60 dark:border-blue-900/30',
+            text: 'text-blue-800 dark:text-blue-300',
+            badge: 'bg-blue-100/80 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300',
+            bar: 'bg-blue-500/85 dark:bg-blue-400/85'
         };
     }
     if (lowerName.includes('done') || lowerName.includes('complete') || lowerName.includes('finish')) {
@@ -169,7 +169,7 @@ const ColumnItem = ({ column, cards, searchQuery, filterLabel, onAddCard, boardI
                         onChange={e => setColName(e.target.value)}
                         onBlur={handleRenameColumn}
                         onKeyDown={e => { if (e.key === 'Enter') handleRenameColumn(); if (e.key === 'Escape') setEditingName(false); }}
-                        className="flex-1 h-8 px-2.5 rounded-xl border border-indigo-500 dark:border-indigo-600 bg-white dark:bg-slate-900 text-sm font-bold text-slate-800 dark:text-white focus:outline-none focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-indigo-500/5"
+                        className="flex-1 h-8 px-2.5 rounded-xl border border-blue-500 dark:border-blue-600 bg-white dark:bg-slate-900 text-sm font-bold text-slate-800 dark:text-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-500/5"
                         onClick={e => e.stopPropagation()} />
                 ) : (
                     <h3 className={`font-bold text-sm ${colors.text} flex-1 truncate pr-2 tracking-tight`}
@@ -213,11 +213,11 @@ const ColumnItem = ({ column, cards, searchQuery, filterLabel, onAddCard, boardI
                             onChange={e => setNewCardTitle(e.target.value)}
                             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAddCard(); } if (e.key === 'Escape') setAddingCard(false); }}
                             placeholder="Type a title for this card..."
-                            className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 resize-none mb-2" />
+                            className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 resize-none mb-2" />
                         <div className="flex gap-1.5 items-center justify-between">
                             <div className="relative">
                                 <button onClick={handleOpenTemplates}
-                                    className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-850 dark:hover:text-indigo-350 text-xs font-bold px-2.5 py-1.5 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition-colors flex items-center gap-1 cursor-pointer"
+                                    className="text-blue-600 dark:text-blue-400 hover:text-blue-850 dark:hover:text-blue-350 text-xs font-bold px-2.5 py-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors flex items-center gap-1 cursor-pointer"
                                     title="Create from template"
                                 >
                                     <span className="material-symbols-outlined text-[16px]">bookmark</span>
@@ -233,9 +233,9 @@ const ColumnItem = ({ column, cards, searchQuery, filterLabel, onAddCard, boardI
                                             {templates.length > 0 ? (
                                                 templates.map(temp => (
                                                     <button key={temp._id} onClick={() => handleAddCardFromTemplate(temp)}
-                                                        className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors truncate flex items-center gap-2 cursor-pointer"
+                                                        className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors truncate flex items-center gap-2 cursor-pointer"
                                                     >
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0" />
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0" />
                                                         <span>{temp.title}</span>
                                                     </button>
                                                 ))
@@ -255,7 +255,7 @@ const ColumnItem = ({ column, cards, searchQuery, filterLabel, onAddCard, boardI
                                     Cancel
                                 </button>
                                 <button onClick={handleAddCard}
-                                    className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3.5 py-1.5 rounded-lg shadow-sm shadow-indigo-100 dark:shadow-none transition-colors cursor-pointer">
+                                    className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3.5 py-1.5 rounded-lg shadow-sm shadow-blue-100 dark:shadow-none transition-colors cursor-pointer">
                                     Add card
                                 </button>
                             </div>
@@ -263,8 +263,8 @@ const ColumnItem = ({ column, cards, searchQuery, filterLabel, onAddCard, boardI
                     </div>
                 ) : canCreateCard(role) ? (
                     <button onClick={() => setAddingCard(true)}
-                        className="w-full text-left text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50/60 dark:hover:bg-indigo-950/20 text-xs font-bold px-2.5 py-2 rounded-xl transition-all flex items-center gap-2 group/addbtn">
-                        <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3" className="text-slate-450 dark:text-slate-400 group-hover/addbtn:text-indigo-600 transition-colors">
+                        className="w-full text-left text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50/60 dark:hover:bg-blue-950/20 text-xs font-bold px-2.5 py-2 rounded-xl transition-all flex items-center gap-2 group/addbtn">
+                        <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3" className="text-slate-450 dark:text-slate-400 group-hover/addbtn:text-blue-600 transition-colors">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                         </svg>
                         <span>Add a card</span>

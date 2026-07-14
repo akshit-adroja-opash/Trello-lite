@@ -203,7 +203,7 @@ const ReportsPage = () => {
     return (
       <div className="flex items-center justify-center h-screen bg-surface dark:bg-slate-900 transition-colors duration-200">
         <div className="relative flex items-center justify-center">
-          <div className="w-12 h-12 rounded-full border-4 border-indigo-100 dark:border-indigo-950 animate-pulse absolute" />
+          <div className="w-12 h-12 rounded-full border-4 border-blue-100 dark:border-blue-950 animate-pulse absolute" />
           <div className="w-12 h-12 rounded-full border-4 border-secondary border-t-transparent animate-spin" />
         </div>
       </div>
@@ -417,7 +417,7 @@ const ReportsPage = () => {
                     <button
                       onClick={() => handleCopyShareLink("")}
                       disabled={sharing || recentReports.length === 0}
-                      className="flex items-center justify-center gap-2 px-4 py-3 text-on-surface-variant dark:text-slate-400 hover:text-secondary dark:hover:text-indigo-400 transition-colors font-medium text-sm sm:text-body-sm disabled:opacity-40"
+                      className="flex items-center justify-center gap-2 px-4 py-3 text-on-surface-variant dark:text-slate-400 hover:text-secondary dark:hover:text-blue-400 transition-colors font-medium text-sm sm:text-body-sm disabled:opacity-40"
                     >
                       <span className="material-symbols-outlined text-[18px]">link</span>
                       Copy Secure Share Link
@@ -433,7 +433,7 @@ const ReportsPage = () => {
                   <h3 className="font-title-md text-lg sm:text-[20px] font-bold text-primary dark:text-white">
                     Recent Generated Reports
                   </h3>
-                  <button className="text-secondary dark:text-indigo-400 hover:underline font-body-sm text-body-sm font-medium transition-colors">
+                  <button className="text-secondary dark:text-blue-400 hover:underline font-body-sm text-body-sm font-medium transition-colors">
                     View All Archive
                   </button>
                 </div>
@@ -488,7 +488,7 @@ const ReportsPage = () => {
                           <td className="py-3.5 px-4 sm:py-4 sm:px-6 text-right whitespace-nowrap">
                             <button
                               onClick={() => handleDownload(row.pdfUrl)}
-                              className="text-secondary dark:text-indigo-400 hover:bg-secondary/10 dark:hover:bg-indigo-500/20 p-2 rounded-full transition-colors inline-flex items-center justify-center"
+                              className="text-secondary dark:text-blue-400 hover:bg-secondary/10 dark:hover:bg-blue-500/20 p-2 rounded-full transition-colors inline-flex items-center justify-center"
                             >
                               <span className="material-symbols-outlined text-lg">download</span>
                             </button>

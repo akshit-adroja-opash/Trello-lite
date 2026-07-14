@@ -93,7 +93,7 @@ const SortableChecklistItem = ({ item, index, onToggleCheck, onRemoveCheck, canE
                 checked={item.done}
                 onChange={() => onToggleCheck(index)}
                 disabled={!canEdit}
-                className="w-4.5 h-4.5 accent-indigo-600 bg-white dark:bg-slate-800 border-slate-350 dark:border-slate-700 rounded cursor-pointer shrink-0"
+                className="w-4.5 h-4.5 accent-blue-600 bg-white dark:bg-slate-800 border-slate-350 dark:border-slate-700 rounded cursor-pointer shrink-0"
             />
             <span className={`flex-1 text-sm ${item.done ? 'line-through text-slate-400 dark:text-slate-500 font-medium' : 'text-slate-750 dark:text-slate-300'}`}>
                 {item.text}
@@ -405,13 +405,13 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                 {/* Modal Header */}
                 <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700/60 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/10">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <span className="material-symbols-outlined text-secondary dark:text-indigo-400" style={{ fontVariationSettings: "'FILL' 1" }}>view_kanban</span>
+                        <span className="material-symbols-outlined text-secondary dark:text-blue-400" style={{ fontVariationSettings: "'FILL' 1" }}>view_kanban</span>
                         <input
                             ref={titleInputRef}
                             value={title}
                             onChange={handleTitleChange}
                             readOnly={!canEdit}
-                            className="text-lg font-bold text-slate-800 dark:text-white bg-transparent border-b border-transparent focus:border-indigo-500 focus:outline-none transition-all px-1 py-0.5 rounded-sm disabled:cursor-default truncate flex-1"
+                            className="text-lg font-bold text-slate-800 dark:text-white bg-transparent border-b border-transparent focus:border-blue-500 focus:outline-none transition-all px-1 py-0.5 rounded-sm disabled:cursor-default truncate flex-1"
                             placeholder="Untitled Task"
                         />
                         {typingUser && (
@@ -447,7 +447,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                         {/* Labels Section */}
                         <section className="bg-slate-50/50 dark:bg-slate-900/30 p-6 rounded-xl border border-slate-200/60 dark:border-slate-700/60">
                             <div className="flex items-center gap-2 mb-4">
-                                <span className="material-symbols-outlined text-sm text-secondary dark:text-indigo-400">label</span>
+                                <span className="material-symbols-outlined text-sm text-secondary dark:text-blue-400">label</span>
                                 <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400">LABELS</span>
                             </div>
 
@@ -464,7 +464,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                             />
                                             <button
                                                 onClick={addLabel}
-                                                className="bg-secondary dark:bg-indigo-600 text-on-secondary px-4 py-1.5 rounded-lg font-bold text-sm hover:opacity-90 active:scale-95 transition-all"
+                                                className="bg-secondary dark:bg-blue-600 text-on-secondary px-4 py-1.5 rounded-lg font-bold text-sm hover:opacity-90 active:scale-95 transition-all"
                                             >
                                                 Add
                                             </button>
@@ -475,7 +475,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                                 <button
                                                     key={c}
                                                     onClick={() => setNewLabel(p => ({ ...p, color: c }))}
-                                                    className={`w-7 h-7 rounded-full transition-transform hover:scale-110 ${newLabel.color === c ? 'ring-2 ring-offset-2 ring-indigo-500 scale-105' : ''}`}
+                                                    className={`w-7 h-7 rounded-full transition-transform hover:scale-110 ${newLabel.color === c ? 'ring-2 ring-offset-2 ring-blue-500 scale-105' : ''}`}
                                                     style={{ backgroundColor: c }}
                                                 />
                                             ))}
@@ -509,7 +509,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                         <section className="space-y-3">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-sm text-secondary dark:text-indigo-400">notes</span>
+                                    <span className="material-symbols-outlined text-sm text-secondary dark:text-blue-400">notes</span>
                                     <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400">DESCRIPTION</span>
                                 </div>
                                 <button
@@ -541,11 +541,11 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                         <section className="space-y-4">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-sm text-secondary dark:text-indigo-400">check_box</span>
+                                    <span className="material-symbols-outlined text-sm text-secondary dark:text-blue-400">check_box</span>
                                     <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400">CHECKLIST</span>
                                 </div>
                                 {checklist.length > 0 && (
-                                    <span className="text-xs bg-indigo-50 dark:bg-indigo-950/40 font-bold px-2.5 py-0.5 rounded-full text-indigo-650 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/60">
+                                    <span className="text-xs bg-blue-50 dark:bg-blue-950/40 font-bold px-2.5 py-0.5 rounded-full text-blue-650 dark:text-blue-400 border border-blue-100 dark:border-blue-900/60">
                                         {progressPercent}%
                                     </span>
                                 )}
@@ -554,7 +554,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                             {checklist.length > 0 && (
                                 <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
                                     <div
-                                        className="bg-gradient-to-r from-indigo-500 to-cyan-500 h-2 rounded-full transition-all duration-300"
+                                        className="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full transition-all duration-300"
                                         style={{ width: `${progressPercent}%` }}
                                     />
                                 </div>
@@ -599,11 +599,11 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                         <section className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-700/50">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-sm text-secondary dark:text-indigo-400">attach_file</span>
+                                    <span className="material-symbols-outlined text-sm text-secondary dark:text-blue-400">attach_file</span>
                                     <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 capitalize">Attachments</span>
                                 </div>
                                 {canEdit && (
-                                    <label className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-650 hover:opacity-90 text-white rounded-lg transition-all text-xs font-bold cursor-pointer active:scale-95 shadow-sm border border-indigo-600/20">
+                                    <label className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-650 hover:opacity-90 text-white rounded-lg transition-all text-xs font-bold cursor-pointer active:scale-95 shadow-sm border border-blue-600/20">
                                         <span className="material-symbols-outlined text-[16px]">upload</span>
                                         <span>Attach File</span>
                                         <input
@@ -616,8 +616,8 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                             </div>
 
                             {uploading && (
-                                <div className="flex items-center gap-2 text-xs text-indigo-500 font-semibold animate-pulse pl-2 py-1">
-                                    <span className="w-3.5 h-3.5 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
+                                <div className="flex items-center gap-2 text-xs text-blue-500 font-semibold animate-pulse pl-2 py-1">
+                                    <span className="w-3.5 h-3.5 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
                                     <span>Uploading attachment...</span>
                                 </div>
                             )}
@@ -672,7 +672,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                                                 <p className="text-xs font-bold text-slate-700 dark:text-slate-200 truncate" title={att.filename}>
                                                                     {att.filename}
                                                                 </p>
-                                                                <span className="shrink-0 px-1.5 py-0.5 text-[9px] font-extrabold bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 rounded capitalize">
+                                                                <span className="shrink-0 px-1.5 py-0.5 text-[9px] font-extrabold bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 rounded capitalize">
                                                                     v{att.version || 1}
                                                                 </span>
                                                             </div>
@@ -682,7 +682,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                                                     <button
                                                                         type="button"
                                                                         onClick={() => setOpenHistoryId(openHistoryId === att._id ? null : att._id)}
-                                                                        className="text-indigo-600 dark:text-indigo-400 hover:underline font-bold flex items-center gap-0.5 cursor-pointer"
+                                                                        className="text-blue-600 dark:text-blue-400 hover:underline font-bold flex items-center gap-0.5 cursor-pointer"
                                                                     >
                                                                         <span>History ({att.versions.length})</span>
                                                                         <span className="material-symbols-outlined text-[12px]">
@@ -699,7 +699,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
                                                                 download={att.filename}
-                                                                className="text-[10px] font-bold text-indigo-650 hover:text-indigo-850 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors flex items-center gap-0.5 cursor-pointer"
+                                                                className="text-[10px] font-bold text-blue-650 hover:text-blue-850 dark:text-blue-400 dark:hover:text-blue-300 transition-colors flex items-center gap-0.5 cursor-pointer"
                                                             >
                                                                 <span className="material-symbols-outlined text-[12px]">download</span>
                                                                 Download
@@ -770,7 +770,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                                                                 target="_blank"
                                                                                 rel="noopener noreferrer"
                                                                                 download={ver.filename}
-                                                                                className="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700"
+                                                                                className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700"
                                                                                 title="Download this version"
                                                                             >
                                                                                 <span className="material-symbols-outlined text-[14px]">download</span>
@@ -810,7 +810,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                         {/* Task Priority & Status */}
                         <section className="space-y-4 bg-slate-100/50 dark:bg-slate-800/40 p-4 rounded-xl border border-slate-200/50 dark:border-slate-700/50">
                             <div className="flex items-center gap-2 pb-1 border-b border-slate-200/50 dark:border-slate-700/50">
-                                <span className="material-symbols-outlined text-sm text-secondary dark:text-indigo-400 font-bold">task_alt</span>
+                                <span className="material-symbols-outlined text-sm text-secondary dark:text-blue-400 font-bold">task_alt</span>
                                 <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 capitalize font-bold text-xs">Work Details</span>
                             </div>
 
@@ -882,7 +882,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                     checked={reviewRequested}
                                     onChange={e => setReviewRequested(e.target.checked)}
                                     disabled={!canEdit}
-                                    className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-355 dark:border-slate-700 cursor-pointer"
+                                    className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-355 dark:border-slate-700 cursor-pointer"
                                 />
                                 <label htmlFor="review-requested-checkbox" className="text-[11px] font-bold text-slate-500 dark:text-slate-400 capitalize cursor-pointer select-none">
                                     Review Requested
@@ -893,7 +893,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                         {/* Due Date */}
                         <section className="space-y-2">
                             <div className="flex items-center gap-2">
-                                <span className="material-symbols-outlined text-sm text-secondary dark:text-indigo-400">calendar_today</span>
+                                <span className="material-symbols-outlined text-sm text-secondary dark:text-blue-400">calendar_today</span>
                                 <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 capitalize">Due Date</span>
                             </div>
                             <div className="relative">
@@ -910,7 +910,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                         {/* Comments */}
                         <section className="space-y-4">
                             <div className="flex items-center gap-2">
-                                <span className="material-symbols-outlined text-sm text-secondary dark:text-indigo-400">chat_bubble</span>
+                                <span className="material-symbols-outlined text-sm text-secondary dark:text-blue-400">chat_bubble</span>
                                 <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 capitalize">Comments</span>
                             </div>
 
@@ -944,7 +944,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                                                 onClick={() => handleToggleReaction(c._id, react.emoji)}
                                                                 title={tooltipText}
                                                                 className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold transition-all border cursor-pointer ${hasReacted
-                                                                    ? 'bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-950/40 dark:border-indigo-900/60 dark:text-indigo-400'
+                                                                    ? 'bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-950/40 dark:border-blue-900/60 dark:text-blue-400'
                                                                     : 'bg-slate-50 dark:bg-slate-850 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-slate-350 dark:hover:border-slate-600'
                                                                     }`}
                                                             >
@@ -980,7 +980,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                         <button
                                             onClick={handleAddComment}
                                             disabled={!commentText.trim()}
-                                            className="bg-indigo-600 hover:bg-indigo-750 text-white px-3 py-1.5 rounded-lg font-bold text-xs hover:opacity-90 active:scale-95 transition-all cursor-pointer disabled:opacity-40"
+                                            className="bg-blue-600 hover:bg-blue-750 text-white px-3 py-1.5 rounded-lg font-bold text-xs hover:opacity-90 active:scale-95 transition-all cursor-pointer disabled:opacity-40"
                                         >
                                             Post
                                         </button>
@@ -996,7 +996,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                         {/* Assign Developer Dropdown */}
                         <section className="space-y-2.5">
                             <div className="flex items-center gap-2">
-                                <span className="material-symbols-outlined text-sm text-secondary dark:text-indigo-400">group</span>
+                                <span className="material-symbols-outlined text-sm text-secondary dark:text-blue-400">group</span>
                                 <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 capitalize">Assign Developer</span>
                             </div>
 
@@ -1039,7 +1039,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                         {assignees.length > 0 && (
                             <section className="space-y-2.5">
                                 <div className="flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-sm text-secondary dark:text-indigo-400">assignment_ind</span>
+                                    <span className="material-symbols-outlined text-sm text-secondary dark:text-blue-400">assignment_ind</span>
                                     <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 capitalize">Current Assignees</span>
                                 </div>
                                 <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
@@ -1107,7 +1107,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                             <button
                                 onClick={handleSave}
                                 disabled={saving || !canEdit}
-                                className="w-full bg-secondary dark:bg-indigo-600 text-white py-2.5 rounded-xl font-bold text-sm shadow-md hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                className="w-full bg-secondary dark:bg-blue-600 text-white py-2.5 rounded-xl font-bold text-sm shadow-md hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                             >
                                 {saving ? (
                                     <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

@@ -81,9 +81,9 @@ function BarChart({ timeline }) {
                 {t.completed} completed · {fmtDate(t.date)}
               </div>
               <div
-                className="w-3/4 bg-secondary/25 dark:bg-indigo-900/40 rounded-t-sm relative transition-all duration-700 cursor-pointer hover:bg-secondary/50 dark:hover:bg-indigo-700/50"
+                className="w-3/4 bg-secondary/25 dark:bg-blue-900/40 rounded-t-sm relative transition-all duration-700 cursor-pointer hover:bg-secondary/50 dark:hover:bg-blue-700/50"
                 style={{ height: `${Math.max(pct * 1.8, 4)}px` }}>
-                <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-secondary dark:bg-indigo-400" />
+                <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-secondary dark:bg-blue-400" />
               </div>
             </div>
           );
@@ -126,7 +126,7 @@ function WorkspaceRow({ ws }) {
       {/* Header row */}
       <div className="flex items-center justify-between mb-md">
         <div className="flex items-center gap-md">
-          <div className="w-12 h-12 rounded-lg bg-secondary/10 dark:bg-indigo-900/30 flex items-center justify-center font-bold text-secondary dark:text-indigo-400 text-sm shrink-0">
+          <div className="w-12 h-12 rounded-lg bg-secondary/10 dark:bg-blue-900/30 flex items-center justify-center font-bold text-secondary dark:text-blue-400 text-sm shrink-0">
             {initials}
           </div>
           <div>
@@ -139,7 +139,7 @@ function WorkspaceRow({ ws }) {
         </div>
 
         <div className="flex items-center gap-sm shrink-0">
-          <span className="font-body-sm text-body-sm text-secondary dark:text-indigo-400 mr-sm">
+          <span className="font-body-sm text-body-sm text-secondary dark:text-blue-400 mr-sm">
             {memberCount} {memberCount === 1 ? 'member' : 'members'}
           </span>
           <Link to="/analytics" title="Analytics"
@@ -293,7 +293,7 @@ export default function AdminDashboardPanel() {
               </p>
             </div>
             <div className="flex items-center gap-xs bg-surface-container dark:bg-slate-700 px-sm py-xs rounded-lg">
-              <span className="w-2 h-2 rounded-full bg-secondary dark:bg-indigo-400" />
+              <span className="w-2 h-2 rounded-full bg-secondary dark:bg-blue-400" />
               <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400">
                 {timeline.reduce((a, t) => a + t.completed, 0)} total
               </span>
@@ -329,10 +329,10 @@ export default function AdminDashboardPanel() {
           { to: '/user-management', icon: 'manage_accounts', title: 'User Management',  sub: 'Roles & system users' },
         ].map(link => (
           <Link key={link.title} to={link.to}
-            className="flex items-center gap-md p-md rounded-xl border border-outline-variant dark:border-slate-700 bg-surface-container-lowest dark:bg-slate-800 hover:border-secondary dark:hover:border-indigo-500 hover:bg-secondary/5 dark:hover:bg-indigo-900/20 transition-all group shadow-sm">
-            <span className="material-symbols-outlined text-secondary dark:text-indigo-400 text-[28px]">{link.icon}</span>
+            className="flex items-center gap-md p-md rounded-xl border border-outline-variant dark:border-slate-700 bg-surface-container-lowest dark:bg-slate-800 hover:border-secondary dark:hover:border-blue-500 hover:bg-secondary/5 dark:hover:bg-blue-900/20 transition-all group shadow-sm">
+            <span className="material-symbols-outlined text-secondary dark:text-blue-400 text-[28px]">{link.icon}</span>
             <div>
-              <p className="font-body-md font-semibold text-primary dark:text-white group-hover:text-secondary dark:group-hover:text-indigo-400 transition-colors">{link.title}</p>
+              <p className="font-body-md font-semibold text-primary dark:text-white group-hover:text-secondary dark:group-hover:text-blue-400 transition-colors">{link.title}</p>
               <p className="font-body-sm text-on-surface-variant dark:text-slate-400">{link.sub}</p>
             </div>
             <span className="material-symbols-outlined text-on-surface-variant ml-auto text-[18px]">arrow_forward</span>

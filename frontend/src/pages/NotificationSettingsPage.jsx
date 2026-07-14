@@ -67,45 +67,25 @@ const NOTIFICATION_TYPES = [
 
 const Toggle = ({ checked, onChange, colorTheme = 'blue' }) => {
   const themes = {
-    blue: {
-      bg: 'bg-[#0058be] dark:bg-blue-600',
-      border: 'border-[#0058be] dark:border-blue-600',
-      text: 'text-[#0058be] dark:text-blue-600',
-      uncheckBg: 'bg-slate-200 dark:bg-slate-700',
-      uncheckBorder: 'border-slate-300 dark:border-slate-600',
-    },
-    emerald: {
-      bg: 'bg-[#009668] dark:bg-emerald-600',
-      border: 'border-[#009668] dark:border-emerald-600',
-      text: 'text-[#009668] dark:text-emerald-600',
-      uncheckBg: 'bg-slate-200 dark:bg-slate-700',
-      uncheckBorder: 'border-slate-300 dark:border-slate-600',
-    },
-    amber: {
-      bg: 'bg-[#d97706] dark:bg-amber-600',
-      border: 'border-[#d97706] dark:border-amber-600',
-      text: 'text-[#d97706] dark:text-amber-600',
-      uncheckBg: 'bg-slate-200 dark:bg-slate-700',
-      uncheckBorder: 'border-slate-300 dark:border-slate-600',
-    }
+    blue: 'bg-[#0058be] dark:bg-blue-500',
+    emerald: 'bg-emerald-500 dark:bg-emerald-500',
+    amber: 'bg-amber-500 dark:bg-amber-500',
   };
   
-  const theme = themes[colorTheme] || themes.blue;
+  const bgClass = checked ? (themes[colorTheme] || themes.blue) : 'bg-slate-200 dark:bg-slate-600';
 
   return (
     <button
       type="button"
-      onClick={onChange}
-      className="relative flex items-center justify-center w-12 h-6 mr-2 align-middle select-none transition-all duration-200 ease-in outline-none shrink-0"
+      onClick={(e) => {
+        e.stopPropagation();
+        onChange(e);
+      }}
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-slate-900 ${bgClass}`}
     >
-      <span className={`absolute left-0 block w-6 h-6 rounded-full bg-white border-4 z-10 transition-transform duration-200 ease-in-out shadow-sm flex items-center justify-center ${checked ? `translate-x-6 ${theme.border}` : `translate-x-0 ${theme.uncheckBorder}`}`}>
-         {checked && (
-             <svg className={`w-3 h-3 ${theme.text}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
-                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-             </svg>
-         )}
-      </span>
-      <span className={`block w-full h-full rounded-full transition-colors duration-200 ease-in-out ${checked ? theme.bg : theme.uncheckBg}`} />
+      <span
+        className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform duration-300 ease-in-out ${checked ? 'translate-x-[22px]' : 'translate-x-0.5'}`}
+      />
     </button>
   );
 };
@@ -222,7 +202,7 @@ const NotificationSettingsPage = () => {
 
           {loading ? (
             <div className="flex flex-col items-center justify-center py-20 gap-3">
-              <div className="w-8 h-8 border-2 border-indigo-200 dark:border-indigo-950 border-t-[#0058be] dark:border-t-blue-400 rounded-full animate-spin" />
+              <div className="w-8 h-8 border-2 border-blue-200 dark:border-blue-950 border-t-[#0058be] dark:border-t-blue-400 rounded-full animate-spin" />
               <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Loading preferences...</span>
             </div>
           ) : (
@@ -348,28 +328,30 @@ const NotificationSettingsPage = () => {
                 )}
               </div>
 
-              {/* Save Button */}
-              <div className={`sticky bottom-6 transition-all duration-300 ${hasChanges ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
-                <div className="flex items-center justify-between gap-4 p-4 rounded-xl bg-slate-900 dark:bg-slate-800/95 backdrop-blur-xl border border-slate-800 dark:border-slate-700 shadow-xl shadow-slate-900/20">
-                  <div className="flex items-center gap-2 text-sm">
-                    <span className="material-symbols-outlined text-amber-400 text-lg">info</span>
-                    <span className="text-white font-medium">You have unsaved changes</span>
+              {/* Save Banner */}
+              <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 w-max max-w-2xl transition-all duration-500 ease-out z-50 ${hasChanges ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95 pointer-events-none'}`}>
+                <div className="flex items-center gap-6 p-2.5 pl-6 rounded-full bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl border border-slate-200/50 dark:border-slate-700/50 shadow-2xl">
+                  <div className="flex items-center gap-3 text-sm">
+                    <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-500/20 flex items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-[18px]">info</span>
+                    </div>
+                    <span className="text-slate-800 dark:text-slate-200 font-semibold tracking-tight whitespace-nowrap">You have unsaved changes</span>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 border-l border-slate-200 dark:border-slate-700 pl-4 pr-1">
                     <button
                       onClick={() => {
                         setMutedTypes(original.mutedTypes);
                         setMutedBoards(original.mutedBoards);
                         setEmailEnabled(original.emailEnabled);
                       }}
-                      className="px-4 py-2 rounded-lg text-sm font-semibold text-slate-300 hover:bg-slate-800 transition-colors"
+                      className="px-4 py-2 rounded-full text-sm font-semibold text-slate-500 hover:text-slate-800 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-750 dark:hover:text-slate-200 transition-all"
                     >
                       Discard
                     </button>
                     <button
                       onClick={handleSave}
                       disabled={saving}
-                      className="px-5 py-2 rounded-lg text-sm font-semibold text-white bg-[#0058be] hover:bg-blue-700 transition-all disabled:opacity-50 flex items-center"
+                      className="px-6 py-2 rounded-full text-sm font-semibold text-white bg-[#0058be] hover:opacity-90 shadow-lg shadow-[#0058be]/30 transition-all disabled:opacity-50 flex items-center"
                     >
                       {saving ? (
                         <>

@@ -105,7 +105,7 @@ const CardItem = ({ card, columnId, isDragging: externalDragging }) => {
                         </div>
                     )}
 
-                    <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200 leading-snug group-hover/card:text-indigo-600 dark:group-hover/card:text-indigo-400 transition-colors duration-150">
+                    <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200 leading-snug group-hover/card:text-blue-600 dark:group-hover/card:text-blue-400 transition-colors duration-150">
                         {card.title || "Untitled Task"}
                     </h4>
 
@@ -136,7 +136,7 @@ const CardItem = ({ card, columnId, isDragging: externalDragging }) => {
                             </div>
                             <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
                                 <div
-                                    className={`h-full rounded-full transition-all duration-300 ${progress === 100 ? 'bg-emerald-500' : 'bg-indigo-500'
+                                    className={`h-full rounded-full transition-all duration-300 ${progress === 100 ? 'bg-emerald-500' : 'bg-blue-500'
                                         }`}
                                     style={{ width: `${progress}%` }}
                                 />
@@ -148,13 +148,13 @@ const CardItem = ({ card, columnId, isDragging: externalDragging }) => {
                                         <label
                                             key={item._id || idx}
                                             onClick={(e) => e.stopPropagation()}
-                                            className="flex items-start gap-2 cursor-pointer text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 select-none transition-colors"
+                                            className="flex items-start gap-2 cursor-pointer text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 select-none transition-colors"
                                         >
                                             <input
                                                 type="checkbox"
                                                 checked={item.done}
                                                 onChange={(e) => handleChecklistItemToggle(e, item._id || idx)}
-                                                className="w-3.5 h-3.5 rounded mt-0.5 text-indigo-650 border-slate-300 focus:ring-indigo-500 dark:bg-slate-900 dark:border-slate-750 cursor-pointer"
+                                                className="w-3.5 h-3.5 rounded mt-0.5 text-blue-650 border-slate-300 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-750 cursor-pointer"
                                             />
                                             <span className={`text-[11px] leading-tight font-medium ${item.done ? 'line-through text-slate-400 dark:text-slate-500' : ''}`}>
                                                 {item.text}

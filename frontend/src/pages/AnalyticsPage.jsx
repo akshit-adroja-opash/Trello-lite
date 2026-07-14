@@ -67,7 +67,7 @@ const AnalyticsPage = () => {
         return (
             <div className="flex items-center justify-center h-screen bg-surface dark:bg-slate-900 transition-colors duration-200">
                 <div className="relative flex items-center justify-center">
-                    <div className="w-12 h-12 rounded-full border-4 border-indigo-100 dark:border-indigo-950 animate-pulse absolute" />
+                    <div className="w-12 h-12 rounded-full border-4 border-blue-100 dark:border-blue-950 animate-pulse absolute" />
                     <div className="w-12 h-12 rounded-full border-4 border-secondary border-t-transparent animate-spin" />
                 </div>
             </div>
@@ -185,7 +185,7 @@ const AnalyticsPage = () => {
                             </div>
                         ) : loadingData || !analytics ? (
                             <div className="flex flex-col items-center justify-center py-32">
-                                <div className="w-10 h-10 rounded-full border-4 border-indigo-100 dark:border-indigo-950 border-t-secondary animate-spin mb-3" />
+                                <div className="w-10 h-10 rounded-full border-4 border-blue-100 dark:border-blue-950 border-t-secondary animate-spin mb-3" />
                                 <p className="text-xs text-slate-400 dark:text-slate-500 font-medium animate-pulse">Fetching workspace statistics...</p>
                             </div>
                         ) : (
@@ -209,7 +209,7 @@ const AnalyticsPage = () => {
                                                         title="Total Tasks"
                                                         value={totalCards}
                                                         icon="task"
-                                                        iconColor="text-indigo-600 dark:text-indigo-400"
+                                                        iconColor="text-blue-600 dark:text-blue-400"
                                                         trendValue={kpis.trends?.totalCards !== undefined && kpis.trends.totalCards !== 0 ? `${Math.abs(kpis.trends.totalCards)}%` : null}
                                                         trendType={kpis.trends?.totalCards >= 0 ? "up" : "down"}
                                                     />
@@ -342,7 +342,7 @@ const AnalyticsPage = () => {
                                                     </div>
                                                     <div className="mt-8 pt-4 border-t border-outline-variant dark:border-slate-700 flex items-center justify-between text-xs text-on-surface-variant dark:text-slate-400 font-semibold">
                                                         <span>Total Active Cards across Stages</span>
-                                                        <span className="text-primary dark:text-indigo-400 font-bold">{maxCount > 1 ? maxCount : 0} Max Peak Stage</span>
+                                                        <span className="text-primary dark:text-blue-400 font-bold">{maxCount > 1 ? maxCount : 0} Max Peak Stage</span>
                                                     </div>
                                                 </div>
                                             )
@@ -430,7 +430,7 @@ const AnalyticsPage = () => {
                                                                             <td className="p-4">{row.tasksAssigned}</td>
                                                                             <td className="p-4">{row.avgCompletion}</td>
                                                                             <td className="p-4 text-right">
-                                                                                <span className={`px-2 py-1 rounded text-[11px] font-bold tracking-wide capitalize ${row.status === "Optimal" ? 'text-emerald-500 dark:bg-emerald-500/20' : ' text-red-500 dark:bg-red-500/20'}`}>
+                                                                                <span className={`text-[11px] font-bold tracking-wide capitalize ${row.status === "Optimal" ? 'text-emerald-500' : 'text-red-500'}`}>
                                                                                     {row.status}
                                                                                 </span>
                                                                             </td>

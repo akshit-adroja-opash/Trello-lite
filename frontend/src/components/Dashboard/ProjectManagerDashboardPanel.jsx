@@ -129,10 +129,10 @@ export default function ProjectManagerDashboardPanel() {
           { to: '/reports', icon: 'description', title: 'Reports', sub: 'Generate PDF' },
           { to: '/my-tasks', icon: 'checklist', title: 'My Tasks', sub: 'All assigned work' },
         ].map(link => (
-          <Link key={link.to} to={link.to} className="flex items-center gap-md p-md rounded-xl border border-outline-variant dark:border-slate-700 bg-surface-container-lowest dark:bg-slate-800 hover:border-secondary dark:hover:border-indigo-500 hover:bg-secondary/5 dark:hover:bg-indigo-900/20 transition-all group shadow-sm">
-            <span className="material-symbols-outlined text-secondary dark:text-indigo-400 text-[28px]">{link.icon}</span>
+          <Link key={link.to} to={link.to} className="flex items-center gap-md p-md rounded-xl border border-outline-variant dark:border-slate-700 bg-surface-container-lowest dark:bg-slate-800 hover:border-secondary dark:hover:border-blue-500 hover:bg-secondary/5 dark:hover:bg-blue-900/20 transition-all group shadow-sm">
+            <span className="material-symbols-outlined text-secondary dark:text-blue-400 text-[28px]">{link.icon}</span>
             <div>
-              <p className="font-body-md font-semibold text-primary dark:text-white group-hover:text-secondary dark:group-hover:text-indigo-400 transition-colors">{link.title}</p>
+              <p className="font-body-md font-semibold text-primary dark:text-white group-hover:text-secondary dark:group-hover:text-blue-400 transition-colors">{link.title}</p>
               <p className="font-body-sm text-on-surface-variant dark:text-slate-400">{link.sub}</p>
             </div>
             <span className="material-symbols-outlined text-on-surface-variant ml-auto text-[18px]">arrow_forward</span>

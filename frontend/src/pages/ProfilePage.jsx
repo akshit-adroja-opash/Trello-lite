@@ -186,24 +186,24 @@ const ProfilePage = () => {
               <p className="font-body-md text-on-surface-variant dark:text-slate-400">Manage your account settings and personal information</p>
             </div>
             <nav className="flex items-center gap-1 text-body-sm self-start sm:self-auto">
-              <Link className="text-secondary hover:underline dark:text-indigo-400" to="/dashboard">Dashboard</Link>
+              <Link className="text-secondary hover:underline dark:text-blue-400" to="/dashboard">Dashboard</Link>
               <span className="material-symbols-outlined text-sm opacity-40">chevron_right</span>
               <span className="text-on-surface-variant dark:text-slate-350 font-bold">My Profile</span>
             </nav>
           </div>
 
           {/* Profile Central Section */}
-          <div className="max-w-4xl mx-auto glass-card bg-white/95 dark:bg-slate-800/90 backdrop-blur border border-outline-variant/50 dark:border-slate-700 rounded-2xl overflow-hidden shadow-xl shadow-indigo-900/5">
+          <div className="max-w-4xl mx-auto glass-card bg-white/95 dark:bg-slate-800/90 backdrop-blur border border-outline-variant/50 dark:border-slate-700 rounded-2xl overflow-hidden shadow-xl shadow-blue-900/5">
             
             {/* Decorative Header Banner */}
-            <div className="h-48 bg-gradient-to-r from-primary-container to-secondary dark:from-slate-900 dark:to-indigo-950 relative overflow-hidden flex justify-center items-end pb-8">
+            <div className="h-48 bg-gradient-to-r from-primary-container to-secondary dark:from-slate-900 dark:to-blue-950 relative overflow-hidden flex justify-center items-end pb-8">
               <div className="absolute inset-0 opacity-15" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }} />
               
               {/* Profile Avatar Group */}
               <div className="relative group">
                 <div 
                   onClick={() => fileRef.current?.click()}
-                  className="w-32 h-32 rounded-full border-[6px] border-white dark:border-slate-850 bg-secondary dark:bg-indigo-650 flex items-center justify-center text-on-secondary text-5xl font-black shadow-xl translate-y-16 overflow-hidden relative z-10 cursor-pointer transition-transform hover:scale-105"
+                  className="w-32 h-32 rounded-full border-[6px] border-white dark:border-slate-850 bg-secondary dark:bg-blue-650 flex items-center justify-center text-on-secondary text-5xl font-black shadow-xl translate-y-16 overflow-hidden relative z-10 cursor-pointer transition-transform hover:scale-105"
                 >
                   {getAvatarUrl() && !imgError ? (
                     <img
@@ -222,7 +222,7 @@ const ProfilePage = () => {
                 </div>
 
                 <div className="absolute bottom-1 right-1 bg-white dark:bg-slate-800 p-1.5 rounded-full shadow-md text-primary dark:text-white ring-2 ring-transparent z-20 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[18px] text-indigo-600 dark:text-indigo-400" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+                  <span className="material-symbols-outlined text-[18px] text-blue-600 dark:text-blue-400" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
                 </div>
 
                 <div className="absolute -bottom-24 left-1/2 -translate-x-1/2 w-full text-center">
@@ -354,7 +354,7 @@ const ProfilePage = () => {
               onClick={handleToggle2FA}
               className="glass-card p-6 bg-white/95 dark:bg-slate-800/95 backdrop-blur border border-outline-variant/30 dark:border-slate-750 rounded-2xl flex items-center gap-4 group cursor-pointer hover:bg-surface-container-lowest dark:hover:bg-slate-700 transition-colors shadow-sm"
             >
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform ${twoFactorEnabled ? 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400' : 'bg-primary-container dark:bg-slate-900 text-secondary dark:text-indigo-400'}`}>
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform ${twoFactorEnabled ? 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400' : 'bg-primary-container dark:bg-slate-900 text-secondary dark:text-blue-400'}`}>
                 <span className="material-symbols-outlined">{twoFactorEnabled ? 'shield_with_heart' : 'security'}</span>
               </div>
               <div>
@@ -424,14 +424,14 @@ const ProfilePage = () => {
                     key={session._id} 
                     className={`p-4 rounded-xl border flex items-center justify-between gap-4 transition-colors ${
                       isCurrent 
-                        ? 'bg-indigo-50/50 dark:bg-indigo-950/20 border-indigo-200 dark:border-indigo-900/60' 
+                        ? 'bg-blue-50/50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900/60' 
                         : 'bg-surface-container-lowest dark:bg-slate-900 border-outline-variant/35 dark:border-slate-800'
                     }`}
                   >
                     <div className="flex items-center gap-3">
                       <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
                         isCurrent 
-                          ? 'bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400' 
+                          ? 'bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400' 
                           : 'bg-surface-container dark:bg-slate-800 text-on-surface-variant dark:text-slate-400'
                       }`}>
                         <span className="material-symbols-outlined">{getDeviceIcon(session.userAgent)}</span>
@@ -442,7 +442,7 @@ const ProfilePage = () => {
                             {getDeviceName(session.userAgent)}
                           </span>
                           {isCurrent && (
-                            <span className="bg-indigo-100 dark:bg-indigo-950/80 text-indigo-750 dark:text-indigo-300 text-[10px] font-bold px-2 py-0.5 rounded-full capitalize tracking-wider">
+                            <span className="bg-blue-100 dark:bg-blue-950/80 text-blue-750 dark:text-blue-300 text-[10px] font-bold px-2 py-0.5 rounded-full capitalize tracking-wider">
                               Current
                             </span>
                           )}

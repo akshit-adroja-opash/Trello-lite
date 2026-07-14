@@ -462,8 +462,8 @@ const BoardPage = () => {
     if (loading) return (
         <div className="flex flex-col gap-4 items-center justify-center h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-200">
             <div className="relative w-12 h-12 flex items-center justify-center">
-                <div className="absolute w-12 h-12 rounded-full border-4 border-indigo-100 dark:border-indigo-950 animate-pulse" />
-                <div className="absolute w-12 h-12 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin" />
+                <div className="absolute w-12 h-12 rounded-full border-4 border-blue-100 dark:border-blue-950 animate-pulse" />
+                <div className="absolute w-12 h-12 rounded-full border-4 border-blue-600 border-t-transparent animate-spin" />
             </div>
             <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 tracking-wide animate-pulse">Assembling board space...</p>
         </div>
@@ -471,7 +471,7 @@ const BoardPage = () => {
 
     return (
         <div
-            className="flex flex-col h-screen overflow-hidden bg-slate-50/50 dark:bg-slate-900 text-slate-600 dark:text-slate-350 antialiased font-sans selection:bg-indigo-500/10 transition-colors duration-200"
+            className="flex flex-col h-screen overflow-hidden bg-slate-50/50 dark:bg-slate-900 text-slate-600 dark:text-slate-350 antialiased font-sans selection:bg-blue-500/10 transition-colors duration-200"
             onMouseMove={handleMouseMove}
         >
             {cursors.map(cursor => (
@@ -575,7 +575,7 @@ const BoardPage = () => {
                             ref={searchRef}
                             value={searchQuery}
                             onChange={e => setSearchQuery(e.target.value)}
-                            className="pl-10 pr-9 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm w-full focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-slate-800 dark:text-white outline-none transition-all"
+                            className="pl-10 pr-9 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm w-full focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 dark:text-white outline-none transition-all"
                             placeholder="Filter board cards..."
                             type="text"
                         />
@@ -594,7 +594,7 @@ const BoardPage = () => {
                     <button
                         onClick={() => setShowFilters(!showFilters)}
                         className={`flex items-center space-x-2 px-3 sm:px-4 py-1.5 border rounded-lg text-sm font-medium transition-all shrink-0 ${showFilters
-                            ? 'bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-950/40 dark:border-indigo-900/60 dark:text-indigo-400'
+                            ? 'bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-950/40 dark:border-blue-900/60 dark:text-blue-400'
                             : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-350'
                             }`}
                     >
@@ -614,7 +614,7 @@ const BoardPage = () => {
                             selectedAssignees.length > 0 ||
                             dueDateFilter !== 'all' ||
                             sortBy !== 'default') && (
-                                <span className="w-5 h-5 rounded-full bg-indigo-600 text-white text-[10px] flex items-center justify-center font-bold">
+                                <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-[10px] flex items-center justify-center font-bold">
                                     {
                                         (selectedLabels.length > 0 ? 1 : 0) +
                                         (selectedAssignees.length > 0 ? 1 : 0) +
@@ -638,7 +638,7 @@ const BoardPage = () => {
                         <button
                             onClick={() => setShowActivity(!showActivity)}
                             className={`p-1.5 rounded-lg border transition-all ${showActivity
-                                ? 'bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-950/40 dark:border-indigo-900/60 dark:text-indigo-400'
+                                ? 'bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-950/40 dark:border-blue-900/60 dark:text-blue-400'
                                 : 'border-slate-200 dark:border-slate-700 hover:bg-slate-105 dark:hover:bg-slate-750 text-slate-500 dark:text-slate-400'
                                 }`}
                             title="Activity Feed"

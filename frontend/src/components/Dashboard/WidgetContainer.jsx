@@ -200,7 +200,7 @@ export default function WidgetContainer({
                       className="flex items-center justify-between p-3.5 rounded-xl bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant/80 dark:border-slate-700 cursor-pointer hover:border-secondary hover:shadow-sm transition-all select-none"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-secondary/10 dark:bg-indigo-950/60 flex items-center justify-center text-secondary dark:text-indigo-400 shrink-0">
+                        <div className="w-9 h-9 rounded-lg bg-secondary/10 dark:bg-blue-950/60 flex items-center justify-center text-secondary dark:text-blue-400 shrink-0">
                           <span className="material-symbols-outlined text-[20px]">{w.icon || 'widgets'}</span>
                         </div>
                         <div>
@@ -233,7 +233,7 @@ export default function WidgetContainer({
               <button
                 type="button"
                 onClick={handleResetToDefault}
-                className="text-xs font-semibold text-on-surface-variant dark:text-slate-400 hover:text-secondary dark:hover:text-indigo-400 transition-colors flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-surface-container dark:hover:bg-slate-700/50 cursor-pointer"
+                className="text-xs font-semibold text-on-surface-variant dark:text-slate-400 hover:text-secondary dark:hover:text-blue-400 transition-colors flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-surface-container dark:hover:bg-slate-700/50 cursor-pointer"
               >
                 <span className="material-symbols-outlined text-[16px]">restart_alt</span>
                 Reset to Role Default

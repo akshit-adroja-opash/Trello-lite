@@ -16,6 +16,7 @@ import AssignTaskPage from "./pages/AssignTaskPage";
 import UserManagementPage from "./pages/UserManagementPage";
 import SupportPage from "./pages/SupportPage";
 import NotificationSettingsPage from "./pages/NotificationSettingsPage";
+import LearnMorePage from "./pages/LearnMorePage";
 
 
 const App = () => {
@@ -137,6 +138,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <SupportPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/learn-more"
+          element={
+            <ProtectedRoute>
+              <LearnMorePage />
             </ProtectedRoute>
           }
         />

@@ -42,7 +42,7 @@ const CustomSelect = ({ value, onChange, options, icon, placeholder, staticDropd
                   onChange(opt.value);
                   setIsOpen(false);
                 }}
-                className={`w-full flex items-center justify-between gap-2 px-3 py-2.5 text-sm rounded-lg transition-colors text-left ${value === opt.value ? 'bg-secondary/10 dark:bg-indigo-500/20 text-secondary dark:text-indigo-300 font-bold' : 'text-on-surface-variant dark:text-slate-300 hover:bg-surface-container-low dark:hover:bg-slate-700'}`}
+                className={`w-full flex items-center justify-between gap-2 px-3 py-2.5 text-sm rounded-lg transition-colors text-left ${value === opt.value ? 'bg-secondary/10 dark:bg-blue-500/20 text-secondary dark:text-blue-400 font-bold' : 'text-on-surface-variant dark:text-slate-300 hover:bg-surface-container-low dark:hover:bg-slate-700'}`}
               >
                 <span className="truncate">{opt.label}</span>
                 {value === opt.value && (

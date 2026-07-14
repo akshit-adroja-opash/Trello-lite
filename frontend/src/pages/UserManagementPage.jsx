@@ -101,7 +101,7 @@ export default function UserManagementPage() {
       label: 'Project Manager',
     },
     developer: {
-      bg: 'bg-secondary-fixed text-secondary border-secondary/20 dark:bg-indigo-950/45 dark:text-indigo-300 dark:border-indigo-900/30',
+      bg: 'bg-secondary-fixed text-secondary border-secondary/20 dark:bg-blue-950/45 dark:text-blue-300 dark:border-blue-900/30',
       label: 'Developer',
     },
     client: {
@@ -210,7 +210,7 @@ export default function UserManagementPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search users by name or email..."
-                  className="w-full pl-xl pr-md py-sm bg-transparent border border-outline-variant dark:border-slate-700 rounded-lg font-body-sm text-body-sm focus:border-secondary dark:focus:border-indigo-500 focus:outline-none transition-colors placeholder:text-on-surface-variant dark:placeholder:text-slate-400 text-on-surface dark:text-white"
+                  className="w-full pl-xl pr-md py-sm bg-transparent border border-outline-variant dark:border-slate-700 rounded-lg font-body-sm text-body-sm focus:border-secondary dark:focus:border-blue-500 focus:outline-none transition-colors placeholder:text-on-surface-variant dark:placeholder:text-slate-400 text-on-surface dark:text-white"
                 />
               </div>
 
@@ -328,7 +328,7 @@ export default function UserManagementPage() {
                                         setNewRole(user.role);
                                         setShowRoleModal(true);
                                       }}
-                                      className="text-on-surface-variant dark:text-slate-400 hover:text-secondary dark:hover:text-indigo-400 p-xs rounded hover:bg-surface-container dark:hover:bg-slate-700 transition-colors"
+                                      className="text-on-surface-variant dark:text-slate-400 hover:text-secondary dark:hover:text-blue-400 p-xs rounded hover:bg-surface-container dark:hover:bg-slate-700 transition-colors"
                                       title="Change Role"
                                     >
                                       <span className="material-symbols-outlined text-[20px]">published_with_changes</span>
@@ -375,7 +375,7 @@ export default function UserManagementPage() {
                       key={i}
                       onClick={() => setCurrentPage(i + 1)}
                       className={`px-md py-xs border border-outline-variant dark:border-slate-700 rounded text-body-sm font-body-sm transition-all ${currentPage === i + 1
-                          ? 'bg-secondary text-white border-secondary dark:bg-indigo-600 dark:border-indigo-600'
+                          ? 'bg-secondary text-white border-secondary dark:bg-blue-600 dark:border-blue-600'
                           : 'bg-surface-container-lowest dark:bg-slate-800 text-on-surface-variant dark:text-slate-400 hover:bg-surface-container dark:hover:bg-slate-700'
                         }`}
                     >
@@ -415,7 +415,7 @@ export default function UserManagementPage() {
               value={inviteForm.username}
               onChange={(e) => setInviteForm({ ...inviteForm, username: e.target.value })}
               placeholder="e.g. sarahjenkins"
-              className="w-full border border-outline-variant dark:border-slate-700 rounded-lg px-md py-sm bg-transparent dark:text-white focus:border-secondary dark:focus:border-indigo-500 focus:outline-none"
+              className="w-full border border-outline-variant dark:border-slate-700 rounded-lg px-md py-sm bg-transparent dark:text-white focus:border-secondary dark:focus:border-blue-500 focus:outline-none"
             />
           </div>
 
@@ -427,7 +427,7 @@ export default function UserManagementPage() {
               value={inviteForm.email}
               onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })}
               placeholder="sarah.j@company.com"
-              className="w-full border border-outline-variant dark:border-slate-700 rounded-lg px-md py-sm bg-transparent dark:text-white focus:border-secondary dark:focus:border-indigo-500 focus:outline-none"
+              className="w-full border border-outline-variant dark:border-slate-700 rounded-lg px-md py-sm bg-transparent dark:text-white focus:border-secondary dark:focus:border-blue-500 focus:outline-none"
             />
           </div>
 
@@ -439,7 +439,7 @@ export default function UserManagementPage() {
               value={inviteForm.password}
               onChange={(e) => setInviteForm({ ...inviteForm, password: e.target.value })}
               placeholder="••••••••"
-              className="w-full border border-outline-variant dark:border-slate-700 rounded-lg px-md py-sm bg-transparent dark:text-white focus:border-secondary dark:focus:border-indigo-500 focus:outline-none"
+              className="w-full border border-outline-variant dark:border-slate-700 rounded-lg px-md py-sm bg-transparent dark:text-white focus:border-secondary dark:focus:border-blue-500 focus:outline-none"
             />
           </div>
 
@@ -470,7 +470,7 @@ export default function UserManagementPage() {
             <button
               type="submit"
               disabled={actionLoading}
-              className="px-lg py-sm bg-secondary text-white dark:bg-indigo-600 rounded-lg font-medium text-body-sm hover:opacity-90 flex items-center gap-xs"
+              className="px-lg py-sm bg-secondary text-white dark:bg-blue-600 rounded-lg font-medium text-body-sm hover:opacity-90 flex items-center gap-xs"
             >
               {actionLoading && <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
               Create User
@@ -517,7 +517,7 @@ export default function UserManagementPage() {
               <button
                 onClick={handleRoleUpdate}
                 disabled={actionLoading}
-                className="px-lg py-sm bg-secondary text-white dark:bg-indigo-600 rounded-lg font-medium text-body-sm hover:opacity-90 flex items-center gap-xs"
+                className="px-lg py-sm bg-secondary text-white dark:bg-blue-600 rounded-lg font-medium text-body-sm hover:opacity-90 flex items-center gap-xs"
               >
                 {actionLoading && <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
                 Save Changes

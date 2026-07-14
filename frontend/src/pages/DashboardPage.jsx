@@ -179,8 +179,8 @@ const DashboardPage = () => {
   if (loading) return (
     <div className="flex items-center justify-center h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-200">
       <div className="relative flex items-center justify-center">
-        <div className="w-12 h-12 rounded-full border-4 border-indigo-100 dark:border-indigo-950 animate-pulse absolute" />
-        <div className="w-12 h-12 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin" />
+        <div className="w-12 h-12 rounded-full border-4 border-blue-100 dark:border-blue-950 animate-pulse absolute" />
+        <div className="w-12 h-12 rounded-full border-4 border-blue-600 border-t-transparent animate-spin" />
       </div>
     </div>
   );
@@ -223,13 +223,13 @@ const DashboardPage = () => {
           {/* Empty State */}
           {workspaces.length === 0 && (
             <div className="text-center py-20 bg-surface-container-lowest dark:bg-slate-800 rounded-xl border border-surface-variant dark:border-slate-700 shadow-sm max-w-xl mx-auto">
-              <div className="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 flex items-center justify-center mx-auto mb-5 text-indigo-600 dark:text-indigo-400">
+              <div className="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-blue-950/50 flex items-center justify-center mx-auto mb-5 text-blue-600 dark:text-blue-400">
                 <span className="material-symbols-outlined text-3xl">workspaces</span>
               </div>
               <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">No workspaces found</h3>
               <p className="text-slate-500 dark:text-slate-400 text-sm max-w-xs mx-auto mb-6">Get started by building a fresh workspace hub to separate your operational workflows.</p>
               {user?.role !== 'developer' && user?.role !== 'client' && (
-                <button onClick={() => setShowCreateWs(true)} className="inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition-all shadow-sm">
+                <button onClick={() => setShowCreateWs(true)} className="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition-all shadow-sm">
                   Create your first Workspace
                 </button>
               )}
@@ -374,7 +374,7 @@ const DashboardPage = () => {
                       {isWsAdmin && (
                         <button
                           onClick={() => setShowCreateBoard(ws._id)}
-                          className="h-28 sm:h-32 xl:h-36 rounded-xl border-2 border-dashed border-outline-variant dark:border-slate-700 flex flex-col items-center justify-center gap-2 text-outline dark:text-slate-400 hover:border-secondary hover:text-secondary dark:hover:text-indigo-400 hover:bg-secondary-fixed/20 dark:hover:bg-slate-750/30 transition-all cursor-pointer group"
+                          className="h-28 sm:h-32 xl:h-36 rounded-xl border-2 border-dashed border-outline-variant dark:border-slate-700 flex flex-col items-center justify-center gap-2 text-outline dark:text-slate-400 hover:border-secondary hover:text-secondary dark:hover:text-blue-400 hover:bg-secondary-fixed/20 dark:hover:bg-slate-750/30 transition-all cursor-pointer group"
                         >
                           <div className="w-10 h-10 rounded-full border-2 border-current flex items-center justify-center group-hover:scale-110 transition-transform">
                             <span className="material-symbols-outlined text-[26px]">add</span>

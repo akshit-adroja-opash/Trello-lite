@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { submitSupportRequest } from '../api/support.api';
 import DashboardSidebar from '../components/Layout/DashboardSidebar';
@@ -16,6 +17,7 @@ const faqs = [
 ];
 
 const SupportPage = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [openIndex, setOpenIndex] = useState(null);
   const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
@@ -43,7 +45,7 @@ const SupportPage = () => {
       <Navbar searchQuery="" setSearchQuery={() => {}} />
 
       <main className="ml-0 lg:ml-[280px] pt-16 min-h-screen w-full">
-        <div className="max-w-[1200px] mx-auto p-4 sm:p-6 lg:p-10">
+        <div className="max-w-[1400px] mx-auto p-4 sm:p-6 lg:p-10 pb-24">
 
           {/* Page Header */}
           <div className="mb-10 relative">
@@ -90,7 +92,7 @@ const SupportPage = () => {
               { icon: 'groups', title: 'Team Management', desc: 'Manage roles, send invitations & handle workspace permissions.', color: 'from-purple-500 to-pink-400', bg: 'bg-purple-50 dark:bg-purple-900/20', text: 'text-purple-600 dark:text-purple-400' },
               { icon: 'bar_chart', title: 'Reports & Analytics', desc: 'Generate powerful insights, track progress & export PDF reports.', color: 'from-orange-500 to-amber-400', bg: 'bg-orange-50 dark:bg-orange-900/20', text: 'text-orange-600 dark:text-orange-400' },
             ].map((item, i) => (
-              <div key={i} className="relative group p-6 rounded-3xl border border-slate-200/80 dark:border-slate-700/80 bg-white dark:bg-slate-800/60 backdrop-blur-xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden">
+              <div onClick={() => navigate('/learn-more')} key={i} className="relative group p-6 rounded-3xl border border-slate-200/80 dark:border-slate-700/80 bg-white dark:bg-slate-800/60 backdrop-blur-xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden">
                 <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${item.color} opacity-0 group-hover:opacity-100 transition-opacity`}></div>
                 <div className={`w-12 h-12 rounded-2xl ${item.bg} flex items-center justify-center ${item.text} mb-4 group-hover:scale-110 transition-transform duration-300 shadow-inner`}>
                   <span className="material-symbols-outlined text-2xl">{item.icon}</span>
@@ -141,7 +143,7 @@ const SupportPage = () => {
 
           {/* Contact Form */}
           <div className="relative rounded-[2rem] border border-slate-200/80 dark:border-slate-700/80 bg-white/80 dark:bg-slate-800/60 backdrop-blur-xl p-8 sm:p-10 overflow-hidden shadow-sm">
-            <div className="absolute top-0 right-0 w-80 h-80 bg-purple-500/5 dark:bg-purple-500/5 blur-3xl rounded-full pointer-events-none"></div>
+
             
             <div className="relative z-10">
               <div className="flex items-center gap-3 mb-2">

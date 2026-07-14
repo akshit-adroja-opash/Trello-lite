@@ -62,14 +62,14 @@ const NotificationDropdown = ({ onClose }) => {
                 {/* Header */}
                 <div className="flex items-center justify-between px-5 py-4 border-b border-outline-variant dark:border-slate-700/80 bg-surface-container-low/40 dark:bg-slate-800/80 shrink-0">
                     <div className="flex items-center gap-2.5">
-                        <span className="material-symbols-outlined text-[20px] text-primary dark:text-indigo-400" style={{ fontVariationSettings: "'FILL' 1" }}>
+                        <span className="material-symbols-outlined text-[20px] text-primary dark:text-blue-400" style={{ fontVariationSettings: "'FILL' 1" }}>
                             notifications
                         </span>
                         <h4 className="font-headline-sm text-base font-bold text-on-surface dark:text-white">
                             Notifications
                         </h4>
                         {unreadCount > 0 && (
-                            <span className="px-2 py-0.5 bg-secondary/15 dark:bg-indigo-500/20 text-secondary dark:text-indigo-300 rounded-full text-[11px] font-bold tracking-wide">
+                            <span className="px-2 py-0.5 bg-secondary/15 dark:bg-blue-500/20 text-secondary dark:text-blue-300 rounded-full text-[11px] font-bold tracking-wide">
                                 {unreadCount} new
                             </span>
                         )}
@@ -80,7 +80,7 @@ const NotificationDropdown = ({ onClose }) => {
                             <button
                                 onClick={markAllAsRead}
                                 title="Mark all as read"
-                                className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-secondary dark:text-indigo-300 hover:bg-secondary/10 dark:hover:bg-indigo-500/15 transition-colors duration-150"
+                                className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-secondary dark:text-blue-300 hover:bg-secondary/10 dark:hover:bg-blue-500/15 transition-colors duration-150"
                             >
                                 <span className="material-symbols-outlined text-[15px]">done_all</span>
                                 <span>Mark read</span>
@@ -108,7 +108,7 @@ const NotificationDropdown = ({ onClose }) => {
                 <div className="overflow-y-auto flex-1 p-2 space-y-1 divide-y divide-transparent">
                     {loading ? (
                         <div className="flex flex-col items-center justify-center py-12 gap-3">
-                            <div className="w-7 h-7 border-2 border-indigo-200 dark:border-indigo-950 border-t-secondary rounded-full animate-spin" />
+                            <div className="w-7 h-7 border-2 border-blue-200 dark:border-blue-950 border-t-secondary rounded-full animate-spin" />
                             <span className="text-xs font-medium text-on-surface-variant dark:text-slate-400">Loading notifications...</span>
                         </div>
                     ) : notifications.length === 0 ? (
@@ -132,13 +132,13 @@ const NotificationDropdown = ({ onClose }) => {
                                     onClick={() => handleItemClick(n)}
                                     className={`w-full text-left p-3 rounded-xl transition-all duration-200 flex items-start gap-3 group relative border ${
                                         !n.isRead
-                                            ? 'bg-secondary-container/15 dark:bg-indigo-950/30 border-secondary/20 dark:border-indigo-800/40 shadow-sm'
+                                            ? 'bg-secondary-container/15 dark:bg-blue-950/30 border-secondary/20 dark:border-blue-800/40 shadow-sm'
                                             : 'bg-transparent border-transparent hover:bg-surface-container/60 dark:hover:bg-slate-750/60 hover:border-outline-variant/50'
                                     }`}
                                 >
                                     {/* Unread Indicator Dot on left */}
                                     {!n.isRead && (
-                                        <span className="mt-4 w-2 h-2 rounded-full bg-secondary dark:bg-indigo-400 shrink-0 ring-2 ring-secondary/20 dark:ring-indigo-400/20 animate-pulse" />
+                                        <span className="mt-4 w-2 h-2 rounded-full bg-secondary dark:bg-blue-400 shrink-0 ring-2 ring-secondary/20 dark:ring-blue-400/20 animate-pulse" />
                                     )}
 
                                     {/* Entity Icon Badge */}
