@@ -17,3 +17,8 @@ export const getRecentReports = async (boardId = "") => {
   const res = await API.get(url);
   return res.data;
 };
+
+export const downloadSharedReport = async (token) => {
+  const res = await API.get(`/reports/shared/${token}`);
+  return res.data;
+};

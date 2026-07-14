@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import toast from 'react-hot-toast';
+import { submitSupportRequest } from '../api/support.api';
 import DashboardSidebar from '../components/Layout/DashboardSidebar';
 import Navbar from '../components/Layout/Navbar';
 
@@ -23,11 +25,16 @@ const SupportPage = () => {
     f => f.q.toLowerCase().includes(searchQuery.toLowerCase()) || f.a.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
-    setContactForm({ name: '', email: '', message: '' });
-    setTimeout(() => setSubmitted(false), 4000);
+    try {
+      await submitSupportRequest(contactForm);
+      setSubmitted(true);
+      setContactForm({ name: '', email: '', message: '' });
+      setTimeout(() => setSubmitted(false), 4000);
+    } catch (error) {
+      toast.error('Failed to send support request. Please try again later.');
+    }
   };
 
   return (

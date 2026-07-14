@@ -20,6 +20,7 @@ import reportRoutes from "./src/routes/report.routes.js";
 import analyticsRoutes from "./src/routes/analytics.routes.js";
 import dashboardRoutes from "./src/routes/dashboard.routes.js";
 import preferencesRoutes from "./src/routes/preferences.routes.js";
+import supportRoutes from "./src/routes/support.routes.js";
 import { serveGridFSFile } from "./src/utils/gridfsStorage.js";
 
 
@@ -102,6 +103,7 @@ app.use("/api/v1/reports", reportRoutes);
 app.use("/api/v1/analytics", analyticsRoutes);
 app.use("/api/v1/dashboard", dashboardRoutes);
 app.use("/api/v1/preferences", preferencesRoutes);
+app.use("/api/v1/support", supportRoutes);
 
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok" });

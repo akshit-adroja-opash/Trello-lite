@@ -1,9 +1,9 @@
 import axios from 'axios';
 
-const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:5000/api/v1' : '');
 
-if (!import.meta.env.VITE_API_URL && !import.meta.env.DEV) {
-    console.warn('WARNING: VITE_API_URL is undefined in non-development environment. API calls may fall back to localhost and fail.');
+if (!apiUrl) {
+    throw new Error('VITE_API_URL is missing in production environment. API calls will fail.');
 }
 
 export const SERVER_URL = apiUrl.replace('/api/v1', '');

@@ -15,7 +15,8 @@ import {
   toggle2FA,
   getSessions,
   revokeSession,
-  createUserByAdmin
+  createUserByAdmin,
+  refreshAccessToken
 } from '../controllers/auth.controller.js';
 import { verifyJWT } from '../middleware/auth.middleware.js';
 import { requireGlobalRole } from '../middleware/role.middleware.js';
@@ -31,6 +32,7 @@ const authLimiter = rateLimit({
 
 router.post('/register', authLimiter, register);
 router.post('/login', authLimiter, login);
+router.post('/refresh-token', refreshAccessToken);
 router.get('/me', verifyJWT, getMe);
 router.post('/logout', logout);
 router.patch('/profile', verifyJWT, avatarUpload.single('avatar'), updateProfile);

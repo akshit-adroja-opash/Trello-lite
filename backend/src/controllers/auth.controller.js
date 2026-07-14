@@ -324,3 +324,39 @@ export const revokeSession = async (req, res, next) => {
     next(error);
   }
 };
+
+import jwt from 'jsonwebtoken';
+export const refreshAccessToken = async (req, res, next) => {
+  try {
+    const incomingToken = req.cookies?.token;
+    if (!incomingToken) {
+      throw new ApiError(401, "No token found in cookies");
+    }
+
+    const decodedToken = jwt.verify(incomingToken, process.env.JWT_SECRET);
+    const user = await User.findById(decodedToken?.id);
+
+    if (!user) {
+      throw new ApiError(401, "Invalid token");
+    }
+
+    const session = await Session.findOne({ userId: user._id, token: incomingToken });
+    if (!session) {
+      throw new ApiError(401, "Session has been revoked or expired");
+    }
+
+    const newToken = generateToken(user._id);
+    session.token = newToken;
+    session.lastActive = new Date();
+    await session.save();
+
+    res.cookie("token", newToken);
+
+    res.status(200).json({
+      status: "success",
+      data: { accessToken: newToken }
+    });
+  } catch (error) {
+    next(new ApiError(401, error?.message || "Invalid or expired token"));
+  }
+};
