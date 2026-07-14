@@ -342,7 +342,7 @@ const BoardTimelineView = ({ boardId, filteredCards, columns = [] }) => {
                 <div className="flex flex-1 overflow-auto">
                     {/* Row Labels (Left Column) */}
                     <div className="w-64 border-r border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-900/60 sticky left-0 z-20 shrink-0">
-                        <div className="h-14 flex items-center px-4 border-b border-slate-200 dark:border-slate-700 font-mono text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider bg-slate-100/80 dark:bg-slate-900/80 font-bold select-none">
+                        <div className="h-14 flex items-center px-4 border-b border-slate-200 dark:border-slate-700 font-mono text-xs text-slate-500 dark:text-slate-400 capitalize tracking-wider bg-slate-100/80 dark:bg-slate-900/80 font-bold select-none">
                             {groupBy === 'column' ? 'Board Columns / Status' : 'Team Members / Assignees'}
                         </div>
 
@@ -412,7 +412,7 @@ const BoardTimelineView = ({ boardId, filteredCards, columns = [] }) => {
                                             isToday ? 'bg-blue-500/10 dark:bg-blue-500/20' : isWeekend ? 'bg-slate-50/60 dark:bg-slate-900/40 opacity-80' : ''
                                         }`}
                                     >
-                                        <span className={`text-[10px] uppercase font-mono tracking-wider ${
+                                        <span className={`text-[10px] capitalize font-mono tracking-wider ${
                                             isToday ? 'text-blue-600 dark:text-blue-400 font-bold' : 'text-slate-400 dark:text-slate-500'
                                         }`}>
                                             {date.toLocaleDateString(undefined, { weekday: 'short' })}
@@ -517,7 +517,7 @@ const BoardTimelineView = ({ boardId, filteredCards, columns = [] }) => {
                     <div className="p-3.5 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/60 flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
                             <span className="material-symbols-outlined text-blue-600 dark:text-blue-400 text-lg">inventory_2</span>
-                            <h3 className="font-bold text-sm uppercase tracking-tight text-slate-800 dark:text-slate-200">
+                            <h3 className="font-bold text-sm capitalize tracking-tight text-slate-800 dark:text-slate-200">
                                 Unscheduled ({unscheduledCards.length})
                             </h3>
                         </div>

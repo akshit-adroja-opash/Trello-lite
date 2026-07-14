@@ -120,7 +120,7 @@ export default function ClientDashboardPanel() {
                       <p className="font-body-sm font-semibold text-on-surface dark:text-white truncate">{card.title}</p>
                       <p className="font-body-sm text-[12px] text-on-surface-variant dark:text-slate-400 truncate">{card.board?.name}</p>
                     </div>
-                    <span className={`shrink-0 font-label-caps text-[10px] uppercase px-xs py-xs rounded ${cfg}`}>
+                    <span className={`shrink-0 font-label-caps text-[10px] capitalize px-xs py-xs rounded ${cfg}`}>
                       {card.priority?.slice(0, 3) || 'med'}
                     </span>
                   </div>

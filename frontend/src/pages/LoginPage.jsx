@@ -43,7 +43,7 @@ const LoginPage = () => {
 
           {/* Header Labels */}
           <div className="mb-8">
-            <p className="font-label-caps text-label-caps text-secondary mb-1 uppercase tracking-wider">SECURE GATEWAY</p>
+            <p className="font-label-caps text-label-caps text-secondary mb-1 capitalize tracking-wider">SECURE GATEWAY</p>
             <h1 className="font-headline-lg text-headline-lg text-primary dark:text-white">Sign in to your account</h1>
           </div>
 

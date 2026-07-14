@@ -380,7 +380,7 @@ const AnalyticsPage = () => {
                                                             <CountUpComponent end={efficiencyPercent} duration={1.5} />
                                                             <span className="text-[20px] text-on-surface-variant dark:text-slate-400">%</span>
                                                         </span>
-                                                        <span className={`font-label-caps text-[12px] font-bold tracking-wider uppercase ${efficiencyColor}`}>
+                                                        <span className={`font-label-caps text-[12px] font-bold tracking-wider capitalize ${efficiencyColor}`}>
                                                             {efficiencyLabel}
                                                         </span>
                                                     </div>
@@ -407,7 +407,7 @@ const AnalyticsPage = () => {
                                                     <div className="overflow-x-auto">
                                                         <table className="w-full text-left border-collapse">
                                                             <thead>
-                                                                <tr className="bg-surface-container-low dark:bg-slate-900/60 font-label-caps text-[12px] text-on-surface-variant dark:text-slate-400 border-b border-outline-variant dark:border-slate-700 uppercase tracking-wider">
+                                                                <tr className="bg-surface-container-low dark:bg-slate-900/60 font-label-caps text-[12px] text-on-surface-variant dark:text-slate-400 border-b border-outline-variant dark:border-slate-700 capitalize tracking-wider">
                                                                     <th className="p-4 font-semibold">Role</th>
                                                                     <th className="p-4 font-semibold">Active Members</th>
                                                                     <th className="p-4 font-semibold">Tasks Assigned</th>
@@ -430,7 +430,7 @@ const AnalyticsPage = () => {
                                                                         <td className="p-4">{row.tasksAssigned}</td>
                                                                         <td className="p-4">{row.avgCompletion}</td>
                                                                         <td className="p-4 text-right">
-                                                                            <span className={`px-2 py-1 rounded text-[11px] font-bold tracking-wide uppercase ${row.status === "Optimal" ? 'bg-emerald-500/10 text-emerald-500 dark:bg-emerald-500/20' : 'bg-red-500/10 text-red-500 dark:bg-red-500/20'}`}>
+                                                                            <span className={`px-2 py-1 rounded text-[11px] font-bold tracking-wide capitalize ${row.status === "Optimal" ? 'bg-emerald-500/10 text-emerald-500 dark:bg-emerald-500/20' : 'bg-red-500/10 text-red-500 dark:bg-red-500/20'}`}>
                                                                                 {row.status}
                                                                             </span>
                                                                         </td>
@@ -459,7 +459,7 @@ const KpiCard = ({ title, value, suffix = "", icon, iconColor, trendValue, trend
     return (
         <div className="bg-surface-container-lowest dark:bg-slate-800 p-6 rounded-lg border border-outline-variant dark:border-slate-700 shadow-soft">
             <div className="flex justify-between items-start mb-4">
-                <p className="font-label-caps text-[12px] font-semibold text-on-surface-variant dark:text-slate-400 uppercase tracking-wider">
+                <p className="font-label-caps text-[12px] font-semibold text-on-surface-variant dark:text-slate-400 capitalize tracking-wider">
                     {title}
                 </p>
                 <span className={`material-symbols-outlined ${iconColor}`}>{icon}</span>

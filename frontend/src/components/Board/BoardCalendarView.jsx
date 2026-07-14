@@ -215,7 +215,7 @@ const BoardCalendarView = ({ boardId, filteredCards }) => {
                 {/* Day of Week Headers */}
                 <div className="grid grid-cols-7 gap-1 mb-1 shrink-0 text-center">
                     {dayNames.map(day => (
-                        <div key={day} className="text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 py-2">
+                        <div key={day} className="text-xs font-extrabold capitalize tracking-wider text-slate-400 dark:text-slate-500 py-2">
                             {day}
                         </div>
                     ))}
@@ -282,7 +282,7 @@ const BoardCalendarView = ({ boardId, filteredCards }) => {
                 className="bg-slate-50/50 dark:bg-slate-900/20 rounded-3xl border border-slate-200 dark:border-slate-750/80 p-5 flex flex-col h-full overflow-hidden shadow-inner"
             >
                 <div className="shrink-0 mb-4">
-                    <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-455 dark:text-slate-400 flex items-center gap-2">
+                    <h3 className="text-sm font-extrabold capitalize tracking-wider text-slate-455 dark:text-slate-400 flex items-center gap-2">
                         <span className="material-symbols-outlined text-blue-600 dark:text-blue-400 text-[20px]">assignment_late</span>
                         Unscheduled Tasks
                     </h3>

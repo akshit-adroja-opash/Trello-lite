@@ -396,13 +396,13 @@ const DashboardPage = () => {
       <Modal isOpen={showCreateWs} title="Create Workspace" onClose={() => setShowCreateWs(false)} maxWidth="max-w-md">
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Workspace Name</label>
+            <label className="block text-xs font-bold capitalize tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Workspace Name</label>
             <input value={wsName} onChange={e => setWsName(e.target.value)}
               placeholder="e.g. Engineering, Marketing Automation" autoFocus
               className="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-secondary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 transition-all" />
           </div>
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Description <span className="text-slate-300 dark:text-slate-650 lowercase font-normal">(optional)</span></label>
+            <label className="block text-xs font-bold capitalize tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Description <span className="text-slate-300 dark:text-slate-650 lowercase font-normal">(optional)</span></label>
             <input value={wsDesc} onChange={e => setWsDesc(e.target.value)}
               placeholder="Briefly summarize operations inside this hub..."
               className="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-secondary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 transition-all" />
@@ -423,13 +423,13 @@ const DashboardPage = () => {
             <span className="text-white font-bold text-sm tracking-wide z-10 drop-shadow">{boardName.trim() || 'Untitled Board Theme'}</span>
           </div>
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Board Name</label>
+            <label className="block text-xs font-bold capitalize tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Board Name</label>
             <input value={boardName} onChange={e => setBoardName(e.target.value)}
               placeholder="e.g. Q3 Sprint Backlog" autoFocus
               className="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-secondary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 transition-all" />
           </div>
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Select Visual Wallpaper Theme</label>
+            <label className="block text-xs font-bold capitalize tracking-wider text-slate-500 dark:text-slate-400 mb-2">Select Visual Wallpaper Theme</label>
             <div className="grid grid-cols-4 gap-2.5">
               {BOARD_COLORS.map(c => (
                 <button key={c} onClick={() => setBoardColor(c)}
@@ -457,7 +457,7 @@ const DashboardPage = () => {
         <div className="space-y-4">
           {developers.length > 0 && (
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Available Users</label>
+              <label className="block text-xs font-bold capitalize tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Available Users</label>
               <div className="flex flex-wrap gap-2 max-h-28 overflow-y-auto p-1">
                 {developers.map(dev => (
                   <button
@@ -480,13 +480,13 @@ const DashboardPage = () => {
             </div>
           )}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Email Address</label>
+            <label className="block text-xs font-bold capitalize tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Email Address</label>
             <input value={inviteEmail} onChange={e => setInviteEmail(e.target.value)}
               type="email" placeholder="Trellolite@gmail.com" autoFocus
               className="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-secondary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 transition-all" />
           </div>
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Role</label>
+            <label className="block text-xs font-bold capitalize tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Role</label>
             <select value={inviteRole} onChange={e => setInviteRole(e.target.value)}
               className="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium focus:outline-none focus:border-secondary dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 transition-all cursor-pointer">
               <option value="client">Client</option>

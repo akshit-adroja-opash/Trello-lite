@@ -97,13 +97,13 @@ const MyTasksPage = () => {
     const renderPriorityBadge = (prio) => {
         switch (prio) {
             case 'urgent':
-                return <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold tracking-wide bg-error-container dark:bg-error-container/20 text-on-error-container dark:text-red-400 uppercase">Urgent</span>;
+                return <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold tracking-wide bg-error-container dark:bg-error-container/20 text-on-error-container dark:text-red-400 capitalize">Urgent</span>;
             case 'high':
-                return <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold tracking-wide bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-400 uppercase">High</span>;
+                return <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold tracking-wide bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-400 capitalize">High</span>;
             case 'medium':
-                return <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold tracking-wide bg-secondary-fixed dark:bg-secondary-fixed/20 text-on-secondary-fixed dark:text-blue-400 uppercase">Medium</span>;
+                return <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold tracking-wide bg-secondary-fixed dark:bg-secondary-fixed/20 text-on-secondary-fixed dark:text-blue-400 capitalize">Medium</span>;
             default:
-                return <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold tracking-wide bg-tertiary-fixed dark:bg-tertiary-fixed/20 text-on-tertiary-fixed dark:text-emerald-400 uppercase">Low</span>;
+                return <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold tracking-wide bg-tertiary-fixed dark:bg-tertiary-fixed/20 text-on-tertiary-fixed dark:text-emerald-400 capitalize">Low</span>;
         }
     };
 
@@ -116,7 +116,7 @@ const MyTasksPage = () => {
                     <div className="flex items-center gap-2 font-label-caps text-[12px] text-on-surface-variant dark:text-slate-400">
                         <span>{card.board?.name || 'Board'}</span>
                         <span className="material-symbols-outlined text-[14px]">chevron_right</span>
-                        <span className="text-secondary dark:text-blue-400 font-semibold uppercase">{card.column?.name || 'Column'}</span>
+                        <span className="text-secondary dark:text-blue-400 font-semibold capitalize">{card.column?.name || 'Column'}</span>
                     </div>
                     <h3 onClick={() => setSelectedCard(card)} className="font-title-md text-[20px] text-primary dark:text-white cursor-pointer hover:text-secondary transition-colors">
                         {card.title}
@@ -125,21 +125,21 @@ const MyTasksPage = () => {
                         {renderPriorityBadge(card.priority)}
 
                         {card.dueDate && (
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold tracking-wide uppercase ${isOverdue ? 'bg-error-container dark:bg-error-container/20 text-on-error-container dark:text-red-400' : 'bg-surface-container-high dark:bg-slate-700 text-on-surface dark:text-slate-300'}`}>
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold tracking-wide capitalize ${isOverdue ? 'bg-error-container dark:bg-error-container/20 text-on-error-container dark:text-red-400' : 'bg-surface-container-high dark:bg-slate-700 text-on-surface dark:text-slate-300'}`}>
                                 <span className="material-symbols-outlined text-[12px] mr-1">calendar_today</span>
                                 {new Date(card.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                             </span>
                         )}
 
                         {card.blocked && card.blockedReason && (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold tracking-wide uppercase bg-error-container dark:bg-error-container/20 text-on-error-container dark:text-red-400">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold tracking-wide capitalize bg-error-container dark:bg-error-container/20 text-on-error-container dark:text-red-400">
                                 <span className="material-symbols-outlined text-[12px] mr-1">block</span>
                                 Blocked
                             </span>
                         )}
 
                         {card.reviewRequested && (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold tracking-wide uppercase bg-secondary-fixed dark:bg-secondary-fixed/20 text-on-secondary-fixed dark:text-blue-400">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold tracking-wide capitalize bg-secondary-fixed dark:bg-secondary-fixed/20 text-on-secondary-fixed dark:text-blue-400">
                                 <span className="material-symbols-outlined text-[12px] mr-1">rate_review</span>
                                 In Review
                             </span>
@@ -262,7 +262,7 @@ const MyTasksPage = () => {
                         <section className="flex flex-col gap-md mt-md">
                             <div className="flex items-center gap-2 border-b border-outline-variant dark:border-slate-700 pb-2">
                                 <span className="material-symbols-outlined text-error dark:text-red-400 text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>error</span>
-                                <h2 className="font-label-caps text-[12px] text-primary dark:text-white uppercase tracking-wider font-bold">High & Urgent Priority ({highUrgentTasks.length})</h2>
+                                <h2 className="font-label-caps text-[12px] text-primary dark:text-white capitalize tracking-wider font-bold">High & Urgent Priority ({highUrgentTasks.length})</h2>
                             </div>
 
                             {highUrgentTasks.map(renderCardRow)}
@@ -274,7 +274,7 @@ const MyTasksPage = () => {
                         <section className="flex flex-col gap-md mt-lg">
                             <div className="flex items-center gap-2 border-b border-outline-variant dark:border-slate-700 pb-2">
                                 <span className="material-symbols-outlined text-secondary dark:text-blue-400 text-[20px]">schedule</span>
-                                <h2 className="font-label-caps text-[12px] text-primary dark:text-white uppercase tracking-wider font-bold">Upcoming & Other Tasks ({upcomingTasks.length})</h2>
+                                <h2 className="font-label-caps text-[12px] text-primary dark:text-white capitalize tracking-wider font-bold">Upcoming & Other Tasks ({upcomingTasks.length})</h2>
                             </div>
 
                             {upcomingTasks.map(renderCardRow)}

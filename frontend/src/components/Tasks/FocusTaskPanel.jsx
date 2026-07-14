@@ -216,9 +216,9 @@ const FocusTaskPanel = ({ cards, initialIndex, onClose, onCardUpdated }) => {
                         {/* Task Header Card */}
                         <div className="bg-surface-container-lowest/95 dark:bg-slate-800/95 backdrop-blur-[8px] border border-outline-variant dark:border-slate-700 shadow-[0_4px_6px_-1px_rgba(15,23,42,0.05)] rounded-xl p-lg flex flex-col gap-md">
                             <div className="flex items-center gap-sm text-on-surface-variant dark:text-slate-400 font-label-caps">
-                                <span className="uppercase">{card.board?.name || 'Board'}</span>
+                                <span className="capitalize">{card.board?.name || 'Board'}</span>
                                 <span className="material-symbols-outlined text-sm">chevron_right</span>
-                                <span className="uppercase text-secondary dark:text-blue-400 font-bold">{card.column?.name || 'Column'}</span>
+                                <span className="capitalize text-secondary dark:text-blue-400 font-bold">{card.column?.name || 'Column'}</span>
                             </div>
                             <h1 className="font-headline-lg text-headline-lg text-primary dark:text-white leading-tight">{card.title}</h1>
                         </div>

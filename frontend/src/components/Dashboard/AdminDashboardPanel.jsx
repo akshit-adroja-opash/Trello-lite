@@ -111,7 +111,7 @@ function MemberChip({ member }) {
     <span className={`inline-flex items-center gap-xs px-sm py-xs rounded-full text-[11px] font-medium border ${cfg.chip} border-current/20`}>
       <span className="w-1.5 h-1.5 rounded-full bg-current" />
       {name}
-      <span className="font-label-caps text-[9px] uppercase ml-xs opacity-70">[{cfg.label}]</span>
+      <span className="font-label-caps text-[9px] capitalize ml-xs opacity-70">[{cfg.label}]</span>
     </span>
   );
 }

@@ -44,7 +44,7 @@ export default function WorkloadWidget({ workspaceId, data: propData }) {
               Team Workload Distribution
             </h3>
           </div>
-          <span className="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-300">
+          <span className="text-[11px] font-semibold capitalize tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-300">
             Active Load
           </span>
         </div>

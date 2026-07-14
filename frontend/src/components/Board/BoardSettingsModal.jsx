@@ -70,7 +70,7 @@ const BoardSettingsModal = ({ board, isOpen, onClose, onBoardUpdated }) => {
     >
       <form onSubmit={handleSave} className="space-y-6 pt-sm">
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Board Title</label>
+          <label className="block text-xs font-bold capitalize tracking-wider text-slate-500 dark:text-slate-400 mb-2">Board Title</label>
           <input
             type="text"
             value={name}
@@ -82,7 +82,7 @@ const BoardSettingsModal = ({ board, isOpen, onClose, onBoardUpdated }) => {
         </div>
 
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2.5">Background Theme</label>
+          <label className="block text-xs font-bold capitalize tracking-wider text-slate-500 dark:text-slate-400 mb-2.5">Background Theme</label>
           <div className="grid grid-cols-3 gap-3">
             {BOARD_COLORS.map(color => (
               <button

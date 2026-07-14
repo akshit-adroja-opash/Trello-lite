@@ -662,7 +662,7 @@ const BoardPage = () => {
             {showFilters && (
                 <div className="bg-white dark:bg-slate-850 border-b border-slate-150 dark:border-slate-800 px-6 py-4 grid grid-cols-1 md:grid-cols-4 gap-6 items-start shrink-0">
                     <div data-purpose="filter-labels">
-                        <span className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Labels</span>
+                        <span className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 capitalize tracking-wider mb-2">Labels</span>
                         {uniqueLabels.length === 0 ? (
                             <p className="text-sm text-slate-500 dark:text-slate-400 italic font-medium">No labels on this board</p>
                         ) : (
@@ -684,7 +684,7 @@ const BoardPage = () => {
                         )}
                     </div>
                     <div data-purpose="filter-assignees">
-                        <span className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Assignees</span>
+                        <span className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 capitalize tracking-wider mb-2">Assignees</span>
                         {uniqueAssignees.length === 0 ? (
                             <p className="text-sm text-slate-500 dark:text-slate-400 italic font-medium">No assignees on this board</p>
                         ) : (
@@ -709,7 +709,7 @@ const BoardPage = () => {
                         )}
                     </div>
                     <div data-purpose="filter-due-date">
-                        <span className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Due Date</span>
+                        <span className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 capitalize tracking-wider mb-2">Due Date</span>
                         <div className="space-y-1.5">
                             <label className="flex items-center text-xs text-slate-700 dark:text-slate-350 cursor-pointer">
                                 <input
@@ -744,7 +744,7 @@ const BoardPage = () => {
                         </div>
                     </div>
                     <div data-purpose="filter-sorting">
-                        <span className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Sort Cards By</span>
+                        <span className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 capitalize tracking-wider mb-2">Sort Cards By</span>
                         <select
                             value={sortBy}
                             onChange={e => setSortBy(e.target.value)}

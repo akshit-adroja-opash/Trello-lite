@@ -164,7 +164,7 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
           {activeTab === 'general' && (
             <form onSubmit={handleSaveInfo} className="space-y-6">
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3" htmlFor="workspace-name">
+                <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 capitalize tracking-widest mb-3" htmlFor="workspace-name">
                   Workspace Name
                 </label>
                 <input
@@ -180,7 +180,7 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3" htmlFor="description">
+                <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 capitalize tracking-widest mb-3" htmlFor="description">
                   Description
                 </label>
                 <textarea

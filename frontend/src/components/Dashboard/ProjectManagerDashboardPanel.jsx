@@ -9,7 +9,7 @@ function CardRow({ card, showReason }) {
   const cfg = PRIORITY_CHIP_STYLES[card.priority] || PRIORITY_CHIP_STYLES.medium;
   return (
     <div className="flex items-start gap-sm px-md py-sm rounded-lg bg-surface-container-low dark:bg-slate-700/50 hover:bg-surface-container dark:hover:bg-slate-700 transition-colors">
-      <span className={`shrink-0 mt-0.5 font-label-caps text-label-caps uppercase text-[10px] px-xs py-xs rounded ${cfg}`}>
+      <span className={`shrink-0 mt-0.5 font-label-caps text-label-caps capitalize text-[10px] px-xs py-xs rounded ${cfg}`}>
         {card.priority?.slice(0, 3) || 'med'}
       </span>
       <div className="flex-1 min-w-0">

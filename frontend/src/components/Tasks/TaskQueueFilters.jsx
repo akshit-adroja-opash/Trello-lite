@@ -18,7 +18,7 @@ const TaskQueueFilters = ({ filters, onChange }) => {
         <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all duration-200">
             {/* Filter controls */}
             <div className="flex flex-wrap items-center gap-3">
-                <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1.5 shrink-0">
+                <span className="text-xs font-bold text-slate-400 dark:text-slate-500 capitalize tracking-wider flex items-center gap-1.5 shrink-0">
                     <span className="material-symbols-outlined text-sm">filter_list</span>
                     Filter By
                 </span>

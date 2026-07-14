@@ -127,7 +127,7 @@ const SupportPage = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Your Name</label>
+                  <label className="block text-xs font-bold capitalize tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Your Name</label>
                   <input
                     value={contactForm.name} onChange={e => setContactForm({ ...contactForm, name: e.target.value })}
                     placeholder="John Doe" required
@@ -135,7 +135,7 @@ const SupportPage = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Email Address</label>
+                  <label className="block text-xs font-bold capitalize tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Email Address</label>
                   <input
                     value={contactForm.email} onChange={e => setContactForm({ ...contactForm, email: e.target.value })}
                     type="email" placeholder="you@example.com" required
@@ -144,7 +144,7 @@ const SupportPage = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Message</label>
+                <label className="block text-xs font-bold capitalize tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Message</label>
                 <textarea
                   value={contactForm.message} onChange={e => setContactForm({ ...contactForm, message: e.target.value })}
                   placeholder="Describe your issue or question..." required rows={4}

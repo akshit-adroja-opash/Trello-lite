@@ -437,7 +437,7 @@ const AssignTaskPage = () => {
                                                                 </div>
                                                                 <div className="flex flex-col">
                                                                     <span className="text-sm text-on-surface dark:text-white">{member.username}</span>
-                                                                    <span className={`text-[10px] uppercase font-bold ${roleDetails.badgeTextClass}`}>{roleDetails.roleLabel}</span>
+                                                                    <span className={`text-[10px] capitalize font-bold ${roleDetails.badgeTextClass}`}>{roleDetails.roleLabel}</span>
                                                                 </div>
                                                             </div>
                                                             <span className="material-symbols-outlined text-outline dark:text-slate-500 text-[16px]">add</span>
@@ -542,7 +542,7 @@ const AssignTaskPage = () => {
                                 Cancel
                             </button>
                             <button
-                                className={`group relative px-xl py-sm bg-secondary hover:bg-secondary-container text-on-secondary font-body-md text-body-md font-medium rounded-lg shadow-sm transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-secondary flex items-center justify-center gap-sm overflow-hidden uppercase tracking-wider ${updating ? 'is-loading' : ''}`}
+                                className={`group relative px-xl py-sm bg-secondary hover:bg-secondary-container text-on-secondary font-body-md text-body-md font-medium rounded-lg shadow-sm transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-secondary flex items-center justify-center gap-sm overflow-hidden capitalize tracking-wider ${updating ? 'is-loading' : ''}`}
                                 style={{ backgroundColor: "#0058be" }}
                                 type="submit"
                                 disabled={updating}

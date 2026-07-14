@@ -226,7 +226,7 @@ const ColumnItem = ({ column, cards, searchQuery, filterLabel, onAddCard, boardI
                                 
                                 {showTemplateMenu && (
                                     <div className="absolute bottom-full left-0 mb-2 w-56 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl py-2 z-30 animate-in fade-in slide-in-from-bottom-2 duration-150">
-                                        <div className="px-3 py-1.5 border-b border-slate-100 dark:border-slate-700/60 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                                        <div className="px-3 py-1.5 border-b border-slate-100 dark:border-slate-700/60 text-[10px] font-extrabold text-slate-400 capitalize tracking-wider">
                                             Select Card Template
                                         </div>
                                         <div className="max-h-40 overflow-y-auto custom-scrollbar mt-1">

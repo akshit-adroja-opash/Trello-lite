@@ -94,7 +94,7 @@ const CardItem = ({ card, columnId, isDragging: externalDragging }) => {
                                         color: l.color,
                                         borderColor: `${l.color}30`
                                     }}
-                                    className="text-[10px] font-extrabold px-2 py-0.5 rounded-md uppercase tracking-wider border"
+                                    className="text-[10px] font-extrabold px-2 py-0.5 rounded-md capitalize tracking-wider border"
                                 >
                                     {l.name}
                                 </span>

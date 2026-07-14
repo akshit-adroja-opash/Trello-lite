@@ -600,7 +600,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <span className="material-symbols-outlined text-sm text-secondary dark:text-indigo-400">attach_file</span>
-                                    <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 uppercase">Attachments</span>
+                                    <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 capitalize">Attachments</span>
                                 </div>
                                 {canEdit && (
                                     <label className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-650 hover:opacity-90 text-white rounded-lg transition-all text-xs font-bold cursor-pointer active:scale-95 shadow-sm border border-indigo-600/20">
@@ -672,7 +672,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                                                 <p className="text-xs font-bold text-slate-700 dark:text-slate-200 truncate" title={att.filename}>
                                                                     {att.filename}
                                                                 </p>
-                                                                <span className="shrink-0 px-1.5 py-0.5 text-[9px] font-extrabold bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 rounded uppercase">
+                                                                <span className="shrink-0 px-1.5 py-0.5 text-[9px] font-extrabold bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 rounded capitalize">
                                                                     v{att.version || 1}
                                                                 </span>
                                                             </div>
@@ -737,7 +737,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                                 {/* Version History Timeline/List */}
                                                 {openHistoryId === att._id && att.versions && att.versions.length > 0 && (
                                                     <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800 space-y-2">
-                                                        <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                                                        <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 capitalize tracking-wider flex items-center gap-1">
                                                             <span className="material-symbols-outlined text-[14px]">history</span>
                                                             <span>Version History</span>
                                                         </p>
@@ -811,12 +811,12 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                         <section className="space-y-4 bg-slate-100/50 dark:bg-slate-800/40 p-4 rounded-xl border border-slate-200/50 dark:border-slate-700/50">
                             <div className="flex items-center gap-2 pb-1 border-b border-slate-200/50 dark:border-slate-700/50">
                                 <span className="material-symbols-outlined text-sm text-secondary dark:text-indigo-400 font-bold">task_alt</span>
-                                <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 uppercase font-bold text-xs">Work Details</span>
+                                <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 capitalize font-bold text-xs">Work Details</span>
                             </div>
 
                             {/* Priority */}
                             <div className="space-y-1.5">
-                                <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Priority</label>
+                                <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 capitalize">Priority</label>
                                 <select
                                     value={priority}
                                     onChange={e => setPriority(e.target.value)}
@@ -832,7 +832,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
 
                             {/* Estimated Hours */}
                             <div className="space-y-1.5">
-                                <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Estimated Hours</label>
+                                <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 capitalize">Estimated Hours</label>
                                 <input
                                     type="number"
                                     min="0"
@@ -858,7 +858,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                         disabled={!canEdit}
                                         className="w-4 h-4 rounded text-rose-600 focus:ring-rose-500 border-slate-350 dark:border-slate-700 cursor-pointer"
                                     />
-                                    <label htmlFor="blocked-checkbox" className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase cursor-pointer select-none">
+                                    <label htmlFor="blocked-checkbox" className="text-[11px] font-bold text-slate-500 dark:text-slate-400 capitalize cursor-pointer select-none">
                                         Blocked / Waiting
                                     </label>
                                 </div>
@@ -884,7 +884,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                                     disabled={!canEdit}
                                     className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-355 dark:border-slate-700 cursor-pointer"
                                 />
-                                <label htmlFor="review-requested-checkbox" className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase cursor-pointer select-none">
+                                <label htmlFor="review-requested-checkbox" className="text-[11px] font-bold text-slate-500 dark:text-slate-400 capitalize cursor-pointer select-none">
                                     Review Requested
                                 </label>
                             </div>
@@ -894,7 +894,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                         <section className="space-y-2">
                             <div className="flex items-center gap-2">
                                 <span className="material-symbols-outlined text-sm text-secondary dark:text-indigo-400">calendar_today</span>
-                                <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 uppercase">Due Date</span>
+                                <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 capitalize">Due Date</span>
                             </div>
                             <div className="relative">
                                 <input
@@ -911,7 +911,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                         <section className="space-y-4">
                             <div className="flex items-center gap-2">
                                 <span className="material-symbols-outlined text-sm text-secondary dark:text-indigo-400">chat_bubble</span>
-                                <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 uppercase">Comments</span>
+                                <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 capitalize">Comments</span>
                             </div>
 
                             {/* Comment Feed */}
@@ -997,7 +997,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                         <section className="space-y-2.5">
                             <div className="flex items-center gap-2">
                                 <span className="material-symbols-outlined text-sm text-secondary dark:text-indigo-400">group</span>
-                                <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 uppercase">Assign Developer</span>
+                                <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 capitalize">Assign Developer</span>
                             </div>
 
                             <select
@@ -1040,7 +1040,7 @@ const CardDetail = ({ card: initialCard, columnId, onClose }) => {
                             <section className="space-y-2.5">
                                 <div className="flex items-center gap-2">
                                     <span className="material-symbols-outlined text-sm text-secondary dark:text-indigo-400">assignment_ind</span>
-                                    <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 uppercase">Current Assignees</span>
+                                    <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 capitalize">Current Assignees</span>
                                 </div>
                                 <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
                                     {workspaceMembers

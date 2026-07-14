@@ -42,7 +42,7 @@ const FilterSortPanel = ({
                 
                 {/* 1. Labels Filter */}
                 <div className="flex flex-col gap-2">
-                    <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                    <span className="text-xs font-extrabold capitalize tracking-wider text-slate-400 dark:text-slate-500">
                         Labels
                     </span>
                     <div className="flex flex-col gap-1.5 max-h-36 overflow-y-auto pr-2 scrollbar-thin">
@@ -73,7 +73,7 @@ const FilterSortPanel = ({
 
                 {/* 2. Assignees Filter */}
                 <div className="flex flex-col gap-2">
-                    <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                    <span className="text-xs font-extrabold capitalize tracking-wider text-slate-400 dark:text-slate-500">
                         Assignees
                     </span>
                     <div className="flex flex-col gap-1.5 max-h-36 overflow-y-auto pr-2 scrollbar-thin">
@@ -101,7 +101,7 @@ const FilterSortPanel = ({
 
                 {/* 3. Due Date Filter */}
                 <div className="flex flex-col gap-2">
-                    <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                    <span className="text-xs font-extrabold capitalize tracking-wider text-slate-400 dark:text-slate-500">
                         Due Date
                     </span>
                     <div className="flex flex-col gap-1.5">
@@ -132,7 +132,7 @@ const FilterSortPanel = ({
 
                 {/* 4. Sorting */}
                 <div className="flex flex-col gap-2">
-                    <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                    <span className="text-xs font-extrabold capitalize tracking-wider text-slate-400 dark:text-slate-500">
                         Sort Cards By
                     </span>
                     <div className="relative">

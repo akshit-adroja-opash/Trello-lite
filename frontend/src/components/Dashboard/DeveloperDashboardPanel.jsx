@@ -113,7 +113,7 @@ export default function DeveloperDashboardPanel() {
                         )}
                       </div>
                     </div>
-                    <span className={`shrink-0 font-label-caps text-[10px] uppercase px-xs py-xs rounded ${cfg}`}>
+                    <span className={`shrink-0 font-label-caps text-[10px] capitalize px-xs py-xs rounded ${cfg}`}>
                       {task.priority?.slice(0, 3) || 'med'}
                     </span>
                   </div>

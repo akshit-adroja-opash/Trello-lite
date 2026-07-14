@@ -247,19 +247,19 @@ export default function UserManagementPage() {
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-surface-bright dark:bg-slate-900/60 border-b border-outline-variant dark:border-slate-700">
-                      <th className="py-md px-lg font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 uppercase tracking-wider w-[25%]">
+                      <th className="py-md px-lg font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 capitalize tracking-wider w-[25%]">
                         User
                       </th>
-                      <th className="py-md px-lg font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 uppercase tracking-wider w-[25%]">
+                      <th className="py-md px-lg font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 capitalize tracking-wider w-[25%]">
                         Email
                       </th>
-                      <th className="py-md px-lg font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 uppercase tracking-wider w-[15%] text-center">
+                      <th className="py-md px-lg font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 capitalize tracking-wider w-[15%] text-center">
                         Workspaces
                       </th>
-                      <th className="py-md px-lg font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 uppercase tracking-wider w-[20%]">
+                      <th className="py-md px-lg font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 capitalize tracking-wider w-[20%]">
                         Active Role
                       </th>
-                      <th className="py-md px-lg font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 uppercase tracking-wider w-[15%] text-right font-medium">
+                      <th className="py-md px-lg font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 capitalize tracking-wider w-[15%] text-right font-medium">
                         Actions
                       </th>
                     </tr>

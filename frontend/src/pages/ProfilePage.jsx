@@ -228,7 +228,7 @@ const ProfilePage = () => {
                 <div className="absolute -bottom-24 left-1/2 -translate-x-1/2 w-full text-center">
                   <button 
                     onClick={() => fileRef.current?.click()}
-                    className="text-xs font-label-caps text-on-surface-variant dark:text-slate-400 uppercase tracking-widest hover:text-primary dark:hover:text-white transition-colors"
+                    className="text-xs font-label-caps text-on-surface-variant dark:text-slate-400 capitalize tracking-widest hover:text-primary dark:hover:text-white transition-colors"
                   >
                     Click avatar to change photo
                   </button>
@@ -253,7 +253,7 @@ const ProfilePage = () => {
                 
                 {/* Username Field */}
                 <div className="space-y-2">
-                  <label className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 ml-1 uppercase">USERNAME</label>
+                  <label className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 ml-1 capitalize">USERNAME</label>
                   <div className="relative group">
                     <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant dark:text-slate-400 text-lg">alternate_email</span>
                     <input 
@@ -268,7 +268,7 @@ const ProfilePage = () => {
 
                 {/* Email Field */}
                 <div className="space-y-2">
-                  <label className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 ml-1 uppercase">EMAIL ADDRESS</label>
+                  <label className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 ml-1 capitalize">EMAIL ADDRESS</label>
                   <div className="relative">
                     <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant dark:text-slate-400 text-lg">mail</span>
                     <input 
@@ -283,7 +283,7 @@ const ProfilePage = () => {
 
                 {/* Password Field */}
                 <div className="space-y-2">
-                  <label className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 ml-1 uppercase">
+                  <label className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 ml-1 capitalize">
                     NEW PASSWORD <span className="text-[10px] lowercase text-outline dark:text-slate-500 font-normal">(leave blank to keep current)</span>
                   </label>
                   <div className="relative">
@@ -300,7 +300,7 @@ const ProfilePage = () => {
 
                 {/* Confirm Password */}
                 <div className="space-y-2">
-                  <label className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 ml-1 uppercase">CONFIRM PASSWORD</label>
+                  <label className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400 ml-1 capitalize">CONFIRM PASSWORD</label>
                   <div className="relative">
                     <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant dark:text-slate-400 text-lg">history</span>
                     <input 
@@ -442,7 +442,7 @@ const ProfilePage = () => {
                             {getDeviceName(session.userAgent)}
                           </span>
                           {isCurrent && (
-                            <span className="bg-indigo-100 dark:bg-indigo-950/80 text-indigo-750 dark:text-indigo-300 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                            <span className="bg-indigo-100 dark:bg-indigo-950/80 text-indigo-750 dark:text-indigo-300 text-[10px] font-bold px-2 py-0.5 rounded-full capitalize tracking-wider">
                               Current
                             </span>
                           )}
