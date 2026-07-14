@@ -237,19 +237,21 @@ const NotificationSettingsPage = () => {
                     return (
                       <div
                         key={nt.type}
-                        className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-750/50 transition-colors group cursor-pointer"
+                        className="p-4 flex items-center gap-3 justify-between hover:bg-slate-50 dark:hover:bg-slate-750/50 transition-colors group cursor-pointer"
                         onClick={() => toggleType(nt.type)}
                       >
-                        <div className="flex items-center gap-4">
-                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center border ${nt.color}`}>
+                        <div className="flex items-center gap-4 flex-1 min-w-0">
+                          <div className={`w-10 h-10 shrink-0 rounded-lg flex items-center justify-center border ${nt.color}`}>
                             <span className="material-symbols-outlined text-[20px]">{nt.icon}</span>
                           </div>
-                          <div>
-                            <div className={`text-base font-medium text-slate-900 dark:text-white transition-colors ${nt.hoverText}`}>{nt.label}</div>
-                            <div className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{nt.description}</div>
+                          <div className="flex-1 min-w-0 pr-2">
+                            <div className={`text-base font-medium text-slate-900 dark:text-white transition-colors truncate ${nt.hoverText}`}>{nt.label}</div>
+                            <div className="text-sm text-slate-500 dark:text-slate-400 mt-0.5 break-words">{nt.description}</div>
                           </div>
                         </div>
-                        <Toggle checked={isEnabled} onChange={() => toggleType(nt.type)} colorTheme={nt.type.includes('WORKSPACE') && !nt.type.includes('REMOVE') ? 'emerald' : 'blue'} />
+                        <div className="shrink-0">
+                          <Toggle checked={isEnabled} onChange={() => toggleType(nt.type)} colorTheme={nt.type.includes('WORKSPACE') && !nt.type.includes('REMOVE') ? 'emerald' : 'blue'} />
+                        </div>
                       </div>
                     );
                   })}
@@ -264,19 +266,21 @@ const NotificationSettingsPage = () => {
                 </div>
                 <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden mt-4">
                   <div 
-                    className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-750/50 transition-colors group cursor-pointer"
+                    className="p-4 flex items-center gap-3 justify-between hover:bg-slate-50 dark:hover:bg-slate-750/50 transition-colors group cursor-pointer"
                     onClick={() => setEmailEnabled(prev => !prev)}
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20">
+                    <div className="flex items-center gap-4 flex-1 min-w-0">
+                      <div className="w-10 h-10 shrink-0 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20">
                         <span className="material-symbols-outlined text-[20px]">mark_email_unread</span>
                       </div>
-                      <div>
-                        <div className="text-base font-medium text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">Email Digest</div>
-                        <div className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Receive email notifications for important updates</div>
+                      <div className="flex-1 min-w-0 pr-2">
+                        <div className="text-base font-medium text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors truncate">Email Digest</div>
+                        <div className="text-sm text-slate-500 dark:text-slate-400 mt-0.5 break-words">Receive email notifications for important updates</div>
                       </div>
                     </div>
-                    <Toggle checked={emailEnabled} onChange={() => setEmailEnabled(prev => !prev)} colorTheme="emerald" />
+                    <div className="shrink-0">
+                      <Toggle checked={emailEnabled} onChange={() => setEmailEnabled(prev => !prev)} colorTheme="emerald" />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -301,26 +305,28 @@ const NotificationSettingsPage = () => {
                       return (
                         <div
                           key={board._id}
-                          className="p-4 pl-6 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-750/50 transition-colors group cursor-pointer"
+                          className="p-4 pl-6 flex items-center gap-3 justify-between hover:bg-slate-50 dark:hover:bg-slate-750/50 transition-colors group cursor-pointer"
                           onClick={() => toggleBoard(board._id)}
                         >
-                          <div className="flex items-center gap-4">
-                            <div>
-                              <div className="text-base font-medium text-slate-900 dark:text-white group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors">{board.name}</div>
-                              <div className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
+                          <div className="flex items-center gap-4 flex-1 min-w-0">
+                            <div className="flex-1 min-w-0 pr-2">
+                              <div className="text-base font-medium text-slate-900 dark:text-white group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors truncate">{board.name}</div>
+                              <div className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1 truncate">
                                 {isMuted ? (
-                                  <span className="text-amber-600 dark:text-amber-500 flex items-center gap-1 font-medium">
-                                    <span className="material-symbols-outlined text-[16px]">notifications_off</span> Muted
+                                  <span className="text-amber-600 dark:text-amber-500 flex items-center gap-1 font-medium truncate">
+                                    <span className="material-symbols-outlined shrink-0 text-[16px]">notifications_off</span> Muted
                                   </span>
                                 ) : (
-                                  <span className="flex items-center gap-1">
-                                    <span className="material-symbols-outlined text-[16px]">notifications_active</span> Receiving notifications
+                                  <span className="flex items-center gap-1 truncate">
+                                    <span className="material-symbols-outlined shrink-0 text-[16px]">notifications_active</span> Receiving notifications
                                   </span>
                                 )}
                               </div>
                             </div>
                           </div>
-                          <Toggle checked={!isMuted} onChange={() => toggleBoard(board._id)} colorTheme="amber" />
+                          <div className="shrink-0">
+                            <Toggle checked={!isMuted} onChange={() => toggleBoard(board._id)} colorTheme="amber" />
+                          </div>
                         </div>
                       );
                     })}
@@ -329,15 +335,15 @@ const NotificationSettingsPage = () => {
               </div>
 
               {/* Save Banner */}
-              <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 w-max max-w-2xl transition-all duration-500 ease-out z-50 ${hasChanges ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95 pointer-events-none'}`}>
-                <div className="flex items-center gap-6 p-2.5 pl-6 rounded-full bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl border border-slate-200/50 dark:border-slate-700/50 shadow-2xl">
+              <div className={`fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] sm:w-max max-w-2xl transition-all duration-500 ease-out z-50 ${hasChanges ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95 pointer-events-none'}`}>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-6 p-3 sm:p-2.5 sm:pl-6 rounded-2xl sm:rounded-full bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl border border-slate-200/50 dark:border-slate-700/50 shadow-2xl">
                   <div className="flex items-center gap-3 text-sm">
                     <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-500/20 flex items-center justify-center shrink-0">
                       <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-[18px]">info</span>
                     </div>
-                    <span className="text-slate-800 dark:text-slate-200 font-semibold tracking-tight whitespace-nowrap">You have unsaved changes</span>
+                    <span className="text-slate-800 dark:text-slate-200 font-semibold tracking-tight">You have unsaved changes</span>
                   </div>
-                  <div className="flex items-center gap-2 border-l border-slate-200 dark:border-slate-700 pl-4 pr-1">
+                  <div className="flex items-center justify-end gap-2 sm:border-l border-slate-200 dark:border-slate-700 sm:pl-4 sm:pr-1">
                     <button
                       onClick={() => {
                         setMutedTypes(original.mutedTypes);

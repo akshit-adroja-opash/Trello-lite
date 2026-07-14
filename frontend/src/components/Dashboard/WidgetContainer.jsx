@@ -165,12 +165,12 @@ export default function WidgetContainer({
 
       {/* Customize Modal / Drawer - Using createPortal to cover entire screen including Navbar and Sidebar */}
       {showCustomizeModal && typeof document !== 'undefined' && createPortal(
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-150">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm sm:p-4 animate-in fade-in duration-150">
           <div
-            className="bg-surface-container-lowest dark:bg-slate-800 rounded-2xl border border-outline-variant dark:border-slate-700 shadow-2xl max-w-md w-full p-6 space-y-6 animate-in zoom-in-95 duration-150"
+            className="bg-surface-container-lowest dark:bg-slate-800 sm:rounded-2xl sm:border border-outline-variant dark:border-slate-700 shadow-2xl max-w-md w-full h-full sm:h-auto p-4 sm:p-6 flex flex-col gap-4 sm:gap-6 animate-in zoom-in-95 duration-150"
             onClick={e => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between pb-3 border-b border-outline-variant dark:border-slate-700">
+            <div className="flex items-center justify-between pb-3 border-b border-outline-variant dark:border-slate-700 shrink-0">
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-primary text-xl">dashboard_customize</span>
                 <h3 className="font-title-md font-bold text-on-surface dark:text-white">
@@ -185,7 +185,7 @@ export default function WidgetContainer({
               </button>
             </div>
 
-            <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
+            <div className="flex-1 space-y-3 sm:max-h-[60vh] overflow-y-auto pr-1">
               <p className="text-xs text-on-surface-variant dark:text-slate-400 font-medium">
                 Toggle switches to show or hide widgets from your workspace view. Your preference is saved automatically.
               </p>

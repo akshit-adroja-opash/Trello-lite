@@ -31,11 +31,11 @@ const RegisterPage = () => {
     <div className="min-h-screen flex flex-col justify-between bg-background dark:bg-slate-900 grid-background selection:bg-secondary-fixed antialiased font-sans transition-colors duration-200">
       
       {/* Signup Container */}
-      <main className="flex-1 flex items-center justify-center px-4 py-12">
-        <div className="w-full max-w-[480px] bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 rounded-xl p-8 md:p-10 auth-card">
+      <main className="flex-1 flex flex-col sm:items-center justify-center sm:px-4 sm:py-12">
+        <div className="w-full max-w-[480px] flex-1 sm:flex-none flex flex-col justify-center bg-surface-container-lowest dark:bg-slate-800 border-0 sm:border border-outline-variant dark:border-slate-700 sm:rounded-xl p-4 sm:p-10 auth-card">
           
           {/* Brand Logo & Header */}
-          <div className="flex items-center gap-2 mb-8">
+          <div className="flex items-center gap-2 mb-4 sm:mb-8">
             <div className="w-10 h-10 bg-secondary rounded-lg flex items-center justify-center">
               <span className="material-symbols-outlined text-white" style={{ fontVariationSettings: "'FILL' 1" }}>dashboard_customize</span>
             </div>
@@ -43,13 +43,13 @@ const RegisterPage = () => {
           </div>
 
           {/* Header Labels */}
-          <div className="mb-8">
+          <div className="mb-4 sm:mb-8">
             <p className="font-label-caps text-label-caps text-secondary mb-1 capitalize tracking-wider">GET STARTED</p>
-            <h1 className="font-headline-lg text-headline-lg text-primary dark:text-white">Create your account</h1>
+            <h1 className="font-headline-lg text-2xl sm:text-headline-lg whitespace-nowrap tracking-tight text-primary dark:text-white">Create your account</h1>
           </div>
 
           {/* Signup Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
             
             {/* Username */}
             <div className="flex flex-col gap-1">
@@ -120,7 +120,7 @@ const RegisterPage = () => {
             </div>
 
             {/* Submit Action */}
-            <div className="pt-4">
+            <div className="pt-2 sm:pt-4">
               <button
                 type="submit"
                 disabled={loading}
@@ -139,7 +139,7 @@ const RegisterPage = () => {
           </form>
 
           {/* Secondary Action */}
-          <div className="mt-8 text-center">
+          <div className="mt-4 sm:mt-8 text-center">
             <p className="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400">
               Already have an account?{' '}
               <Link to="/login" className="text-secondary font-semibold hover:underline decoration-2 underline-offset-4 transition-all">Sign in</Link>

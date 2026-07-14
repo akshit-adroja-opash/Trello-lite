@@ -58,7 +58,7 @@ const NotificationDropdown = ({ onClose }) => {
             {/* Backdrop */}
             <div className="fixed inset-0 z-40" onClick={onClose} />
 
-            <div className="absolute right-0 top-12 z-50 w-[360px] sm:w-[380px] max-h-[480px] flex flex-col bg-surface-container-lowest dark:bg-slate-800 rounded-2xl shadow-elevated border border-outline-variant dark:border-slate-700 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="fixed inset-0 sm:inset-auto sm:absolute sm:right-0 sm:top-12 z-50 w-full sm:w-[380px] h-full sm:h-auto sm:max-h-[480px] flex flex-col bg-surface-container-lowest dark:bg-slate-800 sm:rounded-2xl shadow-elevated border-0 sm:border border-outline-variant dark:border-slate-700 overflow-hidden animate-in fade-in sm:slide-in-from-top-2 duration-200">
                 {/* Header */}
                 <div className="flex items-center justify-between px-5 py-4 border-b border-outline-variant dark:border-slate-700/80 bg-surface-container-low/40 dark:bg-slate-800/80 shrink-0">
                     <div className="flex items-center gap-2.5">

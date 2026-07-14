@@ -262,7 +262,7 @@ const AnalyticsPage = () => {
                                             icon: 'group_work',
                                             colSpan: 'col-span-1 md:col-span-1 lg:col-span-3',
                                             component: (
-                                                <div className="bg-surface-container-lowest dark:bg-slate-800 p-6 rounded-xl border border-outline-variant dark:border-slate-700 shadow-sm flex flex-col justify-between h-full min-h-[380px]">
+                                                <div className="bg-surface-container-lowest dark:bg-slate-800 p-4 sm:p-6 rounded-xl border border-outline-variant dark:border-slate-700 shadow-sm flex flex-col justify-between h-full min-h-[380px]">
                                                     <div>
                                                         <div className="flex justify-between items-center mb-6">
                                                             <h3 className="font-title-md text-[20px] font-bold text-on-surface dark:text-white">
@@ -284,18 +284,20 @@ const AnalyticsPage = () => {
                                                                     const blockedPct = ((dev.blockedCount || 0) / total) * 100;
 
                                                                     return (
-                                                                        <div key={idx} className="flex items-center gap-4">
-                                                                            <Avatar name={dev.username} avatar={dev.avatar} size={32} />
-                                                                            <div className="w-32 font-body-sm font-medium truncate dark:text-slate-300">
+                                                                        <div key={idx} className="flex items-center gap-2 sm:gap-4">
+                                                                            <div className="shrink-0">
+                                                                                <Avatar name={dev.username} avatar={dev.avatar} size={32} />
+                                                                            </div>
+                                                                            <div className="w-16 sm:w-auto sm:min-w-[80px] sm:max-w-[140px] shrink-0 font-body-sm font-medium truncate dark:text-slate-300">
                                                                                 {dev.username}
                                                                             </div>
-                                                                            <div className="flex-1 h-4 bg-slate-100 dark:bg-slate-750 rounded-full overflow-hidden flex">
+                                                                            <div className="flex-1 h-4 bg-slate-100 dark:bg-slate-750 rounded-full overflow-hidden flex min-w-[80px]">
                                                                                 {completedPct > 0 && <div className="h-full bg-status-completed transition-all duration-500" style={{ width: `${completedPct}%` }} title={`Completed: ${Math.round(completedPct)}%`} />}
                                                                                 {progressPct > 0 && <div className="h-full bg-status-progress transition-all duration-500" style={{ width: `${progressPct}%` }} title={`In Progress: ${Math.round(progressPct)}%`} />}
                                                                                 {reviewPct > 0 && <div className="h-full bg-status-review transition-all duration-500" style={{ width: `${reviewPct}%` }} title={`Review: ${Math.round(reviewPct)}%`} />}
                                                                                 {blockedPct > 0 && <div className="h-full bg-status-blocked transition-all duration-500" style={{ width: `${blockedPct}%` }} title={`Blocked: ${Math.round(blockedPct)}%`} />}
                                                                             </div>
-                                                                            <div className="w-12 text-right font-body-sm text-on-surface-variant dark:text-slate-400 font-semibold">
+                                                                            <div className="w-8 sm:w-10 shrink-0 text-right font-body-sm text-on-surface-variant dark:text-slate-400 font-semibold">
                                                                                 {Math.round(total)}
                                                                             </div>
                                                                         </div>
@@ -483,8 +485,8 @@ const KpiCard = ({ title, value, suffix = "", icon, iconColor, trendValue, trend
 const PipelineRow = ({ label, count, maxCount, colorClass }) => {
     const widthPct = maxCount > 0 ? (count / maxCount) * 100 : 0;
     return (
-        <div className="flex items-center gap-4">
-            <div className="w-32 font-label-caps text-[12px] text-on-surface-variant dark:text-slate-400 text-right tracking-wider">
+        <div className="flex items-center gap-3 sm:gap-4">
+            <div className="w-24 sm:w-28 shrink-0 font-label-caps text-[11px] sm:text-[12px] text-on-surface-variant dark:text-slate-400 text-right tracking-wider">
                 {label}
             </div>
             <div className="flex-1 h-6 bg-slate-100 dark:bg-slate-700/60 rounded overflow-hidden">
@@ -493,7 +495,7 @@ const PipelineRow = ({ label, count, maxCount, colorClass }) => {
                     style={{ width: `${widthPct}%` }}
                 ></div>
             </div>
-            <div className="w-12 font-body-sm text-on-surface dark:text-white font-semibold">
+            <div className="w-8 sm:w-10 shrink-0 text-right font-body-sm text-on-surface dark:text-white font-semibold">
                 {count}
             </div>
         </div>

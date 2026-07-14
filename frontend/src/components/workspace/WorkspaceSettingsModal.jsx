@@ -95,7 +95,7 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
       isOpen={true} 
       onClose={onClose} 
       maxWidth="max-w-[682px]" 
-      bodyClassName="p-0"
+      bodyClassName="p-0 flex flex-col"
     >
 
         {/* Header */}
@@ -158,7 +158,7 @@ const WorkspaceSettingsModal = ({ workspace, onClose, onWorkspaceUpdated }) => {
         </nav>
 
         {/* Content Section */}
-        <div className="p-6 max-h-[60vh] overflow-y-auto custom-scrollbar bg-white dark:bg-slate-800">
+        <div className="p-6 flex-1 sm:max-h-[60vh] overflow-y-auto custom-scrollbar bg-white dark:bg-slate-800">
 
           {/* General Tab */}
           {activeTab === 'general' && (

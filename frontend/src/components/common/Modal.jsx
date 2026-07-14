@@ -4,11 +4,11 @@ const Modal = ({ isOpen, onClose, title, icon, children, maxWidth = 'max-w-2xl',
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm px-4 py-6 transition-all animate-in fade-in duration-200" 
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm sm:px-4 sm:py-6 transition-all animate-in fade-in duration-200" 
       onClick={onClose}
     >
       <div 
-        className={`bg-surface-container-lowest dark:bg-slate-800 w-full ${maxWidth} rounded-2xl shadow-xl border border-outline-variant dark:border-slate-700 flex flex-col max-h-full animate-in zoom-in-95 duration-200`}
+        className={`bg-surface-container-lowest dark:bg-slate-800 w-full h-full sm:h-auto ${maxWidth} sm:rounded-2xl shadow-xl border-0 sm:border border-outline-variant dark:border-slate-700 flex flex-col max-h-full animate-in zoom-in-95 duration-200`}
         onClick={e => e.stopPropagation()}
       >
         {/* Header (optional, rendered if title or icon is provided) */}

@@ -77,7 +77,7 @@ export default function BurndownWidget({ timeline = [], totalCards = 0, complete
   return (
     <div className="bg-surface-container-lowest dark:bg-slate-800 p-6 rounded-xl border border-outline-variant dark:border-slate-700 shadow-sm flex flex-col justify-between h-full min-h-[360px]">
       <div>
-        <div className="flex justify-between items-center mb-6 flex-wrap gap-2">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-purple-600 dark:text-purple-400">trending_down</span>
             <div>
@@ -88,10 +88,10 @@ export default function BurndownWidget({ timeline = [], totalCards = 0, complete
             </div>
           </div>
 
-          <div className="flex gap-1 bg-surface-container dark:bg-slate-700/80 p-1 rounded-lg border border-outline-variant/60 dark:border-slate-600">
+          <div className="flex w-full sm:w-auto gap-1 bg-surface-container dark:bg-slate-700/80 p-1 rounded-lg border border-outline-variant/60 dark:border-slate-600">
             <button
               onClick={() => setViewMode('burndown')}
-              className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
+              className={`flex-1 sm:flex-none px-3 py-1 text-xs font-semibold rounded-md transition-all ${
                 viewMode === 'burndown'
                   ? 'bg-white dark:bg-slate-600 text-purple-600 dark:text-white shadow-xs'
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
@@ -101,7 +101,7 @@ export default function BurndownWidget({ timeline = [], totalCards = 0, complete
             </button>
             <button
               onClick={() => setViewMode('velocity')}
-              className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
+              className={`flex-1 sm:flex-none px-3 py-1 text-xs font-semibold rounded-md transition-all ${
                 viewMode === 'velocity'
                   ? 'bg-white dark:bg-slate-600 text-purple-600 dark:text-white shadow-xs'
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
@@ -166,19 +166,19 @@ export default function BurndownWidget({ timeline = [], totalCards = 0, complete
         </div>
       </div>
 
-      <div className="mt-4 pt-3 border-t border-outline-variant/60 dark:border-slate-700/60 flex items-center justify-between text-xs text-on-surface-variant dark:text-slate-400">
-        <div className="flex items-center gap-4">
+      <div className="mt-4 pt-3 border-t border-outline-variant/60 dark:border-slate-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 text-xs text-on-surface-variant dark:text-slate-400">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4">
           <div className="flex items-center gap-1.5 font-medium">
-            <span className="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
-            {viewMode === 'burndown' ? 'Actual Tasks' : 'Completed Cards'}
+            <span className="w-2.5 h-2.5 rounded-full bg-purple-500 shrink-0"></span>
+            <span>{viewMode === 'burndown' ? 'Actual Tasks' : 'Completed Cards'}</span>
           </div>
           {viewMode === 'burndown' && (
             <div className="flex items-center gap-1.5 font-medium">
-              <span className="w-2.5 h-0.5 bg-slate-400"></span> Ideal Burn
+              <span className="w-2.5 h-0.5 bg-slate-400 shrink-0"></span> <span>Ideal Burn</span>
             </div>
           )}
         </div>
-        <span className={`font-semibold ${statusColor}`}>{sprintStatus}</span>
+        <span className={`font-semibold shrink-0 ${statusColor}`}>{sprintStatus}</span>
       </div>
     </div>
   );
