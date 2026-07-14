@@ -29,8 +29,11 @@ const CardItem = ({ card, columnId, isDragging: externalDragging }) => {
         width: '100%',
     };
 
-    const isOverdue = card.dueDate && new Date(card.dueDate) < new Date();
-    const isDueSoon = card.dueDate && !isOverdue && (new Date(card.dueDate) - new Date()) < 86400000 * 2;
+    const column = board?.columns?.find(c => c._id === columnId);
+    const isDoneColumn = column?.name?.toLowerCase() === 'done';
+
+    const isOverdue = card.dueDate && new Date(card.dueDate) < new Date() && !isDoneColumn;
+    const isDueSoon = card.dueDate && !isOverdue && (new Date(card.dueDate) - new Date()) < 86400000 * 2 && !isDoneColumn;
     const doneItems = card.checklist?.filter(i => i.done).length || 0;
     const totalItems = card.checklist?.length || 0;
     const progress = totalItems > 0 ? Math.round((doneItems / totalItems) * 100) : 0;

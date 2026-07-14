@@ -177,9 +177,19 @@ export const getOverdueCount = async (req, res, next) => {
         const Board = (await import('../models/Board.js')).default;
         const boards = await Board.find({ workspace: workspaceId }).select('_id');
         const boardIds = boards.map(b => b._id);
+        
+        // Exclude 'Done' columns
+        const Column = (await import('../models/Column.js')).default;
+        const doneColumns = await Column.find({ board: { $in: boardIds }, name: { $regex: /^done$/i } }).select('_id');
+        const doneColumnIds = doneColumns.map(c => c._id);
+
         // Count overdue cards
         const now = new Date();
-        const count = await Card.countDocuments({ board: { $in: boardIds }, dueDate: { $lt: now } });
+        const count = await Card.countDocuments({ 
+            board: { $in: boardIds }, 
+            column: { $nin: doneColumnIds },
+            dueDate: { $lt: now } 
+        });
         res.status(200).json({ status: 'success', data: { overdueCount: count } });
     } catch (err) {
         next(err);

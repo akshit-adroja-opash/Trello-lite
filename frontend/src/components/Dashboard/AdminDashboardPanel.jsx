@@ -38,7 +38,7 @@ function DonutChart({ segments }) {
       <div className="absolute inset-0 rounded-full"
         style={{ background: `conic-gradient(${gradient.join(', ')})` }} />
       {/* inner hole */}
-      <div className="absolute inset-0 rounded-full m-8 bg-surface-container-lowest dark:bg-slate-800 flex items-center justify-center flex-col gap-xs">
+      <div className="absolute inset-0 rounded-full m-5 bg-surface-container-lowest dark:bg-slate-800 flex items-center justify-center flex-col gap-xs">
         <span className="font-headline-lg text-headline-lg text-primary dark:text-white text-[20px] font-bold leading-none">
           {segments.reduce((a, s) => a + (s.count || 0), 0)}
         </span>
