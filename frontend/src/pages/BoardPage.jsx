@@ -266,7 +266,7 @@ const BoardPage = () => {
     };
 
     const handleDragEnd = useCallback(async ({ active, over }) => {
-        setActiveCard(null); 
+        setActiveCard(null);
         if (!over || active.id === over.id) return;
         if (boardRole === 'client') return;
         const activeType = active.data.current?.type;

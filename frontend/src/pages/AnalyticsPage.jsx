@@ -128,16 +128,16 @@ const AnalyticsPage = () => {
                     <div className="w-full max-w-[1440px]">
 
                         {/* Page Header & Controls */}
-                        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+                        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
                             <div>
-                                <h1 className="font-display-xl text-[48px] font-bold text-on-background dark:text-white leading-[56px] tracking-tight mb-1">
+                                <h1 className="font-display-xl text-4xl lg:text-[48px] font-bold text-on-background dark:text-white lg:leading-[56px] tracking-tight mb-1">
                                     Analytics Overview
                                 </h1>
                                 <p className="font-body-md text-body-md text-on-surface-variant dark:text-slate-400">
                                     Deep-dive tracking and performance metrics for your organization.
                                 </p>
                             </div>
-                            <div className="flex flex-row items-center gap-2 sm:gap-3 w-full sm:w-auto flex-wrap sm:flex-nowrap">
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto md:self-end">
                                 {workspaces.length > 0 && (
                                     <CustomSelect
                                         value={selectedWorkspaceId}
@@ -145,7 +145,7 @@ const AnalyticsPage = () => {
                                         options={workspaces.map(ws => ({ value: ws._id, label: ws.name }))}
                                         icon="workspaces"
                                         placeholder="Select Workspace"
-                                        className="flex-1 min-w-0 sm:flex-none"
+                                        className="w-full sm:w-auto"
                                         minWidth="min-w-0 sm:min-w-[170px]"
                                     />
                                 )}
@@ -161,13 +161,13 @@ const AnalyticsPage = () => {
                                     ]}
                                     icon="calendar_month"
                                     placeholder="Time Range"
-                                    className="flex-1 min-w-0 sm:flex-none"
+                                    className="w-full sm:w-auto"
                                     minWidth="min-w-0 sm:min-w-[140px]"
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowCustomizeModal(true)}
-                                    className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:gap-2 bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 text-body-sm font-medium text-on-surface dark:text-white rounded-lg px-3 sm:px-4 py-2 hover:border-secondary hover:ring-1 hover:ring-secondary/50 focus:border-secondary focus:ring-2 focus:ring-secondary/20 shadow-sm transition-all min-w-0 sm:min-w-[140px] shrink-0 cursor-pointer"
+                                    className="w-full sm:w-auto flex items-center justify-center gap-1.5 sm:gap-2 bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 text-body-sm font-medium text-on-surface dark:text-white rounded-lg px-3 sm:px-4 py-2 hover:border-secondary hover:ring-1 hover:ring-secondary/50 focus:border-secondary focus:ring-2 focus:ring-secondary/20 shadow-sm transition-all shrink-0 cursor-pointer"
                                 >
                                     <span className="material-symbols-outlined text-[18px] text-on-surface-variant dark:text-slate-400 shrink-0">tune</span>
                                     <span className="truncate">Customize View</span>
@@ -260,7 +260,7 @@ const AnalyticsPage = () => {
                                             id: 'workload',
                                             title: 'Workload Distribution',
                                             icon: 'group_work',
-                                            colSpan: 'col-span-1 md:col-span-1 lg:col-span-3',
+                                            colSpan: 'col-span-1 md:col-span-1 md:row-span-2 lg:col-span-3 lg:row-span-1',
                                             component: (
                                                 <div className="bg-surface-container-lowest dark:bg-slate-800 p-4 sm:p-6 rounded-xl border border-outline-variant dark:border-slate-700 shadow-sm flex flex-col justify-between h-full min-h-[380px]">
                                                     <div>
