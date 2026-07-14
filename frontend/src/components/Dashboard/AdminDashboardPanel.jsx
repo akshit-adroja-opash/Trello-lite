@@ -243,7 +243,7 @@ export default function AdminDashboardPanel() {
               label="Overdue & Blocked" icon="warning"
               value={overdueAndBlocked}
               sub="Needs Action"
-              subCls="text-on-error-container bg-error-container px-xs py-xs rounded"
+              subCls="text-on-error-container px-xs py-xs rounded"
               danger
             />
             <MetricCard
